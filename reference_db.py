@@ -1,0 +1,2696 @@
+# reference_db.py
+# Version 09.18.01.13 dated 20251031
+#
+# Class-based SQLite wrapper for references, thresholds, labels, and sorting projects
+# Extend:
+#   - Add optional face label column (e.g., label TEXT).
+#   - When mode="faces", each inserted image row should store its assigned label.
+#   - So the DB stays the single source of truth for both date-based and face-based grouping.
+#
+
+import sqlite3
+import os, time
+import io
+import shutil
+import json
+import argparse
+import traceback
+
+from datetime import datetime
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+DB_FILE = "reference_data.db"
+
+
+class ReferenceDB:
+    def __init__(self, db_file=DB_FILE):
+        self.db_file = db_file
+        self._ensure_db()
+
+        # Lazy cache to know if created_* columns exist (None = unknown)
+        self._created_cols_present = None        
+
+
+    # --- Initialization ---
+    def _ensure_db(self):
+        conn = sqlite3.connect(self.db_file)
+        c = conn.cursor()
+
+        # Reference images
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS reference_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filepath TEXT NOT NULL UNIQUE,
+                label TEXT NOT NULL
+            )
+        ''')
+
+        # Match audit logging
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS match_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filename TEXT NOT NULL,
+                matched_label TEXT,
+                confidence REAL,
+                match_mode TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Label thresholds
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS reference_labels (
+                label TEXT PRIMARY KEY,
+                folder_path TEXT NOT NULL,
+                threshold REAL DEFAULT 0.3
+            )
+        ''')
+
+        # --- NEW TABLES: Projects ---
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                folder TEXT NOT NULL,
+                mode TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS branches (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                branch_key TEXT NOT NULL,
+                display_name TEXT NOT NULL,
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+                UNIQUE(project_id, branch_key)
+            )
+        ''')
+
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS project_images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,                
+                branch_key TEXT,
+                image_path TEXT NOT NULL,
+                label TEXT,   -- ✅ new: optional label (face-based grouping)
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+            )
+        ''')
+
+        # --- face crops, with idempotent uniqueness ---
+        
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS face_crops (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                branch_key TEXT NOT NULL,
+                image_path TEXT NOT NULL,  -- original photo
+                crop_path  TEXT NOT NULL,  -- saved face-crop (thumbnail-sized OK)
+                is_representative INTEGER DEFAULT 0,
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+                UNIQUE(project_id, branch_key, crop_path)
+            )
+        ''')
+        
+
+        # --- MIGRATION: singular → plural table name if an older DB exists ---
+        # If 'face_crop' exists and 'face_crops' does not, rename it.
+        has_old = c.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='face_crop'"
+        ).fetchone()
+        has_new = c.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='face_crops'"
+        ).fetchone()
+        if has_old and not has_new:
+            c.execute("ALTER TABLE face_crop RENAME TO face_crops")
+
+
+        # --- Face crops (per-branch thumbnails; DB is the source of truth) ---
+
+        # helpful indexes
+        c.execute("CREATE INDEX IF NOT EXISTS idx_face_crops_proj ON face_crops(project_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_face_crops_proj_branch ON face_crops(project_id, branch_key)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_face_crops_proj_rep ON face_crops(project_id, is_representative)")
+
+        # --- NEW: reps table you already upsert into elsewhere ---
+        
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS face_branch_reps (
+                project_id INTEGER NOT NULL,
+                branch_key TEXT NOT NULL,
+                label TEXT,
+                count INTEGER DEFAULT 0,
+                centroid BLOB,
+                rep_path TEXT,          -- path to chosen rep crop on disk
+                rep_thumb_png BLOB,     -- optional in-DB PNG
+                PRIMARY KEY (project_id, branch_key),
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+            )
+        ''')
+        
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS export_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER,
+                branch_key TEXT,
+                photo_count INTEGER,
+                source_paths TEXT,
+                dest_paths TEXT,
+                dest_folder TEXT,
+                timestamp TEXT
+            )
+        ''')    
+                
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS photo_folders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                path TEXT UNIQUE NOT NULL,
+                parent_id INTEGER NULL,
+                FOREIGN KEY(parent_id) REFERENCES photo_folders(id)
+            )
+        ''')
+       
+        # photo_metadata: add metadata_status / metadata_fail_count columns at creation time for fresh DBs.
+#        c.execute('''
+#            CREATE TABLE IF NOT EXISTS photo_metadata (
+#                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                            path TEXT UNIQUE NOT NULL,
+#                            folder_id INTEGER NOT NULL,
+#                            size_kb REAL,
+#                            modified TEXT,
+#                            width INTEGER,
+#                            height INTEGER,
+#                            embedding BLOB,
+#                            date_taken TEXT,
+#                            tags TEXT,
+#                            updated_at TEXT,
+#                            FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
+#            )
+#        ''')
+
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS photo_metadata (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT UNIQUE NOT NULL,
+                folder_id INTEGER NOT NULL,
+                size_kb REAL,
+                modified TEXT,
+                width INTEGER,
+                height INTEGER,
+                embedding BLOB,
+                date_taken TEXT,
+                tags TEXT,
+                updated_at TEXT,
+                metadata_status TEXT DEFAULT 'pending',
+                metadata_fail_count INTEGER DEFAULT 0,
+                FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
+            )
+        ''')
+
+        # --- Tagging tables (new normalized structure) ---
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS tags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL COLLATE NOCASE
+            )
+        """)
+
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS photo_tags (
+                photo_id INTEGER NOT NULL,
+                tag_id   INTEGER NOT NULL,
+                PRIMARY KEY (photo_id, tag_id),
+                FOREIGN KEY (photo_id) REFERENCES photo_metadata(id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        )
+        """)
+
+        # Helpful indexes
+        c.execute("CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id)")
+
+        # --- Add missing columns dynamically if upgrading from older schema ---
+        existing_cols = [r[1] for r in c.execute("PRAGMA table_info(photo_metadata)")]
+        wanted_cols = {
+            "size_kb": "REAL",
+            "modified": "TEXT",
+            "embedding": "BLOB",
+            "date_taken": "TEXT",
+            "tags": "TEXT",
+            "updated_at": "TEXT",
+            "metadata_status": "TEXT DEFAULT 'pending'",
+            "metadata_fail_count": "INTEGER DEFAULT 0",
+        }
+        for col, col_type in wanted_cols.items():
+            if col not in existing_cols:
+                try:
+                    # Some SQLite versions don't accept column default expressions with ALTER TABLE, so split
+                    if col == "metadata_fail_count":
+                        c.execute(f"ALTER TABLE photo_metadata ADD COLUMN {col} INTEGER DEFAULT 0")
+                    elif col == "metadata_status":
+                        c.execute(f"ALTER TABLE photo_metadata ADD COLUMN {col} TEXT DEFAULT 'pending'")
+                    else:
+                        c.execute(f"ALTER TABLE photo_metadata ADD COLUMN {col} {col_type}")
+                except Exception:
+                    # best-effort: ignore if it fails (older DB locked, etc.)
+                    pass
+                    
+#                c.execute(f"ALTER TABLE photo_metadata ADD COLUMN {col} {col_type}")
+
+
+        # helpful indexes for date & metadata
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_date      ON photo_metadata(date_taken)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_modified  ON photo_metadata(modified)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_updated   ON photo_metadata(updated_at)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_folder    ON photo_metadata(folder_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_status    ON photo_metadata(metadata_status)")
+       
+
+        c.execute("CREATE INDEX IF NOT EXISTS idx_fbreps_proj ON face_branch_reps(project_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_fbreps_proj_branch ON face_branch_reps(project_id, branch_key)")
+        
+
+
+        # ---- helpful indexes (no-op if already present) ----
+        c.execute("CREATE INDEX IF NOT EXISTS idx_branches_project ON branches(project_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_branches_key ON branches(project_id, branch_key)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_projimgs_project ON project_images(project_id)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_projimgs_branch ON project_images(project_id, branch_key)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_projimgs_path ON project_images(image_path)")
+        
+        
+        conn.commit()
+        conn.close()
+
+    # --- Safe connection wrapper ---   
+    def _connect(self):
+        conn = sqlite3.connect(self.db_file)
+        conn.execute("PRAGMA foreign_keys = ON")
+        return conn
+        
+
+    # ---- New lightweight helpers for UI (fast SQL-backed) ----
+    def count_images_by_branch(self, project_id: int, branch_key: str) -> int:
+        """
+        Fast count for images associated with a branch (project_images table).
+        Returns 0 if none found.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT COUNT(*) FROM project_images
+                WHERE project_id = ? AND branch_key = ?
+            """, (project_id, branch_key))
+            row = cur.fetchone()
+            return int(row[0]) if row and row[0] is not None else 0
+
+    def get_all_folders(self) -> list[dict]:
+        """
+        Return all folders as list of dicts: {id, parent_id, path, name}.
+        Useful to build an in-memory tree quickly in the UI thread.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id, parent_id, path, name FROM photo_folders ORDER BY parent_id IS NOT NULL, parent_id, name")
+            rows = [{"id": r[0], "parent_id": r[1], "path": r[2], "name": r[3]} for r in cur.fetchall()]
+        return rows
+
+    def count_for_folder(self, folder_id: int) -> int:
+        """Alias for get_folder_photo_count / faster direct SQL for the UI."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
+            row = cur.fetchone()
+            return int(row[0]) if row and row[0] is not None else 0
+
+
+    # ======================================================
+    #           REFERENCE ENTRIES
+    # ======================================================
+
+    def rebuild_date_index(self, progress_cb=None):
+        """
+        Rebuild or refresh the date index used for date branches.
+        Optionally calls progress_cb(percentage) to report progress.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # Count total photos
+            total = cur.execute("SELECT COUNT(*) FROM photo_metadata").fetchone()[0]
+            if total == 0:
+                if progress_cb:
+                    progress_cb(100)
+                return
+
+            # Simple loop over photos to (re)index dates
+            done = 0
+            for row in cur.execute("SELECT id, capture_date FROM photo_metadata"):
+                photo_id, date_str = row
+                # --- place your actual date indexing logic here ---
+                # e.g. insert/update into a date index table
+                # (if you already have one, you can just skip this step)
+                done += 1
+                if progress_cb and total:
+                    progress_cb(int(done * 100 / total))
+
+            conn.commit()
+            if progress_cb:
+                progress_cb(100)
+
+
+    def merge_face_branches(self, project_id, src_branch, target_branch, keep_label=None):
+        """
+        Move all images from src_branch to target_branch for a given project.
+        Returns number of rows moved.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE project_images SET branch_key=?, label=? WHERE project_id=? AND branch_key=?",
+                (target_branch, keep_label, project_id, src_branch),
+            )
+            moved = cur.rowcount
+            conn.commit()
+            cur.close()
+            print(f"✅ merge_face_branches: moved {moved} images from {src_branch} → {target_branch} (project {project_id})")
+            return moved
+
+
+    def delete_branch(self, project_id, branch_key):
+        """
+        Delete a branch and all its associated entries from the DB.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key=?", (project_id, branch_key))
+            cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key=?", (project_id, branch_key))
+            conn.commit()
+            cur.close()
+            print(f"🗑️ delete_branch: removed branch '{branch_key}' from project {project_id}")
+
+ 
+    def insert_reference(self, filepath, label):
+        try:
+            with self._connect() as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO reference_entries (filepath, label) VALUES (?, ?)",
+                    (filepath, label)
+                )
+        except Exception as e:
+            print(f"[DB ERROR] insert_reference failed: {e}")
+
+    def get_all_references(self):
+        with self._connect() as conn:
+            return conn.execute("SELECT id, label, filepath FROM reference_entries").fetchall()
+
+    def delete_reference(self, filepath):
+        with self._connect() as conn:
+            conn.execute("DELETE FROM reference_entries WHERE filepath = ?", (filepath,))
+            
+            
+    def get_all_references_existing(self):
+        """Return only references whose files still exist."""
+        rows = self.get_all_references()
+        existing = [r for r in rows if os.path.isfile(r[2])]
+        return existing
+
+    def purge_missing_references(self) -> int:
+        """Delete reference entries whose files no longer exist. Returns count removed."""
+        rows = self.get_all_references()
+        removed = 0
+        with self._connect() as conn:
+            for _id, label, path in rows:
+                if not os.path.isfile(path):
+                    conn.execute("DELETE FROM reference_entries WHERE id = ?", (_id,))
+                    removed += 1
+        return removed
+
+
+    # ======================================================
+    #           MATCH AUDIT
+    # ======================================================
+    def log_match_result(self, filename, label, score, match_mode=None):
+        try:
+            with self._connect() as conn:
+                conn.execute(
+                    "INSERT INTO match_audit (filename, matched_label, confidence, match_mode) VALUES (?, ?, ?, ?)",
+                    (filename, label, score, match_mode)
+                )
+        except Exception as e:
+            print(f"[DB ERROR] log_match_result failed: {e}")
+
+    # ======================================================
+    #           LABELS
+    # ======================================================
+    def insert_or_update_label(self, label: str, folder_path: str, threshold: float = 0.3):
+        with self._connect() as conn:
+            conn.execute('''
+                INSERT INTO reference_labels (label, folder_path, threshold)
+                VALUES (?, ?, ?)
+                ON CONFLICT(label) DO UPDATE SET
+                    folder_path = excluded.folder_path,
+                    threshold = excluded.threshold
+            ''', (label, folder_path, threshold))
+
+    def get_all_labels(self):
+        with self._connect() as conn:
+            return [row[0] for row in conn.execute("SELECT DISTINCT label FROM reference_labels")]
+
+    def get_all_label_metadata(self):
+        with self._connect() as conn:
+            cur = conn.execute("SELECT label, folder_path, threshold FROM reference_labels")
+            return [{"label": row[0], "folder": row[1], "threshold": row[2]} for row in cur.fetchall()]
+
+    def get_label_folder(self, label: str):
+        with self._connect() as conn:
+            cur = conn.execute("SELECT folder_path FROM reference_labels WHERE label = ?", (label,))
+            row = cur.fetchone()
+            return row[0] if row else None
+
+    def get_threshold_for_label(self, label: str) -> float:
+        with self._connect() as conn:
+            cur = conn.execute("SELECT threshold FROM reference_labels WHERE label = ?", (label,))
+            row = cur.fetchone()
+            return row[0] if row else 0.3
+
+    def set_threshold_for_label(self, label: str, threshold: float):
+        with self._connect() as conn:
+            conn.execute("UPDATE reference_labels SET threshold = ? WHERE label = ?", (threshold, label))
+
+    def delete_label(self, label: str):
+        with self._connect() as conn:
+            conn.execute("DELETE FROM reference_labels WHERE label = ?", (label,))
+
+    # ======================================================
+    #           PROJECTS
+    # ======================================================
+    def create_project(self, name: str, folder: str, mode: str) -> int:
+        """Create a new project and return its ID."""
+        with self._connect() as conn:
+            cur = conn.execute(
+                '''
+                INSERT INTO projects (name, folder, mode, created_at)
+                VALUES (?, ?, ?, ?)
+                ''',
+                (name, folder, mode, datetime.now().isoformat())
+            )
+            return cur.lastrowid
+
+    def get_all_projects(self):
+        with self._connect() as conn:
+            cur = conn.execute("SELECT id, name, mode, created_at FROM projects ORDER BY created_at DESC")
+            return [{"id": row[0], "name": row[1], "mode": row[2], "created_at": row[3]} for row in cur.fetchall()]
+
+    def delete_project(self, project_id: int):
+        with self._connect() as conn:
+            conn.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+
+    # ======================================================
+    #           BRANCHES
+    # ======================================================
+    
+    def create_branch(self, project_id: int, branch_key: str, display_name: str) -> int:
+        """Create a branch if it doesn't exist already. Returns branch ID."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # check if it already exists
+            cur.execute(
+                "SELECT id FROM branches WHERE project_id = ? AND branch_key = ?",
+                (project_id, branch_key)
+            )
+            row = cur.fetchone()
+            if row:
+                return row[0]  # ✅ already exists — don't reinsert
+
+            cur.execute(
+                '''
+                INSERT INTO branches (project_id, branch_key, display_name)
+                VALUES (?, ?, ?)
+                ''',
+                (project_id, branch_key, display_name)
+            )
+            conn.commit()
+            return cur.lastrowid
+
+
+    # --- when mode="faces", branches come from labels
+    
+    def get_branches(self, project_id: int):
+        """
+        Return all branches for a project from the branches table.
+        Always ensures and returns 'all' at the top.
+        """
+        out = []
+        with self._connect() as conn:
+            cur = conn.execute(
+                "SELECT branch_key, display_name FROM branches WHERE project_id = ? ORDER BY branch_key",
+                (project_id,)
+            )
+            rows = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
+
+        # ensure 'all' exists and is first
+        has_all = any(r["branch_key"] == "all" for r in rows)
+        if not has_all:
+            out.append({"branch_key": "all", "display_name": "All Photos"})
+        else:
+            # move 'all' to front
+            out.append(next(r for r in rows if r["branch_key"] == "all"))
+            rows = [r for r in rows if r["branch_key"] != "all"]
+
+        out.extend(rows)
+        return out
+
+    # ---------- BRANCH UTILITIES (faces/date) ----------
+
+    # ======================================================
+    # 📁 FACE BRANCH MANAGEMENT HELPERS
+    # ======================================================
+
+    def delete_branches_for_project(self, project_id: int, prefix: str = "face_"):
+        """Delete all branches (and associated project_images) for a project that start with a given prefix."""
+        with self._connect() as conn:
+            # delete project_images for those branches
+            conn.execute(
+                '''
+                DELETE FROM project_images 
+                WHERE project_id = ? AND branch_key LIKE ?
+                ''',
+                (project_id, f"{prefix}%")
+            )
+            # delete branches themselves
+            conn.execute(
+                '''
+                DELETE FROM branches 
+                WHERE project_id = ? AND branch_key LIKE ?
+                ''',
+                (project_id, f"{prefix}%")
+            )
+            conn.commit()
+        print(f"🗑️ Deleted face branches with prefix '{prefix}' for project {project_id}")
+
+    # ======================================================
+    #           PROJECT IMAGES
+    # ======================================================
+    
+    # --- Accept Label
+    def add_project_image(self, project_id: int, image_path: str, branch_key: str = None, label: str = None) -> int:
+        """Insert an image into a branch for a project. Supports optional face label."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                '''
+                INSERT INTO project_images (project_id, image_path, branch_key, label)
+                VALUES (?, ?, ?, ?)
+                ''',
+                (project_id, image_path, branch_key, label)
+            )
+            conn.commit()
+            return cur.lastrowid
+
+
+    def get_project_images(self, project_id: int, branch_key: str = None):
+        """
+        Return image paths for a given project.
+        - If branch_key is 'all' or None → return all images.
+        - If branch_key starts with 'face_' → filter by that branch.
+        - If branch_key does NOT match any branch → try matching by label (for face branches like 'Person A').
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # 🟢 Case 1: all images (default view)
+            if branch_key is None or branch_key == "all" or branch_key == "__ALL__":
+                cur.execute(
+                    "SELECT image_path FROM project_images WHERE project_id = ?",
+                    (project_id,)
+                )
+                rows = cur.fetchall()
+                paths = [row[0] for row in rows]
+                print(f"📸 DEBUG: {len(paths)} images fetched for branch=all (project={project_id})")
+                return paths
+
+            # 🟠 Case 2: exact branch_key match (date-based or face_x)
+            cur.execute(
+                "SELECT image_path FROM project_images WHERE project_id = ? AND branch_key = ?",
+                (project_id, branch_key)
+            )
+            rows = cur.fetchall()
+            if rows:
+                paths = [row[0] for row in rows]
+                print(f"📸 DEBUG: {len(paths)} images fetched for branch={branch_key} (project={project_id})")
+                return paths
+
+            # 🔎 Case 3: fallback — maybe user clicked "Person A" which is a label, not a branch_key
+            cur.execute(
+                "SELECT image_path FROM project_images WHERE project_id = ? AND label = ?",
+                (project_id, branch_key)
+            )
+            rows = cur.fetchall()
+            if rows:
+                paths = [row[0] for row in rows]
+                print(f"📸 DEBUG: {len(paths)} images fetched for label={branch_key} (project={project_id})")
+                return paths
+
+            # ❌ Nothing found
+            print(f"⚠️ No images found for branch or label '{branch_key}' (project={project_id})")
+            return []
+
+        self.logger.debug(f"get_project_images(project={project_id}, branch={branch_key}) returned {len(rows)} rows")
+
+
+
+    def _trash_move_label_folder(folder_path):
+        try:
+            trash_dir = os.path.join(ROOT_DIR, ".trash")
+            os.makedirs(trash_dir, exist_ok=True)
+            folder_name = os.path.basename(folder_path.rstrip(os.sep))
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = os.path.join(trash_dir, f"{folder_name}_{timestamp}")
+            shutil.move(folder_path, backup_path)
+            return True, backup_path
+        except Exception as e:
+            return False, str(e)
+
+    # ======================================================
+    # 📁 FACE BRANCH MANAGEMENT HELPERS
+    # ======================================================
+
+    def delete_project_images_for_project(self, project_id: int):
+        """
+        🗑️ Delete all image records associated with a given project.
+        This is called before inserting new branches to ensure a clean state.
+        """
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM project_images WHERE project_id = ?",
+                (project_id,)
+            )
+            conn.commit()
+        print(f"🗑️ Cleared all project_images entries for project {project_id}")
+
+
+    def ensure_all_branch(self, project_id: int):
+        """Ensure that the 'all' branch exists for a project."""
+        with self._connect() as conn:
+            conn.execute(
+                '''
+                INSERT OR IGNORE INTO branches (project_id, branch_key, display_name)
+                VALUES (?, 'all', '📁 All Photos')
+                ''',
+                (project_id,)
+            )
+            conn.commit()
+        print(f"📁 Ensured 'all' branch exists for project {project_id}")
+
+
+    def ensure_branch(self, project_id: int, branch_key: str, display_name: str) -> int:
+        """Ensure a branch exists; create it if missing. Returns branch ID."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT id FROM branches WHERE project_id = ? AND branch_key = ?",
+                (project_id, branch_key)
+            )
+            row = cur.fetchone()
+            if row:
+                return row[0]
+            cur.execute(
+                '''
+                INSERT INTO branches (project_id, branch_key, display_name)
+                VALUES (?, ?, ?)
+                ''',
+                (project_id, branch_key, display_name)
+            )
+            conn.commit()
+            new_id = cur.lastrowid
+        print(f"📁 Ensured branch '{branch_key}' created for project {project_id}")
+        return new_id
+
+
+    def add_project_images_bulk(self, project_id: int, image_paths: list, branch_key: str = None, label: str = None):
+        """Insert many images into a branch efficiently. Ignores duplicates."""
+        if not image_paths:
+            return 0
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.executemany(
+                '''
+                INSERT OR IGNORE INTO project_images (project_id, image_path, branch_key, label)
+                VALUES (?, ?, ?, ?)
+                ''',
+                [(project_id, path, branch_key, label) for path in image_paths]
+            )
+            conn.commit()
+        print(f"📸 Bulk-inserted {len(image_paths)} images into branch '{branch_key}' (label={label}) for project {project_id}")
+        return len(image_paths)
+
+
+    # ======================================================
+    # 📁 Representative face per branch 
+    # ======================================================
+
+    def delete_face_branch_reps_for_project(self, project_id: int):
+        with self._connect() as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM face_branch_reps WHERE project_id=?", (project_id,))
+            con.commit()
+
+    def upsert_face_branch_rep(self, project_id: int, branch_key: str, label: str | None, count: int, centroid_bytes: bytes | None, rep_path: str | None, rep_thumb_png: bytes | None):
+        with self._connect() as con:
+            cur = con.cursor()
+            cur.execute("""
+                INSERT INTO face_branch_reps (project_id, branch_key, label, count, centroid, rep_path, rep_thumb_png)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(project_id, branch_key) DO UPDATE SET
+                    label=excluded.label,
+                    count=excluded.count,
+                    centroid=excluded.centroid,
+                    rep_path=excluded.rep_path,
+                    rep_thumb_png=excluded.rep_thumb_png
+            """, (project_id, branch_key, label, count, centroid_bytes, rep_path, rep_thumb_png))
+            con.commit()
+
+    def get_face_branch_reps(self, project_id: int) -> list[dict]:
+        with self._connect() as con:
+            cur = con.cursor()
+            cur.execute("""
+                SELECT branch_key, label, count, centroid, rep_path, rep_thumb_png
+                FROM face_branch_reps
+                WHERE project_id=?
+                ORDER BY branch_key ASC
+            """, (project_id,))
+            rows = cur.fetchall()
+            result = []
+            for branch_key, label, cnt, centroid, rep_path, rep_png in rows:
+                result.append({
+                    "id": branch_key,               # use branch_key like "face_0" as the tree iid
+                    "name": label or branch_key,    # label shown in the tree
+                    "count": cnt or 0,
+                    "centroid_bytes": centroid,
+                    "rep_path": rep_path,
+                    "rep_thumb_png": rep_png,       # bytes (PNG). UI will decode to PhotoImage
+                })
+            return result
+
+
+    # ======================================================
+    #           FACE CROPS / REPRESENTATIVES    
+    # ---------- FACE CROP HELPERS (PATH-BASED) ----------
+    # ======================================================
+
+    def clear_face_crops_for_project(self, project_id: int) -> None:
+        with self._connect() as con:
+            con.execute("DELETE FROM face_crops WHERE project_id = ?", (project_id,))
+
+
+    def add_face_crops_bulk(self, project_id: int, rows: list[tuple]) -> None:
+        """
+        rows: (branch_key, image_path, crop_path, is_representative: bool/int)
+        Idempotent thanks to UNIQUE(project_id, branch_key, crop_path).
+        """
+        if not rows:
+            return
+        with self._connect() as con:
+            con.executemany("""
+                INSERT OR IGNORE INTO face_crops (project_id, branch_key, image_path, crop_path, is_representative)
+                VALUES (?, ?, ?, ?, ?)
+            """, [(project_id, b, p, c, int(rep)) for (b, p, c, rep) in rows])
+
+
+    def get_face_branch_summary(self, project_id: int) -> list[dict]:
+        """
+        Return face-branch rows with a representative crop if present.
+        Looks first in face_crops (is_representative=1), then falls back to
+        face_branch_reps.rep_path if the first is missing.
+        """
+        sql = """
+        WITH reps AS (
+            SELECT branch_key, crop_path
+            FROM face_crops
+            WHERE project_id = ? AND is_representative = 1
+        ),
+        reps_fallback AS (
+            SELECT branch_key, rep_path AS crop_path
+            FROM face_branch_reps
+            WHERE project_id = ?
+        ),
+        counts AS (
+            SELECT branch_key, COUNT(*) AS cnt
+            FROM face_crops
+            WHERE project_id = ?
+            GROUP BY branch_key
+        )
+        SELECT b.branch_key,
+               b.display_name,
+               COALESCE(r.crop_path, rf.crop_path) AS rep_crop,
+               COALESCE(c.cnt, 0) AS face_count
+        FROM branches b
+        LEFT JOIN reps r          ON r.branch_key  = b.branch_key
+        LEFT JOIN reps_fallback rf ON rf.branch_key = b.branch_key
+        LEFT JOIN counts c        ON c.branch_key  = b.branch_key
+        WHERE b.project_id = ? AND b.branch_key LIKE 'face_%'
+        ORDER BY b.branch_key;
+        """
+        with self._connect() as con:
+            cur = con.execute(sql, (project_id, project_id, project_id, project_id))
+            return [{
+                "branch_key": row[0],
+                "display_name": row[1],
+                "rep_crop": row[2],
+                "count": row[3],
+            } for row in cur.fetchall()]
+
+
+    def reset_face_data_for_project(self, project_id: int):
+        """Deletes all face-related rows for a clean rebuild."""
+        with self._connect() as con:
+            con.execute("DELETE FROM face_crops WHERE project_id=?", (project_id,))
+            con.execute("DELETE FROM face_branch_reps WHERE project_id=?", (project_id,))
+            con.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
+            con.commit()
+        print(f"🧹 Reset all face data for project {project_id}.")
+
+
+    # ============================================================
+    # 🧠 DB helper for manual face merging
+    # ============================================================
+        
+    def merge_faces(self, project_id, target_label, face_ids):
+        """
+        Assigns selected face_crops (by id) to the same label (target_label).
+        After this, all these face_crops share that label in DB.
+        """
+        if not face_ids:
+            return 0
+
+        placeholders = ",".join("?" * len(face_ids))
+        query = f"UPDATE face_crops SET branch_key=?, is_representative=0 WHERE project_id=? AND id IN ({placeholders})"
+        params = [f"face_{target_label}", project_id] + face_ids
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(query, params)
+            updated = cur.rowcount
+            conn.commit()
+            print(f"✅ merge_faces: reassigned {updated} face_crops to label '{target_label}' (project {project_id})")
+            return updated
+
+
+    # ======================================================
+    #           FACE LABEL MERGE SUPPORT
+    # ======================================================
+    def merge_face_labels(self, target_label: str, source_labels: list[str], project_id: int | None = None):
+        """
+        Merge multiple face labels into a target label.
+        Moves all reference_entries and (optionally) project-related entries.
+        If project_id is provided, also merges project_images / face_crops / face_branch_reps.
+        """
+        if not source_labels:
+            return
+        with self._connect() as conn:
+            for src in source_labels:
+                if src == target_label:
+                    continue
+
+                # --- Global reference tables ---
+                conn.execute(
+                    "UPDATE reference_entries SET label = ? WHERE label = ?",
+                    (target_label, src)
+                )
+                conn.execute("DELETE FROM reference_labels WHERE label = ?", (src,))
+
+                # --- Project-scoped tables (optional) ---
+                if project_id is not None:
+                    # Update label fields in project_images
+                    conn.execute(
+                        "UPDATE project_images SET label = ? WHERE project_id = ? AND label = ?",
+                        (target_label, project_id, src)
+                    )
+                    # Update face_crops branch names
+                    conn.execute(
+                        "UPDATE face_crops SET branch_key = ? WHERE project_id = ? AND branch_key = ?",
+                        (f'face_{target_label}', project_id, f'face_{src}')
+                    )
+                    # Remove old representative branch rows
+                    conn.execute(
+                        "DELETE FROM face_branch_reps WHERE project_id = ? AND branch_key = ?",
+                        (project_id, f'face_{src}')
+                    )
+            conn.commit()
+
+
+    def rename_branch_display_name(self, project_id: int, branch_key: str, new_name: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE branches SET display_name = ? WHERE project_id = ? AND branch_key = ?",
+                (new_name, project_id, branch_key)
+            )
+            conn.commit()
+
+
+    def log_export_action(self, project_id, branch_key, count, source_paths, dest_paths, dest_folder):
+        """Archive export action in DB (minimal)."""
+        import json, datetime
+        ts = datetime.datetime.now().isoformat()
+        with self._connect() as conn:
+            conn.execute("""
+                INSERT INTO export_history (project_id, branch_key, photo_count, source_paths, dest_paths, dest_folder, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            project_id,
+            branch_key,
+            count,
+            json.dumps(source_paths),
+            json.dumps(dest_paths),
+            dest_folder,
+            ts
+        ))
+        conn.commit()
+
+
+    def scan_repository(self, repo_path: str):
+        """Recursively scan a photo repo and index in photo_folders and photo_metadata."""
+        repo = Path(repo_path).resolve()
+        if not repo.exists():
+            raise FileNotFoundError(f"Repository not found: {repo}")
+
+        supported_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.tif', '.tiff'}
+
+        def get_or_create_folder(conn, folder_path: Path):
+            parent_id = None
+            parent = folder_path.parent if folder_path.parent != folder_path else None
+            if parent and parent.exists():
+                cur = conn.cursor()
+                cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(parent),))
+                prow = cur.fetchone()
+                if prow:
+                    parent_id = prow[0]
+                else:
+                    parent_id = get_or_create_folder(conn, parent)
+
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(folder_path),))
+            row = cur.fetchone()
+            if row:
+                return row[0]
+            cur.execute(
+                "INSERT INTO photo_folders (parent_id, path, name) VALUES (?, ?, ?)",
+                (parent_id, str(folder_path), folder_path.name)
+            )
+            conn.commit()
+            return cur.lastrowid
+
+        with self._connect() as conn:
+            for root, dirs, files in os.walk(repo):
+                folder_path = Path(root)
+                folder_id = get_or_create_folder(conn, folder_path)
+                for f in files:
+                    p = folder_path / f
+                    if p.suffix.lower() not in supported_ext:
+                        continue
+                    stat = p.stat()
+                    size_kb = stat.st_size / 1024
+                    modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+                    conn.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, name, size_kb, modified, width, height, embedding, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id=excluded.folder_id,
+                            size_kb=excluded.size_kb,
+                            modified=excluded.modified,
+                            updated_at=excluded.updated_at
+                    """, (str(p), folder_id, p.name, size_kb, modified, modified))
+            conn.commit()
+
+
+    def get_child_folders(self, parent_id):
+        """
+        Return child folders for a given parent.
+        Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if parent_id is None:
+                cur.execute("""
+                    SELECT id, name FROM photo_folders
+                    WHERE parent_id IS NULL
+                    ORDER BY name
+                """)
+            else:
+                cur.execute("""
+                    SELECT id, name FROM photo_folders
+                    WHERE parent_id = ?
+                    ORDER BY name
+                """, (parent_id,))
+            rows = [{"id": r[0], "name": r[1]} for r in cur.fetchall()]
+        return rows
+
+
+    def get_images_by_folder(self, folder_id: int):
+        """Return list of image paths belonging to the given folder_id."""
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+                rows = [r[0] for r in cur.fetchall()]
+                print(f"[DB] get_images_by_folder({folder_id}) -> {len(rows)} paths")
+                return rows
+        except Exception as e:
+            print(f"[DB ERROR] get_images_by_folder failed: {e}")
+            return []
+
+    def count_photos_in_folder(self, folder_id: int) -> int:
+        with self._connect() as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            return cur.fetchone()[0] or 0
+
+    def update_folder_counts(self):
+        """Recalculate photo counts per folder for Sidebar display."""
+        with self._connect() as conn:
+            conn.execute("""
+                CREATE TEMP VIEW IF NOT EXISTS folder_counts AS
+                SELECT folder_id, COUNT(*) AS count
+                FROM photo_metadata
+                GROUP BY folder_id
+            """)
+            conn.commit()
+
+    def get_folder_photo_count(self, folder_id):
+        """Get photo count for a specific folder."""
+        with self._connect() as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            row = cur.fetchone()
+            return row[0] if row else 0
+
+
+    def get_images_by_branch(self, project_id: int, branch_key: str):
+        """
+        Return list of image paths based on branch selection.
+        Uses old project_images table for compatibility.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT image_path FROM project_images
+                WHERE project_id = ? AND branch_key = ?
+            """, (project_id, branch_key))
+            return [row[0] for row in cur.fetchall()]
+
+
+    def ensure_folder(self, path: str, name: str, parent_id: int | None):
+        """Return folder_id; create if not exists."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM photo_folders WHERE path=?", (path,))
+            row = cur.fetchone()
+            if row:
+                return row[0]
+            cur.execute(
+                "INSERT INTO photo_folders (name, path, parent_id) VALUES (?,?,?)",
+                (name, path, parent_id)
+            )
+            conn.commit()
+            return cur.lastrowid
+
+    def insert_or_update_photo(self, path, folder_id, size, mtime, width, height):
+        """Upsert into photo_metadata based on path."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM photo_metadata WHERE path=?", (path,))
+            row = cur.fetchone()
+            if row:
+                cur.execute("""
+                    UPDATE photo_metadata
+                    SET folder_id=?, size=?, mtime=?, width=?, height=?
+                    WHERE path=?
+                """, (folder_id, size, mtime, width, height, path))
+            else:
+                cur.execute("""
+                    INSERT INTO photo_metadata (path, folder_id, size, mtime, width, height)
+                    VALUES (?,?,?,?,?,?)
+                """, (path, folder_id, size, mtime, width, height))
+            conn.commit()
+
+    def get_photo_metadata_by_path(self, path: str):
+        """Return all metadata columns for a given photo path."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags
+                FROM photo_metadata
+                WHERE path = ?
+            """, (path,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            cols = [d[0] for d in cur.description]
+            return dict(zip(cols, row))
+
+
+    def upsert_photo_metadata_1st(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
+        """
+        Upsert row; if migration (created_* columns) exists, also write created_ts/date/year
+        derived from date_taken (preferred) or modified (fallback). If not migrated yet,
+        it safely uses the legacy column set.
+        This updated version also sets metadata_status to 'ok' and metadata_fail_count=0 if width/height are provided.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            ok_meta = (width is not None and height is not None) or (date_taken is not None)
+            if self._has_created_columns():
+                c_ts, c_date, c_year = self._normalize_created_fields(date_taken, modified)
+                if ok_meta:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                                                    created_ts, created_date, created_year, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            created_ts   = COALESCE(excluded.created_ts, created_ts),
+                            created_date = COALESCE(excluded.created_date, created_date),
+                            created_year = COALESCE(excluded.created_year, created_year),
+                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
+                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
+                    """, (
+                        path, folder_id, size_kb, modified, width, height,
+                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
+                        c_ts, c_date, c_year
+                    ))
+                else:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                                                    created_ts, created_date, created_year)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            created_ts   = COALESCE(excluded.created_ts, created_ts),
+                            created_date = COALESCE(excluded.created_date, created_date),
+                            created_year = COALESCE(excluded.created_year, created_year)
+                    """, (
+                        path, folder_id, size_kb, modified, width, height,
+                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
+                        c_ts, c_date, c_year
+                    ))
+            else:
+                if ok_meta:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
+                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
+                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                else:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at
+                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+            conn.commit()
+
+    # ---------------------------
+    # Metadata backfill helpers
+    # ---------------------------
+    def ensure_metadata_columns(self) -> None:
+        """
+        Idempotent: ensure metadata_status and metadata_fail_count exist.
+        Call before running any backfill jobs.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {r[1] for r in cur.fetchall()}
+            if "metadata_status" not in cols:
+                try:
+                    cur.execute("ALTER TABLE photo_metadata ADD COLUMN metadata_status TEXT DEFAULT 'pending'")
+                except Exception:
+                    pass
+            if "metadata_fail_count" not in cols:
+                try:
+                    cur.execute("ALTER TABLE photo_metadata ADD COLUMN metadata_fail_count INTEGER DEFAULT 0")
+                except Exception:
+                    pass
+            # ensure index
+            try:
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_meta_status    ON photo_metadata(metadata_status)")
+            except Exception:
+                pass
+            conn.commit()
+
+    def get_images_missing_metadata(self, limit: int | None = None, max_failures: int = 3) -> list[str]:
+        """
+        Return a list of photo paths that need metadata extraction.
+        Criteria:
+         - width IS NULL OR height IS NULL OR date_taken IS NULL
+         - OR metadata_status IN ('pending','failed_retry') and metadata_fail_count < max_failures
+        This allows re-trying transient failures up to max_failures.
+        """
+        q = """
+            SELECT path FROM photo_metadata
+            WHERE (width IS NULL OR height IS NULL OR date_taken IS NULL)
+               OR (metadata_status IN ('pending','failed_retry') AND COALESCE(metadata_fail_count,0) < ?)
+        """
+        params = [int(max_failures)]
+        if limit and limit > 0:
+            q += " LIMIT ?"
+            params.append(int(limit))
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(q, params)
+            rows = cur.fetchall()
+            return [r[0] for r in rows]
+
+    def mark_metadata_success(self, path: str, width: int | None, height: int | None, date_taken: str | None) -> bool:
+        """
+        Mark a row as successfully extracted: set width/height/date_taken, metadata_status='ok', metadata_fail_count=0.
+        Returns True on success.
+        """
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    UPDATE photo_metadata
+                    SET width = ?, height = ?, date_taken = ?, metadata_status = 'ok', metadata_fail_count = 0, updated_at = ?
+                    WHERE path = ?
+                """, (width, height, date_taken, time.strftime("%Y-%m-%d %H:%M:%S"), path))
+                conn.commit()
+            return True
+        except Exception as e:
+            safe = getattr(self, "safe_log", None)
+            if safe:
+                try:
+                    safe(f"[DB] mark_metadata_success failed for {path}: {e}")
+                except Exception:
+                    pass
+            return False
+
+    def mark_metadata_failure(self, path: str, error: str | None = None, max_retries: int = 3) -> bool:
+        """
+        Increment metadata_fail_count and set metadata_status to 'failed_retry' or 'failed' if threshold reached.
+        Also logs the error in match_audit (lightweight reuse).
+        """
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT COALESCE(metadata_fail_count,0) FROM photo_metadata WHERE path = ?", (path,))
+                row = cur.fetchone()
+                if not row:
+                    # missing row: nothing to mark
+                    return False
+                fail_count = (row[0] or 0) + 1
+                status = 'failed' if fail_count >= int(max_retries) else 'failed_retry'
+                cur.execute("""
+                    UPDATE photo_metadata
+                    SET metadata_fail_count = ?, metadata_status = ?, updated_at = ?
+                    WHERE path = ?
+                """, (fail_count, status, time.strftime("%Y-%m-%d %H:%M:%S"), path))
+                # lightweight logging in match_audit for diagnostic purposes
+                try:
+                    cur.execute("""
+                        INSERT INTO match_audit (filename, matched_label, confidence, match_mode)
+                        VALUES (?, ?, ?, ?)
+                    """, (path, f"[meta_fail:{status}]", None, error or "meta_backfill"))
+                except Exception:
+                    pass
+                conn.commit()
+            return True
+        except Exception as e:
+            safe = getattr(self, "safe_log", None)
+            if safe:
+                try:
+                    safe(f"[DB] mark_metadata_failure failed for {path}: {e}")
+                except Exception:
+                    pass
+            return False
+
+    def reset_metadata_failures(self, path: str) -> bool:
+        """Reset metadata status and fail count for manual retry."""
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+                cur.execute("UPDATE photo_metadata SET metadata_status='pending', metadata_fail_count=0 WHERE path = ?", (path,))
+                conn.commit()
+            return True
+        except Exception:
+            return False
+
+    def get_metadata_stats(self) -> dict:
+        """Return counts: pending, ok, failed_retry, failed, total_missing."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            stats = {}
+            for s in ("ok", "pending", "failed_retry", "failed"):
+                cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE metadata_status = ?", (s,))
+                stats[s] = cur.fetchone()[0] or 0
+            cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE width IS NULL OR height IS NULL OR date_taken IS NULL")
+            stats["missing_metadata"] = cur.fetchone()[0] or 0
+            return stats
+
+    # Keep existing methods below mostly unchanged — but ensure upsert_photo_metadata sets metadata_status ok when metadata present.
+    def upsert_photo_metadata(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
+        """
+        Upsert row; if migration (created_* columns) exists, also write created_ts/date/year
+        derived from date_taken (preferred) or modified (fallback). If not migrated yet,
+        it safely uses the legacy column set.
+        This updated version also sets metadata_status to 'ok' and metadata_fail_count=0 if width/height are provided.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            ok_meta = (width is not None and height is not None) or (date_taken is not None)
+            if self._has_created_columns():
+                c_ts, c_date, c_year = self._normalize_created_fields(date_taken, modified)
+                # When metadata is present, mark metadata_status ok
+                if ok_meta:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                                                    created_ts, created_date, created_year, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            created_ts   = COALESCE(excluded.created_ts, created_ts),
+                            created_date = COALESCE(excluded.created_date, created_date),
+                            created_year = COALESCE(excluded.created_year, created_year),
+                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
+                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
+                    """, (
+                        path, folder_id, size_kb, modified, width, height,
+                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
+                        c_ts, c_date, c_year
+                    ))
+                else:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                                                    created_ts, created_date, created_year)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            created_ts   = COALESCE(excluded.created_ts, created_ts),
+                            created_date = COALESCE(excluded.created_date, created_date),
+                            created_year = COALESCE(excluded.created_year, created_year)
+                    """, (
+                        path, folder_id, size_kb, modified, width, height,
+                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
+                        c_ts, c_date, c_year
+                    ))
+            else:
+                if ok_meta:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at,
+                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
+                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
+                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                else:
+                    cur.execute("""
+                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path) DO UPDATE SET
+                            folder_id = excluded.folder_id,
+                            size_kb   = excluded.size_kb,
+                            modified  = excluded.modified,
+                            width     = excluded.width,
+                            height    = excluded.height,
+                            date_taken= excluded.date_taken,
+                            tags      = excluded.tags,
+                            updated_at= excluded.updated_at
+                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+            conn.commit()
+
+
+    # --------------------------
+    # Date helpers & queries
+    # --------------------------
+    def _has_created_columns(self) -> bool:
+        """Detect once and cache whether created_* columns exist."""
+        if self._created_cols_present is not None:
+            return self._created_cols_present
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {r[1] for r in cur.fetchall()}
+            self._created_cols_present = all(c in cols for c in ("created_ts", "created_date", "created_year"))
+            return self._created_cols_present
+
+    def _normalize_created_fields(self, date_taken: str | None, modified: str | None):
+        """
+        Return (created_ts:int|None, created_date:'YYYY-MM-DD'|None, created_year:int|None).
+        Uses date_taken if parseable, else falls back to modified.
+        """
+        import datetime as dt
+        def parse_one(s: str | None):
+            if not s:
+                return None
+            fmts = [
+                "%Y:%m:%d %H:%M:%S",   # EXIF DateTimeOriginal
+                "%Y-%m-%d %H:%M:%S",
+                "%Y/%m/%d %H:%M:%S",
+                "%d.%m.%Y %H:%M:%S",
+                "%Y-%m-%d",
+            ]
+            for f in fmts:
+                try:
+                    return dt.datetime.strptime(s, f)
+                except Exception:
+                    pass
+            return None
+        t = parse_one(date_taken) or parse_one(modified)
+        if not t:
+            return (None, None, None)
+        ts = int(t.timestamp())
+        dstr = t.strftime("%Y-%m-%d")
+        return (ts, dstr, int(dstr[:4]))
+
+    # CLI migration entrypoint for metadata columns:
+    def ensure_created_date_fields(self) -> None:
+        """Add created_ts / created_date / created_year + indexes (idempotent)."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {row[1] for row in cur.fetchall()}
+            if "created_ts" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_ts INTEGER")
+            if "created_date" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_date TEXT")
+            if "created_year" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_year INTEGER")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_year  ON photo_metadata(created_year)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_date  ON photo_metadata(created_date)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_ts    ON photo_metadata(created_ts)")
+            conn.commit()
+
+    # For convenience we expose a small CLI to add metadata columns from the command line.
+    @staticmethod
+    def _cli():
+        ap = argparse.ArgumentParser(description="ReferenceDB utilities")
+        ap.add_argument("--migrate-metadata", action="store_true", help="Ensure metadata columns exist in photo_metadata")
+        ap.add_argument("--show-meta-stats", action="store_true", help="Show metadata status counts")
+        args = ap.parse_args()
+        db = ReferenceDB()
+        if args.migrate_metadata:
+            db.ensure_metadata_columns()
+            print("metadata columns ensured")
+        if args.show_meta_stats:
+            print(json.dumps(db.get_metadata_stats(), indent=2))
+
+
+    def list_years_with_counts(self) -> list[tuple[int, int]]:
+        """[(year, count)] newest first. Returns [] if migration not yet run."""
+        if not self._has_created_columns():
+            return []
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT created_year, COUNT(*)
+                FROM photo_metadata
+                WHERE created_year IS NOT NULL
+                GROUP BY created_year
+                ORDER BY created_year DESC
+            """)
+            return cur.fetchall()
+
+    def list_days_in_year(self, year: int) -> list[tuple[str, int]]:
+        """[(YYYY-MM-DD, count)] newest first. Returns [] if migration not yet run."""
+        if not self._has_created_columns():
+            return []
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT created_date, COUNT(*)
+                FROM photo_metadata
+                WHERE created_year = ?
+                GROUP BY created_date
+                ORDER BY created_date DESC
+            """, (year,))
+            return cur.fetchall()
+
+    def get_images_by_year(self, year: int) -> list[str]:
+        """All paths for a year. Returns [] if migration not yet run."""
+        if not self._has_created_columns():
+            return []
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT path
+                FROM photo_metadata
+                WHERE created_year = ?
+                ORDER BY created_ts ASC, path ASC
+            """, (year,))
+            return [r[0] for r in cur.fetchall()]
+
+    def get_images_by_date(self, ymd: str) -> list[str]:
+        """All paths for a day (YYYY-MM-DD). Returns [] if migration not yet run."""
+        if not self._has_created_columns():
+            return []
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT path
+                FROM photo_metadata
+                WHERE created_date = ?
+                ORDER BY created_ts ASC, path ASC
+            """, (ymd,))
+            return [r[0] for r in cur.fetchall()]
+
+
+# === BEGIN: Quick-date helpers =============================================
+
+    def optimize_indexes(self) -> None:
+        """Create helpful indexes (no-op if they already exist)."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_meta_date      ON photo_metadata(date_taken)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_meta_modified  ON photo_metadata(modified)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_meta_updated   ON photo_metadata(updated_at)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_meta_folder    ON photo_metadata(folder_id)")
+            conn.commit()
+
+    # -- internal: compute [start, end] iso dates for a quick key
+    def _date_window_for_key(self, quick_key: str) -> tuple[str | None, str | None, str]:
+        """
+        Returns (start_iso, end_iso, mode)
+        - mode 'meta'  -> filter by date(COALESCE(date_taken, modified))
+        - mode 'updated' -> filter by updated_at (Recently Indexed)
+        """
+        from datetime import datetime, timedelta, timezone
+        # local today (assume strings stored as local timestamps "YYYY-MM-DD HH:MM:SS")
+        today = datetime.now().date()
+        if quick_key == "date:today":
+            start = today
+            end = today
+            return (start.isoformat(), end.isoformat(), "meta")
+        if quick_key == "date:this-week":
+            # Monday as first day of week
+            start = today - timedelta(days=today.weekday())
+            end = today
+            return (start.isoformat(), end.isoformat(), "meta")
+        if quick_key == "date:this-month":
+            start = today.replace(day=1)
+            end = today
+            return (start.isoformat(), end.isoformat(), "meta")
+        if quick_key == "date:last-30d":
+            start = today - timedelta(days=29)
+            end = today
+            return (start.isoformat(), end.isoformat(), "meta")
+        if quick_key == "date:this-year":
+            start = today.replace(month=1, day=1)
+            end = today
+            return (start.isoformat(), end.isoformat(), "meta")
+        if quick_key in ("date:recent", "date:indexed-7d"):
+            # recent by UPDATED_AT (index-friendly)
+            start_dt = datetime.now() - timedelta(days=7)
+            return (start_dt.strftime("%Y-%m-%d %H:%M:%S"), None, "updated")
+        # unsupported → no window
+        return (None, None, "meta")
+
+    def _count_between_meta_dates(self, conn, start_iso: str, end_iso: str) -> int:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT COUNT(*)
+            FROM photo_metadata
+            WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+            """,
+            (start_iso, end_iso)
+        )
+        row = cur.fetchone()
+        return int(row[0] or 0)
+
+    def _paths_between_meta_dates(self, conn, start_iso: str, end_iso: str) -> list[str]:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT path
+            FROM photo_metadata
+            WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+            ORDER BY COALESCE(date_taken, modified) DESC, path
+            """,
+            (start_iso, end_iso)
+        )
+        return [r[0] for r in cur.fetchall()]
+
+    def _count_recent_updated(self, conn, start_ts: str) -> int:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT COUNT(*)
+            FROM photo_metadata
+            WHERE updated_at >= ?
+            """,
+            (start_ts,)
+        )
+        row = cur.fetchone()
+        return int(row[0] or 0)
+
+    def _paths_recent_updated(self, conn, start_ts: str) -> list[str]:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT path
+            FROM photo_metadata
+            WHERE updated_at >= ?
+            ORDER BY updated_at DESC, path
+            """,
+            (start_ts,)
+        )
+        return [r[0] for r in cur.fetchall()]
+
+    def get_quick_date_counts(self) -> list[dict]:
+        """
+        Return list of dicts: {key, label, count} for quick date branches.
+        """
+        QUICK = [
+            ("date:today",       "Today"),
+            ("date:this-week",   "This Week"),
+            ("date:this-month",  "This Month"),
+            ("date:last-30d",    "Last 30 Days"),
+            ("date:this-year",   "This Year"),
+            ("date:indexed-7d",  "Recently Indexed"),
+        ]
+        out = []
+        with self._connect() as conn:
+            for key, label in QUICK:
+                start, end, mode = self._date_window_for_key(key)
+                if mode == "updated":
+                    cnt = self._count_recent_updated(conn, start) if start else 0
+                else:
+                    cnt = self._count_between_meta_dates(conn, start, end) if start and end else 0
+                out.append({"key": key, "label": label, "count": cnt})
+        return out
+
+    def get_images_for_quick_key(self, key: str) -> list[str]:
+        """
+        Resolve a 'date:*' branch key (used in sidebar quick-date branches)
+        to actual photo paths from photo_metadata.
+        Supports date:today / date:this-week / date:this-month / date:last-30d /
+        date:this-year / date:indexed-7d / date:YYYY / date:YYYY-MM-DD
+        """
+        # Normalize and detect "date:YYYY" / "date:YYYY-MM-DD"
+        k = key.strip()
+        if k.startswith("date:"):
+            val = k[5:]
+        else:
+            val = k
+
+        # direct date buckets (year/day) via created_* columns
+        if len(val) == 4 and val.isdigit():
+            y = int(val)
+            return self.get_images_by_year(y)
+        if len(val) == 10 and val[4] == "-" and val[7] == "-":
+            return self.get_images_by_date(val)
+
+        # otherwise treat as a "quick window" key
+        start, end, mode = self._date_window_for_key(k)
+        with self._connect() as conn:
+            if mode == "updated":
+                return self._paths_recent_updated(conn, start) if start else []
+            if start and end:
+                return self._paths_between_meta_dates(conn, start, end)
+            return []
+
+    def get_images_by_month_str(self, ym: str):
+        """
+        Accepts 'YYYY-MM' (or lenient 'YYYY-M') and normalizes internally.
+        """
+        import re
+        ym = str(ym).strip()
+        m = re.match(r"^(\d{4})-(\d{1,2})$", ym)
+        if not m:
+            return []
+        y = int(m.group(1))
+        mo = int(m.group(2))
+        if mo < 1 or mo > 12:
+            return []
+        return self.get_images_by_month(y, mo)
+
+
+# === END: Quick-date helpers ===============================================
+
+
+    def build_date_branches(self):
+        """
+        Build branches for each created_date value in photo_metadata.
+        If they already exist, skip.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # get project (default first)
+            cur.execute("SELECT id FROM projects ORDER BY id LIMIT 1")
+            row = cur.fetchone()
+            if not row:
+                return 0
+            project_id = row[0]
+
+            # get unique dates
+            cur.execute("SELECT DISTINCT created_date FROM photo_metadata WHERE created_date IS NOT NULL")
+            dates = [r[0] for r in cur.fetchall()]
+
+            n_total = 0
+            for d in dates:
+                branch_key = f"by_date:{d}"
+                branch_name = d
+                # ensure branch exists
+                cur.execute(
+                    "INSERT OR IGNORE INTO branches (project_id, key, name, parent_key) VALUES (?,?,?,NULL)",
+                    (project_id, branch_key, branch_name),
+                )
+                # link photos
+                cur.execute(
+                    "SELECT path FROM photo_metadata WHERE created_date = ?", (d,)
+                )
+                paths = [r[0] for r in cur.fetchall()]
+                for p in paths:
+                    cur.execute(
+                        "INSERT OR IGNORE INTO project_images (project_id, branch_key, path) VALUES (?,?,?)",
+                        (project_id, branch_key, p),
+                    )
+                n_total += len(paths)
+
+            conn.commit()
+        # ✅ Ensure outer connection also flushes
+        try:
+            self._connect().commit()
+        except Exception:
+            pass
+        
+        return n_total
+
+
+    # ===============================================
+    # 📅 Phase 1: Date hierarchy + counts + loaders
+    # ===============================================
+    def get_date_hierarchy(self) -> dict:
+        """
+        Return nested dict {year: {month: [days...]}} from photo_metadata.created_date.
+        Assumes created_date is 'YYYY-MM-DD'.
+        """
+        from collections import defaultdict
+        hier = defaultdict(lambda: defaultdict(list))
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT DISTINCT created_date
+                FROM photo_metadata
+                WHERE created_date IS NOT NULL
+                ORDER BY created_date ASC
+            """)
+            for (ds,) in cur.fetchall():
+                try:
+                    y, m, d = str(ds).split("-", 2)
+                    hier[y][m].append(ds)
+                except Exception:
+                    pass
+        return {y: dict(m) for y, m in hier.items()}
+
+    def count_for_year(self, year: int | str) -> int:
+        y = str(year)
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT COUNT(*) FROM photo_metadata
+                WHERE created_date LIKE ? || '-%'
+            """, (y,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_for_month(self, year: int | str, month: int | str) -> int:
+        y = str(year)
+        m = f"{int(month):02d}" if str(month).isdigit() else str(month)
+        ym = f"{y}-{m}"
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT COUNT(*) FROM photo_metadata
+                WHERE created_date LIKE ? || '-%'
+            """, (ym,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_for_day(self, day_yyyymmdd: str) -> int:
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT COUNT(*) FROM photo_metadata
+                WHERE created_date = ?
+            """, (day_yyyymmdd,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+
+    def get_images_by_month(self, year: int | str, month: int | str) -> list[str]:
+        """
+        Return all photo paths for a given year + month (YYYY-MM).
+        Auto-detects whether created_date exists, otherwise falls back to date_taken or modified.
+        Works even if dates are stored with time parts (e.g. '2022-04-15 10:03:22').
+        """
+        y = str(year)
+        m = f"{int(month):02d}" if str(month).isdigit() else str(month)
+        prefix = f"{y}-{m}"
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # pick available column
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {r[1] for r in cur.fetchall()}
+            if "created_date" in cols:
+                date_col = "created_date"
+            elif "date_taken" in cols:
+                date_col = "date_taken"
+            else:
+                date_col = "modified"
+
+            cur.execute(
+                f"""
+                SELECT path FROM photo_metadata
+                WHERE {date_col} LIKE ? || '%'
+                ORDER BY {date_col} ASC, path ASC
+                """,
+                (prefix,)
+            )
+            return [r[0] for r in cur.fetchall()]
+
+    # ======================================================
+    # 🏷️ New Tagging System (normalized)
+    # ======================================================
+
+    def _get_photo_id_by_path(self, path: str) -> int | None:
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
+            row = cur.fetchone()
+            return row[0] if row else None
+
+    def add_tag(self, path: str, tag_name: str):
+        """Assign a tag to a photo by path. Creates the tag if needed."""
+        tag_name = tag_name.strip()
+        if not tag_name:
+            return
+        photo_id = self._get_photo_id_by_path(path)
+        if not photo_id:
+            return
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # ensure tag exists
+            cur.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
+            cur.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+            tag_id = cur.fetchone()[0]
+            # link
+            cur.execute("INSERT OR IGNORE INTO photo_tags (photo_id, tag_id) VALUES (?, ?)", (photo_id, tag_id))
+            conn.commit()
+
+    def remove_tag(self, path: str, tag_name: str):
+        """Remove a tag from a photo by path."""
+        photo_id = self._get_photo_id_by_path(path)
+        if not photo_id:
+            return
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+            row = cur.fetchone()
+            if row:
+                tag_id = row[0]
+                cur.execute("DELETE FROM photo_tags WHERE photo_id = ? AND tag_id = ?", (photo_id, tag_id))
+                conn.commit()
+
+    def get_tags_for_photo(self, path: str) -> list[str]:
+        """Return list of tags assigned to a specific photo path."""
+        photo_id = self._get_photo_id_by_path(path)
+        if not photo_id:
+            return []
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT t.name
+                FROM tags t
+                JOIN photo_tags pt ON pt.tag_id = t.id
+                WHERE pt.photo_id = ?
+                ORDER BY t.name COLLATE NOCASE
+            """, (photo_id,))
+            return [r[0] for r in cur.fetchall()]
+
+    def get_photos_by_tag(self, tag_name: str) -> list[str]:
+        """Return all image paths with a given tag."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT p.path
+                FROM photo_metadata p
+                JOIN photo_tags pt ON pt.photo_id = p.id
+                JOIN tags t        ON t.id = pt.tag_id
+                WHERE t.name = ?
+                ORDER BY p.path
+            """, (tag_name,))
+            return [r[0] for r in cur.fetchall()]
+
+    def get_all_tags_1st(self) -> list[str]:
+        """Return list of all existing tag names sorted alphabetically."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT name FROM tags ORDER BY name COLLATE NOCASE")
+            return [r[0] for r in cur.fetchall()]
+
+    def get_all_tags_priorperProject(self, project_id: int | None = None) -> list[str]:
+        """
+        Return list of all existing tag names sorted alphabetically.
+        project_id is accepted for compatibility with callers (currently unused).
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT name FROM tags ORDER BY name COLLATE NOCASE")
+            rows = [r[0] for r in cur.fetchall()]
+        return rows
+
+    def get_all_tags(self, project_id: int | None = None) -> list[str]:
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is None:
+                cur.execute("SELECT name FROM tags ORDER BY name COLLATE NOCASE")
+            else:
+                cur.execute("""
+                    SELECT DISTINCT t.name
+                    FROM tags t
+                    JOIN photo_tags pt ON pt.tag_id = t.id
+                    JOIN photo_metadata p ON p.id = pt.photo_id
+                    JOIN photo_folders f ON f.id = p.folder_id
+                    WHERE f.id IN (
+                        SELECT id FROM photo_folders WHERE path LIKE (
+                            SELECT folder || '%' FROM projects WHERE id = ?
+                        )
+                    )
+                    ORDER BY t.name COLLATE NOCASE
+                """, (project_id,))
+            return [r[0] for r in cur.fetchall()]
+
+
+    def delete_tag(self, tag_name: str):
+        """Completely remove a tag and all its assignments."""
+        with self._connect() as conn:
+            conn.execute("DELETE FROM tags WHERE name = ?", (tag_name,))
+            conn.commit()
+
+    def get_all_tags_with_counts(self) -> list[tuple[str, int]]:
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT t.name, COUNT(pt.photo_id)
+                FROM tags t
+                LEFT JOIN photo_tags pt ON pt.tag_id = t.id
+                GROUP BY t.id
+                ORDER BY t.name COLLATE NOCASE
+            """)
+            return cur.fetchall()
+
+    def ensure_tag(self, tag_name: str) -> int | None:
+        """Ensure tag exists, return its ID."""
+        tag_name = tag_name.strip()
+        if not tag_name:
+            return None
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
+            cur.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+            row = cur.fetchone()
+            return row[0] if row else None
+
+    def rename_tag(self, old_name: str, new_name: str):
+        """
+        Rename a tag. If new_name already exists, merge old into new.
+        """
+        old_name = old_name.strip()
+        new_name = new_name.strip()
+        if not old_name or not new_name or old_name.lower() == new_name.lower():
+            return
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # ensure new tag exists
+            cur.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (new_name,))
+            cur.execute("SELECT id FROM tags WHERE name = ?", (new_name,))
+            new_id = cur.fetchone()[0]
+
+            # get old tag id
+            cur.execute("SELECT id FROM tags WHERE name = ?", (old_name,))
+            row = cur.fetchone()
+            if not row:
+                return
+            old_id = row[0]
+
+            # reassign photo_tags to new_id
+            cur.execute("""
+                INSERT OR IGNORE INTO photo_tags (photo_id, tag_id)
+                SELECT photo_id, ? FROM photo_tags WHERE tag_id = ?
+            """, (new_id, old_id))
+
+            # delete old tag
+            cur.execute("DELETE FROM tags WHERE id = ?", (old_id,))
+            conn.commit()
+
+    def get_tags_for_paths_1st(self, paths: list[str]) -> dict[str, list[str]]:
+        """
+        Return {path: [tags]} using normalized tag structure.
+        """
+        if not paths:
+            return {}
+
+        out = {p: [] for p in paths}
+        with self._connect() as conn:
+            cur = conn.cursor()
+            qmarks = ",".join("?" * len(paths))
+            cur.execute(f"""
+                SELECT p.path, t.name
+                FROM photo_metadata p
+                JOIN photo_tags pt ON pt.photo_id = p.id
+                JOIN tags t        ON t.id = pt.tag_id
+                WHERE p.path IN ({qmarks})
+                ORDER BY p.path, t.name COLLATE NOCASE
+            """, paths)
+            for path, tag in cur.fetchall():
+                out[path].append(tag)
+        return out
+
+    # --- replace the entire function ---
+    def get_tags_for_paths_2nd(self, paths: list[str]) -> dict[str, list[str]]:
+        """
+        Return {path: [tags]} using normalized tag structure.
+        Safe for very large lists by chunking under SQLite's variable limit.
+        """
+        if not paths:
+            return {}
+
+        out: dict[str, list[str]] = {p: [] for p in paths}
+
+        # SQLite default limit is 999; keep margin for safety
+        CHUNK = 800
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            for i in range(0, len(paths), CHUNK):
+                batch = paths[i:i+CHUNK]
+                qmarks = ",".join("?" * len(batch))
+                try:
+                    cur.execute(f"""
+                        SELECT p.path, t.name
+                        FROM photo_metadata p
+                        JOIN photo_tags pt ON pt.photo_id = p.id
+                        JOIN tags t        ON t.id = pt.tag_id
+                        WHERE p.path IN ({qmarks})
+                        ORDER BY p.path, t.name COLLATE NOCASE
+                    """, batch)
+                    rows = cur.fetchall()
+                    for path, tag in rows:
+                        if path in out:
+                            out[path].append(tag)
+                except Exception as e:
+                    # Don't let tag lookup kill the grid; just continue without tags for this batch
+                    print(f"[DB] get_tags_for_paths chunk failed ({i}:{i+len(batch)}): {e}")
+                    continue
+        return out
+
+
+    # >>> FIX: helpers (place near other small utils, top-level in ReferenceDB)
+    def _norm_path_1st(self, p: str) -> str:
+        import os
+        try:
+            return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
+        except Exception:
+            return str(p).strip().lower()
+
+    # >>> FIX: robust, chunked tag resolver (replace your current get_tags_for_paths)
+    def get_tags_for_paths_3rd(self, paths: list[str]) -> dict[str, list[str]]:
+        import os
+        if not paths:
+            return {}
+
+        # normalize once, keep reverse map to original
+        norm_to_orig = {}
+        normed = []
+        for p in paths:
+            n = self._norm_path(p)
+            norm_to_orig[n] = p
+            normed.append(n)
+
+        out: dict[str, list[str]] = {p: [] for p in paths}
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+
+                # SQLite variable limit (usually 999). Stay safely under it.
+                CHUNK = 400
+                for i in range(0, len(normed), CHUNK):
+                    chunk = normed[i:i+CHUNK]
+                    q_marks = ",".join(["?"] * len(chunk))
+                    # photo_tags(path TEXT, tag TEXT) is assumed; adapt table/cols if yours differ
+                    cur.execute(f"""
+                        SELECT p.path, t.name
+                        FROM photo_metadata p
+                        JOIN photo_tags pt ON pt.photo_id = p.id
+                        JOIN tags t        ON t.id = pt.tag_id
+                        WHERE p.path IN ({q_marks})
+                        ORDER BY p.path, t.name COLLATE NOCASE
+                    """, chunk)
+                    for row in cur.fetchall():
+                        npath = row[0]
+                        tag   = (row[1] or "").strip()
+                        if not tag:
+                            continue
+                        orig = norm_to_orig.get(self._norm_path(npath))
+                        if orig:
+                            out.setdefault(orig, []).append(tag)
+        except Exception as e:
+            print(f"[DB] get_tags_for_paths failed: {e}")
+
+        return out
+
+
+    # >>> FIX 1: get_tags_for_paths — chunked to avoid SQLite 999 param cap
+    def get_tags_for_paths(self, paths: list[str]) -> dict[str, list[str]]:
+        if not paths:
+            return {}
+        import os
+        def norm(p: str) -> str:
+            try:
+                return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
+            except Exception:
+                return str(p).strip().lower()
+
+        # Map normalized->original so we can return tags keyed by original path
+        orig_paths = [str(p) for p in paths]
+        nmap = {norm(p): p for p in orig_paths}
+        npaths = list(nmap.keys())
+
+        out: dict[str, list[str]] = {p: [] for p in orig_paths}
+        CHUNK = 400  # keep well below 999
+        with self._connect() as conn:
+            cur = conn.cursor()
+            for i in range(0, len(npaths), CHUNK):
+                chunk = npaths[i:i+CHUNK]
+                q = f"""
+                    SELECT pm.path, t.name
+                    FROM photo_metadata pm
+                    JOIN photo_tags pt ON pt.photo_id = pm.id
+                    JOIN tags t       ON t.id = pt.tag_id
+                    WHERE pm.path IN ({','.join(['?']*len(chunk))})
+                """
+                cur.execute(q, chunk)
+                for row in cur.fetchall():
+                    npath, tagname = row[0], row[1]
+                    original = nmap.get(norm(npath))
+                    if original:
+                        out.setdefault(original, []).append(tagname)
+        return out
+    # <<< FIX 1
+
+
+    def get_image_paths_for_tag(self, tag_name: str) -> list[str]:
+        """
+        Return a list of image file paths for the given tag name using photo_tags table.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            rows = cur.execute("""
+                SELECT DISTINCT p.path
+                FROM photo_metadata AS p
+                JOIN photo_tags AS pt ON p.id = pt.photo_id
+                JOIN tags AS tg ON tg.id = pt.tag_id
+                WHERE tg.name = ?
+            """, (tag_name,)).fetchall()
+            return [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+
+    def get_image_count_recursive(self, folder_id: int) -> int:
+        """
+        Return total number of images under this folder, including its subfolders.
+        Uses recursive CTE for performance. Corrected to use photo_metadata table.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                WITH RECURSIVE subfolders(id) AS (
+                    SELECT id FROM photo_folders WHERE id = ?
+                    UNION ALL
+                    SELECT f.id
+                    FROM photo_folders f
+                    JOIN subfolders s ON f.parent_id = s.id
+                )
+                SELECT COUNT(*) FROM photo_metadata p   -- ✅ FIXED
+                WHERE p.folder_id IN (SELECT id FROM subfolders)
+            """, (folder_id,))
+            row = cur.fetchone()
+            return row[0] if row else 0
+
+
+# --- Maintenance / Diagnostics ------------------------------------------------
+    def fresh_reset(self):
+        """
+        Fully reset the reference database by:
+          1. Closing active connections
+          2. Forcing GC to release SQLite file handles
+          3. Renaming existing DB to a timestamped backup
+          4. Recreating the schema
+
+        This method avoids WinError 32 (file locked) issues on Windows.
+        """
+        import os, time, gc
+
+        # --- Step 1: close any open connection ---
+        try:
+            if hasattr(self, "_conn") and self._conn:
+                try:
+                    self._conn.close()
+                    print("[DB] Active connection closed.")
+                except Exception as e:
+                    print(f"[DB] Warning: could not close connection cleanly: {e}")
+                self._conn = None
+        except Exception as e:
+            print(f"[DB] Warning during connection cleanup: {e}")
+
+        # --- Step 2: force garbage collection ---
+        try:
+            gc.collect()
+        except Exception:
+            pass
+
+        # --- Step 3: rename existing DB if it exists ---
+        if os.path.exists(self.db_file):
+            backup_name = f"{self.db_file}.bak_{time.strftime('%Y%m%d_%H%M%S')}"
+            for i in range(5):
+                try:
+                    os.rename(self.db_file, backup_name)
+                    print(f"[DB] Moved existing DB to backup: {backup_name}")
+                    break
+                except PermissionError as e:
+                    print(f"[DB] File lock detected, retrying {i+1}/5 ...")
+                    time.sleep(0.4)
+            else:
+                print(f"[DB ERROR] fresh_reset failed: could not rename after 5 tries.")
+                raise
+
+        # --- Step 4: recreate new DB ---
+        try:
+            self._ensure_db()
+            print("[DB] Fresh database created.")
+        except Exception as e:
+            print(f"[DB ERROR] Failed to recreate DB: {e}")
+            raise
+
+
+    def integrity_report(self) -> dict:
+        """
+        Return quick stats and integrity info to show in a message box.
+        """
+        out = {
+            "ok": True,
+            "errors": [],
+            "counts": {}
+        }
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+
+                # PRAGMA integrity_check
+                try:
+                    cur.execute("PRAGMA integrity_check;")
+                    res = cur.fetchone()
+                    out["ok"] = (res and res[0] == "ok")
+                    if not out["ok"]:
+                        out["errors"].append(f"PRAGMA integrity_check: {res[0] if res else 'unknown'}")
+                except Exception as e:
+                    out["ok"] = False
+                    out["errors"].append(f"integrity_check error: {e}")
+
+                # Basic counts
+                def _count(tbl):
+                    cur.execute(f"SELECT COUNT(*) FROM {tbl}")
+                    return cur.fetchone()[0] or 0
+
+                counts = {
+                    "photo_folders": _count("photo_folders"),
+                    "photo_metadata": _count("photo_metadata"),
+                    "projects": _count("projects"),
+                    "branches": _count("branches"),
+                    "project_images": _count("project_images"),
+                }
+                out["counts"] = counts
+
+                # Orphans: metadata rows with missing folder
+                cur.execute("""
+                    SELECT COUNT(*)
+                    FROM photo_metadata pm
+                    LEFT JOIN photo_folders pf ON pf.id = pm.folder_id
+                    WHERE pf.id IS NULL
+                """)
+                orphans = cur.fetchone()[0] or 0
+                if orphans > 0:
+                    out["errors"].append(f"Orphaned photo_metadata rows with missing folder_id: {orphans}")
+
+        except Exception as e:
+            out["ok"] = False
+            out["errors"].append(str(e))
+        return out
+
+    def vacuum_analyze(self) -> None:
+        """Optional: compact and refresh statistics."""
+        with self._connect() as conn:
+            conn.execute("VACUUM")
+            conn.execute("ANALYZE")
+            conn.commit()
+
+    # --- add inside class ReferenceDB -------------------------------------------
+    def ensure_created_date_fields(self) -> None:
+        """Add created_ts / created_date / created_year + indexes (idempotent)."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {row[1] for row in cur.fetchall()}
+            if "created_ts" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_ts INTEGER")
+            if "created_date" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_date TEXT")
+            if "created_year" not in cols:
+                cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_year INTEGER")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_year  ON photo_metadata(created_year)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_date  ON photo_metadata(created_date)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_ts    ON photo_metadata(created_ts)")
+            conn.commit()
+
+    def count_missing_created_fields(self) -> int:
+        """Return how many rows still need created_* filled. If cols missing, return total rows."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {row[1] for row in cur.fetchall()}
+            if not {"created_ts", "created_date", "created_year"}.issubset(cols):
+                cur.execute("SELECT COUNT(*) FROM photo_metadata")
+                return cur.fetchone()[0]
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE created_ts IS NULL OR created_date IS NULL OR created_year IS NULL
+            """)
+            return int(cur.fetchone()[0])
+
+    def single_pass_backfill_created_fields(self, chunk_size: int = 1000) -> int:
+        """
+        Fill created_* for up to chunk_size rows. Returns number of rows updated this pass.
+        Call repeatedly until it returns 0.
+        """
+        import datetime as _dt
+
+        def _parse_any(s: str | None):
+            if not s:
+                return None
+            fmts = [
+                "%Y:%m:%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y/%m/%d %H:%M:%S",
+                "%d.%m.%Y %H:%M:%S",
+                "%Y-%m-%d",
+            ]
+            for f in fmts:
+                try:
+                    return _dt.datetime.strptime(s, f)
+                except Exception:
+                    pass
+            return None
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(photo_metadata)")
+            cols = {row[1] for row in cur.fetchall()}
+            if not {"created_ts", "created_date", "created_year"}.issubset(cols):
+                return 0
+
+            cur.execute("""
+                SELECT path, date_taken, modified
+                FROM photo_metadata
+                WHERE created_ts IS NULL OR created_date IS NULL OR created_year IS NULL
+                LIMIT ?
+            """, (chunk_size,))
+            rows = cur.fetchall()
+            if not rows:
+                return 0
+
+            updates = []
+            for path, date_taken, modified in rows:
+                t = _parse_any(date_taken) or _parse_any(modified)
+                if not t:
+                    updates.append((None, None, None, path))
+                else:
+                    ts = int(t.timestamp())
+                    dstr = t.strftime("%Y-%m-%d")
+                    updates.append((ts, dstr, int(dstr[:4]), path))
+
+            cur.executemany("""
+                UPDATE photo_metadata
+                SET created_ts = ?, created_date = ?, created_year = ?
+                WHERE path = ?
+            """, updates)
+            conn.commit()
+            return len(updates)
+
+    # >>> NEW: Face cluster utilities (Phase 7.1)
+
+    def get_face_clusters(self, project_id: int):
+        try:
+            with self._connect() as conn:
+                # prefer modern table
+                cur = conn.execute("""
+                    SELECT 
+                        branch_key,
+                        COALESCE(label, branch_key) AS display_name,
+                        count AS member_count,
+                        rep_path,
+                        rep_thumb_png
+                    FROM face_branch_reps
+                    WHERE project_id = ?
+                    ORDER BY count DESC, branch_key ASC
+                """, (project_id,))
+                rows = cur.fetchall()
+        except Exception as e:
+            # fallback legacy
+            print(f"[DB] get_face_clusters fallback due to {e}")
+            try:
+                with self._connect() as conn:
+                    cur = conn.execute("""
+                        SELECT 
+                            branch_key,
+                            display_name,
+                            COUNT(id) AS member_count,
+                            rep_path,
+                            NULL
+                        FROM face_clusters
+                        WHERE project_id = ?
+                        GROUP BY branch_key, display_name, rep_path
+                        ORDER BY member_count DESC
+                    """, (project_id,))
+                    rows = cur.fetchall()
+            except Exception as e2:
+                print(f"[DB] get_face_clusters final fail: {e2}")
+                return []
+
+        return [
+            {
+                "branch_key": r[0],
+                "display_name": r[1],
+                "member_count": r[2] or 0,
+                "rep_path": r[3],
+                "rep_thumb_png": r[4],
+            }
+            for r in rows
+        ]
+
+
+    def get_paths_for_cluster(self, project_id: int, branch_key: str):
+        """
+        Return all image paths belonging to the given face cluster.
+        """
+        with self._connect() as conn:
+            cur = conn.execute("""
+                
+                SELECT crop_path FROM face_crops
+                WHERE project_id=? AND branch_key=?
+                ORDER BY id    
+            """, (project_id, branch_key))
+            return [r[0] for r in cur.fetchall()]
+            
+            return rows
+    # <<< NEW
+
+
+    # --- end new methods ---------------------------------------------------------
+
+
+# --- Compatibility shims for legacy imports ---
+_db = ReferenceDB()
+
+def get_all_references(): return _db.get_all_references()
+def log_match_result(filename, label, score, match_mode=None): return _db.log_match_result(filename, label, score, match_mode)
+def get_threshold_for_label(label): return _db.get_threshold_for_label(label)
+def purge_missing_references(): return _db.purge_missing_references()
+
+if __name__ == "__main__":
+    # Simple CLI: ensure metadata columns or show stats
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--migrate-metadata", action="store_true", help="Ensure metadata_status & metadata_fail_count columns exist")
+    ap.add_argument("--show-meta-stats", action="store_true", help="Print metadata backfill stats")
+    args = ap.parse_args()
+    db = ReferenceDB()
+    if args.migrate_metadata:
+        db.ensure_metadata_columns()
+        print("metadata columns ensured (if not present)")
+    if args.show_meta_stats:
+        print(json.dumps(db.get_metadata_stats(), indent=2))
+        
+# =========================================================
+#  Module-level Migration Helpers (manual, from menu)
+# =========================================================
+def _connect_for_path(db_path: str | None):
+    import sqlite3 as _sqlite3, os as _os
+    path = db_path or ReferenceDB().db_file  # <-- unify defaul
+    con = _sqlite3.connect(path)
+    con.execute("PRAGMA foreign_keys = ON")
+    return con
+
+def ensure_created_date_fields(db_path: str | None = None) -> None:
+    """Add created_ts / created_date / created_year + indexes, idempotent."""
+    with _connect_for_path(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        cols = {row[1] for row in cur.fetchall()}
+        if "created_ts" not in cols:
+            try: cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_ts INTEGER"); 
+            except Exception: pass
+        if "created_date" not in cols:
+            try: cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_date TEXT");
+            except Exception: pass
+        if "created_year" not in cols:
+            try: cur.execute("ALTER TABLE photo_metadata ADD COLUMN created_year INTEGER");
+            except Exception: pass
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_year  ON photo_metadata(created_year)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_date  ON photo_metadata(created_date)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_ts    ON photo_metadata(created_ts)")
+        conn.commit()
+
+def count_missing_created_fields(db_path: str | None = None) -> int:
+    """How many rows still need created_* filled. If cols missing, return total rows."""
+    with _connect_for_path(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        cols = {row[1] for row in cur.fetchall()}
+        if not {"created_ts","created_date","created_year"}.issubset(cols):
+            cur.execute("SELECT COUNT(*) FROM photo_metadata")
+            return cur.fetchone()[0]
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM photo_metadata
+            WHERE created_ts IS NULL OR created_date IS NULL OR created_year IS NULL
+        """)
+        return cur.fetchone()[0]
+
+def single_pass_backfill_created_fields(db_path: str | None = None, chunk_size: int = 1000) -> int:
+    """
+    Fill created_* for up to chunk_size rows. Returns number of rows updated this pass.
+    Call repeatedly until it returns 0.
+    """
+    import datetime as _dt
+    def parse_any(s: str | None):
+        if not s: return None
+        fmts = [
+            "%Y:%m:%d %H:%M:%S",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y/%m/%d %H:%M:%S",
+            "%d.%m.%Y %H:%M:%S",
+            "%Y-%m-%d",
+        ]
+        for f in fmts:
+            try: return _dt.datetime.strptime(s, f)
+            except Exception: pass
+        return None
+    with _connect_for_path(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        cols = {row[1] for row in cur.fetchall()}
+        if not {"created_ts","created_date","created_year"}.issubset(cols):
+            return 0
+        cur.execute("""
+            SELECT path, date_taken, modified
+            FROM photo_metadata
+            WHERE created_ts IS NULL OR created_date IS NULL OR created_year IS NULL
+            LIMIT ?
+        """, (chunk_size,))
+        rows = cur.fetchall()
+        if not rows:
+            return 0
+        updates = []
+        for path, date_taken, modified in rows:
+            t = parse_any(date_taken) or parse_any(modified)
+            if not t:
+                updates.append((None, None, None, path))
+            else:
+                ts = int(t.timestamp())
+                dstr = t.strftime("%Y-%m-%d")
+                updates.append((ts, dstr, int(dstr[:4]), path))
+        cur.executemany("""
+            UPDATE photo_metadata
+            SET created_ts = ?, created_date = ?, created_year = ?
+            WHERE path = ?
+        """, updates)
+        conn.commit()
+        return len(updates)
+        
+        

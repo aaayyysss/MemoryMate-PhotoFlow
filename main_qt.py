@@ -1,14 +1,34 @@
 # main_qt.py
-# Version 09.15.01.01 dated 20251018
+# Version 09.15.01.02 dated 20251102
+# Added centralized logging initialization
 
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt
 from main_window_qt import MainWindow
 
-# ✅ NEW IMPORTS
-from splash_qt import SplashScreen, StartupWorker
+# ✅ Logging setup (must be first!)
+from logging_config import setup_logging, get_logger, disable_external_logging
 from settings_manager_qt import SettingsManager
+
+# Initialize settings to get log level
+settings = SettingsManager()
+log_level = settings.get("log_level", "INFO")
+log_to_console = settings.get("log_to_console", True)
+log_colored = settings.get("log_colored_output", True)
+
+# Setup logging before any other imports that might log
+setup_logging(
+    log_level=log_level,
+    console=log_to_console,
+    use_colors=log_colored
+)
+disable_external_logging()  # Reduce Qt/PIL noise
+
+logger = get_logger(__name__)
+
+# ✅ Other imports
+from splash_qt import SplashScreen, StartupWorker
 
 
 #if __name__ == "__main__":
@@ -38,7 +58,7 @@ if __name__ == "__main__":
 
     # 3️: Handle cancel button gracefully
     def on_cancel():
-        print("[Startup] Cancel requested by user.")
+        logger.info("Startup cancelled by user")
         worker.cancel()
         splash.close()
         sys.exit(0)

@@ -1,8 +1,8 @@
 # db_writer.py
-# Version 01.01.01.04 dated 20251029
+# Version 01.01.01.05 dated 20251102
 # DBWriter: single-writer SQLite queue, runs in its own QThread and commits batches.
 # Writes now populate created_ts/created_date/created_year so date branches can be built.
-# Also logs committed row counts for diagnostics.
+# Uses centralized logging framework for diagnostics.
 
 import queue
 import threading
@@ -11,6 +11,10 @@ from typing import List, Tuple, Any, Optional
 
 from PySide6.QtCore import QObject, Signal, QThread, QTimer, Slot
 from reference_db import ReferenceDB
+from logging_config import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 # UpsertRow: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
 UpsertRow = Tuple[str, Optional[int], Optional[float], Optional[str], Optional[int], Optional[int], Optional[str], Optional[str]]
@@ -95,11 +99,11 @@ class DBWriter(QObject):
             self._timer.setInterval(self._poll_interval_ms)
             self._timer.timeout.connect(self._process_queued_items)
             self._timer.start()
-            print("[DBWriter] timer started in writer thread")
+            logger.info("DBWriter timer started in worker thread")
             self.started.emit()
         except Exception as e:
             tb = traceback.format_exc()
-            print(f"[DBWriter] _start_timer error: {e}\n{tb}")
+            logger.error(f"Failed to start timer: {e}", exc_info=True)
             self.error.emit(f"DBWriter failed to start timer: {e}\n{tb}")
 
     def enqueue_upserts(self, rows: List[UpsertRow]):
@@ -109,8 +113,9 @@ class DBWriter(QObject):
         self._queue.put(("upsert_batch", rows))
         # lightweight log for diagnostics:
         try:
-            if self._queue.qsize() % 50 == 0:
-                print(f"[DBWriter] queue size now {self._queue.qsize()}")
+            qsize = self._queue.qsize()
+            if qsize % 50 == 0:
+                logger.debug(f"Queue size: {qsize} batches pending")
         except Exception:
             pass
 
@@ -197,7 +202,7 @@ class DBWriter(QObject):
 
         except Exception as e:
             tb = traceback.format_exc()
-            print(f"[DBWriter] processing error: {e}\n{tb}")
+            logger.error(f"Queue processing error: {e}", exc_info=True)
             self.error.emit(f"DBWriter processing error: {e}\n{tb}")
 
     def _photo_metadata_has_created_cols(self, conn) -> bool:
@@ -293,7 +298,7 @@ class DBWriter(QObject):
                     cur.executemany(sql_with_created, params_with_created)
                     conn.commit()
                     try:
-                        print(f"[DBWriter] committed {len(params_with_created)} rows (with created_*)")
+                        logger.info(f"Committed {len(params_with_created)} rows (with created_* fields)")
                         self.committed.emit(len(params_with_created))   # ✅ notify main thread
                     except Exception:
                         pass
@@ -301,7 +306,7 @@ class DBWriter(QObject):
                 except Exception as e:
                     # fallback to legacy if schema changed unexpectedly
                     tb = traceback.format_exc()
-                    print(f"[DBWriter] upsert with created_* failed: {e}\n{tb}")
+                    logger.warning(f"Upsert with created_* fields failed, falling back to legacy: {e}")
                     try:
                         conn.rollback()
                     except Exception:
@@ -312,14 +317,14 @@ class DBWriter(QObject):
                 cur.executemany(sql_legacy, params_legacy)
                 conn.commit()
                 try:
-                    print(f"[DBWriter] committed {len(params_legacy)} rows (legacy)")
-                    self.committed.emit(len(params_with_created))   # ✅ notify main thread
+                    logger.info(f"Committed {len(params_legacy)} rows (legacy mode)")
+                    self.committed.emit(len(params_legacy))   # ✅ Fixed: emit correct count
                 except Exception:
                     pass
                 return
             except Exception as e:
                 tb = traceback.format_exc()
-                print(f"[DBWriter] legacy upsert failed: {e}\n{tb}")
+                logger.error(f"Legacy upsert failed: {e}", exc_info=True)
                 try:
                     conn.rollback()
                 except Exception:
@@ -329,7 +334,7 @@ class DBWriter(QObject):
 
         except Exception as e:
             tb = traceback.format_exc()
-            print(f"[DBWriter] unexpected error during upsert: {e}\n{tb}")
+            logger.critical(f"Unexpected error during upsert: {e}", exc_info=True)
             self.error.emit(f"DBWriter upsert failed: {e}\n{tb}")
             try:
                 if conn:

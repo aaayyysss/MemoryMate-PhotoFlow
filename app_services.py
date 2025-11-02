@@ -1,5 +1,6 @@
 # app_services.py
-# Version 09.17.01.10 dated 20251026
+# Version 09.18.01.15 dated 20251102
+# Migrated to use ThumbnailService for unified caching
 
 import os, io, shutil, hashlib, json
 import time
@@ -15,40 +16,38 @@ from PySide6.QtGui import QPixmap, QImageReader, QImage
 from PySide6.QtCore import QSize, Qt, Signal, QObject
 
 from reference_db import ReferenceDB
+from services import get_thumbnail_service
 
 DB_PATH = "photo_app.db"
 SUPPORTED_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.tif', '.tiff'}
 
 _db = ReferenceDB()
 
-
-
-# Single authoritative cache dir (Path object) defined early
-_THUMB_CACHE_DIR = Path(os.path.join(os.getcwd(), ".thumb_cache"))
-_THUMB_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-_thumbnail_cache = {}      # in-memory cache mapping path -> {"pixmap": QPixmap, "mtime": float}
+# Get global thumbnail service (replaces old _thumbnail_cache and disk cache)
+_thumbnail_service = get_thumbnail_service(l1_capacity=500)
 _enable_thumbnail_cache = True  # toggle caching on/off
 
 
 
 def clear_disk_thumbnail_cache():
+    """
+    Legacy function for backward compatibility.
+    Now delegates to ThumbnailService.clear_all().
+    """
     try:
-        if _THUMB_CACHE_DIR.exists():
-            shutil.rmtree(_THUMB_CACHE_DIR)
-        _THUMB_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"[Cache] Disk thumbnail cache cleared: {_THUMB_CACHE_DIR}")
+        _thumbnail_service.clear_all()
+        print("[Cache] All thumbnail caches cleared (L1 + L2)")
         return True
     except Exception as e:
-        print(f"[Cache] Failed to clear disk thumbnail cache: {e}")
+        print(f"[Cache] Failed to clear thumbnail cache: {e}")
         return False
 
 def clear_thumbnail_cache():
-    """Public: clear both memory and disk caches."""
-    try:
-        _thumbnail_cache.clear()
-    except Exception:
-        pass
+    """
+    Public: clear all thumbnail caches (L1 memory + L2 database).
+
+    Replaces old behavior of clearing memory dict + disk files.
+    """
     return clear_disk_thumbnail_cache()
     
 
@@ -65,15 +64,6 @@ def list_projects():
                 for r in cur.fetchall()
             ]
 
-def _hash_path(path: str) -> str:
-    return hashlib.md5(path.encode("utf-8")).hexdigest()
-    
-def _thumb_file_path(path: str, fixed_height: int) -> tuple[str, str]:
-    h = _hash_path(path)
-    d = _THUMB_CACHE_DIR / str(fixed_height)
-    d.mkdir(parents=True, exist_ok=True)
-    return str(d / f"{h}.png"), str(d / f"{h}.meta")
-
 def list_branches(project_id: int):
     try:
         return _db.get_branches(project_id)
@@ -83,99 +73,32 @@ def list_branches(project_id: int):
             cur.execute("SELECT branch_key, display_name FROM branches WHERE project_id=? ORDER BY id ASC", (project_id,))
             return [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
-def _read_meta(meta_path):
-    if not os.path.exists(meta_path):
-        return None
-    try:
-        with open(meta_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return None
-
-def _write_meta(meta_path, size, mtime):
-    try:
-        with open(meta_path, "w", encoding="utf-8") as f:
-            json.dump({"size": size, "mtime": mtime}, f)
-    except Exception:
-        pass
-
-def _is_valid_cache(path, thumb_path, meta_path):
-    if not os.path.exists(thumb_path) or not os.path.exists(meta_path):
-        return False
-    try:
-        stat = os.stat(path)
-    except Exception:
-        return False
-    meta = _read_meta(meta_path)
-    if not meta:
-        return False
-    return meta.get("size") == stat.st_size and abs(meta.get("mtime", 0) - stat.st_mtime) < 0.1
-
-def _thumb_key(path: str, height: int) -> str:
-    try:
-        mtime = os.path.getmtime(path)
-        size = os.path.getsize(path)
-    except OSError:
-        mtime = 0
-        size = 0
-    raw = f"{path}|{mtime}|{size}|h={height}"
-    return hashlib.sha1(raw.encode("utf-8")).hexdigest()
-
 
 def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixmap:
+    """
+    Get thumbnail for an image file.
+
+    Now uses ThumbnailService with unified L1 (memory) + L2 (database) caching.
+    The use_disk_cache parameter is kept for backward compatibility but ignored.
+
+    Args:
+        path: Image file path
+        height: Target thumbnail height in pixels
+        use_disk_cache: Legacy parameter (ignored, caching always enabled)
+
+    Returns:
+        QPixmap thumbnail
+    """
     if not path:
         return QPixmap()
 
-    ext = os.path.splitext(path)[1].lower()
-    is_tiff = ext in (".tif", ".tiff")
+    if not _enable_thumbnail_cache:
+        # Caching disabled - generate directly without caching
+        # This is rare but supported for debugging
+        return _thumbnail_service._generate_thumbnail(path, height, timeout=5.0)
 
-    key = _thumb_key(path, height)
-    cache_file = _THUMB_CACHE_DIR / f"{key}.png"
-
-    if use_disk_cache and cache_file.exists():
-        pm = QPixmap(str(cache_file))
-        if not pm.isNull():
-            return pm
-
-    if is_tiff:
-        try:
-            with Image.open(path) as im:
-                ratio = height / float(im.height)
-                target_w = int(im.width * ratio)
-                im = im.convert("RGB")
-                im.thumbnail((target_w, height))
-                buf = io.BytesIO()
-                im.save(buf, format="PNG")
-                qimg = QImage.fromData(buf.getvalue())
-                pm = QPixmap.fromImage(qimg)
-                if use_disk_cache and not pm.isNull():
-                    try:
-                        pm.save(str(cache_file), "PNG")
-                    except Exception:
-                        pass
-                return pm
-        except Exception as e:
-            print(f"[get_thumbnail] TIFF fallback failed for {path}: {e}")
-            return QPixmap()
-
-    # Normal path using QImageReader
-    try:
-        reader = QImageReader(path)
-        reader.setAutoTransform(True)
-        img = reader.read()
-        if img.isNull():
-            return QPixmap()
-        if height > 0:
-            img = img.scaledToHeight(height, Qt.SmoothTransformation)
-        pm = QPixmap.fromImage(img)
-        if use_disk_cache and not pm.isNull():
-            try:
-                pm.save(str(cache_file), "PNG")
-            except Exception:
-                pass
-        return pm
-    except Exception:
-        return QPixmap()
+    # Use ThumbnailService which handles L1 (memory) + L2 (database) caching
+    return _thumbnail_service.get_thumbnail(path, height)
 
 
 def get_project_images(project_id: int, branch_key: Optional[str]):

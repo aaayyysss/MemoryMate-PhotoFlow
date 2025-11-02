@@ -18,6 +18,12 @@ from .metadata_service import (
     ImageMetadata
 )
 
+from .thumbnail_service import (
+    ThumbnailService,
+    LRUCache,
+    get_thumbnail_service
+)
+
 __all__ = [
     # Scanning
     'PhotoScanService',
@@ -29,4 +35,9 @@ __all__ = [
     # Metadata
     'MetadataService',
     'ImageMetadata',
+
+    # Thumbnails
+    'ThumbnailService',
+    'LRUCache',
+    'get_thumbnail_service',
 ]

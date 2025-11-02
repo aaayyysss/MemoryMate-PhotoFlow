@@ -1,5 +1,6 @@
 # main_window_qt.py
-# Version 09.18.01.13 dated 20251031
+# Version 09.18.01.14 dated 20251102
+# Refactored to use service layer (PhotoScanService via ScanWorkerAdapter)
 
 # [ Tree View  ]
 #     │
@@ -24,10 +25,10 @@
 #  👉 tags, embedding, and date_taken allow smart sorting later.
 #
 #  🧭 2. Recommended Directory Scanning Strategy
-#  👉 We don’t want to re-scan the entire repository every time.
+#  👉 We don't want to re-scan the entire repository every time.
 #  👉 We should scan once and index the structure in the database.
-# 
-#  🧰 Step-by-step:  
+#
+#  🧰 Step-by-step:
 #  Recursive scan using os.walk() or pathlib.Path.rglob('*')
 #
 #  For each file:
@@ -45,6 +46,9 @@ from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
 from typing import Iterable, Optional, Dict, Tuple
+
+# ✅ NEW: Import service-based ScanWorker
+from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
 
 # Add imports near top if not present:
 
@@ -133,9 +137,18 @@ def _clamp_pct(v):
 
 
 # ---------------------------
-# ScanWorker (instrumented)
+# ScanWorker (OLD - Replaced by services.ScanWorkerAdapter)
 # ---------------------------
-
+# The old embedded ScanWorker class has been replaced by PhotoScanService
+# and ScanWorkerAdapter in the services/ package. This provides:
+# - Clean separation of concerns
+# - Reusable business logic
+# - Testable code
+# - Repository pattern integration
+#
+# The class definition below is kept for reference but is no longer used.
+# It can be safely removed after testing confirms the new implementation works.
+"""
 class ScanWorker(QObject):
     progress = Signal(int, str)      # percent, message
     finished = Signal(int, int)      # folders, photos
@@ -438,6 +451,8 @@ class ScanWorker(QObject):
                 self.error.emit(str(tb))
             except Exception:
                 pass
+"""
+# END OF OLD ScanWorker CLASS
 
 
 # === Phase 2 Controllers (in-file, no new modules) ===========================

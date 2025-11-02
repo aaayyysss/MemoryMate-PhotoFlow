@@ -1,8 +1,8 @@
 # db_writer.py
-# Version 01.01.01.05 dated 20251102
+# Version 01.01.01.06 dated 20251102
 # DBWriter: single-writer SQLite queue, runs in its own QThread and commits batches.
 # Writes now populate created_ts/created_date/created_year so date branches can be built.
-# Uses centralized logging framework for diagnostics.
+# Uses centralized logging and MetadataService for date parsing.
 
 import queue
 import threading
@@ -12,9 +12,13 @@ from typing import List, Tuple, Any, Optional
 from PySide6.QtCore import QObject, Signal, QThread, QTimer, Slot
 from reference_db import ReferenceDB
 from logging_config import get_logger
+from services import MetadataService
 
 # Module logger
 logger = get_logger(__name__)
+
+# Shared metadata service instance for date parsing
+_metadata_service = MetadataService()
 
 # UpsertRow: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
 UpsertRow = Tuple[str, Optional[int], Optional[float], Optional[str], Optional[int], Optional[int], Optional[str], Optional[str]]
@@ -24,36 +28,10 @@ def _compute_created_fields(date_taken: Optional[str], modified: Optional[str]):
     """
     Return (created_ts:int|None, created_date:'YYYY-MM-DD'|None, created_year:int|None).
     Try date_taken first (EXIF-like), else modified.
+
+    Now uses MetadataService for consistent date parsing across the application.
     """
-    import datetime as _dt
-
-    def parse_one(s: Optional[str]):
-        if not s:
-            return None
-        fmts = [
-            "%Y:%m:%d %H:%M:%S",   # EXIF DateTimeOriginal
-            "%Y-%m-%d %H:%M:%S",
-            "%Y/%m/%d %H:%M:%S",
-            "%d.%m.%Y %H:%M:%S",
-            "%Y-%m-%d",
-        ]
-        for f in fmts:
-            try:
-                return _dt.datetime.strptime(s, f)
-            except Exception:
-                pass
-        # last resort: try to parse ISO-ish with fromisoformat
-        try:
-            return _dt.datetime.fromisoformat(s)
-        except Exception:
-            return None
-
-    t = parse_one(date_taken) or parse_one(modified)
-    if not t:
-        return (None, None, None)
-    ts = int(t.timestamp())
-    dstr = t.strftime("%Y-%m-%d")
-    return (ts, dstr, int(dstr[:4]))
+    return _metadata_service.compute_created_fields_from_dates(date_taken, modified)
 
 
 class DBWriter(QObject):

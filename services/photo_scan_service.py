@@ -1,6 +1,6 @@
 # services/photo_scan_service.py
-# Version 01.00.00.00 dated 20251102
-# Photo scanning service - Extracts logic from MainWindow.ScanWorker
+# Version 01.00.01.00 dated 20251102
+# Photo scanning service - Uses MetadataService for extraction
 
 import os
 import time
@@ -9,10 +9,9 @@ from typing import Optional, List, Tuple, Callable, Dict, Any, Set
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from dataclasses import dataclass
 
-from PIL import Image, ExifTags
-
 from repository import PhotoRepository, FolderRepository, ProjectRepository, DatabaseConnection
 from logging_config import get_logger
+from .metadata_service import MetadataService
 
 logger = get_logger(__name__)
 
@@ -72,6 +71,7 @@ class PhotoScanService:
                  photo_repo: Optional[PhotoRepository] = None,
                  folder_repo: Optional[FolderRepository] = None,
                  project_repo: Optional[ProjectRepository] = None,
+                 metadata_service: Optional[MetadataService] = None,
                  batch_size: int = 200,
                  stat_timeout: float = 3.0):
         """
@@ -81,12 +81,14 @@ class PhotoScanService:
             photo_repo: Photo repository (creates default if None)
             folder_repo: Folder repository (creates default if None)
             project_repo: Project repository (creates default if None)
+            metadata_service: Metadata extraction service (creates default if None)
             batch_size: Number of photos to batch before writing
             stat_timeout: Timeout for os.stat calls (seconds)
         """
         self.photo_repo = photo_repo or PhotoRepository()
         self.folder_repo = folder_repo or FolderRepository()
         self.project_repo = project_repo or ProjectRepository()
+        self.metadata_service = metadata_service or MetadataService()
 
         self.batch_size = batch_size
         self.stat_timeout = stat_timeout
@@ -331,28 +333,25 @@ class PhotoScanService:
             self._stats['photos_skipped'] += 1
             return None
 
-        # Step 4: Extract dimensions and EXIF date
+        # Step 4: Extract dimensions and EXIF date using MetadataService
         width = height = date_taken = None
 
-        try:
-            with Image.open(file_path) as img:
-                width, height = img.size
-
-                if extract_exif_date:
-                    try:
-                        exif = img._getexif()
-                        if exif:
-                            for key, value in exif.items():
-                                tag = ExifTags.TAGS.get(key, key)
-                                if tag in ("DateTimeOriginal", "DateTime"):
-                                    date_taken = str(value)
-                                    break
-                    except Exception:
-                        pass  # EXIF extraction is optional
-
-        except Exception as e:
-            logger.debug(f"Could not extract image metadata from {path_str}: {e}")
-            # Continue without dimensions/EXIF
+        if extract_exif_date:
+            # Use metadata service for extraction
+            try:
+                width, height, date_taken = self.metadata_service.extract_basic_metadata(str(file_path))
+            except Exception as e:
+                logger.debug(f"Could not extract image metadata from {path_str}: {e}")
+                # Continue without dimensions/EXIF
+        else:
+            # Just get dimensions without EXIF
+            try:
+                metadata = self.metadata_service.extract_metadata(str(file_path))
+                if metadata.success:
+                    width = metadata.width
+                    height = metadata.height
+            except Exception as e:
+                logger.debug(f"Could not extract dimensions from {path_str}: {e}")
 
         # Step 5: Ensure folder hierarchy exists
         try:

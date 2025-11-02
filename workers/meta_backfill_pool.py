@@ -1,5 +1,5 @@
 # meta_backfill_pool.py
-# Version 01.1.01.06 dated 20251026
+# Version 01.1.01.07 dated 20251102
 #!/usr/bin/env python3
 
 
@@ -7,7 +7,7 @@
 meta_backfill_pool.py
 
 Persistent metadata backfill supervisor + worker pool.
-Uses ReferenceDB API (in reference_db.py) for all DB operations.
+Uses MetadataService for extraction and ReferenceDB API for storage.
 
 Usage:
   python meta_backfill_pool.py --workers 4 --timeout 8 --batch 200 --limit 0
@@ -27,11 +27,12 @@ import multiprocessing
 from progress_writer import write_status
 
 
-# Import ReferenceDB from repo root (assumes this script runs from project root)
+# Import services and database from repo root
 try:
     from reference_db import ReferenceDB
+    from services import MetadataService
 except Exception as e:
-    print("Failed to import reference_db.ReferenceDB:", e)
+    print("Failed to import dependencies:", e)
     raise
 
 # Worker function that runs inside a child process
@@ -39,59 +40,42 @@ except Exception as e:
 # Worker function that runs inside a child process
 def worker_loop(worker_id: int, task_q: Queue, result_q: Queue, stop_event: Event):
     """
-    Persistent worker process. Pulls file paths from task_q, extracts metadata using Pillow
-    and pushes result dicts to result_q.
+    Persistent worker process. Pulls file paths from task_q, extracts metadata using
+    MetadataService, and pushes result dicts to result_q.
     """
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+    # Initialize MetadataService in worker process
     try:
-        from PIL import Image, ExifTags
+        metadata_service = MetadataService()
     except Exception as e:
-        # If PIL is not available, fail fast
-        result_q.put({"path": None, "ok": False, "error": f"PIL import failed: {e}"})
+        result_q.put({"path": None, "ok": False, "error": f"MetadataService init failed: {e}"})
         return
 
-    # optional HEIF support
+    # Optional HEIF support
     try:
         import pillow_heif  # noqa
     except Exception:
         pass
 
     def extract(path):
+        """Extract metadata using MetadataService for consistency."""
         out = {"path": str(path)}
         try:
-            with Image.open(path) as im:
-                w, h = im.size
-                out["width"] = int(w)
-                out["height"] = int(h)
-                date_taken = None
-                try:
-                    exif = im.getexif()
-                except Exception:
-                    exif = None
-                if exif:
-                    TAGS = ExifTags.TAGS
-                    def get_by_name(name):
-                        for k, v in exif.items():
-                            if TAGS.get(k) == name:
-                                return v
-                        return None
-                    dt = get_by_name("DateTimeOriginal") or get_by_name("DateTimeDigitized") or get_by_name("DateTime")
-                    if dt:
-                        s = str(dt)
-                        parts = s.split(" ", 1)
-                        if parts:
-                            d = parts[0].replace(":", "-", 2)
-                            rest = parts[1] if len(parts) > 1 else ""
-                            date_taken = (d + (" " + rest if rest else "")).strip()
-                        else:
-                            date_taken = s
-                out["date_taken"] = date_taken
-                out["ok"] = True
+            # Use MetadataService for extraction
+            width, height, date_taken = metadata_service.extract_basic_metadata(path)
+
+            out["width"] = width
+            out["height"] = height
+            out["date_taken"] = date_taken
+            out["ok"] = True
+
         except Exception as e:
             out["ok"] = False
             out["error"] = str(e)
+
         return out
 
     while not stop_event.is_set():

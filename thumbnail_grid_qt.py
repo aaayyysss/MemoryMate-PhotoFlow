@@ -21,6 +21,7 @@ from typing import Optional
 # === Global Decoder Warning Policy ===
 from settings_manager_qt import SettingsManager
 from thumb_cache_db import get_cache
+from services import get_thumbnail_service
 
 # create module-level settings instance (used in __init__ safely)
 settings = SettingsManager()
@@ -130,64 +131,35 @@ def _pil_to_qimage(pil_img):
 
 
 def load_thumbnail_safe(path: str, height: int, cache: dict, timeout: float, placeholder: QPixmap):
-    """Safe loader with mem+DB cache, optional OneDrive hydration, PIL fallback."""
-    from PIL import Image
+    """
+    Safe loader with ThumbnailService.
+
+    NOTE: The 'cache' parameter is kept for backward compatibility but is now unused
+    as ThumbnailService manages its own L1+L2 caching internally.
+
+    Args:
+        path: Image file path
+        height: Target thumbnail height
+        cache: Legacy parameter (unused, kept for compatibility)
+        timeout: Decode timeout in seconds
+        placeholder: Fallback pixmap on error
+
+    Returns:
+        QPixmap thumbnail
+    """
     try:
-        st = os.stat(path)
-        mtime = st.st_mtime
-        cache_db = get_cache()
-        offline_flags = getattr(st, "st_file_attributes", 0)
-        FILE_ATTRIBUTE_OFFLINE = 0x1000
-        FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS = 0x40000
-        needs_hydration = bool(offline_flags & (FILE_ATTRIBUTE_OFFLINE | FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS))
-    except Exception:
-        print(f"[ThumbnailSafe] stat() failed for {path}")
+        # Use ThumbnailService which handles all caching internally
+        thumb_service = get_thumbnail_service()
+        pm = thumb_service.get_thumbnail(path, height, timeout=timeout)
+
+        if pm and not pm.isNull():
+            return pm
+
         return placeholder
 
-    # 1) memory cache
-    if path in cache and abs(cache[path]["mtime"] - mtime) < 0.1:
-        return cache[path]["pixmap"]
-
-    # 2) persistent cache
-    cached_pm = cache_db.get_cached_thumbnail(path, mtime, height * 2)
-    if cached_pm:
-        cache[path] = {"pixmap": cached_pm, "mtime": mtime}
-        return cached_pm
-
-    # 2.5) hydrate OneDrive if needed
-    if needs_hydration:
-        try:
-            with open(path, "rb", buffering=0) as f:
-                _ = f.read(64 * 1024)
-            st = os.stat(path)
-            mtime = st.st_mtime
-        except Exception as e:
-            print(f"[ThumbnailSafe] Hydration failed: {e}")
-
-    # 3) decode via PIL
-    start = time.time()
-    try:
-        with Image.open(path) as img:
-            img.thumbnail((height * 2, height), Image.LANCZOS)
-            if time.time() - start > timeout:
-                print(f"[ThumbnailSafe] ⏱️ Timeout: {path}")
-                return placeholder
-            qimg = _pil_to_qimage(img)
     except Exception as e:
-        s = str(e).lower()
-        if "cannot identify" in s or "unsupported" in s:
-            print(f"[ThumbnailSafe] Skipped unsupported image: {path} ({e})")
-        else:
-            print(f"[ThumbnailSafe] Decode failed: {e}")
+        print(f"[ThumbnailSafe] Failed to load {path}: {e}")
         return placeholder
-
-    pm = QPixmap.fromImage(qimg)
-    cache[path] = {"pixmap": pm, "mtime": mtime}
-    try:
-        cache_db.store_thumbnail(path, mtime, pm)
-    except Exception:
-        pass
-    return pm
 
 # --- Worker signal bridge ---
 def get_thumbnail_safe(path, height, use_disk_cache=True):
@@ -394,7 +366,10 @@ class ThumbnailGridQt(QWidget):
         
         # --- Thumbnail pipeline safety ---
         self._reload_token = uuid.uuid4()
-        self._thumb_cache = {}        # {path: {"pixmap": QPixmap, "mtime": float}}
+        # NOTE: _thumb_cache kept for backward compatibility but no longer used
+        # ThumbnailService manages its own L1+L2 cache internally
+        self._thumb_cache = {}        # Deprecated: use ThumbnailService instead
+        self._thumbnail_service = get_thumbnail_service()
         self._decode_timeout = 5.0    # seconds for watchdog
         # shared placeholder pixmap (reuse to avoid many allocations)
         self._placeholder_pixmap = make_placeholder_pixmap(QSize(self.thumb_height, self.thumb_height))
@@ -566,22 +541,9 @@ class ThumbnailGridQt(QWidget):
                 if item.data(Qt.UserRole + 5):
                     continue
 
-                # memory cache hit
-#                mc = self._thumb_cache.get(path)
-                mc = self._thumb_cache.get(npath)
-                try:
-#                    stat_mtime = os.path.getmtime(path) if os.path.exists(path) else None
-                    stat_mtime = os.path.getmtime(rpath) if os.path.exists(rpath) else None
-                except Exception:
-                    stat_mtime = None
-
-                if mc and stat_mtime is not None and abs(mc.get("mtime", 0) - stat_mtime) < 0.1:
-                    # ensure UI shows cached pixmap
-                    try:
-                        item.setIcon(QIcon(mc["pixmap"]))
-                    except Exception:
-                        pass
-                    continue
+                # NOTE: ThumbnailService now handles all cache checking internally
+                # with its L1 (memory) + L2 (database) cache for fast hits.
+                # We just schedule workers and let the service optimize lookups.
 
                 # schedule worker
                 item.setData(True, Qt.UserRole + 5)  # mark scheduled
@@ -794,16 +756,8 @@ class ThumbnailGridQt(QWidget):
         # allow future rescheduling after zoom/scroll
         item.setData(False, Qt.UserRole + 5)
 
-        # --- Update memory cache only (DB already handled inside loader)
-        try:
-#            st = os.stat(path)
-#            self._thumb_cache[path] = {"pixmap": pm, "mtime": st.st_mtime}
-
-            real_path = item.data(Qt.UserRole + 6) or path
-            st = os.stat(real_path)
-            self._thumb_cache[path] = {"pixmap": pm, "mtime": st.st_mtime}
-        except Exception:
-            pass
+        # NOTE: ThumbnailService handles all cache updates internally
+        # No need to manually update memory cache here
 
         # ✅ Redraw the updated thumbnail cell
         try:

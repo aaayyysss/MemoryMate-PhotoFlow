@@ -1717,7 +1717,7 @@ class BackfillStatusPanel(QWidget):
             return None
 
     def _launch_detached(self):
-        script = Path(__file__).resolve().parent / "meta_backfill_pool.py"
+        script = Path(__file__).resolve().parent / "workers" / "meta_backfill_pool.py"
         if not script.exists():
             QMessageBox.warning(self, "Backfill Script Missing", f"{script} not found.")
             return
@@ -1782,7 +1782,7 @@ class BackfillStatusPanel(QWidget):
         so the GUI thread doesn't block. Use the same config resolution helper.
         """
         def run():
-            script = Path(__file__).resolve().parent / "meta_backfill_pool.py"
+            script = Path(__file__).resolve().parent / "workers" / "meta_backfill_pool.py"
             settings = self._get_config()
             workers = settings.get("meta_workers", 4) if settings else 4
             timeout = settings.get("meta_timeout_secs", 8.0) if settings else 8.0

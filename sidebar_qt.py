@@ -624,7 +624,7 @@ class SidebarTabs(QWidget):
             try:
                 from subprocess import Popen
                 import sys, os
-                script = os.path.join(os.path.dirname(__file__), "face_cluster_worker.py")
+                script = os.path.join(os.path.dirname(__file__), "workers", "face_cluster_worker.py")
                 print(f"[People] launching recluster worker → {script}")
                 # Reuse the same detached helper pattern
                 if hasattr(self.parent(), "_launch_detached"):

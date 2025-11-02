@@ -313,7 +313,7 @@ class DBWriter(QObject):
                 conn.commit()
                 try:
                     print(f"[DBWriter] committed {len(params_legacy)} rows (legacy)")
-                    self.committed.emit(len(params_with_created))   # ✅ notify main thread
+                    self.committed.emit(len(params_legacy))   # ✅ Fixed: emit correct count
                 except Exception:
                     pass
                 return

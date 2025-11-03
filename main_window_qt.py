@@ -177,6 +177,19 @@ class ScanController:
         self.db_writer.committed.connect(self._on_committed)
         self.db_writer.start()
 
+        # CRITICAL: Initialize database schema before starting scan
+        # This ensures the repository layer has created all necessary tables
+        try:
+            from repository.base_repository import DatabaseConnection
+            db_conn = DatabaseConnection("reference_data.db", auto_init=True)
+            print("[Schema] Database schema initialized successfully")
+        except Exception as e:
+            print(f"[Schema] ERROR: Failed to initialize database schema: {e}")
+            import traceback
+            traceback.print_exc()
+            self.main.statusBar().showMessage(f"❌ Database initialization failed: {e}")
+            return
+
         # Scan worker
 #        from scan_worker import ScanWorker
         self.thread = QThread(self.main)
@@ -1845,8 +1858,17 @@ class MainWindow(QMainWindow):
             self._init_progress_pollers()
         except Exception as e:
             print(f"[MainWindow] ⚠️ Progress pollers init failed: {e}")
-        
-        
+
+        # === Initialize database schema at startup ===
+        try:
+            from repository.base_repository import DatabaseConnection
+            db_conn = DatabaseConnection("reference_data.db", auto_init=True)
+            print("[Startup] Database schema initialized successfully")
+        except Exception as e:
+            print(f"[Startup] ⚠️ Database initialization failed: {e}")
+            import traceback
+            traceback.print_exc()
+
 
 # =========================
     def _init_db_and_sidebar(self):

@@ -1,7 +1,11 @@
 # repository/base_repository.py
-# Version 01.00.00.00 dated 20251102
+# Version 01.00.02.00 dated 20251103
 # Base repository pattern for data access layer
+# FIX: Added _ensure_schema() to DatabaseConnection.__init__ to ensure tables exist on fresh DB
+# FIX: Convert db_path to absolute path to ensure all threads access same DB file
+# FIX: Fix Windows URI paths (forward slashes) for read-only connections
 
+import os
 import sqlite3
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -25,19 +29,54 @@ class DatabaseConnection:
     _instance: Optional['DatabaseConnection'] = None
     _db_path: Optional[str] = None
 
-    def __new__(cls, db_path: str = "reference_data.db"):
+    def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, db_path: str = "reference_data.db"):
+    def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
+            print(f"[DB-DEBUG] DatabaseConnection.__init__ skipped (already initialized): {db_path}")
             return
 
-        self._db_path = db_path
+        # CRITICAL: Store ABSOLUTE path to ensure all threads access the same database file
+        # Relative paths cause worker threads to access different databases based on their CWD
+        abs_db_path = os.path.abspath(db_path)
+
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, absolute={abs_db_path}, auto_init={auto_init}")
+
+        self._db_path = abs_db_path
+        self._auto_init = auto_init
         self._initialized = True
-        logger.info(f"DatabaseConnection initialized with path: {db_path}")
+
+        # Auto-initialize schema if requested
+        if self._auto_init:
+            print(f"[DB-DEBUG] Calling _ensure_schema() for {abs_db_path}")
+            self._ensure_schema()
+            print(f"[DB-DEBUG] _ensure_schema() completed for {abs_db_path}")
+        else:
+            print(f"[DB-DEBUG] Skipping _ensure_schema() (auto_init=False)")
+
+        logger.info(f"DatabaseConnection initialized with path: {abs_db_path}")
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {abs_db_path}")
+
+    def _ensure_schema(self):
+        """
+        Ensure database schema exists by delegating to ReferenceDB._ensure_db().
+        This is called once when DatabaseConnection is first initialized.
+        """
+        try:
+            # Import here to avoid circular dependency
+            from reference_db import ReferenceDB
+
+            # Create a temporary ReferenceDB instance with the same db path
+            # This will call _ensure_db() which creates all tables
+            temp_db = ReferenceDB(db_file=self._db_path)
+            logger.info("Database schema ensured via ReferenceDB")
+        except Exception as e:
+            logger.error(f"Failed to ensure database schema: {e}", exc_info=True)
+            raise
 
     @contextmanager
     def get_connection(self, read_only: bool = False) -> Generator[sqlite3.Connection, None, None]:
@@ -57,10 +96,14 @@ class DatabaseConnection:
         """
         conn = None
         try:
-            uri = f"file:{self._db_path}?mode=ro" if read_only else self._db_path
-            conn = sqlite3.connect(uri if read_only else self._db_path,
-                                   timeout=10.0,
-                                   check_same_thread=False)
+            # FIX: SQLite URIs require forward slashes, even on Windows
+            # Convert backslashes to forward slashes for URI mode
+            if read_only:
+                uri_path = self._db_path.replace('\\', '/')
+                uri = f"file:{uri_path}?mode=ro"
+                conn = sqlite3.connect(uri, uri=True, timeout=10.0, check_same_thread=False)
+            else:
+                conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
 
             # Configure connection
             conn.execute("PRAGMA foreign_keys = ON")

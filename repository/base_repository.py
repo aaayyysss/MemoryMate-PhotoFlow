@@ -46,21 +46,24 @@ class DatabaseConnection:
             print(f"[DB-DEBUG] DatabaseConnection.__init__ skipped (already initialized): {db_path}")
             return
 
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, auto_init={auto_init}")
-        self._db_path = db_path
+        # CRITICAL: Store ABSOLUTE path to ensure all threads access the same database file
+        # Relative paths cause worker threads to access different databases based on their CWD
+        abs_db_path = os.path.abspath(db_path)
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, absolute={abs_db_path}, auto_init={auto_init}")
+        self._db_path = abs_db_path
         self._auto_init = auto_init
         self._initialized = True
 
         # Auto-initialize schema if requested
         if self._auto_init:
-            print(f"[DB-DEBUG] Calling _ensure_schema() for {db_path}")
+            print(f"[DB-DEBUG] Calling _ensure_schema() for {abs_db_path}")
             self._ensure_schema()
-            print(f"[DB-DEBUG] _ensure_schema() completed for {db_path}")
+            print(f"[DB-DEBUG] _ensure_schema() completed for {abs_db_path}")
         else:
             print(f"[DB-DEBUG] Skipping _ensure_schema() (auto_init=False)")
 
-        logger.info(f"DatabaseConnection initialized with path: {db_path}")
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {db_path}")
+        logger.info(f"DatabaseConnection initialized with path: {abs_db_path}")
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {abs_db_path}")
 
     @contextmanager
     def get_connection(self, read_only: bool = False) -> Generator[sqlite3.Connection, None, None]:

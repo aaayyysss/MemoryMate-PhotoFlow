@@ -260,6 +260,18 @@ class ScanController:
         except Exception as e:
             print(f"[ScanController] cleanup error: {e}")
 
+        # Build date branches after scan completes
+        try:
+            print("[ScanController] Building date branches...")
+            from reference_db import ReferenceDB
+            db = ReferenceDB()
+            branch_count = db.build_date_branches()
+            print(f"[ScanController] Created {branch_count} date branch entries")
+        except Exception as e:
+            print(f"[ScanController] Error building date branches: {e}")
+            import traceback
+            traceback.print_exc()
+
         # Sidebar & grid refresh
         try:
             if hasattr(self.main.sidebar, "reload"):

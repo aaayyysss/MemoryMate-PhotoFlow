@@ -80,10 +80,14 @@ class DatabaseConnection:
         """
         conn = None
         try:
-            uri = f"file:{self._db_path}?mode=ro" if read_only else self._db_path
-            conn = sqlite3.connect(uri if read_only else self._db_path,
-                                   timeout=10.0,
-                                   check_same_thread=False)
+            # FIX: SQLite URIs require forward slashes, even on Windows
+            # Convert backslashes to forward slashes for URI mode
+            if read_only:
+                uri_path = self._db_path.replace('\\', '/')
+                uri = f"file:{uri_path}?mode=ro"
+                conn = sqlite3.connect(uri, uri=True, timeout=10.0, check_same_thread=False)
+            else:
+                conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
 
             # Configure connection
             conn.execute("PRAGMA foreign_keys = ON")

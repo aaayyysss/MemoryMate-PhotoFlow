@@ -167,20 +167,27 @@ class DatabaseConnection:
                 logger.info(f"Creating fresh database schema (version {target_version})")
                 print(f"[DB-DEBUG] Creating fresh database schema (version {target_version})")
 
-                with self.get_connection() as conn:
+                # CRITICAL: Create schema in DELETE mode first, then switch to WAL
+                # This ensures all connections can see the schema immediately
+                conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
+                try:
+                    print(f"[DB-DEBUG] Setting journal_mode=DELETE for schema creation...")
+                    conn.execute("PRAGMA journal_mode=DELETE")
+                    conn.execute("PRAGMA foreign_keys = ON")
+
                     print(f"[DB-DEBUG] Executing schema SQL script...")
                     conn.executescript(get_schema_sql())
                     conn.commit()
                     print(f"[DB-DEBUG] Schema SQL script executed and committed")
 
-                    # CRITICAL: Checkpoint WAL to ensure schema persists to main db file
-                    # Without this, new connections may not see the tables!
-                    try:
-                        conn.execute("PRAGMA wal_checkpoint(FULL)")
-                        conn.commit()
-                        print(f"[DB-DEBUG] WAL checkpoint completed - schema flushed to disk")
-                    except sqlite3.OperationalError as e:
-                        print(f"[DB-DEBUG] WAL checkpoint failed (might not be in WAL mode): {e}")
+                    # Now switch to WAL mode for better concurrency
+                    print(f"[DB-DEBUG] Switching to WAL mode after schema creation...")
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.commit()
+                    print(f"[DB-DEBUG] WAL mode enabled")
+                finally:
+                    conn.close()
+                    print(f"[DB-DEBUG] Schema creation connection closed")
 
                 # VERIFY: Open a new connection and check tables exist
                 print(f"[DB-DEBUG] Verifying tables exist in new connection...")

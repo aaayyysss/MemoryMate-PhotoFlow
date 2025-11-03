@@ -74,8 +74,11 @@ class ScanWorkerAdapter(QObject):
             finished: On successful completion
             error: On failure
         """
+        print(f"[ScanWorkerAdapter] run() method called!")
+        print(f"[ScanWorkerAdapter] folder={self.folder}, incremental={self.incremental}")
         try:
             logger.info(f"ScanWorkerAdapter starting scan of {self.folder}")
+            print(f"[ScanWorkerAdapter] Starting scan...")
 
             # Extract settings
             skip_unchanged = self.settings.get("skip_unchanged_photos", True)

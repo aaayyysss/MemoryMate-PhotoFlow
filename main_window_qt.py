@@ -191,18 +191,45 @@ class ScanController:
             return
 
         # Scan worker
-        from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
-        self.thread = QThread(self.main)
-        self.worker = ScanWorker(folder, incremental, self.main.settings, db_writer=self.db_writer)
-        self.worker.moveToThread(self.thread)
-        self.worker.progress.connect(self._on_progress)
-        self.worker.finished.connect(self._on_finished)
-        self.worker.error.connect(self._on_error)
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(lambda f, p: self.thread.quit())
-        self.thread.finished.connect(self._cleanup)
-        self.db_writer.started.connect(lambda: QTimer.singleShot(0, self.thread.start))
-        self.main.act_cancel_scan.setEnabled(True)
+        try:
+            print(f"[ScanController] Creating ScanWorker for folder: {folder}")
+            from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
+            print(f"[ScanController] ScanWorker imported successfully")
+
+            self.thread = QThread(self.main)
+            print(f"[ScanController] QThread created")
+
+            self.worker = ScanWorker(folder, incremental, self.main.settings, db_writer=self.db_writer)
+            print(f"[ScanController] ScanWorker instance created")
+
+            self.worker.moveToThread(self.thread)
+            print(f"[ScanController] Worker moved to thread")
+
+            self.worker.progress.connect(self._on_progress)
+            self.worker.finished.connect(self._on_finished)
+            self.worker.error.connect(self._on_error)
+            self.thread.started.connect(lambda: print("[ScanController] QThread STARTED!"))
+            self.thread.started.connect(self.worker.run)
+            self.worker.finished.connect(lambda f, p: self.thread.quit())
+            self.thread.finished.connect(self._cleanup)
+            print(f"[ScanController] Signals connected")
+
+            def start_thread_now():
+                print("[ScanController] DBWriter started signal received, starting scan thread...")
+                self.thread.start()
+                print("[ScanController] thread.start() called")
+
+            self.db_writer.started.connect(start_thread_now)
+            print(f"[ScanController] Waiting for DBWriter to start thread...")
+
+            self.main.act_cancel_scan.setEnabled(True)
+        except Exception as e:
+            print(f"[ScanController] CRITICAL ERROR creating scan worker: {e}")
+            import traceback
+            traceback.print_exc()
+            self.main.statusBar().showMessage(f"❌ Failed to create scan worker: {e}")
+            QMessageBox.critical(self.main, "Scan Error", f"Failed to create scan worker:\n\n{e}")
+            return
 
     def cancel(self):
         """Cancel triggered from toolbar."""

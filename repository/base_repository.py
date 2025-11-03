@@ -1,7 +1,9 @@
 # repository/base_repository.py
-# Version 01.00.00.00 dated 20251102
+# Version 02.00.00.00 dated 20251103
 # Base repository pattern for data access layer
+# UPDATED: Added schema initialization and migration support
 
+import os
 import sqlite3
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -16,27 +18,37 @@ class DatabaseConnection:
     Manages database connections with proper pooling and lifecycle management.
 
     This singleton class ensures:
-    - Only one database file is used
+    - One instance per database file (singleton per path)
     - Connections are properly configured (foreign keys, WAL mode)
     - Thread-safe access
     - Proper connection cleanup
     """
 
-    _instance: Optional['DatabaseConnection'] = None
-    _db_path: Optional[str] = None
+    _instances: Dict[str, 'DatabaseConnection'] = {}
 
-    def __new__(cls, db_path: str = "reference_data.db"):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+    def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
+        # Normalize path for consistent singleton lookup
+        norm_path = os.path.abspath(db_path)
 
-    def __init__(self, db_path: str = "reference_data.db"):
+        if norm_path not in cls._instances:
+            instance = super().__new__(cls)
+            instance._initialized = False
+            cls._instances[norm_path] = instance
+
+        return cls._instances[norm_path]
+
+    def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
             return
 
         self._db_path = db_path
+        self._auto_init = auto_init
         self._initialized = True
+
+        # Auto-initialize schema if requested
+        if self._auto_init:
+            self._ensure_schema()
+
         logger.info(f"DatabaseConnection initialized with path: {db_path}")
 
     @contextmanager
@@ -108,6 +120,136 @@ class DatabaseConnection:
             conn.executescript(script)
             conn.commit()
         logger.info("SQL script executed successfully")
+
+    def _ensure_schema(self):
+        """
+        Ensure database schema exists and is up to date.
+
+        This method is called automatically during initialization if auto_init=True.
+        It handles three scenarios:
+        1. Fresh database (no tables) - creates full schema from scratch
+        2. Legacy database (v1.0) - applies migrations to upgrade to v2.0
+        3. Current database (v2.0) - no action needed
+
+        The schema creation/migration is idempotent - safe to call multiple times.
+        """
+        try:
+            from .schema import get_schema_sql, get_schema_version
+            from .migrations import MigrationManager, get_migration_status
+
+            target_version = get_schema_version()
+
+            # Check if database needs migration
+            manager = MigrationManager(self)
+            current_version = manager.get_current_version()
+
+            logger.info(f"Schema check: current={current_version}, target={target_version}")
+
+            if current_version == "0.0.0":
+                # Fresh database - create full schema from scratch
+                logger.info(f"Creating fresh database schema (version {target_version})")
+
+                with self.get_connection() as conn:
+                    conn.executescript(get_schema_sql())
+                    conn.commit()
+
+                logger.info(f"✓ Fresh schema created (version {target_version})")
+
+            elif current_version != target_version:
+                # Legacy database - apply migrations
+                logger.info(f"Migrating database from {current_version} to {target_version}")
+
+                status = get_migration_status(self)
+                logger.info(f"Pending migrations: {status['pending_count']}")
+
+                if status['needs_migration']:
+                    results = manager.apply_all_migrations()
+
+                    # Check results
+                    success_count = sum(1 for r in results if r['status'] == 'success')
+                    failed_count = sum(1 for r in results if r['status'] == 'failed')
+
+                    if failed_count > 0:
+                        logger.error(f"✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
+                        raise Exception(f"Migration failed - database may be in inconsistent state")
+
+                    logger.info(f"✓ Migrations completed: {success_count} applied successfully")
+                else:
+                    logger.info("✓ Database already up to date")
+
+            else:
+                # Already at target version
+                logger.info(f"✓ Database already at target version {target_version}")
+
+        except Exception as e:
+            logger.error(f"Schema initialization/migration failed: {e}", exc_info=True)
+            raise
+
+    def validate_schema(self) -> bool:
+        """
+        Validate that database schema matches expected structure.
+
+        Returns:
+            bool: True if schema is valid, False otherwise
+        """
+        try:
+            from .schema import get_expected_tables, get_expected_indexes
+
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+
+                # Check tables
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_tables = {row['name'] for row in cur.fetchall()}
+                expected_tables = set(get_expected_tables())
+
+                missing_tables = expected_tables - actual_tables
+                if missing_tables:
+                    logger.error(f"Missing tables: {missing_tables}")
+                    return False
+
+                # Check indexes (optional - some may not exist in legacy DBs)
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='index' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_indexes = {row['name'] for row in cur.fetchall()}
+                expected_indexes = set(get_expected_indexes())
+
+                missing_indexes = expected_indexes - actual_indexes
+                if missing_indexes:
+                    logger.warning(f"Missing indexes (non-critical): {missing_indexes}")
+                    # Don't fail on missing indexes - just warn
+
+                logger.info("Schema validation passed")
+                return True
+
+        except Exception as e:
+            logger.error(f"Schema validation failed: {e}", exc_info=True)
+            return False
+
+    def get_schema_version(self) -> str:
+        """
+        Get the current schema version from the database.
+
+        Returns:
+            str: Schema version string, or "unknown" if not found
+        """
+        try:
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT version FROM schema_version
+                    ORDER BY applied_at DESC
+                    LIMIT 1
+                """)
+                result = cur.fetchone()
+                return result['version'] if result else "unknown"
+        except Exception:
+            return "unknown"
 
 
 class BaseRepository(ABC):

@@ -1840,8 +1840,10 @@ class ReferenceDB:
 
     def build_date_branches(self):
         """
-        Build branches for each created_date value in photo_metadata.
+        Build branches for each date_taken value in photo_metadata.
         If they already exist, skip.
+
+        NOTE: Uses date_taken field (populated during scan) instead of created_date.
         """
         with self._connect() as conn:
             cur = conn.cursor()
@@ -1853,8 +1855,14 @@ class ReferenceDB:
                 return 0
             project_id = row[0]
 
-            # get unique dates
-            cur.execute("SELECT DISTINCT created_date FROM photo_metadata WHERE created_date IS NOT NULL")
+            # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
+            # Extract just the date part (YYYY-MM-DD)
+            cur.execute("""
+                SELECT DISTINCT substr(date_taken, 1, 10) as date_only
+                FROM photo_metadata
+                WHERE date_taken IS NOT NULL AND date_taken != ''
+                ORDER BY date_only
+            """)
             dates = [r[0] for r in cur.fetchall()]
 
             n_total = 0
@@ -1863,17 +1871,18 @@ class ReferenceDB:
                 branch_name = d
                 # ensure branch exists
                 cur.execute(
-                    "INSERT OR IGNORE INTO branches (project_id, key, name, parent_key) VALUES (?,?,?,NULL)",
+                    "INSERT OR IGNORE INTO branches (project_id, branch_key, display_name) VALUES (?,?,?)",
                     (project_id, branch_key, branch_name),
                 )
-                # link photos
+                # link photos - match on date part of date_taken
                 cur.execute(
-                    "SELECT path FROM photo_metadata WHERE created_date = ?", (d,)
+                    "SELECT path FROM photo_metadata WHERE substr(date_taken, 1, 10) = ?",
+                    (d,)
                 )
                 paths = [r[0] for r in cur.fetchall()]
                 for p in paths:
                     cur.execute(
-                        "INSERT OR IGNORE INTO project_images (project_id, branch_key, path) VALUES (?,?,?)",
+                        "INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path) VALUES (?,?,?)",
                         (project_id, branch_key, p),
                     )
                 n_total += len(paths)
@@ -1884,7 +1893,7 @@ class ReferenceDB:
             self._connect().commit()
         except Exception:
             pass
-        
+
         return n_total
 
 

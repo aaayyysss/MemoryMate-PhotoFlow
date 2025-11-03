@@ -182,6 +182,21 @@ class DatabaseConnection:
                     except sqlite3.OperationalError as e:
                         print(f"[DB-DEBUG] WAL checkpoint failed (might not be in WAL mode): {e}")
 
+                # VERIFY: Open a new connection and check tables exist
+                print(f"[DB-DEBUG] Verifying tables exist in new connection...")
+                with self.get_connection() as verify_conn:
+                    cursor = verify_conn.cursor()
+                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+                    tables = [row['name'] if isinstance(row, dict) else row[0] for row in cursor.fetchall()]
+                    print(f"[DB-DEBUG] Verification found {len(tables)} tables: {tables[:5]}...")  # Show first 5
+
+                    if 'photo_metadata' not in tables:
+                        print(f"[DB-DEBUG] ❌ CRITICAL: photo_metadata table NOT FOUND after checkpoint!")
+                        print(f"[DB-DEBUG] All tables: {tables}")
+                        raise Exception("Schema creation failed - photo_metadata table not found")
+                    else:
+                        print(f"[DB-DEBUG] ✓ Verification passed - photo_metadata table exists")
+
                 logger.info(f"✓ Fresh schema created (version {target_version})")
                 print(f"[DB-DEBUG] ✓ Fresh schema created (version {target_version})")
 

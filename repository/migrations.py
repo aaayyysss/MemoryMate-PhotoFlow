@@ -1,6 +1,7 @@
 # repository/migrations.py
-# Version 2.0.0 dated 20251103
+# Version 2.0.1 dated 20251103
 # Database migration system for schema upgrades
+# FIX: Check if DB file exists before opening in read-only mode (prevents error on fresh DB)
 #
 # This module handles schema migrations from legacy databases to current version.
 # It provides safe, incremental schema upgrades with full tracking and validation.
@@ -284,8 +285,14 @@ class MigrationManager:
         db_path = self.db_connection._db_path
         print(f"[MIGRATION-DEBUG] get_current_version() called for db: {db_path}")
         print(f"[MIGRATION-DEBUG] Database file exists: {os.path.exists(db_path)}")
-        if os.path.exists(db_path):
-            print(f"[MIGRATION-DEBUG] Database file size: {os.path.getsize(db_path)} bytes")
+
+        # CRITICAL FIX: If database file doesn't exist, return 0.0.0 immediately
+        # Cannot open non-existent file in read-only mode - SQLite will fail
+        if not os.path.exists(db_path):
+            print(f"[MIGRATION-DEBUG] Database file doesn't exist, returning version 0.0.0")
+            return "0.0.0"
+
+        print(f"[MIGRATION-DEBUG] Database file size: {os.path.getsize(db_path)} bytes")
 
         try:
             with self.db_connection.get_connection(read_only=True) as conn:

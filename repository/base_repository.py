@@ -173,6 +173,15 @@ class DatabaseConnection:
                     conn.commit()
                     print(f"[DB-DEBUG] Schema SQL script executed and committed")
 
+                    # CRITICAL: Checkpoint WAL to ensure schema persists to main db file
+                    # Without this, new connections may not see the tables!
+                    try:
+                        conn.execute("PRAGMA wal_checkpoint(FULL)")
+                        conn.commit()
+                        print(f"[DB-DEBUG] WAL checkpoint completed - schema flushed to disk")
+                    except sqlite3.OperationalError as e:
+                        print(f"[DB-DEBUG] WAL checkpoint failed (might not be in WAL mode): {e}")
+
                 logger.info(f"✓ Fresh schema created (version {target_version})")
                 print(f"[DB-DEBUG] ✓ Fresh schema created (version {target_version})")
 
@@ -197,6 +206,15 @@ class DatabaseConnection:
                         logger.error(f"✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
                         print(f"[DB-DEBUG] ✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
                         raise Exception(f"Migration failed - database may be in inconsistent state")
+
+                    # Checkpoint WAL after migrations
+                    try:
+                        with self.get_connection() as conn:
+                            conn.execute("PRAGMA wal_checkpoint(FULL)")
+                            conn.commit()
+                            print(f"[DB-DEBUG] Post-migration WAL checkpoint completed")
+                    except Exception as e:
+                        print(f"[DB-DEBUG] Post-migration WAL checkpoint warning: {e}")
 
                     logger.info(f"✓ Migrations completed: {success_count} applied successfully")
                     print(f"[DB-DEBUG] ✓ Migrations completed: {success_count} applied successfully")

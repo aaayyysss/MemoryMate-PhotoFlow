@@ -191,7 +191,7 @@ class ScanController:
             return
 
         # Scan worker
-#        from scan_worker import ScanWorker
+        from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
         self.thread = QThread(self.main)
         self.worker = ScanWorker(folder, incremental, self.main.settings, db_writer=self.db_writer)
         self.worker.moveToThread(self.thread)

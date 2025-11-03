@@ -94,7 +94,7 @@ from app_services import (
 
 from reference_db import ReferenceDB
 from reference_db import (
-    ensure_created_date_fields,
+    # NOTE: ensure_created_date_fields no longer needed - handled by migration system
     count_missing_created_fields,
     single_pass_backfill_created_fields,
 )
@@ -170,8 +170,7 @@ class ScanController:
         self.main._scan_progress.show()
 
         # DB writer
-        from reference_db import ReferenceDB
-        ReferenceDB().ensure_created_date_fields()
+        # NOTE: Schema creation handled automatically by repository layer
         from db_writer import DBWriter
         self.db_writer = DBWriter(batch_size=200, poll_interval_ms=150)
         self.db_writer.error.connect(lambda msg: print(f"[DBWriter] {msg}"))
@@ -1860,10 +1859,11 @@ class MainWindow(QMainWindow):
         from reference_db import ReferenceDB
         self.db = ReferenceDB()
 
-        # ✅ Ensure created_* columns exist
-        self.db.ensure_created_date_fields()
+        # NOTE: Schema creation and migrations are now handled automatically
+        # by repository layer during ReferenceDB initialization.
+        # created_* columns are added via migration system (v1.5.0 migration).
 
-        # 🕰 Backfill if needed
+        # 🕰 Backfill if needed (populate data in existing columns)
         try:
             updated_rows = self.db.single_pass_backfill_created_fields()
             if updated_rows:
@@ -1981,12 +1981,11 @@ class MainWindow(QMainWindow):
           1) Ensure created_* columns + indexes
           2) Backfill in chunks with progress dialog
         """
-        # Step 1: ensure columns
+        # Step 1: Get database reference
+        # NOTE: Schema columns are automatically created via migration system
         db = ReferenceDB()
-        db.ensure_created_date_fields()
-#        ensure_created_date_fields(None)
 
-        # Step 2: how much to do?
+        # Step 2: how much to do? (check for data to backfill)
         total = db.count_missing_created_fields()
         if total == 0:
             QMessageBox.information(self, "Migration", "Nothing to migrate — fields already populated.")

@@ -1,5 +1,6 @@
 # reference_db.py
-# Version 09.19.00.00 dated 20251103
+# Version 09.20.00.00 dated 20251103
+# PHASE 4 CLEANUP: Removed unnecessary ensure_created_date_fields() calls
 # UPDATED: Now uses repository layer for schema management
 #
 # Class-based SQLite wrapper for references, thresholds, labels, and sorting projects
@@ -64,21 +65,27 @@ class ReferenceDB:
         """
         DEPRECATED: Schema management has moved to repository layer.
 
-        This method is maintained for backward compatibility but will be
-        removed in a future version. New code should rely on
-        repository.base_repository.DatabaseConnection for schema management.
+        This method is maintained ONLY as a fallback for environments where the
+        repository layer is unavailable. It will be removed in v10.00.
 
         Schema creation and migrations are now handled automatically by:
         - repository/schema.py (schema definition)
         - repository/migrations.py (migration system)
         - repository/base_repository.py (automatic initialization)
+
+        For normal operation, the repository layer handles all schema management.
+        This legacy fallback provides minimal schema creation only.
         """
         warnings.warn(
             "_ensure_db() is deprecated. Schema management has moved to repository layer. "
-            "This method will be removed in a future version.",
+            "This method will be removed in v10.00.",
             DeprecationWarning,
             stacklevel=2
         )
+
+        # LEGACY FALLBACK: Only used if repository layer import failed
+        # This provides minimal schema creation for backward compatibility
+        # Full schema management should use repository.base_repository.DatabaseConnection
 
         conn = sqlite3.connect(self.db_file)
         c = conn.cursor()

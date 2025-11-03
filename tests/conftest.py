@@ -159,66 +159,29 @@ def nested_folder_structure(test_images_dir: Path) -> dict[str, Path]:
 @pytest.fixture
 def init_test_database(test_db_path: Path) -> sqlite3.Connection:
     """
-    Initialize test database with schema.
+    Initialize test database with PRODUCTION schema.
+
+    Uses the repository layer's schema definition to ensure tests
+    validate against the exact same schema used in production.
 
     Returns connection to test database.
     """
+    # Import repository components
+    import sys
+    import os
+    # Add parent directory to path to import repository
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+    from repository.base_repository import DatabaseConnection
+
+    # Create DatabaseConnection which auto-initializes schema
+    db_conn = DatabaseConnection(str(test_db_path), auto_init=True)
+
+    # Return a regular connection for test use
     conn = sqlite3.connect(str(test_db_path), timeout=10.0)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
 
-    # Create minimal schema for testing
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS folders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            path TEXT UNIQUE NOT NULL,
-            name TEXT,
-            parent_id INTEGER,
-            photo_count INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (parent_id) REFERENCES folders(id)
-        )
-    """)
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS photo_metadata (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            path TEXT UNIQUE NOT NULL,
-            folder_id INTEGER,
-            size_kb REAL,
-            modified TEXT,
-            width INTEGER,
-            height INTEGER,
-            date_taken TEXT,
-            tags TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (folder_id) REFERENCES folders(id)
-        )
-    """)
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            folder TEXT NOT NULL,
-            mode TEXT DEFAULT 'branch',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS branches (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id INTEGER NOT NULL,
-            branch_key TEXT NOT NULL,
-            display_name TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (project_id) REFERENCES projects(id),
-            UNIQUE(project_id, branch_key)
-        )
-    """)
-
-    conn.commit()
     return conn
 
 

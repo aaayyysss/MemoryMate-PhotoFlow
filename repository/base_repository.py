@@ -1,6 +1,7 @@
 # repository/base_repository.py
-# Version 01.00.00.00 dated 20251102
+# Version 02.00.00.00 dated 20251103
 # Base repository pattern for data access layer
+# UPDATED: Added schema initialization support
 
 import sqlite3
 from abc import ABC, abstractmethod
@@ -25,18 +26,24 @@ class DatabaseConnection:
     _instance: Optional['DatabaseConnection'] = None
     _db_path: Optional[str] = None
 
-    def __new__(cls, db_path: str = "reference_data.db"):
+    def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, db_path: str = "reference_data.db"):
+    def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
             return
 
         self._db_path = db_path
+        self._auto_init = auto_init
         self._initialized = True
+
+        # Auto-initialize schema if requested
+        if self._auto_init:
+            self._ensure_schema()
+
         logger.info(f"DatabaseConnection initialized with path: {db_path}")
 
     @contextmanager
@@ -108,6 +115,97 @@ class DatabaseConnection:
             conn.executescript(script)
             conn.commit()
         logger.info("SQL script executed successfully")
+
+    def _ensure_schema(self):
+        """
+        Ensure database schema exists and is up to date.
+
+        This method is called automatically during initialization if auto_init=True.
+        It creates all tables, indexes, and constraints defined in repository/schema.py.
+
+        The schema creation is idempotent - safe to call multiple times.
+        """
+        try:
+            from .schema import get_schema_sql, get_schema_version
+
+            logger.info(f"Initializing database schema (version {get_schema_version()})")
+
+            with self.get_connection() as conn:
+                # Execute complete schema creation script
+                conn.executescript(get_schema_sql())
+                conn.commit()
+
+            logger.info(f"Schema initialized successfully (version {get_schema_version()})")
+
+        except Exception as e:
+            logger.error(f"Schema initialization failed: {e}", exc_info=True)
+            raise
+
+    def validate_schema(self) -> bool:
+        """
+        Validate that database schema matches expected structure.
+
+        Returns:
+            bool: True if schema is valid, False otherwise
+        """
+        try:
+            from .schema import get_expected_tables, get_expected_indexes
+
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+
+                # Check tables
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_tables = {row['name'] for row in cur.fetchall()}
+                expected_tables = set(get_expected_tables())
+
+                missing_tables = expected_tables - actual_tables
+                if missing_tables:
+                    logger.error(f"Missing tables: {missing_tables}")
+                    return False
+
+                # Check indexes (optional - some may not exist in legacy DBs)
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='index' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_indexes = {row['name'] for row in cur.fetchall()}
+                expected_indexes = set(get_expected_indexes())
+
+                missing_indexes = expected_indexes - actual_indexes
+                if missing_indexes:
+                    logger.warning(f"Missing indexes (non-critical): {missing_indexes}")
+                    # Don't fail on missing indexes - just warn
+
+                logger.info("Schema validation passed")
+                return True
+
+        except Exception as e:
+            logger.error(f"Schema validation failed: {e}", exc_info=True)
+            return False
+
+    def get_schema_version(self) -> str:
+        """
+        Get the current schema version from the database.
+
+        Returns:
+            str: Schema version string, or "unknown" if not found
+        """
+        try:
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT version FROM schema_version
+                    ORDER BY applied_at DESC
+                    LIMIT 1
+                """)
+                result = cur.fetchone()
+                return result['version'] if result else "unknown"
+        except Exception:
+            return "unknown"
 
 
 class BaseRepository(ABC):

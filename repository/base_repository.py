@@ -1,8 +1,9 @@
 # repository/base_repository.py
 # Version 02.00.00.00 dated 20251103
 # Base repository pattern for data access layer
-# UPDATED: Added schema initialization support
+# UPDATED: Added schema initialization and migration support
 
+import os
 import sqlite3
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -17,20 +18,24 @@ class DatabaseConnection:
     Manages database connections with proper pooling and lifecycle management.
 
     This singleton class ensures:
-    - Only one database file is used
+    - One instance per database file (singleton per path)
     - Connections are properly configured (foreign keys, WAL mode)
     - Thread-safe access
     - Proper connection cleanup
     """
 
-    _instance: Optional['DatabaseConnection'] = None
-    _db_path: Optional[str] = None
+    _instances: Dict[str, 'DatabaseConnection'] = {}
 
     def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+        # Normalize path for consistent singleton lookup
+        norm_path = os.path.abspath(db_path)
+
+        if norm_path not in cls._instances:
+            instance = super().__new__(cls)
+            instance._initialized = False
+            cls._instances[norm_path] = instance
+
+        return cls._instances[norm_path]
 
     def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
@@ -121,24 +126,63 @@ class DatabaseConnection:
         Ensure database schema exists and is up to date.
 
         This method is called automatically during initialization if auto_init=True.
-        It creates all tables, indexes, and constraints defined in repository/schema.py.
+        It handles three scenarios:
+        1. Fresh database (no tables) - creates full schema from scratch
+        2. Legacy database (v1.0) - applies migrations to upgrade to v2.0
+        3. Current database (v2.0) - no action needed
 
-        The schema creation is idempotent - safe to call multiple times.
+        The schema creation/migration is idempotent - safe to call multiple times.
         """
         try:
             from .schema import get_schema_sql, get_schema_version
+            from .migrations import MigrationManager, get_migration_status
 
-            logger.info(f"Initializing database schema (version {get_schema_version()})")
+            target_version = get_schema_version()
 
-            with self.get_connection() as conn:
-                # Execute complete schema creation script
-                conn.executescript(get_schema_sql())
-                conn.commit()
+            # Check if database needs migration
+            manager = MigrationManager(self)
+            current_version = manager.get_current_version()
 
-            logger.info(f"Schema initialized successfully (version {get_schema_version()})")
+            logger.info(f"Schema check: current={current_version}, target={target_version}")
+
+            if current_version == "0.0.0":
+                # Fresh database - create full schema from scratch
+                logger.info(f"Creating fresh database schema (version {target_version})")
+
+                with self.get_connection() as conn:
+                    conn.executescript(get_schema_sql())
+                    conn.commit()
+
+                logger.info(f"✓ Fresh schema created (version {target_version})")
+
+            elif current_version != target_version:
+                # Legacy database - apply migrations
+                logger.info(f"Migrating database from {current_version} to {target_version}")
+
+                status = get_migration_status(self)
+                logger.info(f"Pending migrations: {status['pending_count']}")
+
+                if status['needs_migration']:
+                    results = manager.apply_all_migrations()
+
+                    # Check results
+                    success_count = sum(1 for r in results if r['status'] == 'success')
+                    failed_count = sum(1 for r in results if r['status'] == 'failed')
+
+                    if failed_count > 0:
+                        logger.error(f"✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
+                        raise Exception(f"Migration failed - database may be in inconsistent state")
+
+                    logger.info(f"✓ Migrations completed: {success_count} applied successfully")
+                else:
+                    logger.info("✓ Database already up to date")
+
+            else:
+                # Already at target version
+                logger.info(f"✓ Database already at target version {target_version}")
 
         except Exception as e:
-            logger.error(f"Schema initialization failed: {e}", exc_info=True)
+            logger.error(f"Schema initialization/migration failed: {e}", exc_info=True)
             raise
 
     def validate_schema(self) -> bool:

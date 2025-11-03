@@ -1,9 +1,7 @@
 # repository/base_repository.py
-# Version 01.00.02.00 dated 20251103
+# Version 02.00.00.00 dated 20251103
 # Base repository pattern for data access layer
-# FIX: Added _ensure_schema() to DatabaseConnection.__init__ to ensure tables exist on fresh DB
-# FIX: Convert db_path to absolute path to ensure all threads access same DB file
-# FIX: Fix Windows URI paths (forward slashes) for read-only connections
+# UPDATED: Added schema initialization and migration support
 
 import os
 import sqlite3
@@ -20,63 +18,49 @@ class DatabaseConnection:
     Manages database connections with proper pooling and lifecycle management.
 
     This singleton class ensures:
-    - Only one database file is used
+    - One instance per database file (singleton per path)
     - Connections are properly configured (foreign keys, WAL mode)
     - Thread-safe access
     - Proper connection cleanup
     """
 
-    _instance: Optional['DatabaseConnection'] = None
-    _db_path: Optional[str] = None
+    _instances: Dict[str, 'DatabaseConnection'] = {}
 
     def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+        # Normalize path for consistent singleton lookup
+        norm_path = os.path.abspath(db_path)
+        print(f"[DB-DEBUG] DatabaseConnection.__new__ called: db_path={db_path}, normalized={norm_path}")
+
+        if norm_path not in cls._instances:
+            print(f"[DB-DEBUG] Creating NEW singleton instance for {norm_path}")
+            instance = super().__new__(cls)
+            instance._initialized = False
+            cls._instances[norm_path] = instance
+        else:
+            print(f"[DB-DEBUG] Returning EXISTING singleton instance for {norm_path}")
+
+        return cls._instances[norm_path]
 
     def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
             print(f"[DB-DEBUG] DatabaseConnection.__init__ skipped (already initialized): {db_path}")
             return
 
-        # CRITICAL: Store ABSOLUTE path to ensure all threads access the same database file
-        # Relative paths cause worker threads to access different databases based on their CWD
-        abs_db_path = os.path.abspath(db_path)
-
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, absolute={abs_db_path}, auto_init={auto_init}")
-
-        self._db_path = abs_db_path
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, auto_init={auto_init}")
+        self._db_path = db_path
         self._auto_init = auto_init
         self._initialized = True
 
         # Auto-initialize schema if requested
         if self._auto_init:
-            print(f"[DB-DEBUG] Calling _ensure_schema() for {abs_db_path}")
+            print(f"[DB-DEBUG] Calling _ensure_schema() for {db_path}")
             self._ensure_schema()
-            print(f"[DB-DEBUG] _ensure_schema() completed for {abs_db_path}")
+            print(f"[DB-DEBUG] _ensure_schema() completed for {db_path}")
         else:
             print(f"[DB-DEBUG] Skipping _ensure_schema() (auto_init=False)")
 
-        logger.info(f"DatabaseConnection initialized with path: {abs_db_path}")
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {abs_db_path}")
-
-    def _ensure_schema(self):
-        """
-        Ensure database schema exists by delegating to ReferenceDB._ensure_db().
-        This is called once when DatabaseConnection is first initialized.
-        """
-        try:
-            # Import here to avoid circular dependency
-            from reference_db import ReferenceDB
-
-            # Create a temporary ReferenceDB instance with the same db path
-            # This will call _ensure_db() which creates all tables
-            temp_db = ReferenceDB(db_file=self._db_path)
-            logger.info("Database schema ensured via ReferenceDB")
-        except Exception as e:
-            logger.error(f"Failed to ensure database schema: {e}", exc_info=True)
-            raise
+        logger.info(f"DatabaseConnection initialized with path: {db_path}")
+        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {db_path}")
 
     @contextmanager
     def get_connection(self, read_only: bool = False) -> Generator[sqlite3.Connection, None, None]:
@@ -108,12 +92,15 @@ class DatabaseConnection:
             # Configure connection
             conn.execute("PRAGMA foreign_keys = ON")
 
-            # Enable WAL mode for better concurrency (write-ahead logging)
+            # TEMPORARY: Disable WAL mode due to threading issues
+            # Worker threads can't see schema created in main thread when WAL is enabled
+            # Use DELETE mode for now until threading issues are resolved
             if not read_only:
                 try:
-                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA journal_mode=DELETE")
+                    print(f"[DB-DEBUG] Connection opened with journal_mode=DELETE")
                 except sqlite3.OperationalError:
-                    logger.warning("Could not enable WAL mode")
+                    logger.warning("Could not set DELETE mode")
 
             # Return dictionary-like rows for easier access
             conn.row_factory = self._dict_factory
@@ -151,6 +138,192 @@ class DatabaseConnection:
             conn.executescript(script)
             conn.commit()
         logger.info("SQL script executed successfully")
+
+    def _ensure_schema(self):
+        """
+        Ensure database schema exists and is up to date.
+
+        This method is called automatically during initialization if auto_init=True.
+        It handles three scenarios:
+        1. Fresh database (no tables) - creates full schema from scratch
+        2. Legacy database (v1.0) - applies migrations to upgrade to v2.0
+        3. Current database (v2.0) - no action needed
+
+        The schema creation/migration is idempotent - safe to call multiple times.
+        """
+        print(f"[DB-DEBUG] _ensure_schema() ENTERED for {self._db_path}")
+        try:
+            from .schema import get_schema_sql, get_schema_version
+            from .migrations import MigrationManager, get_migration_status
+
+            target_version = get_schema_version()
+            print(f"[DB-DEBUG] Target schema version: {target_version}")
+
+            # Check if database needs migration
+            manager = MigrationManager(self)
+            print(f"[DB-DEBUG] MigrationManager created")
+
+            current_version = manager.get_current_version()
+            print(f"[DB-DEBUG] Current database version: {current_version}")
+
+            logger.info(f"Schema check: current={current_version}, target={target_version}")
+            print(f"[DB-DEBUG] Schema check: current={current_version}, target={target_version}")
+
+            if current_version == "0.0.0":
+                # Fresh database - create full schema from scratch
+                logger.info(f"Creating fresh database schema (version {target_version})")
+                print(f"[DB-DEBUG] Creating fresh database schema (version {target_version})")
+
+                # CRITICAL: Create schema in DELETE mode and keep it that way
+                # WAL mode causes threading issues where worker threads can't see schema
+                conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
+                try:
+                    print(f"[DB-DEBUG] Setting journal_mode=DELETE for schema creation...")
+                    conn.execute("PRAGMA journal_mode=DELETE")
+                    conn.execute("PRAGMA foreign_keys = ON")
+
+                    print(f"[DB-DEBUG] Executing schema SQL script...")
+                    conn.executescript(get_schema_sql())
+                    conn.commit()
+                    print(f"[DB-DEBUG] Schema SQL script executed and committed in DELETE mode")
+                finally:
+                    conn.close()
+                    print(f"[DB-DEBUG] Schema creation connection closed")
+
+                # VERIFY: Open a new connection and check tables exist
+                print(f"[DB-DEBUG] Verifying tables exist in new connection...")
+                with self.get_connection() as verify_conn:
+                    cursor = verify_conn.cursor()
+                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+                    tables = [row['name'] if isinstance(row, dict) else row[0] for row in cursor.fetchall()]
+                    print(f"[DB-DEBUG] Verification found {len(tables)} tables: {tables[:5]}...")  # Show first 5
+
+                    if 'photo_metadata' not in tables:
+                        print(f"[DB-DEBUG] ❌ CRITICAL: photo_metadata table NOT FOUND after checkpoint!")
+                        print(f"[DB-DEBUG] All tables: {tables}")
+                        raise Exception("Schema creation failed - photo_metadata table not found")
+                    else:
+                        print(f"[DB-DEBUG] ✓ Verification passed - photo_metadata table exists")
+
+                logger.info(f"✓ Fresh schema created (version {target_version})")
+                print(f"[DB-DEBUG] ✓ Fresh schema created (version {target_version})")
+
+            elif current_version != target_version:
+                # Legacy database - apply migrations
+                logger.info(f"Migrating database from {current_version} to {target_version}")
+                print(f"[DB-DEBUG] Migrating database from {current_version} to {target_version}")
+
+                status = get_migration_status(self)
+                logger.info(f"Pending migrations: {status['pending_count']}")
+                print(f"[DB-DEBUG] Pending migrations: {status['pending_count']}")
+
+                if status['needs_migration']:
+                    print(f"[DB-DEBUG] Applying migrations...")
+                    results = manager.apply_all_migrations()
+
+                    # Check results
+                    success_count = sum(1 for r in results if r['status'] == 'success')
+                    failed_count = sum(1 for r in results if r['status'] == 'failed')
+
+                    if failed_count > 0:
+                        logger.error(f"✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
+                        print(f"[DB-DEBUG] ✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
+                        raise Exception(f"Migration failed - database may be in inconsistent state")
+
+                    # Checkpoint WAL after migrations
+                    try:
+                        with self.get_connection() as conn:
+                            conn.execute("PRAGMA wal_checkpoint(FULL)")
+                            conn.commit()
+                            print(f"[DB-DEBUG] Post-migration WAL checkpoint completed")
+                    except Exception as e:
+                        print(f"[DB-DEBUG] Post-migration WAL checkpoint warning: {e}")
+
+                    logger.info(f"✓ Migrations completed: {success_count} applied successfully")
+                    print(f"[DB-DEBUG] ✓ Migrations completed: {success_count} applied successfully")
+                else:
+                    logger.info("✓ Database already up to date")
+                    print(f"[DB-DEBUG] ✓ Database already up to date")
+
+            else:
+                # Already at target version
+                logger.info(f"✓ Database already at target version {target_version}")
+                print(f"[DB-DEBUG] ✓ Database already at target version {target_version}")
+
+            print(f"[DB-DEBUG] _ensure_schema() COMPLETED successfully")
+
+        except Exception as e:
+            logger.error(f"Schema initialization/migration failed: {e}", exc_info=True)
+            print(f"[DB-DEBUG] ✗ _ensure_schema() FAILED with exception: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+
+    def validate_schema(self) -> bool:
+        """
+        Validate that database schema matches expected structure.
+
+        Returns:
+            bool: True if schema is valid, False otherwise
+        """
+        try:
+            from .schema import get_expected_tables, get_expected_indexes
+
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+
+                # Check tables
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_tables = {row['name'] for row in cur.fetchall()}
+                expected_tables = set(get_expected_tables())
+
+                missing_tables = expected_tables - actual_tables
+                if missing_tables:
+                    logger.error(f"Missing tables: {missing_tables}")
+                    return False
+
+                # Check indexes (optional - some may not exist in legacy DBs)
+                cur.execute("""
+                    SELECT name FROM sqlite_master
+                    WHERE type='index' AND name NOT LIKE 'sqlite_%'
+                """)
+                actual_indexes = {row['name'] for row in cur.fetchall()}
+                expected_indexes = set(get_expected_indexes())
+
+                missing_indexes = expected_indexes - actual_indexes
+                if missing_indexes:
+                    logger.warning(f"Missing indexes (non-critical): {missing_indexes}")
+                    # Don't fail on missing indexes - just warn
+
+                logger.info("Schema validation passed")
+                return True
+
+        except Exception as e:
+            logger.error(f"Schema validation failed: {e}", exc_info=True)
+            return False
+
+    def get_schema_version(self) -> str:
+        """
+        Get the current schema version from the database.
+
+        Returns:
+            str: Schema version string, or "unknown" if not found
+        """
+        try:
+            with self.get_connection(read_only=True) as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT version FROM schema_version
+                    ORDER BY applied_at DESC
+                    LIMIT 1
+                """)
+                result = cur.fetchone()
+                return result['version'] if result else "unknown"
+        except Exception:
+            return "unknown"
 
 
 class BaseRepository(ABC):

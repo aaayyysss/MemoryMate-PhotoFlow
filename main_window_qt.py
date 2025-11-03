@@ -94,7 +94,7 @@ from app_services import (
 
 from reference_db import ReferenceDB
 from reference_db import (
-    ensure_created_date_fields,
+    # NOTE: ensure_created_date_fields no longer needed - handled by migration system
     count_missing_created_fields,
     single_pass_backfill_created_fields,
 )
@@ -170,13 +170,25 @@ class ScanController:
         self.main._scan_progress.show()
 
         # DB writer
-        from reference_db import ReferenceDB
-        ReferenceDB().ensure_created_date_fields()
+        # NOTE: Schema creation handled automatically by repository layer
         from db_writer import DBWriter
         self.db_writer = DBWriter(batch_size=200, poll_interval_ms=150)
         self.db_writer.error.connect(lambda msg: print(f"[DBWriter] {msg}"))
         self.db_writer.committed.connect(self._on_committed)
         self.db_writer.start()
+
+        # CRITICAL: Initialize database schema before starting scan
+        # This ensures the repository layer has created all necessary tables
+        try:
+            from repository.base_repository import DatabaseConnection
+            db_conn = DatabaseConnection("reference_data.db", auto_init=True)
+            print("[Schema] Database schema initialized successfully")
+        except Exception as e:
+            print(f"[Schema] ERROR: Failed to initialize database schema: {e}")
+            import traceback
+            traceback.print_exc()
+            self.main.statusBar().showMessage(f"❌ Database initialization failed: {e}")
+            return
 
         # Scan worker
 #        from scan_worker import ScanWorker
@@ -1846,8 +1858,17 @@ class MainWindow(QMainWindow):
             self._init_progress_pollers()
         except Exception as e:
             print(f"[MainWindow] ⚠️ Progress pollers init failed: {e}")
-        
-        
+
+        # === Initialize database schema at startup ===
+        try:
+            from repository.base_repository import DatabaseConnection
+            db_conn = DatabaseConnection("reference_data.db", auto_init=True)
+            print("[Startup] Database schema initialized successfully")
+        except Exception as e:
+            print(f"[Startup] ⚠️ Database initialization failed: {e}")
+            import traceback
+            traceback.print_exc()
+
 
 # =========================
     def _init_db_and_sidebar(self):
@@ -1860,10 +1881,11 @@ class MainWindow(QMainWindow):
         from reference_db import ReferenceDB
         self.db = ReferenceDB()
 
-        # ✅ Ensure created_* columns exist
-        self.db.ensure_created_date_fields()
+        # NOTE: Schema creation and migrations are now handled automatically
+        # by repository layer during ReferenceDB initialization.
+        # created_* columns are added via migration system (v1.5.0 migration).
 
-        # 🕰 Backfill if needed
+        # 🕰 Backfill if needed (populate data in existing columns)
         try:
             updated_rows = self.db.single_pass_backfill_created_fields()
             if updated_rows:
@@ -1981,12 +2003,11 @@ class MainWindow(QMainWindow):
           1) Ensure created_* columns + indexes
           2) Backfill in chunks with progress dialog
         """
-        # Step 1: ensure columns
+        # Step 1: Get database reference
+        # NOTE: Schema columns are automatically created via migration system
         db = ReferenceDB()
-        db.ensure_created_date_fields()
-#        ensure_created_date_fields(None)
 
-        # Step 2: how much to do?
+        # Step 2: how much to do? (check for data to backfill)
         total = db.count_missing_created_fields()
         if total == 0:
             QMessageBox.information(self, "Migration", "Nothing to migrate — fields already populated.")

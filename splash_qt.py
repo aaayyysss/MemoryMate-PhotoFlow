@@ -40,10 +40,13 @@ class StartupWorker(QThread):
             db = ReferenceDB()
             time.sleep(0.1)  # simulate a brief pause
 
-            # STEP 2 — Ensure indexes and created_* fields
-            self.progress.emit(30, "Ensuring database indexes…")
-            if hasattr(db, "ensure_created_date_fields"):
-                db.ensure_created_date_fields()
+            # STEP 2 — Verify database schema
+            self.progress.emit(30, "Verifying database schema…")
+            # NOTE: Schema creation and migrations are now handled automatically
+            # by repository.DatabaseConnection during ReferenceDB initialization.
+            # No need to manually call ensure_created_date_fields() anymore.
+
+            # Optimize indexes if method exists (optional performance tuning)
             if hasattr(db, "optimize_indexes"):
                 db.optimize_indexes()
             

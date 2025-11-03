@@ -280,32 +280,57 @@ class MigrationManager:
         Returns:
             str: Current version (e.g., "2.0.0") or "0.0.0" if no schema exists
         """
+        import os
+        db_path = self.db_connection._db_path
+        print(f"[MIGRATION-DEBUG] get_current_version() called for db: {db_path}")
+        print(f"[MIGRATION-DEBUG] Database file exists: {os.path.exists(db_path)}")
+        if os.path.exists(db_path):
+            print(f"[MIGRATION-DEBUG] Database file size: {os.path.getsize(db_path)} bytes")
+
         try:
             with self.db_connection.get_connection(read_only=True) as conn:
                 cur = conn.cursor()
+                print(f"[MIGRATION-DEBUG] Connection opened, cursor created")
+
+                # First, list ALL tables in the database for diagnostic purposes
+                print(f"[MIGRATION-DEBUG] Listing all tables in database...")
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+                all_tables = [row[0] if isinstance(row, tuple) else row['name'] for row in cur.fetchall()]
+                print(f"[MIGRATION-DEBUG] Found {len(all_tables)} tables: {all_tables}")
 
                 # Check if schema_version table exists
+                print(f"[MIGRATION-DEBUG] Checking for schema_version table...")
                 cur.execute("""
                     SELECT name FROM sqlite_master
                     WHERE type='table' AND name='schema_version'
                 """)
 
-                if not cur.fetchone():
+                schema_version_result = cur.fetchone()
+                print(f"[MIGRATION-DEBUG] schema_version table check result: {schema_version_result}")
+
+                if not schema_version_result:
                     # No schema_version table - this is a legacy database
                     # Check if photo_metadata exists to distinguish v0 from v1
+                    print(f"[MIGRATION-DEBUG] schema_version table NOT found, checking for photo_metadata...")
                     cur.execute("""
                         SELECT name FROM sqlite_master
                         WHERE type='table' AND name='photo_metadata'
                     """)
 
-                    if cur.fetchone():
+                    photo_metadata_result = cur.fetchone()
+                    print(f"[MIGRATION-DEBUG] photo_metadata table check result: {photo_metadata_result}")
+
+                    if photo_metadata_result:
                         # Has tables but no versioning - legacy v1.0
+                        print(f"[MIGRATION-DEBUG] Returning version: 1.0.0 (legacy database)")
                         return "1.0.0"
                     else:
                         # No tables at all - fresh database
+                        print(f"[MIGRATION-DEBUG] Returning version: 0.0.0 (no tables found)")
                         return "0.0.0"
 
                 # Get latest version from schema_version table
+                print(f"[MIGRATION-DEBUG] schema_version table exists, querying version...")
                 cur.execute("""
                     SELECT version FROM schema_version
                     ORDER BY applied_at DESC
@@ -313,9 +338,16 @@ class MigrationManager:
                 """)
 
                 result = cur.fetchone()
-                return result['version'] if result else "0.0.0"
+                print(f"[MIGRATION-DEBUG] Version query result: {result}")
+
+                version = result['version'] if result else "0.0.0"
+                print(f"[MIGRATION-DEBUG] Returning version: {version}")
+                return version
 
         except Exception as e:
+            print(f"[MIGRATION-DEBUG] ❌ Exception in get_current_version(): {e}")
+            import traceback
+            traceback.print_exc()
             self.logger.error(f"Error getting current version: {e}", exc_info=True)
             return "0.0.0"
 

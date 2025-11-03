@@ -1,11 +1,12 @@
 # reference_db.py
-# Version 09.18.01.13 dated 20251031
+# Version 09.19.00.00 dated 20251103
+# UPDATED: Now uses repository layer for schema management
 #
 # Class-based SQLite wrapper for references, thresholds, labels, and sorting projects
-# Extend:
-#   - Add optional face label column (e.g., label TEXT).
-#   - When mode="faces", each inserted image row should store its assigned label.
-#   - So the DB stays the single source of truth for both date-based and face-based grouping.
+#
+# MIGRATION NOTE: Schema management has been moved to repository layer.
+# The _ensure_db() method is now deprecated. Schema creation and migrations
+# are handled automatically by repository.base_repository.DatabaseConnection.
 #
 
 import sqlite3
@@ -15,6 +16,7 @@ import shutil
 import json
 import argparse
 import traceback
+import warnings
 
 from datetime import datetime
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,8 +27,33 @@ DB_FILE = "reference_data.db"
 
 class ReferenceDB:
     def __init__(self, db_file=DB_FILE):
+        """
+        Initialize ReferenceDB instance.
+
+        MIGRATION NOTE: As of v09.19.00.00, schema management is handled by
+        the repository layer. The database schema will be automatically created
+        and migrated by repository.base_repository.DatabaseConnection.
+
+        Args:
+            db_file: Path to database file (default: reference_data.db)
+        """
         self.db_file = db_file
-        self._ensure_db()
+
+        # NEW: Use repository layer for schema management
+        # This automatically handles schema creation and migrations
+        try:
+            from repository.base_repository import DatabaseConnection
+            self._db_connection = DatabaseConnection(db_file, auto_init=True)
+        except ImportError:
+            # Fallback for environments where repository layer isn't available
+            warnings.warn(
+                "Repository layer not available, falling back to legacy schema management. "
+                "This fallback will be removed in a future version.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+            self._db_connection = None
+            self._ensure_db()  # Legacy fallback
 
         # Lazy cache to know if created_* columns exist (None = unknown)
         self._created_cols_present = None        
@@ -34,6 +61,25 @@ class ReferenceDB:
 
     # --- Initialization ---
     def _ensure_db(self):
+        """
+        DEPRECATED: Schema management has moved to repository layer.
+
+        This method is maintained for backward compatibility but will be
+        removed in a future version. New code should rely on
+        repository.base_repository.DatabaseConnection for schema management.
+
+        Schema creation and migrations are now handled automatically by:
+        - repository/schema.py (schema definition)
+        - repository/migrations.py (migration system)
+        - repository/base_repository.py (automatic initialization)
+        """
+        warnings.warn(
+            "_ensure_db() is deprecated. Schema management has moved to repository layer. "
+            "This method will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         conn = sqlite3.connect(self.db_file)
         c = conn.cursor()
 

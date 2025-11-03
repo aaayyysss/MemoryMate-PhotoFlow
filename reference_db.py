@@ -1,5 +1,6 @@
 # reference_db.py
-# Version 09.20.00.00 dated 20251103
+# Version 09.20.00.01 dated 20251103
+# FIX: Convert db_file to absolute path in __init__ for consistency with DatabaseConnection
 # PHASE 4 CLEANUP: Removed unnecessary ensure_created_date_fields() calls
 # UPDATED: Now uses repository layer for schema management
 #
@@ -38,13 +39,16 @@ class ReferenceDB:
         Args:
             db_file: Path to database file (default: reference_data.db)
         """
-        self.db_file = db_file
+        # CRITICAL FIX: Convert to absolute path BEFORE storing
+        # This ensures _connect() uses the same database file as DatabaseConnection
+        import os
+        self.db_file = os.path.abspath(db_file)
 
         # NEW: Use repository layer for schema management
         # This automatically handles schema creation and migrations
         try:
             from repository.base_repository import DatabaseConnection
-            self._db_connection = DatabaseConnection(db_file, auto_init=True)
+            self._db_connection = DatabaseConnection(self.db_file, auto_init=True)
         except ImportError:
             # Fallback for environments where repository layer isn't available
             warnings.warn(

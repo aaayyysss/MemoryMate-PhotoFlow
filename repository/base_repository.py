@@ -88,12 +88,15 @@ class DatabaseConnection:
             # Configure connection
             conn.execute("PRAGMA foreign_keys = ON")
 
-            # Enable WAL mode for better concurrency (write-ahead logging)
+            # TEMPORARY: Disable WAL mode due to threading issues
+            # Worker threads can't see schema created in main thread when WAL is enabled
+            # Use DELETE mode for now until threading issues are resolved
             if not read_only:
                 try:
-                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA journal_mode=DELETE")
+                    print(f"[DB-DEBUG] Connection opened with journal_mode=DELETE")
                 except sqlite3.OperationalError:
-                    logger.warning("Could not enable WAL mode")
+                    logger.warning("Could not set DELETE mode")
 
             # Return dictionary-like rows for easier access
             conn.row_factory = self._dict_factory
@@ -167,8 +170,8 @@ class DatabaseConnection:
                 logger.info(f"Creating fresh database schema (version {target_version})")
                 print(f"[DB-DEBUG] Creating fresh database schema (version {target_version})")
 
-                # CRITICAL: Create schema in DELETE mode first, then switch to WAL
-                # This ensures all connections can see the schema immediately
+                # CRITICAL: Create schema in DELETE mode and keep it that way
+                # WAL mode causes threading issues where worker threads can't see schema
                 conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
                 try:
                     print(f"[DB-DEBUG] Setting journal_mode=DELETE for schema creation...")
@@ -178,13 +181,7 @@ class DatabaseConnection:
                     print(f"[DB-DEBUG] Executing schema SQL script...")
                     conn.executescript(get_schema_sql())
                     conn.commit()
-                    print(f"[DB-DEBUG] Schema SQL script executed and committed")
-
-                    # Now switch to WAL mode for better concurrency
-                    print(f"[DB-DEBUG] Switching to WAL mode after schema creation...")
-                    conn.execute("PRAGMA journal_mode=WAL")
-                    conn.commit()
-                    print(f"[DB-DEBUG] WAL mode enabled")
+                    print(f"[DB-DEBUG] Schema SQL script executed and committed in DELETE mode")
                 finally:
                     conn.close()
                     print(f"[DB-DEBUG] Schema creation connection closed")

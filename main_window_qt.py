@@ -298,10 +298,16 @@ class ScanController:
 
         # Sidebar & grid refresh
         try:
+            print("[ScanController] Reloading sidebar after date branches built...")
             if hasattr(self.main.sidebar, "reload"):
                 self.main.sidebar.reload()
-        except Exception:
-            pass
+                print("[ScanController] Sidebar reload completed")
+            else:
+                print("[ScanController] WARNING: sidebar has no reload method")
+        except Exception as e:
+            print(f"[ScanController] ERROR reloading sidebar: {e}")
+            import traceback
+            traceback.print_exc()
         try:
             if hasattr(self.main.grid, "reload"):
                 self.main.grid.reload()

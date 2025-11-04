@@ -600,7 +600,8 @@ class ReferenceDB:
     def get_branches(self, project_id: int):
         """
         Return all branches for a project from the branches table.
-        Always ensures and returns 'all' at the top.
+        Always ensures and returns 'all' at the top with photo count.
+        Filters out date branches (by_date:*) as they're shown in the "By Date" section.
         """
         out = []
         with self._connect() as conn:
@@ -610,14 +611,23 @@ class ReferenceDB:
             )
             rows = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
-        # ensure 'all' exists and is first
+            # Get total photo count for "All Photos"
+            cur.execute("SELECT COUNT(DISTINCT path) FROM photo_metadata")
+            total_count = cur.fetchone()[0]
+
+        # ensure 'all' exists and is first, with count
         has_all = any(r["branch_key"] == "all" for r in rows)
         if not has_all:
-            out.append({"branch_key": "all", "display_name": "All Photos"})
+            out.append({"branch_key": "all", "display_name": f"📁 All Photos", "count": total_count})
         else:
-            # move 'all' to front
-            out.append(next(r for r in rows if r["branch_key"] == "all"))
+            # move 'all' to front with count
+            all_branch = next(r for r in rows if r["branch_key"] == "all")
+            all_branch["count"] = total_count
+            out.append(all_branch)
             rows = [r for r in rows if r["branch_key"] != "all"]
+
+        # Filter out date branches (by_date:*) - they're redundant with "By Date" section
+        rows = [r for r in rows if not r["branch_key"].startswith("by_date:")]
 
         out.extend(rows)
         return out

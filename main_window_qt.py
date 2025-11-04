@@ -295,6 +295,7 @@ class ScanController:
 
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
+            sidebar_was_updated = False
             if self.main.sidebar.project_id is None:
                 self.logger.info("Sidebar project_id was None, updating to default project")
                 from app_services import get_default_project_id
@@ -303,6 +304,7 @@ class ScanController:
                 self.main.sidebar.set_project(default_pid)
                 if hasattr(self.main.sidebar, "tabs_controller"):
                     self.main.sidebar.tabs_controller.project_id = default_pid
+                sidebar_was_updated = True
 
             # CRITICAL: Also update grid's project_id if it was None
             if self.main.grid.project_id is None:
@@ -315,7 +317,14 @@ class ScanController:
             self.logger.error(f"Error building date branches: {e}", exc_info=True)
 
         # Sidebar & grid refresh
+        # Note: If we just called set_project(), it already triggered a refresh
+        # so we need to wait a moment for it to complete before forcing another refresh
         try:
+            if sidebar_was_updated:
+                # Give the async refresh from set_project() time to complete
+                import time
+                time.sleep(0.5)
+
             self.logger.info("Reloading sidebar after date branches built...")
             # Always refresh tabs, regardless of current display mode
             if hasattr(self.main.sidebar, "tabs_controller"):

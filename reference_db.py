@@ -688,7 +688,6 @@ class ReferenceDB:
                 )
                 rows = cur.fetchall()
                 paths = [row[0] for row in rows]
-                print(f"📸 DEBUG: {len(paths)} images fetched for branch=all (project={project_id})")
                 return paths
 
             # 🟠 Case 2: exact branch_key match (date-based or face_x)
@@ -699,7 +698,6 @@ class ReferenceDB:
             rows = cur.fetchall()
             if rows:
                 paths = [row[0] for row in rows]
-                print(f"📸 DEBUG: {len(paths)} images fetched for branch={branch_key} (project={project_id})")
                 return paths
 
             # 🔎 Case 3: fallback — maybe user clicked "Person A" which is a label, not a branch_key
@@ -710,11 +708,10 @@ class ReferenceDB:
             rows = cur.fetchall()
             if rows:
                 paths = [row[0] for row in rows]
-                print(f"📸 DEBUG: {len(paths)} images fetched for label={branch_key} (project={project_id})")
                 return paths
 
             # ❌ Nothing found
-            print(f"⚠️ No images found for branch or label '{branch_key}' (project={project_id})")
+            self.logger.debug(f"No images found for branch or label '{branch_key}' (project={project_id})")
             return []
 
         self.logger.debug(f"get_project_images(project={project_id}, branch={branch_key}) returned {len(rows)} rows")

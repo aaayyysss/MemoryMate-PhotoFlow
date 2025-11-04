@@ -42,7 +42,7 @@
 #  Store a hash or last_modified so we can incrementally update later.
 
 from splash_qt import SplashScreen, StartupWorker
-import os, traceback, time as _time
+import os, traceback, time as _time, logging
 from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
@@ -154,6 +154,7 @@ class ScanController:
         self.worker = None
         self.db_writer = None
         self.cancel_requested = False
+        self.logger = logging.getLogger(__name__)
 
     def start_scan(self, folder, incremental: bool):
         """Entry point called from MainWindow toolbar action."""
@@ -282,56 +283,50 @@ class ScanController:
             if self.db_writer:
                 self.db_writer.shutdown(wait=True)
         except Exception as e:
-            print(f"[ScanController] cleanup error: {e}")
+            self.logger.error(f"Cleanup error: {e}", exc_info=True)
 
         # Build date branches after scan completes
         try:
-            print("[ScanController] Building date branches...")
+            self.logger.info("Building date branches...")
             from reference_db import ReferenceDB
             db = ReferenceDB()
             branch_count = db.build_date_branches()
-            print(f"[ScanController] Created {branch_count} date branch entries")
+            self.logger.info(f"Created {branch_count} date branch entries")
 
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
             if self.main.sidebar.project_id is None:
-                print("[ScanController] Sidebar project_id was None, getting default project...")
+                self.logger.info("Sidebar project_id was None, updating to default project")
                 from app_services import get_default_project_id
                 default_pid = get_default_project_id()
-                print(f"[ScanController] Setting sidebar project_id to {default_pid}")
+                self.logger.debug(f"Setting sidebar project_id to {default_pid}")
                 self.main.sidebar.set_project(default_pid)
                 if hasattr(self.main.sidebar, "tabs_controller"):
                     self.main.sidebar.tabs_controller.project_id = default_pid
-                    print(f"[ScanController] Set tabs_controller.project_id to {default_pid}")
 
             # CRITICAL: Also update grid's project_id if it was None
             if self.main.grid.project_id is None:
-                print("[ScanController] Grid project_id was None, getting default project...")
+                self.logger.info("Grid project_id was None, updating to default project")
                 from app_services import get_default_project_id
                 default_pid = get_default_project_id()
-                print(f"[ScanController] Setting grid project_id to {default_pid}")
+                self.logger.debug(f"Setting grid project_id to {default_pid}")
                 self.main.grid.project_id = default_pid
         except Exception as e:
-            print(f"[ScanController] Error building date branches: {e}")
-            import traceback
-            traceback.print_exc()
+            self.logger.error(f"Error building date branches: {e}", exc_info=True)
 
         # Sidebar & grid refresh
         try:
-            print("[ScanController] Reloading sidebar after date branches built...")
+            self.logger.info("Reloading sidebar after date branches built...")
             # Always refresh tabs, regardless of current display mode
             if hasattr(self.main.sidebar, "tabs_controller"):
-                print("[ScanController] Refreshing tabs_controller...")
                 self.main.sidebar.tabs_controller.refresh_all(force=True)
-                print("[ScanController] Tabs refresh completed")
+                self.logger.debug("Tabs refresh completed")
             # Also reload the sidebar (tree view if in list mode)
             if hasattr(self.main.sidebar, "reload"):
                 self.main.sidebar.reload()
-                print("[ScanController] Sidebar reload completed")
+                self.logger.debug("Sidebar reload completed")
         except Exception as e:
-            print(f"[ScanController] ERROR reloading sidebar: {e}")
-            import traceback
-            traceback.print_exc()
+            self.logger.error(f"Error reloading sidebar: {e}", exc_info=True)
         try:
             if hasattr(self.main.grid, "reload"):
                 self.main.grid.reload()

@@ -1851,6 +1851,7 @@ class ReferenceDB:
         If they already exist, skip.
 
         NOTE: Uses date_taken field (populated during scan) instead of created_date.
+        Also populates the 'all' branch with all photos.
         """
         with self._connect() as conn:
             cur = conn.cursor()
@@ -1864,6 +1865,30 @@ class ReferenceDB:
             project_id = row[0]
             print(f"[build_date_branches] Using project_id={project_id}")
 
+            # CRITICAL: First, populate the 'all' branch with ALL photos
+            # This ensures the default view shows all photos
+            cur.execute("SELECT path FROM photo_metadata")
+            all_paths = [r[0] for r in cur.fetchall()]
+            print(f"[build_date_branches] Populating 'all' branch with {len(all_paths)} photos")
+
+            # Ensure 'all' branch exists
+            cur.execute(
+                "INSERT OR IGNORE INTO branches (project_id, branch_key, display_name) VALUES (?,?,?)",
+                (project_id, "all", "📁 All Photos"),
+            )
+
+            # Insert all photos into 'all' branch
+            all_inserted = 0
+            for p in all_paths:
+                cur.execute(
+                    "INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path) VALUES (?,?,?)",
+                    (project_id, "all", p),
+                )
+                if cur.rowcount > 0:
+                    all_inserted += 1
+            print(f"[build_date_branches] Inserted {all_inserted}/{len(all_paths)} photos into 'all' branch")
+
+            # Now build date-specific branches
             # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
             # Extract just the date part (YYYY-MM-DD)
             cur.execute("""

@@ -303,6 +303,14 @@ class ScanController:
                 if hasattr(self.main.sidebar, "tabs_controller"):
                     self.main.sidebar.tabs_controller.project_id = default_pid
                     print(f"[ScanController] Set tabs_controller.project_id to {default_pid}")
+
+            # CRITICAL: Also update grid's project_id if it was None
+            if self.main.grid.project_id is None:
+                print("[ScanController] Grid project_id was None, getting default project...")
+                from app_services import get_default_project_id
+                default_pid = get_default_project_id()
+                print(f"[ScanController] Setting grid project_id to {default_pid}")
+                self.main.grid.project_id = default_pid
         except Exception as e:
             print(f"[ScanController] Error building date branches: {e}")
             import traceback

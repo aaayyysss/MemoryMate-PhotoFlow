@@ -1151,13 +1151,23 @@ class ReferenceDB:
         Return list of image paths based on branch selection.
         Uses old project_images table for compatibility.
         """
+        print(f"[get_images_by_branch] project_id={project_id}, branch_key='{branch_key}'")
         with self._connect() as conn:
             cur = conn.cursor()
             cur.execute("""
                 SELECT image_path FROM project_images
                 WHERE project_id = ? AND branch_key = ?
             """, (project_id, branch_key))
-            return [row[0] for row in cur.fetchall()]
+            results = [row[0] for row in cur.fetchall()]
+            print(f"[get_images_by_branch] Found {len(results)} photos")
+            if len(results) == 0:
+                # Debug: show what branch_keys exist in DB
+                cur.execute("""
+                    SELECT DISTINCT branch_key FROM project_images WHERE project_id = ?
+                """, (project_id,))
+                existing_keys = [row[0] for row in cur.fetchall()]
+                print(f"[get_images_by_branch] Available branch_keys in DB: {existing_keys[:10]}")
+            return results
 
 
     def ensure_folder(self, path: str, name: str, parent_id: int | None):

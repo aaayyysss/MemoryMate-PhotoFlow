@@ -291,6 +291,26 @@ class ScanController:
             db = ReferenceDB()
             branch_count = db.build_date_branches()
             print(f"[ScanController] Created {branch_count} date branch entries")
+
+            # CRITICAL: Update sidebar project_id if it was None (fresh database)
+            # The scan creates the first project, so we need to tell the sidebar about it
+            if self.main.sidebar.project_id is None:
+                print("[ScanController] Sidebar project_id was None, getting default project...")
+                from app_services import get_default_project_id
+                default_pid = get_default_project_id()
+                print(f"[ScanController] Setting sidebar project_id to {default_pid}")
+                self.main.sidebar.set_project(default_pid)
+                if hasattr(self.main.sidebar, "tabs_controller"):
+                    self.main.sidebar.tabs_controller.project_id = default_pid
+                    print(f"[ScanController] Set tabs_controller.project_id to {default_pid}")
+
+            # CRITICAL: Also update grid's project_id if it was None
+            if self.main.grid.project_id is None:
+                print("[ScanController] Grid project_id was None, getting default project...")
+                from app_services import get_default_project_id
+                default_pid = get_default_project_id()
+                print(f"[ScanController] Setting grid project_id to {default_pid}")
+                self.main.grid.project_id = default_pid
         except Exception as e:
             print(f"[ScanController] Error building date branches: {e}")
             import traceback
@@ -298,10 +318,20 @@ class ScanController:
 
         # Sidebar & grid refresh
         try:
+            print("[ScanController] Reloading sidebar after date branches built...")
+            # Always refresh tabs, regardless of current display mode
+            if hasattr(self.main.sidebar, "tabs_controller"):
+                print("[ScanController] Refreshing tabs_controller...")
+                self.main.sidebar.tabs_controller.refresh_all(force=True)
+                print("[ScanController] Tabs refresh completed")
+            # Also reload the sidebar (tree view if in list mode)
             if hasattr(self.main.sidebar, "reload"):
                 self.main.sidebar.reload()
-        except Exception:
-            pass
+                print("[ScanController] Sidebar reload completed")
+        except Exception as e:
+            print(f"[ScanController] ERROR reloading sidebar: {e}")
+            import traceback
+            traceback.print_exc()
         try:
             if hasattr(self.main.grid, "reload"):
                 self.main.grid.reload()

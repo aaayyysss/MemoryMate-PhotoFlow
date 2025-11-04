@@ -1151,13 +1151,23 @@ class ReferenceDB:
         Return list of image paths based on branch selection.
         Uses old project_images table for compatibility.
         """
+        print(f"[get_images_by_branch] project_id={project_id}, branch_key='{branch_key}'")
         with self._connect() as conn:
             cur = conn.cursor()
             cur.execute("""
                 SELECT image_path FROM project_images
                 WHERE project_id = ? AND branch_key = ?
             """, (project_id, branch_key))
-            return [row[0] for row in cur.fetchall()]
+            results = [row[0] for row in cur.fetchall()]
+            print(f"[get_images_by_branch] Found {len(results)} photos")
+            if len(results) == 0:
+                # Debug: show what branch_keys exist in DB
+                cur.execute("""
+                    SELECT DISTINCT branch_key FROM project_images WHERE project_id = ?
+                """, (project_id,))
+                existing_keys = [row[0] for row in cur.fetchall()]
+                print(f"[get_images_by_branch] Available branch_keys in DB: {existing_keys[:10]}")
+            return results
 
 
     def ensure_folder(self, path: str, name: str, parent_id: int | None):
@@ -1852,8 +1862,10 @@ class ReferenceDB:
             cur.execute("SELECT id FROM projects ORDER BY id LIMIT 1")
             row = cur.fetchone()
             if not row:
+                print("[build_date_branches] No projects found!")
                 return 0
             project_id = row[0]
+            print(f"[build_date_branches] Using project_id={project_id}")
 
             # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
             # Extract just the date part (YYYY-MM-DD)
@@ -1864,6 +1876,7 @@ class ReferenceDB:
                 ORDER BY date_only
             """)
             dates = [r[0] for r in cur.fetchall()]
+            print(f"[build_date_branches] Found {len(dates)} unique dates")
 
             n_total = 0
             for d in dates:
@@ -1880,14 +1893,28 @@ class ReferenceDB:
                     (d,)
                 )
                 paths = [r[0] for r in cur.fetchall()]
+                print(f"[build_date_branches] Date {d}: found {len(paths)} photos")
+                if len(paths) > 0:
+                    print(f"[build_date_branches] Sample path: {paths[0]}")
+
+                inserted = 0
                 for p in paths:
                     cur.execute(
                         "INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path) VALUES (?,?,?)",
                         (project_id, branch_key, p),
                     )
+                    if cur.rowcount > 0:
+                        inserted += 1
+                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images")
                 n_total += len(paths)
 
             conn.commit()
+            print(f"[build_date_branches] Total entries processed: {n_total}")
+
+            # Verify what's in project_images table
+            cur.execute("SELECT COUNT(*) FROM project_images WHERE project_id = ?", (project_id,))
+            count = cur.fetchone()[0]
+            print(f"[build_date_branches] project_images table has {count} rows for project {project_id}")
         # ✅ Ensure outer connection also flushes
         try:
             self._connect().commit()

@@ -128,10 +128,13 @@ class SidebarTabs(QWidget):
 
     def refresh_all(self, force=False):
         """Repopulate tabs (typically after scans or project switch)."""
+        self._dbg(f"refresh_all(force={force}) called")
         for key in ("branches", "folders", "dates", "tags", "quick"):
             idx = self._tab_indexes.get(key)
+            self._dbg(f"refresh_all: key={key}, idx={idx}, force={force}")
             if idx is not None:
                 self._populate_tab(key, idx, force=force)
+        self._dbg(f"refresh_all(force={force}) completed")
 
     def show_tabs(self): self.show()
     def hide_tabs(self): self.hide()
@@ -237,14 +240,20 @@ class SidebarTabs(QWidget):
     # ---------- population dispatcher ----------
 
     def _populate_tab(self, tab_type: str, idx: int, force=False):
+        self._dbg(f"_populate_tab({tab_type}, idx={idx}, force={force})")
+        self._dbg(f"  populated={tab_type in self._tab_populated}, loading={tab_type in self._tab_loading}")
+
         if force and tab_type in self._tab_populated:
+            self._dbg(f"  Force refresh: removing {tab_type} from populated set")
             self._tab_populated.discard(tab_type)
 
         if tab_type in self._tab_populated or tab_type in self._tab_loading:
+            self._dbg(f"  Skipping {tab_type}: already populated or loading")
             if tab_type == "branches":
                 self._set_branch_context_from_list(idx)
             return
 
+        self._dbg(f"  Starting load for {tab_type}")
         self._tab_loading.add(tab_type)
         gen = self._bump_gen(tab_type)
 
@@ -274,8 +283,11 @@ class SidebarTabs(QWidget):
         def work():
             try:
                 rows = []
+                self._dbg(f"_load_branches: project_id={self.project_id}")
                 if self.project_id:
                     rows = self.db.get_branches(self.project_id) or []
+                else:
+                    self._dbg(f"_load_branches: Skipping query because project_id is None!")
                 self._dbg(f"_load_branches → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()
@@ -1594,9 +1606,13 @@ class SidebarQt(QWidget):
 
     def reload(self):
         mode = self._effective_display_mode()
+        print(f"[SidebarQt] reload() called, display_mode={mode}")
         if mode == "tabs":
+            print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
             self.tabs_controller.refresh_all(force=True)
+            print(f"[SidebarQt] tabs_controller.refresh_all() completed")
         else:
+            print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
             self._build_tree_model()
         
 

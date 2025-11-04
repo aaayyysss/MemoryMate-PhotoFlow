@@ -283,8 +283,11 @@ class SidebarTabs(QWidget):
         def work():
             try:
                 rows = []
+                self._dbg(f"_load_branches: project_id={self.project_id}")
                 if self.project_id:
                     rows = self.db.get_branches(self.project_id) or []
+                else:
+                    self._dbg(f"_load_branches: Skipping query because project_id is None!")
                 self._dbg(f"_load_branches → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()

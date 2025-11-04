@@ -293,6 +293,14 @@ class ScanController:
             branch_count = db.build_date_branches()
             self.logger.info(f"Created {branch_count} date branch entries")
 
+            # CRITICAL: Backfill created_date field immediately after scan
+            # This populates created_date from date_taken so get_date_hierarchy() works
+            # Without this, the "By Date" section won't appear until app restart
+            self.logger.info("Backfilling created_date fields...")
+            backfilled = db.single_pass_backfill_created_fields()
+            if backfilled:
+                self.logger.info(f"Backfilled {backfilled} rows with created_date")
+
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
             sidebar_was_updated = False

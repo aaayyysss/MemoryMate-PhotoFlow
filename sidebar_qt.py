@@ -1,7 +1,7 @@
 # sidebar_qt.py
 # Version 09.18.01.13 dated 20251031
-# Patch: added debug logging for counts & tab workers, always show zeros for debugging,
-#        per-tab status label (loading -> "N items"), and improved timeout handling.
+# Tab-based sidebar with per-tab status labels, improved timeout handling,
+# and dynamic branch/folder/date/tag loading.
 
 from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
@@ -283,12 +283,8 @@ class SidebarTabs(QWidget):
         def work():
             try:
                 rows = []
-                self._dbg(f"_load_branches: project_id={self.project_id}")
                 if self.project_id:
                     rows = self.db.get_branches(self.project_id) or []
-                else:
-                    self._dbg(f"_load_branches: Skipping query because project_id is None!")
-                self._dbg(f"_load_branches → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()
                 rows = []

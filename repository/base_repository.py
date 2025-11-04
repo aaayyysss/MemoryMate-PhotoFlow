@@ -29,38 +29,27 @@ class DatabaseConnection:
     def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
         # Normalize path for consistent singleton lookup
         norm_path = os.path.abspath(db_path)
-        print(f"[DB-DEBUG] DatabaseConnection.__new__ called: db_path={db_path}, normalized={norm_path}")
 
         if norm_path not in cls._instances:
-            print(f"[DB-DEBUG] Creating NEW singleton instance for {norm_path}")
             instance = super().__new__(cls)
             instance._initialized = False
             cls._instances[norm_path] = instance
-        else:
-            print(f"[DB-DEBUG] Returning EXISTING singleton instance for {norm_path}")
 
         return cls._instances[norm_path]
 
     def __init__(self, db_path: str = "reference_data.db", auto_init: bool = True):
         if self._initialized:
-            print(f"[DB-DEBUG] DatabaseConnection.__init__ skipped (already initialized): {db_path}")
             return
 
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ starting: db_path={db_path}, auto_init={auto_init}")
         self._db_path = db_path
         self._auto_init = auto_init
         self._initialized = True
 
         # Auto-initialize schema if requested
         if self._auto_init:
-            print(f"[DB-DEBUG] Calling _ensure_schema() for {db_path}")
             self._ensure_schema()
-            print(f"[DB-DEBUG] _ensure_schema() completed for {db_path}")
-        else:
-            print(f"[DB-DEBUG] Skipping _ensure_schema() (auto_init=False)")
 
         logger.info(f"DatabaseConnection initialized with path: {db_path}")
-        print(f"[DB-DEBUG] DatabaseConnection.__init__ completed: {db_path}")
 
     @contextmanager
     def get_connection(self, read_only: bool = False) -> Generator[sqlite3.Connection, None, None]:
@@ -98,7 +87,6 @@ class DatabaseConnection:
             if not read_only:
                 try:
                     conn.execute("PRAGMA journal_mode=DELETE")
-                    print(f"[DB-DEBUG] Connection opened with journal_mode=DELETE")
                 except sqlite3.OperationalError:
                     logger.warning("Could not set DELETE mode")
 
@@ -151,74 +139,56 @@ class DatabaseConnection:
 
         The schema creation/migration is idempotent - safe to call multiple times.
         """
-        print(f"[DB-DEBUG] _ensure_schema() ENTERED for {self._db_path}")
         try:
             from .schema import get_schema_sql, get_schema_version
             from .migrations import MigrationManager, get_migration_status
 
             target_version = get_schema_version()
-            print(f"[DB-DEBUG] Target schema version: {target_version}")
 
             # Check if database needs migration
             manager = MigrationManager(self)
-            print(f"[DB-DEBUG] MigrationManager created")
 
             current_version = manager.get_current_version()
-            print(f"[DB-DEBUG] Current database version: {current_version}")
 
             logger.info(f"Schema check: current={current_version}, target={target_version}")
-            print(f"[DB-DEBUG] Schema check: current={current_version}, target={target_version}")
 
             if current_version == "0.0.0":
                 # Fresh database - create full schema from scratch
                 logger.info(f"Creating fresh database schema (version {target_version})")
-                print(f"[DB-DEBUG] Creating fresh database schema (version {target_version})")
 
                 # CRITICAL: Create schema in DELETE mode and keep it that way
                 # WAL mode causes threading issues where worker threads can't see schema
                 conn = sqlite3.connect(self._db_path, timeout=10.0, check_same_thread=False)
                 try:
-                    print(f"[DB-DEBUG] Setting journal_mode=DELETE for schema creation...")
                     conn.execute("PRAGMA journal_mode=DELETE")
                     conn.execute("PRAGMA foreign_keys = ON")
 
-                    print(f"[DB-DEBUG] Executing schema SQL script...")
                     conn.executescript(get_schema_sql())
                     conn.commit()
-                    print(f"[DB-DEBUG] Schema SQL script executed and committed in DELETE mode")
                 finally:
                     conn.close()
-                    print(f"[DB-DEBUG] Schema creation connection closed")
 
                 # VERIFY: Open a new connection and check tables exist
-                print(f"[DB-DEBUG] Verifying tables exist in new connection...")
                 with self.get_connection() as verify_conn:
                     cursor = verify_conn.cursor()
                     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
                     tables = [row['name'] if isinstance(row, dict) else row[0] for row in cursor.fetchall()]
-                    print(f"[DB-DEBUG] Verification found {len(tables)} tables: {tables[:5]}...")  # Show first 5
 
                     if 'photo_metadata' not in tables:
-                        print(f"[DB-DEBUG] ❌ CRITICAL: photo_metadata table NOT FOUND after checkpoint!")
-                        print(f"[DB-DEBUG] All tables: {tables}")
+                        logger.error("Schema creation failed - photo_metadata table not found")
+                        logger.error(f"All tables: {tables}")
                         raise Exception("Schema creation failed - photo_metadata table not found")
-                    else:
-                        print(f"[DB-DEBUG] ✓ Verification passed - photo_metadata table exists")
 
                 logger.info(f"✓ Fresh schema created (version {target_version})")
-                print(f"[DB-DEBUG] ✓ Fresh schema created (version {target_version})")
 
             elif current_version != target_version:
                 # Legacy database - apply migrations
                 logger.info(f"Migrating database from {current_version} to {target_version}")
-                print(f"[DB-DEBUG] Migrating database from {current_version} to {target_version}")
 
                 status = get_migration_status(self)
                 logger.info(f"Pending migrations: {status['pending_count']}")
-                print(f"[DB-DEBUG] Pending migrations: {status['pending_count']}")
 
                 if status['needs_migration']:
-                    print(f"[DB-DEBUG] Applying migrations...")
                     results = manager.apply_all_migrations()
 
                     # Check results
@@ -227,7 +197,6 @@ class DatabaseConnection:
 
                     if failed_count > 0:
                         logger.error(f"✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
-                        print(f"[DB-DEBUG] ✗ Migrations failed: {failed_count} failed, {success_count} succeeded")
                         raise Exception(f"Migration failed - database may be in inconsistent state")
 
                     # Checkpoint WAL after migrations
@@ -235,28 +204,19 @@ class DatabaseConnection:
                         with self.get_connection() as conn:
                             conn.execute("PRAGMA wal_checkpoint(FULL)")
                             conn.commit()
-                            print(f"[DB-DEBUG] Post-migration WAL checkpoint completed")
                     except Exception as e:
-                        print(f"[DB-DEBUG] Post-migration WAL checkpoint warning: {e}")
+                        logger.warning(f"Post-migration WAL checkpoint warning: {e}")
 
                     logger.info(f"✓ Migrations completed: {success_count} applied successfully")
-                    print(f"[DB-DEBUG] ✓ Migrations completed: {success_count} applied successfully")
                 else:
                     logger.info("✓ Database already up to date")
-                    print(f"[DB-DEBUG] ✓ Database already up to date")
 
             else:
                 # Already at target version
                 logger.info(f"✓ Database already at target version {target_version}")
-                print(f"[DB-DEBUG] ✓ Database already at target version {target_version}")
-
-            print(f"[DB-DEBUG] _ensure_schema() COMPLETED successfully")
 
         except Exception as e:
             logger.error(f"Schema initialization/migration failed: {e}", exc_info=True)
-            print(f"[DB-DEBUG] ✗ _ensure_schema() FAILED with exception: {e}")
-            import traceback
-            traceback.print_exc()
             raise
 
     def validate_schema(self) -> bool:

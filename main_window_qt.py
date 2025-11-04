@@ -214,13 +214,10 @@ class ScanController:
             self.thread.finished.connect(self._cleanup)
             print(f"[ScanController] Signals connected")
 
-            def start_thread_now():
-                print("[ScanController] DBWriter started signal received, starting scan thread...")
-                self.thread.start()
-                print("[ScanController] thread.start() called")
-
-            self.db_writer.started.connect(start_thread_now)
-            print(f"[ScanController] Waiting for DBWriter to start thread...")
+            # Start scan thread immediately - DBWriter is already running from line 178
+            print("[ScanController] Starting scan thread...")
+            self.thread.start()
+            print("[ScanController] thread.start() called")
 
             self.main.act_cancel_scan.setEnabled(True)
         except Exception as e:

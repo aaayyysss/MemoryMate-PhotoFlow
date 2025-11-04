@@ -1852,8 +1852,10 @@ class ReferenceDB:
             cur.execute("SELECT id FROM projects ORDER BY id LIMIT 1")
             row = cur.fetchone()
             if not row:
+                print("[build_date_branches] No projects found!")
                 return 0
             project_id = row[0]
+            print(f"[build_date_branches] Using project_id={project_id}")
 
             # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
             # Extract just the date part (YYYY-MM-DD)
@@ -1864,6 +1866,7 @@ class ReferenceDB:
                 ORDER BY date_only
             """)
             dates = [r[0] for r in cur.fetchall()]
+            print(f"[build_date_branches] Found {len(dates)} unique dates")
 
             n_total = 0
             for d in dates:
@@ -1880,14 +1883,28 @@ class ReferenceDB:
                     (d,)
                 )
                 paths = [r[0] for r in cur.fetchall()]
+                print(f"[build_date_branches] Date {d}: found {len(paths)} photos")
+                if len(paths) > 0:
+                    print(f"[build_date_branches] Sample path: {paths[0]}")
+
+                inserted = 0
                 for p in paths:
                     cur.execute(
                         "INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path) VALUES (?,?,?)",
                         (project_id, branch_key, p),
                     )
+                    if cur.rowcount > 0:
+                        inserted += 1
+                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images")
                 n_total += len(paths)
 
             conn.commit()
+            print(f"[build_date_branches] Total entries processed: {n_total}")
+
+            # Verify what's in project_images table
+            cur.execute("SELECT COUNT(*) FROM project_images WHERE project_id = ?", (project_id,))
+            count = cur.fetchone()[0]
+            print(f"[build_date_branches] project_images table has {count} rows for project {project_id}")
         # ✅ Ensure outer connection also flushes
         try:
             self._connect().commit()

@@ -299,11 +299,15 @@ class ScanController:
         # Sidebar & grid refresh
         try:
             print("[ScanController] Reloading sidebar after date branches built...")
+            # Always refresh tabs, regardless of current display mode
+            if hasattr(self.main.sidebar, "tabs_controller"):
+                print("[ScanController] Refreshing tabs_controller...")
+                self.main.sidebar.tabs_controller.refresh_all(force=True)
+                print("[ScanController] Tabs refresh completed")
+            # Also reload the sidebar (tree view if in list mode)
             if hasattr(self.main.sidebar, "reload"):
                 self.main.sidebar.reload()
                 print("[ScanController] Sidebar reload completed")
-            else:
-                print("[ScanController] WARNING: sidebar has no reload method")
         except Exception as e:
             print(f"[ScanController] ERROR reloading sidebar: {e}")
             import traceback

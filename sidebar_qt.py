@@ -483,8 +483,8 @@ class SidebarTabs(QWidget):
     def _load_tags(self, idx:int, gen:int):
         started = time.time()
         def work():
+            rows = []
             try:
-                rows = []
                 # Use get_all_tags_with_counts() to get all tags with photo counts
                 # This shows tags globally, not filtered by project (for photo library use)
                 if hasattr(self.db, "get_all_tags_with_counts"):

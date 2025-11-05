@@ -288,7 +288,7 @@ class TagService:
 
             # Get or create folder for this photo
             from repository.folder_repository import FolderRepository
-            folder_repo = FolderRepository(self._photo_repo.db_conn)
+            folder_repo = FolderRepository(self._photo_repo._db_connection)
 
             folder_path = os.path.dirname(path)
             folder_name = os.path.basename(folder_path) if folder_path else "Unknown"

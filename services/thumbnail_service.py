@@ -316,9 +316,40 @@ class ThumbnailService:
             Generated QPixmap thumbnail
         """
         try:
+            # Check file exists and is readable
+            if not os.path.exists(path):
+                logger.warning(f"File does not exist: {path}")
+                return QPixmap()
+
+            if not os.access(path, os.R_OK):
+                logger.warning(f"File is not readable: {path}")
+                return QPixmap()
+
+            # Check file is not empty
+            file_size = os.path.getsize(path)
+            if file_size == 0:
+                logger.warning(f"File is empty (0 bytes): {path}")
+                return QPixmap()
+
             start = time.time()
 
             with Image.open(path) as img:
+                # Verify the image by attempting to load it
+                try:
+                    img.verify()
+                except Exception as verify_err:
+                    logger.warning(f"Image verification failed for {path}: {verify_err}")
+                    # Re-open after verify (verify closes the file)
+                    img = Image.open(path)
+
+                # Load image data
+                img.load()
+
+                # Check if image has valid dimensions
+                if img.width <= 0 or img.height <= 0:
+                    logger.warning(f"Invalid image dimensions ({img.width}x{img.height}): {path}")
+                    return QPixmap()
+
                 # Calculate target dimensions
                 ratio = height / float(img.height)
                 target_w = int(img.width * ratio)
@@ -342,8 +373,20 @@ class ThumbnailService:
 
                 return QPixmap.fromImage(qimg)
 
+        except FileNotFoundError:
+            logger.warning(f"File not found during processing: {path}")
+            return QPixmap()
+        except PermissionError:
+            logger.warning(f"Permission denied accessing file: {path}")
+            return QPixmap()
+        except OSError as e:
+            logger.warning(f"OS error processing {path}: {e}")
+            return QPixmap()
         except Exception as e:
+            # Log detailed error info for debugging
+            import traceback
             logger.error(f"PIL thumbnail generation failed for {path}: {e}")
+            logger.debug(f"Full traceback:\n{traceback.format_exc()}")
             return QPixmap()
 
     def invalidate(self, path: str):
@@ -376,6 +419,68 @@ class ThumbnailService:
         # L2 cache doesn't have a clear method, but we can purge stale entries
         self.l2_cache.purge_stale(max_age_days=0)  # Purge everything
         logger.info("All thumbnail caches cleared")
+
+    def diagnose_image(self, path: str) -> Dict[str, Any]:
+        """
+        Diagnose why an image file might be failing to load.
+
+        Useful for troubleshooting problematic files.
+
+        Args:
+            path: Image file path to diagnose
+
+        Returns:
+            Dictionary with diagnostic information
+        """
+        diagnosis = {
+            "path": path,
+            "exists": False,
+            "readable": False,
+            "size_bytes": 0,
+            "is_valid_image": False,
+            "pil_format": None,
+            "dimensions": None,
+            "mode": None,
+            "errors": []
+        }
+
+        try:
+            # Check existence
+            diagnosis["exists"] = os.path.exists(path)
+            if not diagnosis["exists"]:
+                diagnosis["errors"].append("File does not exist")
+                return diagnosis
+
+            # Check readability
+            diagnosis["readable"] = os.access(path, os.R_OK)
+            if not diagnosis["readable"]:
+                diagnosis["errors"].append("File is not readable (permission denied)")
+
+            # Check size
+            diagnosis["size_bytes"] = os.path.getsize(path)
+            if diagnosis["size_bytes"] == 0:
+                diagnosis["errors"].append("File is empty (0 bytes)")
+
+            # Try PIL
+            try:
+                with Image.open(path) as img:
+                    diagnosis["is_valid_image"] = True
+                    diagnosis["pil_format"] = img.format
+                    diagnosis["dimensions"] = (img.width, img.height)
+                    diagnosis["mode"] = img.mode
+
+                    # Verify image
+                    try:
+                        img.verify()
+                    except Exception as e:
+                        diagnosis["errors"].append(f"Image verification failed: {e}")
+            except Exception as e:
+                diagnosis["errors"].append(f"PIL cannot open: {e}")
+
+        except Exception as e:
+            diagnosis["errors"].append(f"Unexpected error: {e}")
+
+        return diagnosis
 
     def get_statistics(self) -> Dict[str, Any]:
         """

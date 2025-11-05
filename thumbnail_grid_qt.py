@@ -1192,7 +1192,63 @@ class ThumbnailGridQt(QWidget):
         self.load_mode = "date"
         self.date_key = date_key
         self.reload()
-        
+
+    def load_paths(self, paths: list[str]):
+        """
+        Load arbitrary list of photo paths (e.g., from search results).
+
+        This is used for search results or custom photo collections that
+        don't fit into the folder/branch/date navigation paradigm.
+
+        Args:
+            paths: List of photo file paths to display
+        """
+        self.navigation_mode = "custom"
+        self.navigation_key = None
+        self.active_tag_filter = None
+        self.load_mode = "custom"
+
+        # Store paths and reload
+        self._paths = list(paths)
+        print(f"[GRID] Loading {len(self._paths)} custom paths (e.g., search results)")
+
+        # Clear and reload grid
+        self.model.clear()
+        self._reload_token = self._reload_token + 1 if hasattr(self, '_reload_token') else 1
+        token = self._reload_token
+
+        # Get tags for all paths
+        tag_map = {}
+        try:
+            if hasattr(self.db, 'get_tags_for_paths'):
+                tag_map = self.db.get_tags_for_paths(self._paths)
+        except Exception as e:
+            print(f"[GRID] Warning: Could not fetch tags: {e}")
+
+        # Load thumbnails
+        for i, p in enumerate(self._paths):
+            item = QStandardItem()
+            item.setData(p, Qt.UserRole)  # normalized path
+            item.setData(p, Qt.UserRole + 6)  # real path
+            item.setData(tag_map.get(p, []), Qt.UserRole + 2)  # tags
+
+            # Set placeholder size
+            aspect_ratio = 1.5
+            item.setData(aspect_ratio, Qt.UserRole + 1)
+            item.setSizeHint(self._thumb_size_for_aspect(aspect_ratio))
+
+            self.model.appendRow(item)
+
+        # Trigger thumbnail loading
+        self._apply_zoom_geometry()
+        self.list_view.doItemsLayout()
+        self.list_view.viewport().update()
+
+        # Request visible thumbnails
+        if hasattr(self, 'request_visible_thumbnails'):
+            QTimer.singleShot(100, self.request_visible_thumbnails)
+
+        print(f"[GRID] Loaded {len(self._paths)} thumbnails in custom mode")
 
     def reload_priortoContext_driven(self):
         """

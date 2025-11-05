@@ -1,5 +1,5 @@
 # services/__init__.py
-# Version 01.00.01.00 dated 20251102
+# Version 01.00.02.00 dated 20251105
 # Service layer package - Business logic separated from UI and data access
 
 from .photo_scan_service import (
@@ -31,6 +31,17 @@ from .photo_deletion_service import (
     DeletionResult
 )
 
+from .search_service import (
+    SearchService,
+    SearchCriteria,
+    SearchResult
+)
+
+from .tag_service import (
+    TagService,
+    get_tag_service
+)
+
 __all__ = [
     # Scanning
     'PhotoScanService',
@@ -53,4 +64,13 @@ __all__ = [
     # Deletion
     'PhotoDeletionService',
     'DeletionResult',
+
+    # Search
+    'SearchService',
+    'SearchCriteria',
+    'SearchResult',
+
+    # Tags
+    'TagService',
+    'get_tag_service',
 ]

@@ -107,6 +107,9 @@ apply_decoder_warning_policy()
 
 from preview_panel_qt import LightboxDialog
 
+# --- Search UI imports ---
+from search_widget_qt import SearchBarWidget, AdvancedSearchDialog
+
 # --- Backfill / process management imports ---
 import subprocess, shlex, sys
 from pathlib import Path
@@ -1783,6 +1786,13 @@ class MainWindow(QMainWindow):
         self.chk_incremental = ui.checkbox("Incremental", checked=True)
         ui.separator()
 
+        # 🔍 Search Bar
+        self.search_bar = SearchBarWidget(self)
+        self.search_bar.searchTriggered.connect(self._on_quick_search)
+        self.search_bar.advancedSearchRequested.connect(self._on_advanced_search)
+        tb.addWidget(self.search_bar)
+        ui.separator()
+
         # 🔽 Sorting and filtering controls
         self.sort_combo = ui.combo_sort("Sort:", ["Filename", "Date", "Size"], self._apply_sort_filter)
         self.sort_order_combo = QSortComboBox()
@@ -2029,6 +2039,51 @@ class MainWindow(QMainWindow):
         # Force refresh
         if hasattr(self.grid, "reload"):
             self.grid.reload()
+
+    # ============================================================
+    # 🔍 Search handlers
+    # ============================================================
+    def _on_quick_search(self, query: str):
+        """Handle quick search from search bar."""
+        try:
+            from services import SearchService
+            search_service = SearchService()
+            paths = search_service.quick_search(query, limit=100)
+
+            # Display results in grid
+            if paths:
+                self.grid.load_paths(paths)
+                self.statusBar().showMessage(f"🔍 Found {len(paths)} photos matching '{query}'")
+                print(f"[SEARCH] Quick search found {len(paths)} results for '{query}'")
+            else:
+                self.statusBar().showMessage(f"🔍 No photos found matching '{query}'")
+                QMessageBox.information(self, "Search Results", f"No photos found matching '{query}'")
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Quick search failed: {e}")
+            QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
+
+    def _on_advanced_search(self):
+        """Show advanced search dialog."""
+        try:
+            dialog = AdvancedSearchDialog(self)
+            if dialog.exec() == QDialog.Accepted:
+                criteria = dialog.get_search_criteria()
+
+                from services import SearchService
+                search_service = SearchService()
+                result = search_service.search(criteria)
+
+                if result.paths:
+                    self.grid.load_paths(result.paths)
+                    self.statusBar().showMessage(
+                        f"🔍 Found {result.filtered_count} photos in {result.execution_time_ms:.1f}ms"
+                    )
+                    print(f"[SEARCH] Advanced search found {result.filtered_count} results in {result.execution_time_ms:.1f}ms")
+                else:
+                    QMessageBox.information(self, "Search Results", "No photos match the search criteria")
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Advanced search failed: {e}")
+            QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
 
 
     def _on_clear_thumbnail_cache(self):

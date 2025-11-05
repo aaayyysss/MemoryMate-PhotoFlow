@@ -57,7 +57,35 @@ class PhotoScanService:
     """
 
     # Supported image extensions
-    SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.heic', '.heif'}
+    # Common formats
+    SUPPORTED_EXTENSIONS = {
+        # JPEG family
+        '.jpg', '.jpeg', '.jpe', '.jfif',
+        # PNG
+        '.png',
+        # WEBP
+        '.webp',
+        # TIFF
+        '.tif', '.tiff',
+        # HEIF/HEIC (Apple/modern)
+        '.heic', '.heif',
+        # BMP
+        '.bmp', '.dib',
+        # GIF
+        '.gif',
+        # Modern formats
+        '.avif',  # AV1 Image File
+        '.jxl',   # JPEG XL
+        # RAW formats (may require extra plugins)
+        '.cr2', '.cr3',  # Canon RAW
+        '.nef', '.nrw',  # Nikon RAW
+        '.arw', '.srf', '.sr2',  # Sony RAW
+        '.dng',  # Adobe Digital Negative
+        '.orf',  # Olympus RAW
+        '.rw2',  # Panasonic RAW
+        '.pef',  # Pentax RAW
+        '.raf',  # Fujifilm RAW
+    }
 
     # Default ignore patterns
     DEFAULT_IGNORE_FOLDERS = {

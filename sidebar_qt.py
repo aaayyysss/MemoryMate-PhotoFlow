@@ -136,6 +136,16 @@ class SidebarTabs(QWidget):
                 self._populate_tab(key, idx, force=force)
         self._dbg(f"refresh_all(force={force}) completed")
 
+    def refresh_tab(self, tab_name: str):
+        """Refresh a single tab (e.g., 'tags', 'folders', 'dates')."""
+        self._dbg(f"refresh_tab({tab_name}) called")
+        idx = self._tab_indexes.get(tab_name)
+        if idx is not None:
+            self._populate_tab(tab_name, idx, force=True)
+            self._dbg(f"refresh_tab({tab_name}) completed")
+        else:
+            self._dbg(f"refresh_tab({tab_name}) - tab not found")
+
     def show_tabs(self): self.show()
     def hide_tabs(self): self.hide()
 
@@ -1383,6 +1393,7 @@ class SidebarQt(QWidget):
 
     
     def reload_tags_only(self):
+        """Reload tags in both list mode (tree) and tabs mode."""
         try:
             if hasattr(self.db, "get_all_tags_with_counts"):
                 tag_rows = self.db.get_all_tags_with_counts()
@@ -1392,6 +1403,7 @@ class SidebarQt(QWidget):
             print(f"[Sidebar] reload_tags_only skipped: {e}")
             return
 
+        # Update tree view (list mode)
         tag_root = self._find_root_item("🏷️ Tags")
         if tag_root is None:
             tag_root = QStandardItem("🏷️ Tags")
@@ -1418,6 +1430,20 @@ class SidebarQt(QWidget):
 
         self.tree.expand(self.model.indexFromItem(tag_root))
         self.tree.viewport().update()
+
+        # Also refresh tabs mode if it's active
+        if hasattr(self, 'tabs_controller') and self.tabs_controller:
+            mode = self._effective_display_mode()
+            if mode == "tabs":
+                # Refresh just the tags tab
+                try:
+                    if hasattr(self.tabs_controller, 'refresh_tab'):
+                        self.tabs_controller.refresh_tab("tags")
+                    else:
+                        # Fallback: refresh all tabs
+                        self.tabs_controller.refresh_all(force=True)
+                except Exception as e:
+                    print(f"[Sidebar] Failed to refresh tags tab: {e}")
 
 
     def _on_folder_selected(self, folder_id: int):

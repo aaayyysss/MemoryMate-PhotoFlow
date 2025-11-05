@@ -1214,7 +1214,8 @@ class ThumbnailGridQt(QWidget):
 
         # Clear and reload grid
         self.model.clear()
-        self._reload_token = self._reload_token + 1 if hasattr(self, '_reload_token') else 1
+        self._reload_token = uuid.uuid4()  # Generate new UUID token
+        self._current_reload_token = self._reload_token
         token = self._reload_token
 
         # Get tags for all paths

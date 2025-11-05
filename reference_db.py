@@ -264,6 +264,9 @@ class ReferenceDB:
                 updated_at TEXT,
                 metadata_status TEXT DEFAULT 'pending',
                 metadata_fail_count INTEGER DEFAULT 0,
+                created_ts INTEGER,
+                created_date TEXT,
+                created_year INTEGER,
                 FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
             )
         ''')
@@ -302,6 +305,9 @@ class ReferenceDB:
             "updated_at": "TEXT",
             "metadata_status": "TEXT DEFAULT 'pending'",
             "metadata_fail_count": "INTEGER DEFAULT 0",
+            "created_ts": "INTEGER",
+            "created_date": "TEXT",
+            "created_year": "INTEGER",
         }
         for col, col_type in wanted_cols.items():
             if col not in existing_cols:
@@ -326,6 +332,11 @@ class ReferenceDB:
         c.execute("CREATE INDEX IF NOT EXISTS idx_meta_updated   ON photo_metadata(updated_at)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_meta_folder    ON photo_metadata(folder_id)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_meta_status    ON photo_metadata(metadata_status)")
+
+        # indexes for created_* columns (used for date-based navigation)
+        c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_year ON photo_metadata(created_year)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_date ON photo_metadata(created_date)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_ts ON photo_metadata(created_ts)")
        
 
         c.execute("CREATE INDEX IF NOT EXISTS idx_fbreps_proj ON face_branch_reps(project_id)")

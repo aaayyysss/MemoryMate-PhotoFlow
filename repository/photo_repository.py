@@ -23,6 +23,18 @@ class PhotoRepository(BaseRepository):
     def _table_name(self) -> str:
         return "photo_metadata"
 
+    def get_by_id(self, photo_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get photo metadata by ID.
+
+        Args:
+            photo_id: Photo ID
+
+        Returns:
+            Photo metadata dict or None
+        """
+        return self.find_by_id(photo_id)
+
     def get_by_path(self, path: str) -> Optional[Dict[str, Any]]:
         """
         Get photo metadata by file path.

@@ -231,12 +231,21 @@ class TagService:
 
             # Get photo IDs for all paths
             photo_ids = []
+            not_found_paths = []
             for path in photo_paths:
                 photo = self._photo_repo.get_by_path(path)
                 if photo:
                     photo_ids.append(photo['id'])
+                else:
+                    not_found_paths.append(path)
+
+            # Debug logging
+            if not_found_paths:
+                self.logger.warning(f"Could not find {len(not_found_paths)} photos in database")
+                self.logger.debug(f"Sample not found paths: {not_found_paths[:3]}")
 
             if not photo_ids:
+                self.logger.warning(f"No photos found for {len(photo_paths)} paths")
                 return 0
 
             # Bulk add

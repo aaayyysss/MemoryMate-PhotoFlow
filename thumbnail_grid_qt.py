@@ -1421,8 +1421,10 @@ class ThumbnailGridQt(QWidget):
 
 
         # --- 2️: Overlay tag filter (if active) ---
+        # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
         if tag:
-            tagged_paths = db.get_image_paths_for_tag(tag)
+            tag_service = get_tag_service()
+            tagged_paths = tag_service.get_paths_by_tag(tag)
 
             def norm(p: str):
                 try:

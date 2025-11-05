@@ -80,13 +80,16 @@ class TagService:
             self.logger.warning("Cannot assign empty tag name")
             return False
 
-        # Get photo ID from path
+        # Get photo ID from path, creating photo_metadata entry if needed
         photo = self._photo_repo.get_by_path(photo_path)
         if not photo:
-            self.logger.warning(f"Photo not found: {photo_path}")
-            return False
-
-        photo_id = photo['id']
+            # Auto-create photo_metadata entry if it doesn't exist
+            photo_id = self._ensure_photo_metadata_exists(photo_path)
+            if not photo_id:
+                self.logger.warning(f"Photo not found and could not be created: {photo_path}")
+                return False
+        else:
+            photo_id = photo['id']
 
         # Ensure tag exists
         try:

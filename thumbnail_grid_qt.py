@@ -1488,7 +1488,9 @@ class ThumbnailGridQt(QWidget):
                 print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
 
             else:
-                print(f"[TAG FILTER] No tagged photos found for '{tag}'")
+                # No tagged photos exist for this tag - show empty grid
+                paths = []
+                print(f"[TAG FILTER] No tagged photos found for '{tag}' - showing empty grid")
         
         final_count = len(paths)
 

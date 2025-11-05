@@ -79,9 +79,10 @@ from PySide6.QtGui import (
     
 from reference_db import ReferenceDB
 from app_services import (
-    get_project_images, 
+    get_project_images,
     get_thumbnail
 )
+from services.tag_service import get_tag_service
 
 from PIL import Image
 
@@ -867,9 +868,10 @@ class ThumbnailGridQt(QWidget):
             self.deleteRequested.emit(paths)
 
         elif chosen is act_fav:
-            for p in paths:
-                db.add_tag(p, "favorite")
-            print(f"[Tag] Added 'favorite' → {len(paths)} photo(s)")
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+            tag_service = get_tag_service()
+            count = tag_service.assign_tags_bulk(paths, "favorite")
+            print(f"[Tag] Added 'favorite' → {count} photo(s)")
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -881,9 +883,10 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen is act_face:
-            for p in paths:
-                db.add_tag(p, "face")
-            print(f"[Tag] Added 'face' → {len(paths)} photo(s)")
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+            tag_service = get_tag_service()
+            count = tag_service.assign_tags_bulk(paths, "face")
+            print(f"[Tag] Added 'face' → {count} photo(s)")
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -895,10 +898,11 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen in assign_actions:
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             tagname = assign_actions[chosen]
-            for p in paths:
-                db.add_tag(p, tagname)
-            print(f"[Tag] Assigned tag '{tagname}' → {len(paths)} photo(s)")
+            tag_service = get_tag_service()
+            count = tag_service.assign_tags_bulk(paths, tagname)
+            print(f"[Tag] Assigned tag '{tagname}' → {count} photo(s)")
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -910,19 +914,16 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen is act_new_tag:
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             from PySide6.QtWidgets import QInputDialog
             name, ok = QInputDialog.getText(self, "New Tag", "Tag name:")
             if ok and name.strip():
                 tname = name.strip()
-                # ensure exists (optional)
-                try:
-                    if hasattr(db, "ensure_tag"):
-                        db.ensure_tag(tname)
-                except Exception:
-                    pass
-                for p in paths:
-                    db.add_tag(p, tname)
-                print(f"[Tag] Created and assigned '{tname}' → {len(paths)} photo(s)")
+                tag_service = get_tag_service()
+                # Ensure tag exists and assign to photos
+                tag_service.ensure_tag_exists(tname)
+                count = tag_service.assign_tags_bulk(paths, tname)
+                print(f"[Tag] Created and assigned '{tname}' → {count} photo(s)")
                 self._refresh_tags_for_paths(paths)
 
                 # 🪄 Refresh sidebar tags
@@ -934,17 +935,21 @@ class ThumbnailGridQt(QWidget):
                         mw.sidebar.reload()
 
         elif chosen in remove_actions:
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             tagname = remove_actions[chosen]
+            tag_service = get_tag_service()
             for p in paths:
-                db.remove_tag(p, tagname)
+                tag_service.remove_tag(p, tagname)
             print(f"[Tag] Removed tag '{tagname}' → {len(paths)} photo(s)")
             self._refresh_tags_for_paths(paths)
 
         elif chosen is act_clear_all:
+            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             # Remove all present tags from selection
+            tag_service = get_tag_service()
             for p in paths:
                 for t in list(present_tags):
-                    db.remove_tag(p, t)
+                    tag_service.remove_tag(p, t)
             print(f"[Tag] Cleared all tags → {len(paths)} photo(s)")
             self._refresh_tags_for_paths(paths)
 
@@ -961,11 +966,15 @@ class ThumbnailGridQt(QWidget):
         """
         Refresh tag overlay (Qt.UserRole+2) for given paths only.
         Avoids full grid reload and keeps UI snappy.
+
+        ARCHITECTURE: UI Layer → TagService → TagRepository → Database
         """
         if not paths:
             return
         try:
-            tags_map = self.db.get_tags_for_paths(paths)
+            # Use TagService for proper layered architecture
+            tag_service = get_tag_service()
+            tags_map = tag_service.get_tags_for_paths(paths)
         except Exception:
             return
         # normalize to the same format used in load()

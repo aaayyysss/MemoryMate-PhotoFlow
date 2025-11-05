@@ -17,6 +17,7 @@ from PySide6.QtGui import (
 
 from app_services import list_branches, export_branch
 from reference_db import ReferenceDB
+from services.tag_service import get_tag_service
 
 import threading
 import traceback
@@ -481,19 +482,18 @@ class SidebarTabs(QWidget):
 
     # ---------- tags ----------
     def _load_tags(self, idx:int, gen:int):
+        """
+        Load tags using TagService (service layer).
+
+        ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+        """
         started = time.time()
         def work():
             rows = []
             try:
-                # Use get_all_tags_with_counts() to get all tags with photo counts
-                # This shows tags globally, not filtered by project (for photo library use)
-                if hasattr(self.db, "get_all_tags_with_counts"):
-                    rows = self.db.get_all_tags_with_counts() or []  # list of (tag_name, count) tuples
-                elif hasattr(self.db, "get_all_tags"):
-                    # Fallback: get tags without counts, pass None to get all tags globally
-                    rows = self.db.get_all_tags(project_id=None) or []
-                elif hasattr(self.db, "get_tags"):
-                    rows = self.db.get_tags() or []
+                # Use TagService for proper layered architecture
+                tag_service = get_tag_service()
+                rows = tag_service.get_all_tags_with_counts() or []  # list of (tag_name, count) tuples
                 self._dbg(f"_load_tags → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()
@@ -1408,12 +1408,15 @@ class SidebarQt(QWidget):
 
     
     def reload_tags_only(self):
-        """Reload tags in both list mode (tree) and tabs mode."""
+        """
+        Reload tags in both list mode (tree) and tabs mode.
+
+        ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+        """
         try:
-            if hasattr(self.db, "get_all_tags_with_counts"):
-                tag_rows = self.db.get_all_tags_with_counts()
-            else:
-                tag_rows = [(t, 0) for t in self.db.get_all_tags()]
+            # Use TagService for proper layered architecture
+            tag_service = get_tag_service()
+            tag_rows = tag_service.get_all_tags_with_counts()
         except Exception as e:
             print(f"[Sidebar] reload_tags_only skipped: {e}")
             return

@@ -19,7 +19,27 @@ from reference_db import ReferenceDB
 from services import get_thumbnail_service
 
 DB_PATH = "photo_app.db"
-SUPPORTED_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.tif', '.tiff'}
+SUPPORTED_EXT = {
+    # JPEG family
+    '.jpg', '.jpeg', '.jpe', '.jfif',
+    # PNG
+    '.png',
+    # WEBP
+    '.webp',
+    # TIFF
+    '.tif', '.tiff',
+    # HEIF/HEIC (Apple/modern)
+    '.heic', '.heif',
+    # BMP
+    '.bmp', '.dib',
+    # GIF
+    '.gif',
+    # Modern formats
+    '.avif', '.jxl',
+    # RAW formats
+    '.cr2', '.cr3', '.nef', '.nrw', '.arw', '.srf', '.sr2',
+    '.dng', '.orf', '.rw2', '.pef', '.raf'
+}
 
 _db = ReferenceDB()
 

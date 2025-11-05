@@ -1,6 +1,7 @@
 # services/thumbnail_service.py
-# Version 01.00.00.00 dated 20251102
+# Version 01.01.00.00 dated 20251105
 # Unified thumbnail caching service with L1 (memory) + L2 (database) cache
+# Enhanced TIFF support and Qt message suppression for unsupported formats
 
 import os
 import io
@@ -11,12 +12,67 @@ from pathlib import Path
 
 from PIL import Image
 from PySide6.QtGui import QPixmap, QImage, QImageReader
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, qInstallMessageHandler, QtMsgType
 
 from logging_config import get_logger
 from thumb_cache_db import ThumbCacheDB, get_cache
 
 logger = get_logger(__name__)
+
+# Global flag to track if message handler is installed
+_qt_message_handler_installed = False
+
+# Formats that should always use PIL (not Qt) due to compatibility issues
+PIL_PREFERRED_FORMATS = {
+    '.tif', '.tiff',  # TIFF with various compressions (JPEG, LZW, etc.)
+    '.tga',           # TGA files
+    '.psd',           # Photoshop files
+    '.ico',           # Icons with multiple sizes
+    '.bmp',           # Some BMP variants
+}
+
+def _qt_message_handler(msg_type, context, message):
+    """
+    Custom Qt message handler to suppress known TIFF compression warnings.
+
+    This suppresses repetitive Qt warnings about unsupported TIFF compression
+    methods (like JPEG compression in TIFF), since we handle these with PIL fallback.
+    """
+    # Suppress TIFF-related warnings that we handle with PIL
+    if 'qt.imageformats.tiff' in message.lower():
+        if any(x in message for x in [
+            'JPEG compression support is not configured',
+            'Sorry, requested compression method is not configured',
+            'LZW compression support is not configured',
+            'Deflate compression support is not configured'
+        ]):
+            # Silently ignore these - we handle them with PIL
+            return
+
+    # For other Qt messages, log them appropriately
+    if msg_type == QtMsgType.QtDebugMsg:
+        logger.debug(f"Qt: {message}")
+    elif msg_type == QtMsgType.QtWarningMsg:
+        # Don't spam warnings for image format issues
+        if 'imageformat' not in message.lower():
+            logger.warning(f"Qt: {message}")
+    elif msg_type == QtMsgType.QtCriticalMsg:
+        logger.error(f"Qt Critical: {message}")
+    elif msg_type == QtMsgType.QtFatalMsg:
+        logger.critical(f"Qt Fatal: {message}")
+
+def install_qt_message_handler():
+    """
+    Install custom Qt message handler to suppress TIFF warnings.
+
+    Call this once at application startup to prevent spam from
+    unsupported TIFF compression methods.
+    """
+    global _qt_message_handler_installed
+    if not _qt_message_handler_installed:
+        qInstallMessageHandler(_qt_message_handler)
+        _qt_message_handler_installed = True
+        logger.info("Installed Qt message handler to suppress TIFF warnings")
 
 
 class LRUCache:
@@ -144,6 +200,9 @@ class ThumbnailService:
             db_cache: Optional database cache instance (uses global if None)
             default_timeout: Default decode timeout in seconds
         """
+        # Install Qt message handler to suppress TIFF warnings
+        install_qt_message_handler()
+
         self.l1_cache = LRUCache(capacity=l1_capacity)
         self.l2_cache = db_cache or get_cache()
         self.default_timeout = default_timeout
@@ -259,9 +318,11 @@ class ThumbnailService:
         Generate thumbnail from image file.
 
         Handles:
-        - TIFF with PIL fallback
+        - PIL-preferred formats (TIFF, TGA, PSD, etc.) - always use PIL
+        - Qt-native formats (JPEG, PNG, WebP) - use Qt for speed
         - EXIF auto-rotation
         - Decode timeout protection
+        - Automatic fallback to PIL on Qt failures
 
         Args:
             path: Image file path
@@ -272,13 +333,13 @@ class ThumbnailService:
             Generated QPixmap thumbnail
         """
         ext = os.path.splitext(path)[1].lower()
-        is_tiff = ext in (".tif", ".tiff")
 
-        # TIFF files often need PIL fallback
-        if is_tiff:
+        # Use PIL directly for formats known to have Qt compatibility issues
+        if ext in PIL_PREFERRED_FORMATS:
+            logger.debug(f"Using PIL for {ext} format: {path}")
             return self._generate_thumbnail_pil(path, height, timeout)
 
-        # Try Qt's fast QImageReader first
+        # Try Qt's fast QImageReader for common formats
         try:
             start = time.time()
             reader = QImageReader(path)
@@ -291,7 +352,8 @@ class ThumbnailService:
 
             img = reader.read()
             if img.isNull():
-                # Fallback to PIL
+                # Qt couldn't read it, fallback to PIL
+                logger.debug(f"Qt returned null image for {path}, trying PIL")
                 return self._generate_thumbnail_pil(path, height, timeout)
 
             if height > 0:
@@ -306,6 +368,12 @@ class ThumbnailService:
     def _generate_thumbnail_pil(self, path: str, height: int, timeout: float) -> QPixmap:
         """
         Generate thumbnail using PIL (fallback for TIFF and unsupported formats).
+
+        Handles:
+        - All TIFF compression types (JPEG, LZW, Deflate, PackBits, None)
+        - CMYK and other color modes (converts to RGB)
+        - Multi-page images (uses first page)
+        - Transparency (preserves alpha channel)
 
         Args:
             path: Image file path
@@ -334,6 +402,11 @@ class ThumbnailService:
             start = time.time()
 
             with Image.open(path) as img:
+                # Verify image loaded successfully
+                if img is None:
+                    logger.warning(f"PIL returned None for: {path}")
+                    return QPixmap()
+
                 # Verify the image by attempting to load it
                 try:
                     img.verify()
@@ -342,15 +415,30 @@ class ThumbnailService:
                     # Re-open after verify (verify closes the file)
                     img = Image.open(path)
 
-                # Load image data
-                img.load()
+                # Load image data (forces actual file read)
+                try:
+                    img.load()
+                except Exception as e:
+                    logger.warning(f"PIL failed to load image data for {path}: {e}")
+                    return QPixmap()
+
+                # For multi-page images (TIFF, ICO), try to use first page
+                try:
+                    if hasattr(img, 'n_frames') and img.n_frames > 1:
+                        img.seek(0)  # Go to first frame
+                except Exception as e:
+                    # Some images report n_frames but can't seek - just use current frame
+                    logger.debug(f"Could not seek to first frame for {path}: {e}")
 
                 # Check if image has valid dimensions
+                if not hasattr(img, 'height') or not hasattr(img, 'width'):
+                    logger.warning(f"Image missing dimensions: {path}")
+                    return QPixmap()
+
                 if img.width <= 0 or img.height <= 0:
                     logger.warning(f"Invalid image dimensions ({img.width}x{img.height}): {path}")
                     return QPixmap()
 
-                # Calculate target dimensions
                 ratio = height / float(img.height)
                 target_w = int(img.width * ratio)
 
@@ -359,19 +447,48 @@ class ThumbnailService:
                     logger.warning(f"PIL decode timeout: {path}")
                     return QPixmap()
 
-                # Convert to RGB if needed
-                if img.mode not in ("RGB", "RGBA"):
-                    img = img.convert("RGB")
+                # Handle various color modes
+                try:
+                    if img.mode == 'CMYK':
+                        # Convert CMYK to RGB
+                        img = img.convert('RGB')
+                    elif img.mode in ('P', 'PA'):
+                        # Convert palette mode with/without alpha
+                        img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
+                    elif img.mode in ('L', 'LA'):
+                        # Convert grayscale to RGB
+                        img = img.convert('RGBA' if img.mode == 'LA' else 'RGB')
+                    elif img.mode not in ("RGB", "RGBA"):
+                        # Convert any other mode to RGB
+                        img = img.convert("RGB")
+                except Exception as e:
+                    logger.warning(f"Color mode conversion failed for {path}: {e}")
+                    # Try to continue with original mode
+                    pass
 
                 # Resize
-                img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
+                try:
+                    img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
+                except Exception as e:
+                    logger.warning(f"Thumbnail resize failed for {path}: {e}")
+                    return QPixmap()
 
                 # Convert to QPixmap
-                buf = io.BytesIO()
-                img.save(buf, format="PNG")
-                qimg = QImage.fromData(buf.getvalue())
+                try:
+                    buf = io.BytesIO()
+                    # Use PNG to preserve alpha channel if present
+                    save_format = "PNG" if img.mode == "RGBA" else "PNG"
+                    img.save(buf, format=save_format, optimize=False)
+                    qimg = QImage.fromData(buf.getvalue())
 
-                return QPixmap.fromImage(qimg)
+                    if qimg.isNull():
+                        logger.warning(f"Failed to convert PIL image to QImage: {path}")
+                        return QPixmap()
+
+                    return QPixmap.fromImage(qimg)
+                except Exception as e:
+                    logger.warning(f"Failed to convert PIL image to QPixmap for {path}: {e}")
+                    return QPixmap()
 
         except FileNotFoundError:
             logger.warning(f"File not found during processing: {path}")
@@ -380,13 +497,12 @@ class ThumbnailService:
             logger.warning(f"Permission denied accessing file: {path}")
             return QPixmap()
         except OSError as e:
+            # Handle PIL-specific errors (corrupt files, unsupported formats, etc.)
             logger.warning(f"OS error processing {path}: {e}")
             return QPixmap()
         except Exception as e:
             # Log detailed error info for debugging
-            import traceback
-            logger.error(f"PIL thumbnail generation failed for {path}: {e}")
-            logger.debug(f"Full traceback:\n{traceback.format_exc()}")
+            logger.error(f"PIL thumbnail generation failed for {path}: {e}", exc_info=True)
             return QPixmap()
 
     def invalidate(self, path: str):

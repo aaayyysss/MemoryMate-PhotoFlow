@@ -21,7 +21,9 @@ from .metadata_service import (
 from .thumbnail_service import (
     ThumbnailService,
     LRUCache,
-    get_thumbnail_service
+    get_thumbnail_service,
+    install_qt_message_handler,
+    PIL_PREFERRED_FORMATS
 )
 
 from .photo_deletion_service import (
@@ -56,6 +58,8 @@ __all__ = [
     'ThumbnailService',
     'LRUCache',
     'get_thumbnail_service',
+    'install_qt_message_handler',
+    'PIL_PREFERRED_FORMATS',
 
     # Deletion
     'PhotoDeletionService',

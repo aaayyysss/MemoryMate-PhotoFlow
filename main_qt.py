@@ -46,6 +46,12 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setApplicationName("Memory Mate - Photo Flow")
 
+    # Install Qt message handler IMMEDIATELY after QApplication creation
+    # This must happen before any image loading to suppress TIFF warnings
+    from services import install_qt_message_handler
+    install_qt_message_handler()
+    logger.info("Qt message handler installed to suppress TIFF warnings")
+
     # 1️: Show splash screen immediately
     splash = SplashScreen()
     splash.show()

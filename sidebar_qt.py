@@ -17,6 +17,7 @@ from PySide6.QtGui import (
 
 from app_services import list_branches, export_branch
 from reference_db import ReferenceDB
+from services.tag_service import get_tag_service
 
 import threading
 import traceback
@@ -481,14 +482,18 @@ class SidebarTabs(QWidget):
 
     # ---------- tags ----------
     def _load_tags(self, idx:int, gen:int):
+        """
+        Load tags using TagService (service layer).
+
+        ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+        """
         started = time.time()
         def work():
+            rows = []
             try:
-                rows = []
-                if self.project_id and hasattr(self.db, "get_all_tags"):
-                    rows = self.db.get_all_tags(self.project_id) or []  # list[str] or dicts
-                elif hasattr(self.db, "get_tags"):
-                    rows = self.db.get_tags() or []
+                # Use TagService for proper layered architecture
+                tag_service = get_tag_service()
+                rows = tag_service.get_all_tags_with_counts() or []  # list of (tag_name, count) tuples
                 self._dbg(f"_load_tags → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()
@@ -507,22 +512,32 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Tags</b>"))
 
-        tags = []
+        # Process rows which can be: tuples (tag, count), dicts, or strings
+        tag_items = []  # list of (tag_name, display_label)
         for r in (rows or []):
-            if isinstance(r, dict):
-                t = r.get("tag") or r.get("name") or r.get("label")
+            if isinstance(r, tuple) and len(r) == 2:
+                # Format: (tag_name, count) from get_all_tags_with_counts()
+                tag_name, count = r
+                display = f"{tag_name} ({count})"
+                tag_items.append((tag_name, display))
+            elif isinstance(r, dict):
+                # Format: dict with 'tag'/'name'/'label' key
+                tag_name = r.get("tag") or r.get("name") or r.get("label")
+                if tag_name:
+                    tag_items.append((tag_name, tag_name))
             else:
-                t = str(r)
-            if t:
-                tags.append(str(t))
+                # Format: plain string
+                tag_name = str(r)
+                if tag_name:
+                    tag_items.append((tag_name, tag_name))
 
-        if not tags:
+        if not tag_items:
             self._set_tab_empty(idx, "No tags found")
         else:
             lw = QListWidget()
-            for t in tags:
-                it = QListWidgetItem(t)
-                it.setData(Qt.UserRole, t)
+            for tag_name, display_label in tag_items:
+                it = QListWidgetItem(display_label)
+                it.setData(Qt.UserRole, tag_name)  # Store tag name for filtering
                 lw.addItem(it)
             lw.itemDoubleClicked.connect(lambda it: self.selectTag.emit(it.data(Qt.UserRole)))
             tab.layout().addWidget(lw, 1)
@@ -530,7 +545,7 @@ class SidebarTabs(QWidget):
         self._tab_populated.add("tags")
         self._tab_loading.discard("tags")
         st = self._tab_status_labels.get(idx)
-        if st: st.setText(f"{len(tags)} item(s) • {time.time()-started:.2f}s")
+        if st: st.setText(f"{len(tag_items)} item(s) • {time.time()-started:.2f}s")
     # ---------- quick ----------
     def _load_quick(self, idx):
         shortcuts = [("today", "Today"), ("week", "This Week"), ("month", "This Month")]
@@ -1393,12 +1408,15 @@ class SidebarQt(QWidget):
 
     
     def reload_tags_only(self):
-        """Reload tags in both list mode (tree) and tabs mode."""
+        """
+        Reload tags in both list mode (tree) and tabs mode.
+
+        ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+        """
         try:
-            if hasattr(self.db, "get_all_tags_with_counts"):
-                tag_rows = self.db.get_all_tags_with_counts()
-            else:
-                tag_rows = [(t, 0) for t in self.db.get_all_tags()]
+            # Use TagService for proper layered architecture
+            tag_service = get_tag_service()
+            tag_rows = tag_service.get_all_tags_with_counts()
         except Exception as e:
             print(f"[Sidebar] reload_tags_only skipped: {e}")
             return

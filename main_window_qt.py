@@ -1,7 +1,8 @@
 # main_window_qt.py
-# Version 09.19.00.00 dated 20251102
-# Removed old embedded ScanWorker class (316 LOC) - using services/photo_scan_service.py
-# Current LOC: ~2,540 (down from original 2,855)
+# Version 09.20.00.00 dated 20251105
+# Added PhotoDeletionService with comprehensive delete functionality
+# Enhanced repositories with utility methods for future migrations
+# Current LOC: ~2,640 (added photo deletion feature)
 
 # [ Tree View  ]
 #     │
@@ -2406,19 +2407,65 @@ class MainWindow(QMainWindow):
             self._confirm_delete(paths)
 
     def _confirm_delete(self, paths: list[str]):
-        """Simple delete confirmation dialog (you can plug real logic later)."""
+        """Delete photos from database (and optionally from disk)."""
         if not paths:
             return
-        ret = QMessageBox.question(
-            self,
-            "Delete",
-            f"Delete {len(paths)} photo(s)?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if ret == QMessageBox.Yes:
-            # TODO: your real delete logic here
-            print("🗑 Deleting:", paths)
+
+        # Ask user about deletion scope
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        msg.setWindowTitle("Delete Photos")
+        msg.setText(f"Delete {len(paths)} photo(s)?")
+        msg.setInformativeText("Choose deletion scope:")
+
+        # Add custom buttons
+        db_only_btn = msg.addButton("Database Only", QMessageBox.ActionRole)
+        db_and_files_btn = msg.addButton("Database && Files", QMessageBox.DestructiveRole)
+        cancel_btn = msg.addButton(QMessageBox.Cancel)
+
+        msg.setDefaultButton(db_only_btn)
+        msg.exec()
+
+        clicked = msg.clickedButton()
+
+        if clicked == cancel_btn or clicked is None:
+            return
+
+        delete_files = (clicked == db_and_files_btn)
+
+        # Import and use deletion service
+        from services import PhotoDeletionService
+        deletion_service = PhotoDeletionService()
+
+        try:
+            result = deletion_service.delete_photos(
+                paths=paths,
+                delete_files=delete_files,
+                invalidate_cache=True
+            )
+
+            # Show result summary
+            summary = f"Deleted {result.photos_deleted_from_db} photos from database"
+            if delete_files:
+                summary += f"\nDeleted {result.files_deleted_from_disk} files from disk"
+                if result.files_not_found > 0:
+                    summary += f"\n{result.files_not_found} files not found"
+
+            if result.errors:
+                summary += f"\n\nErrors:\n" + "\n".join(result.errors[:5])
+                QMessageBox.warning(self, "Deletion Completed with Errors", summary)
+            else:
+                QMessageBox.information(self, "Deletion Successful", summary)
+
+            # Reload grid to reflect changes
             self.grid.reload()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Deletion Failed",
+                f"Failed to delete photos: {e}"
+            )
 
     def _open_lightbox(self, path: str):
         """

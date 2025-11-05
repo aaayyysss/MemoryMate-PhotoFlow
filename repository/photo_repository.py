@@ -286,3 +286,70 @@ class PhotoRepository(BaseRepository):
                 "by_status": by_status,
                 "total_size_mb": round(total_size_kb / 1024, 2)
             }
+
+    def delete_by_path(self, path: str) -> bool:
+        """
+        Delete a photo by file path.
+
+        Args:
+            path: Full file path
+
+        Returns:
+            True if deleted, False if not found
+        """
+        with self.connection() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM photo_metadata WHERE path = ?", (path,))
+            conn.commit()
+            deleted = cur.rowcount > 0
+
+        if deleted:
+            self.logger.info(f"Deleted photo: {path}")
+        else:
+            self.logger.warning(f"Photo not found for deletion: {path}")
+
+        return deleted
+
+    def delete_by_paths(self, paths: List[str]) -> int:
+        """
+        Delete multiple photos by file paths.
+
+        Args:
+            paths: List of file paths
+
+        Returns:
+            Number of photos deleted
+        """
+        if not paths:
+            return 0
+
+        placeholders = ','.join('?' * len(paths))
+        sql = f"DELETE FROM photo_metadata WHERE path IN ({placeholders})"
+
+        with self.connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, paths)
+            conn.commit()
+            deleted = cur.rowcount
+
+        self.logger.info(f"Bulk deleted {deleted} photos")
+        return deleted
+
+    def delete_by_folder(self, folder_id: int) -> int:
+        """
+        Delete all photos in a folder.
+
+        Args:
+            folder_id: Folder ID
+
+        Returns:
+            Number of photos deleted
+        """
+        with self.connection() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM photo_metadata WHERE folder_id = ?", (folder_id,))
+            conn.commit()
+            deleted = cur.rowcount
+
+        self.logger.info(f"Deleted {deleted} photos from folder {folder_id}")
+        return deleted

@@ -24,6 +24,11 @@ from .thumbnail_service import (
     get_thumbnail_service
 )
 
+from .photo_deletion_service import (
+    PhotoDeletionService,
+    DeletionResult
+)
+
 __all__ = [
     # Scanning
     'PhotoScanService',
@@ -40,4 +45,8 @@ __all__ = [
     'ThumbnailService',
     'LRUCache',
     'get_thumbnail_service',
+
+    # Deletion
+    'PhotoDeletionService',
+    'DeletionResult',
 ]

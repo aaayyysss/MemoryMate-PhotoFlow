@@ -29,6 +29,12 @@ from .photo_deletion_service import (
     DeletionResult
 )
 
+from .search_service import (
+    SearchService,
+    SearchCriteria,
+    SearchResult
+)
+
 __all__ = [
     # Scanning
     'PhotoScanService',
@@ -49,4 +55,9 @@ __all__ = [
     # Deletion
     'PhotoDeletionService',
     'DeletionResult',
+
+    # Search
+    'SearchService',
+    'SearchCriteria',
+    'SearchResult',
 ]

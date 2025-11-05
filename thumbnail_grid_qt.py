@@ -868,6 +868,15 @@ class ThumbnailGridQt(QWidget):
             self.deleteRequested.emit(paths)
 
         elif chosen is act_fav:
+            # Check if any photos are selected
+            if not paths:
+                QMessageBox.information(
+                    self,
+                    "No Photos Selected",
+                    "Please select one or more photos before adding a tag."
+                )
+                return
+
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             tag_service = get_tag_service()
             count = tag_service.assign_tags_bulk(paths, "favorite")
@@ -883,6 +892,15 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen is act_face:
+            # Check if any photos are selected
+            if not paths:
+                QMessageBox.information(
+                    self,
+                    "No Photos Selected",
+                    "Please select one or more photos before adding a tag."
+                )
+                return
+
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             tag_service = get_tag_service()
             count = tag_service.assign_tags_bulk(paths, "face")
@@ -898,6 +916,15 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen in assign_actions:
+            # Check if any photos are selected
+            if not paths:
+                QMessageBox.information(
+                    self,
+                    "No Photos Selected",
+                    "Please select one or more photos before adding a tag."
+                )
+                return
+
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             tagname = assign_actions[chosen]
             tag_service = get_tag_service()
@@ -914,6 +941,15 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload()
 
         elif chosen is act_new_tag:
+            # Check if any photos are selected
+            if not paths:
+                QMessageBox.information(
+                    self,
+                    "No Photos Selected",
+                    "Please select one or more photos before creating and assigning a tag."
+                )
+                return
+
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             from PySide6.QtWidgets import QInputDialog
             name, ok = QInputDialog.getText(self, "New Tag", "Tag name:")

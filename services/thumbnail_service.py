@@ -37,17 +37,37 @@ def _qt_message_handler(msg_type, context, message):
 
     This suppresses repetitive Qt warnings about unsupported TIFF compression
     methods (like JPEG compression in TIFF), since we handle these with PIL fallback.
+
+    CRITICAL FIX: Check context.category instead of message text, since Qt puts
+    the category in context.category, not in the message itself.
     """
-    # Suppress TIFF-related warnings that we handle with PIL
-    if 'qt.imageformats.tiff' in message.lower():
-        if any(x in message for x in [
-            'JPEG compression support is not configured',
-            'Sorry, requested compression method is not configured',
-            'LZW compression support is not configured',
-            'Deflate compression support is not configured'
-        ]):
-            # Silently ignore these - we handle them with PIL
-            return
+    # Check if this is a TIFF category message
+    is_tiff_category = (
+        context and
+        hasattr(context, 'category') and
+        context.category and
+        'tiff' in str(context.category).lower()
+    )
+
+    # Check if this is a compression warning message
+    compression_warnings = [
+        'JPEG compression support is not configured',
+        'Sorry, requested compression method is not configured',
+        'LZW compression support is not configured',
+        'Deflate compression support is not configured',
+        'compression support is not configured',  # Catch-all pattern
+        'requested compression method is not configured'  # Catch-all pattern
+    ]
+    is_compression_warning = any(x in message for x in compression_warnings)
+
+    # Suppress TIFF compression warnings (we handle these with PIL)
+    if is_tiff_category and is_compression_warning:
+        return  # Silently ignore
+
+    # Also suppress ANY compression warning regardless of category (belt and suspenders)
+    # This catches cases where the category might not be set correctly
+    if is_compression_warning:
+        return  # Silently ignore
 
     # For other Qt messages, log them appropriately
     if msg_type == QtMsgType.QtDebugMsg:
@@ -206,6 +226,11 @@ class ThumbnailService:
         self.l1_cache = LRUCache(capacity=l1_capacity)
         self.l2_cache = db_cache or get_cache()
         self.default_timeout = default_timeout
+
+        # Track files that failed to load (corrupted/unsupported)
+        # This prevents infinite retries of broken images
+        self._failed_images: set[str] = set()
+
         logger.info(f"ThumbnailService initialized (L1 capacity={l1_capacity}, timeout={default_timeout}s)")
 
     def _normalize_path(self, path: str) -> str:
@@ -280,6 +305,13 @@ class ThumbnailService:
             return QPixmap()
 
         norm_path = self._normalize_path(path)
+
+        # Check if this file previously failed to load (corrupted/unsupported)
+        # This prevents infinite retries of broken images
+        if norm_path in self._failed_images:
+            logger.debug(f"Skipping previously failed image: {path}")
+            return QPixmap()
+
         current_mtime = self._get_mtime(path)
 
         if current_mtime is None:
@@ -420,6 +452,9 @@ class ThumbnailService:
                     img.load()
                 except Exception as e:
                     logger.warning(f"PIL failed to load image data for {path}: {e}")
+                    # Mark as failed to prevent retries
+                    self._failed_images.add(self._normalize_path(path))
+                    logger.info(f"Marked as failed (will not retry): {path}")
                     return QPixmap()
 
                 # For multi-page images (TIFF, ICO), try to use first page
@@ -509,7 +544,8 @@ class ThumbnailService:
         """
         Invalidate cached thumbnail for a file.
 
-        Removes from both L1 (memory) and L2 (database) caches.
+        Removes from both L1 (memory) and L2 (database) caches, and clears
+        failed image status so the file will be retried.
         Call this when a file is modified or deleted.
 
         Args:
@@ -523,18 +559,29 @@ class ThumbnailService:
         # Remove from L2
         self.l2_cache.invalidate(path)
 
-        logger.info(f"Invalidated thumbnail: {path} (L1={'yes' if l1_removed else 'no'})")
+        # Remove from failed images (allow retry after file is fixed)
+        was_failed = norm_path in self._failed_images
+        if was_failed:
+            self._failed_images.discard(norm_path)
+
+        logger.info(f"Invalidated thumbnail: {path} (L1={'yes' if l1_removed else 'no'}, was_failed={was_failed})")
 
     def clear_all(self):
         """
-        Clear all caches (L1 and L2).
+        Clear all caches (L1 and L2) and reset failed images tracking.
 
-        WARNING: This removes all cached thumbnails.
+        WARNING: This removes all cached thumbnails and clears the failed
+        images list, so previously failed images will be retried.
         """
         self.l1_cache.clear()
         # L2 cache doesn't have a clear method, but we can purge stale entries
         self.l2_cache.purge_stale(max_age_days=0)  # Purge everything
-        logger.info("All thumbnail caches cleared")
+
+        # Clear failed images list
+        failed_count = len(self._failed_images)
+        self._failed_images.clear()
+
+        logger.info(f"All thumbnail caches cleared ({failed_count} failed images reset)")
 
     def diagnose_image(self, path: str) -> Dict[str, Any]:
         """

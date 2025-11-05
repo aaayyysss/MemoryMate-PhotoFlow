@@ -146,3 +146,102 @@ class FolderRepository(BaseRepository):
                 # Fallback if recursive CTE not supported
                 self.logger.warning(f"Recursive query failed: {e}, using simple query")
                 return self.find_all(order_by="name ASC")
+
+    def update_photo_count(self, folder_id: int, count: int):
+        """
+        Update the photo count for a folder.
+
+        Args:
+            folder_id: Folder ID
+            count: Number of photos
+        """
+        sql = "UPDATE photo_folders SET photo_count = ? WHERE id = ?"
+
+        with self.connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, (count, folder_id))
+            conn.commit()
+
+        self.logger.debug(f"Updated folder {folder_id} photo count to {count}")
+
+    def get_recursive_photo_count(self, folder_id: int) -> int:
+        """
+        Get total photo count including all subfolders.
+
+        Args:
+            folder_id: Folder ID
+
+        Returns:
+            Total photo count recursively
+        """
+        sql = """
+            WITH RECURSIVE folder_tree AS (
+                SELECT id FROM photo_folders WHERE id = ?
+                UNION ALL
+                SELECT f.id
+                FROM photo_folders f
+                JOIN folder_tree ft ON f.parent_id = ft.id
+            )
+            SELECT COUNT(DISTINCT p.id) as count
+            FROM photo_metadata p
+            WHERE p.folder_id IN (SELECT id FROM folder_tree)
+        """
+
+        with self.connection(read_only=True) as conn:
+            cur = conn.cursor()
+            try:
+                cur.execute(sql, (folder_id,))
+                result = cur.fetchone()
+                return result['count'] if result else 0
+            except Exception as e:
+                # Fallback to non-recursive count
+                self.logger.warning(f"Recursive count failed: {e}, using simple count")
+                from .photo_repository import PhotoRepository
+                photo_repo = PhotoRepository(self.db_conn)
+                return photo_repo.count_by_folder(folder_id)
+
+    def get_all_folders(self) -> List[Dict[str, Any]]:
+        """
+        Get all folders ordered by path.
+
+        Returns:
+            List of all folders
+        """
+        return self.find_all(order_by="path ASC")
+
+    def delete_folder(self, folder_id: int) -> bool:
+        """
+        Delete a folder (only if it has no photos).
+
+        Args:
+            folder_id: Folder ID
+
+        Returns:
+            True if deleted, False otherwise
+        """
+        # Check if folder has photos
+        from .photo_repository import PhotoRepository
+        photo_repo = PhotoRepository(self.db_conn)
+        count = photo_repo.count_by_folder(folder_id)
+
+        if count > 0:
+            self.logger.warning(f"Cannot delete folder {folder_id}: has {count} photos")
+            return False
+
+        # Check if folder has children
+        children = self.get_children(folder_id)
+        if children:
+            self.logger.warning(f"Cannot delete folder {folder_id}: has {len(children)} child folders")
+            return False
+
+        # Delete folder
+        with self.connection() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM photo_folders WHERE id = ?", (folder_id,))
+            conn.commit()
+            deleted = cur.rowcount > 0
+
+        if deleted:
+            self.logger.info(f"Deleted folder {folder_id}")
+
+        return deleted

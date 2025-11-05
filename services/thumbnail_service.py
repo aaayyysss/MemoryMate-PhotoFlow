@@ -387,12 +387,32 @@ class ThumbnailService:
             start = time.time()
 
             with Image.open(path) as img:
-                # For multi-page images (TIFF, ICO), use first page
-                if hasattr(img, 'n_frames') and img.n_frames > 1:
-                    img.seek(0)  # Go to first frame
+                # Verify image loaded successfully
+                if img is None:
+                    logger.warning(f"PIL returned None for: {path}")
+                    return QPixmap()
+
+                # Try to load image data (forces actual file read)
+                try:
+                    img.load()
+                except Exception as e:
+                    logger.warning(f"PIL failed to load image data for {path}: {e}")
+                    return QPixmap()
+
+                # For multi-page images (TIFF, ICO), try to use first page
+                try:
+                    if hasattr(img, 'n_frames') and img.n_frames > 1:
+                        img.seek(0)  # Go to first frame
+                except Exception as e:
+                    # Some images report n_frames but can't seek - just use current frame
+                    logger.debug(f"Could not seek to first frame for {path}: {e}")
 
                 # Calculate target dimensions
-                if img.height == 0:
+                if not hasattr(img, 'height') or not hasattr(img, 'width'):
+                    logger.warning(f"Image missing dimensions: {path}")
+                    return QPixmap()
+
+                if img.height == 0 or img.width == 0:
                     logger.warning(f"Invalid image dimensions: {path}")
                     return QPixmap()
 
@@ -405,34 +425,47 @@ class ThumbnailService:
                     return QPixmap()
 
                 # Handle various color modes
-                if img.mode == 'CMYK':
-                    # Convert CMYK to RGB
-                    img = img.convert('RGB')
-                elif img.mode in ('P', 'PA'):
-                    # Convert palette mode with/without alpha
-                    img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
-                elif img.mode in ('L', 'LA'):
-                    # Convert grayscale to RGB
-                    img = img.convert('RGBA' if img.mode == 'LA' else 'RGB')
-                elif img.mode not in ("RGB", "RGBA"):
-                    # Convert any other mode to RGB
-                    img = img.convert("RGB")
+                try:
+                    if img.mode == 'CMYK':
+                        # Convert CMYK to RGB
+                        img = img.convert('RGB')
+                    elif img.mode in ('P', 'PA'):
+                        # Convert palette mode with/without alpha
+                        img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
+                    elif img.mode in ('L', 'LA'):
+                        # Convert grayscale to RGB
+                        img = img.convert('RGBA' if img.mode == 'LA' else 'RGB')
+                    elif img.mode not in ("RGB", "RGBA"):
+                        # Convert any other mode to RGB
+                        img = img.convert("RGB")
+                except Exception as e:
+                    logger.warning(f"Color mode conversion failed for {path}: {e}")
+                    # Try to continue with original mode
+                    pass
 
                 # Resize
-                img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
-
-                # Convert to QPixmap
-                buf = io.BytesIO()
-                # Use PNG to preserve alpha channel if present
-                save_format = "PNG" if img.mode == "RGBA" else "PNG"
-                img.save(buf, format=save_format, optimize=False)
-                qimg = QImage.fromData(buf.getvalue())
-
-                if qimg.isNull():
-                    logger.warning(f"Failed to convert PIL image to QImage: {path}")
+                try:
+                    img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
+                except Exception as e:
+                    logger.warning(f"Thumbnail resize failed for {path}: {e}")
                     return QPixmap()
 
-                return QPixmap.fromImage(qimg)
+                # Convert to QPixmap
+                try:
+                    buf = io.BytesIO()
+                    # Use PNG to preserve alpha channel if present
+                    save_format = "PNG" if img.mode == "RGBA" else "PNG"
+                    img.save(buf, format=save_format, optimize=False)
+                    qimg = QImage.fromData(buf.getvalue())
+
+                    if qimg.isNull():
+                        logger.warning(f"Failed to convert PIL image to QImage: {path}")
+                        return QPixmap()
+
+                    return QPixmap.fromImage(qimg)
+                except Exception as e:
+                    logger.warning(f"Failed to convert PIL image to QPixmap for {path}: {e}")
+                    return QPixmap()
 
         except OSError as e:
             # Handle PIL-specific errors (corrupt files, unsupported formats, etc.)

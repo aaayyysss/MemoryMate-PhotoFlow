@@ -80,13 +80,16 @@ class TagService:
             self.logger.warning("Cannot assign empty tag name")
             return False
 
-        # Get photo ID from path
+        # Get photo ID from path, creating photo_metadata entry if needed
         photo = self._photo_repo.get_by_path(photo_path)
         if not photo:
-            self.logger.warning(f"Photo not found: {photo_path}")
-            return False
-
-        photo_id = photo['id']
+            # Auto-create photo_metadata entry if it doesn't exist
+            photo_id = self._ensure_photo_metadata_exists(photo_path)
+            if not photo_id:
+                self.logger.warning(f"Photo not found and could not be created: {photo_path}")
+                return False
+        else:
+            photo_id = photo['id']
 
         # Ensure tag exists
         try:
@@ -229,14 +232,28 @@ class TagService:
             # Ensure tag exists
             tag_id = self._tag_repo.ensure_exists(tag_name)
 
-            # Get photo IDs for all paths
+            # Get photo IDs for all paths, creating photo_metadata entries if needed
             photo_ids = []
+            created_count = 0
+
             for path in photo_paths:
                 photo = self._photo_repo.get_by_path(path)
-                if photo:
+
+                # If photo doesn't exist in photo_metadata, create it
+                # (This happens when photos are in project_images but not photo_metadata)
+                if not photo:
+                    photo_id = self._ensure_photo_metadata_exists(path)
+                    if photo_id:
+                        photo_ids.append(photo_id)
+                        created_count += 1
+                else:
                     photo_ids.append(photo['id'])
 
+            if created_count > 0:
+                self.logger.info(f"Auto-created {created_count} photo_metadata entries for tagging")
+
             if not photo_ids:
+                self.logger.warning(f"No valid photo IDs found for {len(photo_paths)} paths")
                 return 0
 
             # Bulk add
@@ -245,8 +262,64 @@ class TagService:
             return count
 
         except Exception as e:
-            self.logger.error(f"Failed bulk tag assignment: {e}")
+            self.logger.error(f"Failed bulk tag assignment: {e}", exc_info=True)
             return 0
+
+    def _ensure_photo_metadata_exists(self, path: str) -> Optional[int]:
+        """
+        Ensure a photo exists in photo_metadata table.
+
+        This is needed when photos exist in project_images but not in photo_metadata.
+        Creates minimal metadata entry so photo can be tagged.
+
+        Args:
+            path: Photo file path
+
+        Returns:
+            Photo ID, or None if creation failed
+        """
+        import os
+
+        try:
+            # Check if file exists
+            if not os.path.exists(path):
+                self.logger.warning(f"Photo file does not exist: {path}")
+                return None
+
+            # Get or create folder for this photo
+            from repository.folder_repository import FolderRepository
+            folder_repo = FolderRepository(self._photo_repo._db_connection)
+
+            folder_path = os.path.dirname(path)
+            folder_name = os.path.basename(folder_path) if folder_path else "Unknown"
+
+            # Ensure folder exists (with no parent for simplicity)
+            folder_id = folder_repo.ensure_folder(folder_path, folder_name, None)
+
+            # Get file stats
+            stat = os.stat(path)
+            size_kb = stat.st_size / 1024.0
+            import time
+            modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+            # Create photo_metadata entry
+            photo_id = self._photo_repo.upsert(
+                path=path,
+                folder_id=folder_id,
+                size_kb=size_kb,
+                modified=modified,
+                width=None,  # Will be populated by metadata scan later
+                height=None,
+                date_taken=None,
+                tags=None
+            )
+
+            self.logger.debug(f"Created photo_metadata entry for: {path} (id={photo_id})")
+            return photo_id
+
+        except Exception as e:
+            self.logger.error(f"Failed to ensure photo_metadata exists for {path}: {e}", exc_info=True)
+            return None
 
     def get_tags_for_paths(self, photo_paths: List[str]) -> Dict[str, List[str]]:
         """

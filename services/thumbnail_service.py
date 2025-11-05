@@ -433,19 +433,32 @@ class ThumbnailService:
 
             start = time.time()
 
+            # First, try to verify the image
+            needs_reopen = False
+            try:
+                with Image.open(path) as img:
+                    if img is None:
+                        logger.warning(f"PIL returned None for: {path}")
+                        return QPixmap()
+                    img.verify()
+            except Exception as verify_err:
+                logger.debug(f"Image verification check for {path}: {verify_err}")
+                needs_reopen = True
+
+            # Now open the image for actual processing
+            # (verify() closes the file, so we always need to reopen)
             with Image.open(path) as img:
                 # Verify image loaded successfully
                 if img is None:
                     logger.warning(f"PIL returned None for: {path}")
                     return QPixmap()
 
-                # Verify the image by attempting to load it
-                try:
-                    img.verify()
-                except Exception as verify_err:
-                    logger.warning(f"Image verification failed for {path}: {verify_err}")
-                    # Re-open after verify (verify closes the file)
-                    img = Image.open(path)
+                # Check if image has a valid file pointer
+                if not hasattr(img, 'fp') or img.fp is None:
+                    logger.warning(f"PIL image has no file pointer for: {path}")
+                    self._failed_images.add(self._normalize_path(path))
+                    logger.info(f"Marked as failed (will not retry): {path}")
+                    return QPixmap()
 
                 # Load image data (forces actual file read)
                 try:

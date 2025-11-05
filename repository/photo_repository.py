@@ -33,10 +33,34 @@ class PhotoRepository(BaseRepository):
         Returns:
             Photo metadata dict or None
         """
+        # Normalize path for consistent lookups (handles Windows backslash/forward slash)
+        normalized_path = self._normalize_path(path)
+
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM photo_metadata WHERE path = ?", (path,))
+            cur.execute("SELECT * FROM photo_metadata WHERE path = ?", (normalized_path,))
             return cur.fetchone()
+
+    def _normalize_path(self, path: str) -> str:
+        """
+        Normalize file path for consistent database storage.
+
+        On Windows, converts backslashes to forward slashes and normalizes case.
+        This prevents duplicates like 'C:\\path\\photo.jpg' vs 'C:/path/photo.jpg'
+
+        Args:
+            path: File path to normalize
+
+        Returns:
+            Normalized path string
+        """
+        import os
+        # Normalize path components (resolve .., ., etc)
+        normalized = os.path.normpath(path)
+        # Convert backslashes to forward slashes for consistent storage
+        # SQLite stores paths as strings, so C:\path != C:/path
+        normalized = normalized.replace('\\', '/')
+        return normalized
 
     def get_by_folder(self, folder_id: int, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """
@@ -100,6 +124,9 @@ class PhotoRepository(BaseRepository):
         """
         import time
 
+        # Normalize path for consistent storage (prevents duplicates on Windows)
+        normalized_path = self._normalize_path(path)
+
         now = time.strftime("%Y-%m-%d %H:%M:%S")
 
         sql = """
@@ -119,15 +146,15 @@ class PhotoRepository(BaseRepository):
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute(sql, (path, folder_id, size_kb, modified, width, height, date_taken, tags, now))
+            cur.execute(sql, (normalized_path, folder_id, size_kb, modified, width, height, date_taken, tags, now))
             conn.commit()
 
             # Get the ID of the inserted/updated row
-            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
+            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (normalized_path,))
             result = cur.fetchone()
             photo_id = result['id'] if result else None
 
-        self.logger.debug(f"Upserted photo: {path} (id={photo_id})")
+        self.logger.debug(f"Upserted photo: {normalized_path} (id={photo_id})")
         return photo_id
 
     def bulk_upsert(self, rows: List[tuple]) -> int:
@@ -146,8 +173,17 @@ class PhotoRepository(BaseRepository):
         import time
         now = time.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Add updated_at timestamp to each row
-        rows_with_timestamp = [row + (now,) for row in rows]
+        # Normalize paths and add updated_at timestamp to each row
+        rows_normalized = []
+        for row in rows:
+            # Unpack: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            path = row[0]
+            normalized_path = self._normalize_path(path)
+            # Rebuild tuple with normalized path
+            normalized_row = (normalized_path,) + row[1:] + (now,)
+            rows_normalized.append(normalized_row)
+
+        rows_with_timestamp = rows_normalized
 
         sql = """
             INSERT INTO photo_metadata
@@ -353,3 +389,60 @@ class PhotoRepository(BaseRepository):
 
         self.logger.info(f"Deleted {deleted} photos from folder {folder_id}")
         return deleted
+
+    def cleanup_duplicate_paths(self) -> int:
+        """
+        Clean up duplicate photo entries caused by path format differences.
+
+        Removes duplicates where paths differ only in slash direction (e.g.,
+        'C:\\path\\photo.jpg' vs 'C:/path/photo.jpg'), keeping the entry
+        with the lowest ID (oldest).
+
+        Returns:
+            Number of duplicate entries removed
+        """
+        with self.connection() as conn:
+            cur = conn.cursor()
+
+            # Find all photo paths
+            cur.execute("SELECT id, path FROM photo_metadata ORDER BY id")
+            all_photos = cur.fetchall()
+
+            # Build map of normalized_path -> list of (id, original_path)
+            normalized_map = {}
+            for row in all_photos:
+                photo_id = row['id']
+                path = row['path']
+                normalized = self._normalize_path(path)
+
+                if normalized not in normalized_map:
+                    normalized_map[normalized] = []
+                normalized_map[normalized].append((photo_id, path))
+
+            # Find duplicates and collect IDs to delete
+            ids_to_delete = []
+            for normalized, entries in normalized_map.items():
+                if len(entries) > 1:
+                    # Sort by ID (keep oldest), delete the rest
+                    entries_sorted = sorted(entries, key=lambda x: x[0])
+                    keep_id, keep_path = entries_sorted[0]
+
+                    # Mark duplicates for deletion
+                    for dup_id, dup_path in entries_sorted[1:]:
+                        ids_to_delete.append(dup_id)
+                        self.logger.debug(f"Duplicate found: keeping ID={keep_id} '{keep_path}', removing ID={dup_id} '{dup_path}'")
+
+            # Delete duplicates
+            if ids_to_delete:
+                placeholders = ','.join('?' * len(ids_to_delete))
+                sql = f"DELETE FROM photo_metadata WHERE id IN ({placeholders})"
+                cur.execute(sql, ids_to_delete)
+                conn.commit()
+
+            deleted_count = len(ids_to_delete)
+            if deleted_count > 0:
+                self.logger.info(f"Cleaned up {deleted_count} duplicate photo entries")
+            else:
+                self.logger.info("No duplicate photo entries found")
+
+            return deleted_count

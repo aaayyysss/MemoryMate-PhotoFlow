@@ -511,10 +511,35 @@ class ThumbnailGridQt(QWidget):
                 QTimer.singleShot(50, self.request_visible_thumbnails)
                 return
 
+            # Calculate visible range
             top_index = self.list_view.indexAt(QPoint(rect.left(), rect.top()))
             bottom_index = self.list_view.indexAt(QPoint(rect.left(), rect.bottom() - 1))
+
+            # Get row numbers
             start = top_index.row() if top_index.isValid() else 0
-            end = bottom_index.row() if bottom_index.isValid() else min(self.model.rowCount() - 1, start + 50)
+
+            # FIX: Better bottom index calculation
+            if bottom_index.isValid():
+                end = bottom_index.row()
+            else:
+                # If bottom_index is invalid, calculate based on grid layout
+                # Estimate how many items fit in viewport
+                if self.model.rowCount() > 0:
+                    first_item = self.model.item(0)
+                    if first_item:
+                        item_height = first_item.sizeHint().height() + self.thumb_spacing
+                        if item_height > 0:
+                            # Calculate how many rows fit in viewport height
+                            items_per_row = max(1, rect.width() // (first_item.sizeHint().width() + self.thumb_spacing))
+                            visible_rows = (rect.height() // item_height) + 1
+                            visible_items = visible_rows * items_per_row
+                            end = min(self.model.rowCount() - 1, start + visible_items)
+                        else:
+                            end = min(self.model.rowCount() - 1, start + 100)
+                    else:
+                        end = min(self.model.rowCount() - 1, start + 100)
+                else:
+                    end = min(self.model.rowCount() - 1, start + 100)
 
             # nothing to do
             if self.model.rowCount() == 0:
@@ -524,20 +549,19 @@ class ThumbnailGridQt(QWidget):
             start = max(0, start - self._prefetch_radius)
             end = min(self.model.rowCount() - 1, end + self._prefetch_radius)
 
+            print(f"[GRID] Loading viewport range: {start}-{end} of {self.model.rowCount()}")
+
             token = self._reload_token
             for row in range(start, end + 1):
                 item = self.model.item(row)
                 if not item:
                     continue
-                    
-#                path = item.data(Qt.UserRole)
-#                if not path:
 
                 npath = item.data(Qt.UserRole)        # normalized key
                 rpath = item.data(Qt.UserRole + 6)    # real path
                 if not npath or not rpath:
                     continue
-                    
+
                 # avoid resubmitting while already scheduled
                 if item.data(Qt.UserRole + 5):
                     continue
@@ -549,16 +573,17 @@ class ThumbnailGridQt(QWidget):
                 # schedule worker
                 item.setData(True, Qt.UserRole + 5)  # mark scheduled
                 thumb_h = int(self._thumb_base * self._zoom_factor)
-#                w = ThumbWorker(path, thumb_h, row, self.thumb_signal, self._thumb_cache, token, self._placeholder_pixmap)
 
                 w = ThumbWorker(rpath, npath, thumb_h, row, self.thumb_signal,
                                 self._thumb_cache, token, self._placeholder_pixmap)
-                
+
 
                 self.thread_pool.start(w)
 
         except Exception as e:
             print(f"[GRID] request_visible_thumbnails error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def event(self, ev):
         if ev.type() == QEvent.Gesture:

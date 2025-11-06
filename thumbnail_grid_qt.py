@@ -797,15 +797,21 @@ class ThumbnailGridQt(QWidget):
         except Exception:
             pass
 
-        # tags present across selection (for Remove menu)
+        # tags present across selection (use TagService for consistency)
         present_map = {}
         try:
-            present_map = db.get_tags_for_paths(paths)
-        except Exception:
+            from services.tag_service import get_tag_service
+            tag_service = get_tag_service()
+            present_map = tag_service.get_tags_for_paths(paths)
+            print(f"[ContextMenu] Got tags for {len(paths)} path(s): {present_map}")
+        except Exception as e:
+            print(f"[ContextMenu] Error getting tags: {e}")
             present_map = {}
         present_tags = set()
         for tlist in present_map.values():
             present_tags.update([t.strip() for t in tlist if t.strip()])
+
+        print(f"[ContextMenu] present_tags = {present_tags}")
 
         # Menu
         m = QMenu(self)

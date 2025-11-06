@@ -551,7 +551,16 @@ class SidebarTabs(QWidget):
 
             # Populate tree: Years (top level)
             for year in sorted(hier.keys(), reverse=True):
-                year_count = year_counts.get(str(year), 0)
+                # Get accurate year count from database
+                year_count = 0
+                try:
+                    if hasattr(self.db, "count_for_year"):
+                        year_count = self.db.count_for_year(year)
+                    else:
+                        year_count = year_counts.get(str(year), 0)
+                except Exception:
+                    year_count = year_counts.get(str(year), 0)
+
                 year_item = QTreeWidgetItem([str(year), str(year_count)])
                 year_item.setData(0, Qt.UserRole, str(year))
                 tree.addTopLevelItem(year_item)
@@ -565,14 +574,36 @@ class SidebarTabs(QWidget):
                     days_list = months_dict[month]
                     month_num = int(month) if month.isdigit() else 0
                     month_label = month_names[month_num] if 0 < month_num <= 12 else month
-                    month_count = len(days_list)
+
+                    # Get accurate month count from database (not just len(days_list))
+                    month_count = 0
+                    try:
+                        if hasattr(self.db, "count_for_month"):
+                            month_count = self.db.count_for_month(year, month)
+                        else:
+                            month_count = len(days_list)
+                    except Exception:
+                        month_count = len(days_list)
+
                     month_item = QTreeWidgetItem([f"{month_label} {year}", str(month_count)])
                     month_item.setData(0, Qt.UserRole, f"{year}-{month}")
                     year_item.addChild(month_item)
 
-                    # Days (children of month)
+                    # Days (children of month) - WITH COUNTS
                     for day in sorted(days_list, reverse=True):
-                        day_item = QTreeWidgetItem([str(day), ""])  # No count for individual days
+                        # Get day count from database
+                        day_count = 0
+                        try:
+                            if hasattr(self.db, "count_for_day"):
+                                day_count = self.db.count_for_day(day)
+                            else:
+                                # Fallback: count from get_images_by_date
+                                day_paths = self.db.get_images_by_date(day) if hasattr(self.db, "get_images_by_date") else []
+                                day_count = len(day_paths) if day_paths else 0
+                        except Exception:
+                            day_count = 0
+
+                        day_item = QTreeWidgetItem([str(day), str(day_count) if day_count > 0 else ""])
                         day_item.setData(0, Qt.UserRole, str(day))
                         month_item.addChild(day_item)
 

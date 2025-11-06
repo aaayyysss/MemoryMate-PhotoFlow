@@ -1617,9 +1617,6 @@ class ThumbnailGridQt(QWidget):
         for i, p in enumerate(self._paths):
             item = QStandardItem()
             item.setEditable(False)
-            
-#             # 🧾 store data
-#            item.setData(p, Qt.UserRole)
 
             # normalize once and keep both
             np = self._norm_path(p)
@@ -1635,17 +1632,19 @@ class ThumbnailGridQt(QWidget):
             # 🖼 initial placeholder size & icon
             item.setSizeHint(placeholder_size)
             item.setIcon(QIcon(placeholder_pix))
-            
-            self.model.appendRow(item)
-            
-            # 🚀 start async thumbnail worker with current zoom height
-            thumb_h = int(self._thumb_base * self._zoom_factor)
-#            self.thread_pool.start(ThumbWorker(p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, placeholder_pix))
 
-            np = self._norm_path(p)
-            self.thread_pool.start(
-                ThumbWorker(p, np, thumb_h, i, self.thumb_signal, self._thumb_cache, token, placeholder_pix)
-            )
+            self.model.appendRow(item)
+
+            # ⚡ PERFORMANCE FIX: Don't start workers for all photos upfront!
+            # Let request_visible_thumbnails() handle viewport-based loading
+            # This prevents flooding the thread pool with 10,000+ workers
+
+            # OLD CODE (removed):
+            # thumb_h = int(self._thumb_base * self._zoom_factor)
+            # np = self._norm_path(p)
+            # self.thread_pool.start(
+            #     ThumbWorker(p, np, thumb_h, i, self.thumb_signal, self._thumb_cache, token, placeholder_pix)
+            # )
 
 
         # 🧭 Apply current zoom layout to placeholder sizes
@@ -1803,13 +1802,17 @@ class ThumbnailGridQt(QWidget):
             item.setSizeHint(placeholder_size)
             self.model.appendRow(item)
 
-            thumb_h = int(self._thumb_base * self._zoom_factor)
-            self.thread_pool.start(ThumbWorker(p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, placeholder_pix))
+            # ⚡ PERFORMANCE FIX: Don't start workers for all photos upfront!
+            # Let request_visible_thumbnails() handle viewport-based loading
+            # (Same fix as in _load_paths method)
 
         self._apply_zoom_geometry()
         self.list_view.doItemsLayout()
         self.list_view.viewport().update()
         print(f"[GRID] Loaded {len(self._paths)} thumbnails with tag badges.")
+
+        # Trigger viewport-based loading
+        QTimer.singleShot(0, self.request_visible_thumbnails)
 
     # --- ADD inside class ThumbnailGridQt (near other public helpers) ---
 

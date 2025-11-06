@@ -813,33 +813,42 @@ class ThumbnailGridQt(QWidget):
         act_reveal = m.addAction("Reveal in Explorer")
         m.addSeparator()
 
-        # Tagging submenus
+        # Single unified Tags submenu with toggle behavior
         tag_menu = m.addMenu("🏷️ Tags")
-        assign_menu = tag_menu.addMenu("Assign Tag")
-        remove_menu = tag_menu.addMenu("Remove Tag")
 
-        # Quick presets
-        act_fav = assign_menu.addAction("⭐ Favorite")
-        act_face = assign_menu.addAction("🧍 Face")
-        assign_menu.addSeparator()
+        # Quick presets (favorite and face) - always shown
+        act_fav = tag_menu.addAction("⭐ Favorite")
+        act_fav.setCheckable(True)
+        if "favorite" in present_tags:
+            act_fav.setChecked(True)
 
-        # Existing tags — assign
-        assign_actions = {}
+        act_face = tag_menu.addAction("🧍 Face")
+        act_face.setCheckable(True)
+        if "face" in present_tags:
+            act_face.setChecked(True)
+
+        tag_menu.addSeparator()
+
+        # All existing tags with checkmarks for present ones
+        toggle_actions = {}
         for t in sorted(all_tags):
-            act = assign_menu.addAction(t)
-            assign_actions[act] = t
+            # Skip favorite and face since they're already in quick presets
+            if t.lower() in ["favorite", "face"]:
+                continue
 
-        assign_menu.addSeparator()
-        act_new_tag = assign_menu.addAction("➕ New Tag…")
+            act = tag_menu.addAction(t)
+            act.setCheckable(True)
+            if t in present_tags:
+                act.setChecked(True)
+            toggle_actions[act] = t
 
-        # Remove tags
-        remove_actions = {}
-        if present_tags:
-            for t in sorted(present_tags):
-                act = remove_menu.addAction(t)
-                remove_actions[act] = t
-            remove_menu.addSeparator()
-        act_clear_all = remove_menu.addAction("❌ Clear All Tags")
+        tag_menu.addSeparator()
+        act_new_tag = tag_menu.addAction("➕ New Tag…")
+
+        # Clear All Tags - top level for visibility
+        act_clear_all = m.addAction("❌ Clear All Tags")
+        if not present_tags:
+            act_clear_all.setEnabled(False)  # Disable if no tags present
 
         m.addSeparator()
         act_export = m.addAction("Export…")
@@ -873,14 +882,22 @@ class ThumbnailGridQt(QWidget):
                 QMessageBox.information(
                     self,
                     "No Photos Selected",
-                    "Please select one or more photos before adding a tag."
+                    "Please select one or more photos before toggling a tag."
                 )
                 return
 
-            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+            # TOGGLE: Remove if present, add if absent
             tag_service = get_tag_service()
-            count = tag_service.assign_tags_bulk(paths, "favorite")
-            print(f"[Tag] Added 'favorite' → {count} photo(s)")
+            if "favorite" in present_tags:
+                # Remove from all selected photos
+                for p in paths:
+                    tag_service.remove_tag(p, "favorite")
+                print(f"[Tag] Removed 'favorite' → {len(paths)} photo(s)")
+            else:
+                # Add to all selected photos
+                count = tag_service.assign_tags_bulk(paths, "favorite")
+                print(f"[Tag] Added 'favorite' → {count} photo(s)")
+
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -890,6 +907,13 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload_tags_only()
                 else:
                     mw.sidebar.reload()
+
+            # 🔄 Reload grid if we removed the active tag filter
+            if "favorite" in present_tags:
+                active_tag = getattr(self, "context", {}).get("tag_filter")
+                if active_tag and active_tag.lower() == "favorite":
+                    print(f"[Tag] Reloading grid - removed tag matches active filter 'favorite'")
+                    self.reload()
 
         elif chosen is act_face:
             # Check if any photos are selected
@@ -897,14 +921,22 @@ class ThumbnailGridQt(QWidget):
                 QMessageBox.information(
                     self,
                     "No Photos Selected",
-                    "Please select one or more photos before adding a tag."
+                    "Please select one or more photos before toggling a tag."
                 )
                 return
 
-            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
+            # TOGGLE: Remove if present, add if absent
             tag_service = get_tag_service()
-            count = tag_service.assign_tags_bulk(paths, "face")
-            print(f"[Tag] Added 'face' → {count} photo(s)")
+            if "face" in present_tags:
+                # Remove from all selected photos
+                for p in paths:
+                    tag_service.remove_tag(p, "face")
+                print(f"[Tag] Removed 'face' → {len(paths)} photo(s)")
+            else:
+                # Add to all selected photos
+                count = tag_service.assign_tags_bulk(paths, "face")
+                print(f"[Tag] Added 'face' → {count} photo(s)")
+
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -915,21 +947,37 @@ class ThumbnailGridQt(QWidget):
                 else:
                     mw.sidebar.reload()
 
-        elif chosen in assign_actions:
+            # 🔄 Reload grid if we removed the active tag filter
+            if "face" in present_tags:
+                active_tag = getattr(self, "context", {}).get("tag_filter")
+                if active_tag and active_tag.lower() == "face":
+                    print(f"[Tag] Reloading grid - removed tag matches active filter 'face'")
+                    self.reload()
+
+        elif chosen in toggle_actions:
             # Check if any photos are selected
             if not paths:
                 QMessageBox.information(
                     self,
                     "No Photos Selected",
-                    "Please select one or more photos before adding a tag."
+                    "Please select one or more photos before toggling a tag."
                 )
                 return
 
-            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
-            tagname = assign_actions[chosen]
+            # TOGGLE: Remove if present, add if absent
+            tagname = toggle_actions[chosen]
             tag_service = get_tag_service()
-            count = tag_service.assign_tags_bulk(paths, tagname)
-            print(f"[Tag] Assigned tag '{tagname}' → {count} photo(s)")
+
+            if tagname in present_tags:
+                # Remove from all selected photos
+                for p in paths:
+                    tag_service.remove_tag(p, tagname)
+                print(f"[Tag] Removed '{tagname}' → {len(paths)} photo(s)")
+            else:
+                # Add to all selected photos
+                count = tag_service.assign_tags_bulk(paths, tagname)
+                print(f"[Tag] Added '{tagname}' → {count} photo(s)")
+
             self._refresh_tags_for_paths(paths)
 
             # 🪄 Refresh sidebar tags
@@ -939,6 +987,13 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload_tags_only()
                 else:
                     mw.sidebar.reload()
+
+            # 🔄 Reload grid if we removed the active tag filter
+            if tagname in present_tags:
+                active_tag = getattr(self, "context", {}).get("tag_filter")
+                if active_tag and active_tag.lower() == tagname.lower():
+                    print(f"[Tag] Reloading grid - removed tag matches active filter '{active_tag}'")
+                    self.reload()
 
         elif chosen is act_new_tag:
             # Check if any photos are selected
@@ -970,15 +1025,6 @@ class ThumbnailGridQt(QWidget):
                     else:
                         mw.sidebar.reload()
 
-        elif chosen in remove_actions:
-            # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
-            tagname = remove_actions[chosen]
-            tag_service = get_tag_service()
-            for p in paths:
-                tag_service.remove_tag(p, tagname)
-            print(f"[Tag] Removed tag '{tagname}' → {len(paths)} photo(s)")
-            self._refresh_tags_for_paths(paths)
-
         elif chosen is act_clear_all:
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             # Remove all present tags from selection
@@ -996,6 +1042,12 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload_tags_only()
                 else:
                     mw.sidebar.reload()
+
+            # 🔄 Reload grid if viewing a tag branch that was just cleared
+            active_tag = getattr(self, "context", {}).get("tag_filter")
+            if active_tag and active_tag.lower() in [t.lower() for t in present_tags]:
+                print(f"[Tag] Reloading grid - cleared tags include active filter '{active_tag}'")
+                self.reload()
 
 
     def _refresh_tags_for_paths(self, paths: list[str]):

@@ -979,6 +979,20 @@ class ThumbnailGridQt(QWidget):
             print(f"[Tag] Removed tag '{tagname}' → {len(paths)} photo(s)")
             self._refresh_tags_for_paths(paths)
 
+            # 🪄 Refresh sidebar tags to update counts
+            mw = self.window()
+            if hasattr(mw, "sidebar"):
+                if hasattr(mw.sidebar, "reload_tags_only"):
+                    mw.sidebar.reload_tags_only()
+                else:
+                    mw.sidebar.reload()
+
+            # 🔄 Reload grid if viewing the tag branch we just removed
+            active_tag = getattr(self, "context", {}).get("tag_filter")
+            if active_tag and active_tag.lower() == tagname.lower():
+                print(f"[Tag] Reloading grid - removed tag matches active filter '{active_tag}'")
+                self.reload()
+
         elif chosen is act_clear_all:
             # ARCHITECTURE: UI Layer → TagService → TagRepository → Database
             # Remove all present tags from selection
@@ -996,6 +1010,12 @@ class ThumbnailGridQt(QWidget):
                     mw.sidebar.reload_tags_only()
                 else:
                     mw.sidebar.reload()
+
+            # 🔄 Reload grid if viewing a tag branch that was just cleared
+            active_tag = getattr(self, "context", {}).get("tag_filter")
+            if active_tag and active_tag.lower() in [t.lower() for t in present_tags]:
+                print(f"[Tag] Reloading grid - cleared tags include active filter '{active_tag}'")
+                self.reload()
 
 
     def _refresh_tags_for_paths(self, paths: list[str]):

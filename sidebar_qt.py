@@ -388,10 +388,11 @@ class SidebarTabs(QWidget):
             item_name.setData(Qt.UserRole, key)
             table.setItem(row, 0, item_name)
 
-            # Column 1: Count
+            # Column 1: Count (right-aligned, light grey like List view)
             count_str = str(count) if count is not None else "0"
             item_count = QTableWidgetItem(count_str)
             item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item_count.setForeground(QColor("#BBBBBB"))
             table.setItem(row, 1, item_count)
 
         table.cellDoubleClicked.connect(lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -724,14 +725,16 @@ class SidebarTabs(QWidget):
             table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
             for row, (tag_name, count) in enumerate(tag_items):
-                # Column 0: Tag name
+                # Column 0: Tag name (no emoji prefix to match List view)
                 item_name = QTableWidgetItem(tag_name)
                 item_name.setData(Qt.UserRole, tag_name)
                 table.setItem(row, 0, item_name)
 
-                # Column 1: Count
-                item_count = QTableWidgetItem(str(count))
+                # Column 1: Count (right-aligned, grey color like List view)
+                count_str = str(count) if count else ""
+                item_count = QTableWidgetItem(count_str)
                 item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item_count.setForeground(QColor("#888888"))
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -810,9 +813,10 @@ class SidebarTabs(QWidget):
                 item_name.setData(Qt.UserRole, key)
                 table.setItem(row, 0, item_name)
 
-                # Column 1: Count
+                # Column 1: Count (right-aligned, light grey like List view)
                 item_count = QTableWidgetItem(str(count))
                 item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item_count.setForeground(QColor("#BBBBBB"))
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectDate.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -914,9 +918,10 @@ class SidebarTabs(QWidget):
                 item_name.setToolTip(rep)
             table.setItem(row_idx, 0, item_name)
 
-            # Column 1: Count
+            # Column 1: Count (right-aligned, grey like List view)
             item_count = QTableWidgetItem(str(count))
             item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item_count.setForeground(QColor("#888888"))
             table.setItem(row_idx, 1, item_count)
 
         table.cellDoubleClicked.connect(

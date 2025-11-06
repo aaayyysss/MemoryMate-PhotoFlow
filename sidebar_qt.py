@@ -94,13 +94,13 @@ class SidebarTabs(QWidget):
         self.tab_widget = QTabWidget()
         v.addWidget(self.tab_widget, 1)
 
-        # connections
+        # connections - Use Qt.QueuedConnection to ensure slots run in main thread
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
-        self._finishBranchesSig.connect(self._finish_branches)
-        self._finishFoldersSig.connect(self._finish_folders)
-        self._finishDatesSig.connect(self._finish_dates)
-        self._finishTagsSig.connect(self._finish_tags)
-        self._finishPeopleSig.connect(self._finish_people)
+        self._finishBranchesSig.connect(self._finish_branches, Qt.QueuedConnection)
+        self._finishFoldersSig.connect(self._finish_folders, Qt.QueuedConnection)
+        self._finishDatesSig.connect(self._finish_dates, Qt.QueuedConnection)
+        self._finishTagsSig.connect(self._finish_tags, Qt.QueuedConnection)
+        self._finishPeopleSig.connect(self._finish_people, Qt.QueuedConnection)
 
 #        self._finishQuickSig.connect(self._finish_quick)
 

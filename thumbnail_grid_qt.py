@@ -1802,13 +1802,17 @@ class ThumbnailGridQt(QWidget):
             item.setSizeHint(placeholder_size)
             self.model.appendRow(item)
 
-            thumb_h = int(self._thumb_base * self._zoom_factor)
-            self.thread_pool.start(ThumbWorker(p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, placeholder_pix))
+            # ⚡ PERFORMANCE FIX: Don't start workers for all photos upfront!
+            # Let request_visible_thumbnails() handle viewport-based loading
+            # (Same fix as in _load_paths method)
 
         self._apply_zoom_geometry()
         self.list_view.doItemsLayout()
         self.list_view.viewport().update()
         print(f"[GRID] Loaded {len(self._paths)} thumbnails with tag badges.")
+
+        # Trigger viewport-based loading
+        QTimer.singleShot(0, self.request_visible_thumbnails)
 
     # --- ADD inside class ThumbnailGridQt (near other public helpers) ---
 

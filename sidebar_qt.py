@@ -6,7 +6,8 @@
 from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
     QVBoxLayout, QMessageBox, QTreeWidgetItem, QTreeWidget,
-    QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar
+    QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar,
+    QTableWidget, QTableWidgetItem
 )
 from PySide6.QtCore import Qt, QPoint, Signal, QTimer
 from PySide6.QtGui import (
@@ -285,9 +286,8 @@ class SidebarTabs(QWidget):
             self._load_people(idx, gen)
             
         elif tab_type == "quick":
-            # quick is cheap and local; no threading needed
-            # Keys must match database expectations in get_images_for_quick_key()
-            self._finish_quick(idx, [("today","Today"),("this-week","This Week"),("this-month","This Month")], time.time(), gen=None)
+            self._show_loading(idx, "Loading Quick Dates…")
+            self._load_quick(idx, gen)
 
     # ---------- branches ----------
     def _load_branches(self, idx:int, gen:int):
@@ -331,15 +331,33 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Branches</b>"))
 
-        lw = QListWidget()
-        for key, name, count in norm:
-            # Add count to display if available
-            display = f"{name} ({count})" if count is not None else name
-            it = QListWidgetItem(display)
-            it.setData(Qt.UserRole, key)
-            lw.addItem(it)
-        lw.itemDoubleClicked.connect(lambda it: self.selectBranch.emit(it.data(Qt.UserRole)))
-        tab.layout().addWidget(lw, 1)
+        # Create 2-column table: Branch/Folder | Photos
+        table = QTableWidget()
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Branch/Folder", "Photos"])
+        table.setRowCount(len(norm))
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.setSelectionMode(QTableWidget.SingleSelection)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.verticalHeader().setVisible(False)
+        table.horizontalHeader().setStretchLastSection(False)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+        for row, (key, name, count) in enumerate(norm):
+            # Column 0: Branch name
+            item_name = QTableWidgetItem(name)
+            item_name.setData(Qt.UserRole, key)
+            table.setItem(row, 0, item_name)
+
+            # Column 1: Count
+            count_str = str(count) if count is not None else "0"
+            item_count = QTableWidgetItem(count_str)
+            item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            table.setItem(row, 1, item_count)
+
+        table.cellDoubleClicked.connect(lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole)))
+        tab.layout().addWidget(table, 1)
 
         self._tab_populated.add("branches")
         self._tab_loading.discard("branches")
@@ -352,11 +370,12 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         if not tab: return
         try:
-            lw = next((tab.layout().itemAt(i).widget()
-                       for i in range(tab.layout().count())
-                       if isinstance(tab.layout().itemAt(i).widget(), QListWidget)), None)
-            if lw and lw.currentItem():
-                self.selectBranch.emit(lw.currentItem().data(Qt.UserRole))
+            # Find QTableWidget in tab layout
+            table = next((tab.layout().itemAt(i).widget()
+                          for i in range(tab.layout().count())
+                          if isinstance(tab.layout().itemAt(i).widget(), QTableWidget)), None)
+            if table and table.currentRow() >= 0:
+                self.selectBranch.emit(table.item(table.currentRow(), 0).data(Qt.UserRole))
         except Exception:
             pass
 
@@ -525,43 +544,80 @@ class SidebarTabs(QWidget):
         tab.layout().addWidget(QLabel("<b>Tags</b>"))
 
         # Process rows which can be: tuples (tag, count), dicts, or strings
-        tag_items = []  # list of (tag_name, display_label)
+        tag_items = []  # list of (tag_name, count)
         for r in (rows or []):
             if isinstance(r, tuple) and len(r) == 2:
                 # Format: (tag_name, count) from get_all_tags_with_counts()
                 tag_name, count = r
-                display = f"{tag_name} ({count})"
-                tag_items.append((tag_name, display))
+                tag_items.append((tag_name, count))
             elif isinstance(r, dict):
                 # Format: dict with 'tag'/'name'/'label' key
                 tag_name = r.get("tag") or r.get("name") or r.get("label")
+                count = r.get("count", 0)
                 if tag_name:
-                    tag_items.append((tag_name, tag_name))
+                    tag_items.append((tag_name, count))
             else:
                 # Format: plain string
                 tag_name = str(r)
                 if tag_name:
-                    tag_items.append((tag_name, tag_name))
+                    tag_items.append((tag_name, 0))
 
         if not tag_items:
             self._set_tab_empty(idx, "No tags found")
         else:
-            lw = QListWidget()
-            for tag_name, display_label in tag_items:
-                it = QListWidgetItem(display_label)
-                it.setData(Qt.UserRole, tag_name)  # Store tag name for filtering
-                lw.addItem(it)
-            lw.itemDoubleClicked.connect(lambda it: self.selectTag.emit(it.data(Qt.UserRole)))
-            tab.layout().addWidget(lw, 1)
+            # Create 2-column table: Tag | Photos
+            table = QTableWidget()
+            table.setColumnCount(2)
+            table.setHorizontalHeaderLabels(["Tag", "Photos"])
+            table.setRowCount(len(tag_items))
+            table.setSelectionBehavior(QTableWidget.SelectRows)
+            table.setSelectionMode(QTableWidget.SingleSelection)
+            table.setEditTriggers(QTableWidget.NoEditTriggers)
+            table.verticalHeader().setVisible(False)
+            table.horizontalHeader().setStretchLastSection(False)
+            table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+            table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+            for row, (tag_name, count) in enumerate(tag_items):
+                # Column 0: Tag name
+                item_name = QTableWidgetItem(tag_name)
+                item_name.setData(Qt.UserRole, tag_name)
+                table.setItem(row, 0, item_name)
+
+                # Column 1: Count
+                item_count = QTableWidgetItem(str(count))
+                item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                table.setItem(row, 1, item_count)
+
+            table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
+            tab.layout().addWidget(table, 1)
 
         self._tab_populated.add("tags")
         self._tab_loading.discard("tags")
         st = self._tab_status_labels.get(idx)
         if st: st.setText(f"{len(tag_items)} item(s) • {time.time()-started:.2f}s")
     # ---------- quick ----------
-    def _load_quick(self, idx):
-        shortcuts = [("today", "Today"), ("week", "This Week"), ("month", "This Month")]
-        QTimer.singleShot(0, lambda: self._finish_quick(idx, shortcuts))
+    def _load_quick(self, idx:int, gen:int):
+        started = time.time()
+        def work():
+            rows = []
+            try:
+                if hasattr(self.db, "get_quick_date_counts"):
+                    rows = self.db.get_quick_date_counts() or []
+                else:
+                    # Fallback: simple list without counts
+                    rows = [
+                        {"key": "today", "label": "Today", "count": 0},
+                        {"key": "this-week", "label": "This Week", "count": 0},
+                        {"key": "this-month", "label": "This Month", "count": 0}
+                    ]
+                self._dbg(f"_load_quick → got {len(rows)} rows")
+            except Exception:
+                traceback.print_exc()
+                rows = []
+            # Emit using same signature as other tabs
+            self._finishQuickSig.emit(idx, rows, started, gen) if hasattr(self, "_finishQuickSig") else self._finish_quick(idx, rows, started, gen)
+        threading.Thread(target=work, daemon=True).start()
 
     # ---------- QUICK ----------
     def _finish_quick(self, idx:int, rows:list, started:float|None=None, gen:int|None=None):
@@ -571,13 +627,51 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Quick Dates</b>"))
 
-        lw = QListWidget()
-        for key, label in rows:
-            it = QListWidgetItem(label)
-            it.setData(Qt.UserRole, key)
-            lw.addItem(it)
-        lw.itemDoubleClicked.connect(lambda it: self.selectDate.emit(it.data(Qt.UserRole)))
-        tab.layout().addWidget(lw, 1)
+        # Normalize rows to (key, label, count)
+        quick_items = []
+        for r in (rows or []):
+            if isinstance(r, dict):
+                key = r.get("key", "")
+                label = r.get("label", "")
+                count = r.get("count", 0)
+                # Strip "date:" prefix from key if present
+                if key.startswith("date:"):
+                    key = key[5:]
+                quick_items.append((key, label, count))
+            elif isinstance(r, (tuple, list)) and len(r) >= 2:
+                key, label = r[0], r[1]
+                count = r[2] if len(r) >= 3 else 0
+                quick_items.append((key, label, count))
+
+        if not quick_items:
+            self._set_tab_empty(idx, "No quick dates")
+        else:
+            # Create 2-column table: Period | Photos
+            table = QTableWidget()
+            table.setColumnCount(2)
+            table.setHorizontalHeaderLabels(["Period", "Photos"])
+            table.setRowCount(len(quick_items))
+            table.setSelectionBehavior(QTableWidget.SelectRows)
+            table.setSelectionMode(QTableWidget.SingleSelection)
+            table.setEditTriggers(QTableWidget.NoEditTriggers)
+            table.verticalHeader().setVisible(False)
+            table.horizontalHeader().setStretchLastSection(False)
+            table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+            table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+            for row, (key, label, count) in enumerate(quick_items):
+                # Column 0: Period label
+                item_name = QTableWidgetItem(label)
+                item_name.setData(Qt.UserRole, key)
+                table.setItem(row, 0, item_name)
+
+                # Column 1: Count
+                item_count = QTableWidgetItem(str(count))
+                item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                table.setItem(row, 1, item_count)
+
+            table.cellDoubleClicked.connect(lambda row, col: self.selectDate.emit(table.item(row, 0).data(Qt.UserRole)))
+            tab.layout().addWidget(table, 1)
 
         self._tab_populated.add("quick")
         self._tab_loading.discard("quick")

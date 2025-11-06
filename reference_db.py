@@ -333,11 +333,16 @@ class ReferenceDB:
         c.execute("CREATE INDEX IF NOT EXISTS idx_meta_folder    ON photo_metadata(folder_id)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_meta_status    ON photo_metadata(metadata_status)")
 
+        # PERFORMANCE: Add path index for faster lookups (photo existence checks, tag operations)
+        c.execute("CREATE INDEX IF NOT EXISTS idx_meta_path ON photo_metadata(path)")
+
         # indexes for created_* columns (used for date-based navigation)
         c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_year ON photo_metadata(created_year)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_date ON photo_metadata(created_date)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_photo_created_ts ON photo_metadata(created_ts)")
-       
+
+        # PERFORMANCE: Add folder hierarchy index for faster tree operations
+        c.execute("CREATE INDEX IF NOT EXISTS idx_folder_parent ON photo_folders(parent_id)")
 
         c.execute("CREATE INDEX IF NOT EXISTS idx_fbreps_proj ON face_branch_reps(project_id)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_fbreps_proj_branch ON face_branch_reps(project_id, branch_key)")

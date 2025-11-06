@@ -249,6 +249,44 @@ class SidebarTabs(QWidget):
         v = tab.layout()
         v.addWidget(QLabel(f"<b>{msg}</b>"))
 
+    # ---------- collapse/expand support ----------
+
+    def toggle_collapse_expand(self):
+        """Toggle collapse/expand all for tree widgets in current tab"""
+        try:
+            current_idx = self.tab_widget.currentIndex()
+            tab = self.tab_widget.widget(current_idx)
+            if not tab:
+                return
+
+            # Find QTreeWidget in current tab
+            tree = None
+            for i in range(tab.layout().count()):
+                widget = tab.layout().itemAt(i).widget()
+                if isinstance(widget, QTreeWidget):
+                    tree = widget
+                    break
+
+            if not tree:
+                return
+
+            # Check if any items are expanded
+            any_expanded = False
+            for i in range(tree.topLevelItemCount()):
+                item = tree.topLevelItem(i)
+                if item.isExpanded():
+                    any_expanded = True
+                    break
+
+            # Toggle: collapse all if any expanded, else expand all
+            if any_expanded:
+                tree.collapseAll()
+            else:
+                tree.expandAll()
+
+        except Exception as e:
+            print(f"[SidebarTabs] toggle_collapse_expand failed: {e}")
+
     # ---------- population dispatcher ----------
 
     def _populate_tab(self, tab_type: str, idx: int, force=False):
@@ -1066,10 +1104,9 @@ class SidebarQt(QWidget):
         try:
             mode = self._effective_display_mode()
             if mode == "tabs":
-                if self.tabs_controller.isVisible():
-                    self.tabs_controller.hide_tabs()
-                else:
-                    self.tabs_controller.show_tabs()
+                # Collapse/expand trees in active tab
+                if hasattr(self, "tabs_controller"):
+                    self.tabs_controller.toggle_collapse_expand()
             else:
                 any_expanded = False
                 for r in range(self.model.rowCount()):

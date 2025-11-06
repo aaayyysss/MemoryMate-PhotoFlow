@@ -441,82 +441,27 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Folders</b>"))
 
-        # Parse folder data
-        folders = []
-        for r in (rows or []):
-            fid, path = None, None
-            if isinstance(r, dict):
-                fid = r.get("id")
-                path = r.get("path") or r.get("name") or (f"Folder {fid}" if fid is not None else None)
-            elif isinstance(r, (list, tuple)) and len(r) >= 2:
-                fid, path = r[0], r[1]
-            elif isinstance(r, str):
-                path = r
-            if path:
-                folders.append({"id": fid, "path": str(path)})
+        # Create tree widget matching List view's Folders-Branch appearance
+        tree = QTreeWidget()
+        tree.setHeaderLabels(["Folder", "Photos"])
+        tree.setColumnCount(2)
+        tree.setSelectionMode(QTreeWidget.SingleSelection)
+        tree.setEditTriggers(QTreeWidget.NoEditTriggers)
+        tree.setAlternatingRowColors(True)
+        tree.header().setStretchLastSection(False)
+        tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
-        if not folders:
+        # Build tree structure recursively using database hierarchy (like List view)
+        try:
+            self._add_folder_tree_items(tree, None)
+        except Exception as e:
+            print(f"[SidebarTabs] _finish_folders tree build failed: {e}")
+            traceback.print_exc()
+
+        if tree.topLevelItemCount() == 0:
             self._set_tab_empty(idx, "No folders found")
         else:
-            # Create tree widget for hierarchical folder display
-            tree = QTreeWidget()
-            tree.setHeaderLabels(["Folder", "Photos"])
-            tree.setColumnCount(2)
-            tree.setSelectionMode(QTreeWidget.SingleSelection)
-            tree.setEditTriggers(QTreeWidget.NoEditTriggers)
-            tree.setAlternatingRowColors(True)
-            tree.header().setStretchLastSection(False)
-            tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
-            tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-
-            # Build tree structure from folder paths
-            path_to_item = {}  # Track created tree items by normalized path
-
-            import os
-            for folder in folders:
-                fid = folder["id"]
-                path = folder["path"]
-
-                # Normalize path separators
-                path = path.replace("\\", "/")
-
-                # Get folder count from database if available
-                count = 0
-                try:
-                    if fid and hasattr(self.db, "get_images_by_folder"):
-                        folder_paths = self.db.get_images_by_folder(fid)
-                        count = len(folder_paths) if folder_paths else 0
-                except Exception:
-                    pass
-
-                # Split path into components
-                parts = [p for p in path.split("/") if p]
-
-                # Build tree hierarchy
-                parent_item = None
-                current_path = ""
-
-                for i, part in enumerate(parts):
-                    current_path = "/".join(parts[:i+1])
-
-                    if current_path not in path_to_item:
-                        # Create new tree item
-                        is_leaf = (i == len(parts) - 1)  # Last component
-                        count_str = str(count) if is_leaf else ""
-
-                        item = QTreeWidgetItem([part, count_str])
-                        if is_leaf and fid is not None:
-                            item.setData(0, Qt.UserRole, int(fid))
-
-                        if parent_item:
-                            parent_item.addChild(item)
-                        else:
-                            tree.addTopLevelItem(item)
-
-                        path_to_item[current_path] = item
-
-                    parent_item = path_to_item[current_path]
-
             # Connect double-click to emit folder selection
             tree.itemDoubleClicked.connect(
                 lambda item, col: self.selectFolder.emit(item.data(0, Qt.UserRole)) if item.data(0, Qt.UserRole) else None
@@ -526,7 +471,62 @@ class SidebarTabs(QWidget):
         self._tab_populated.add("folders")
         self._tab_loading.discard("folders")
         st = self._tab_status_labels.get(idx)
-        if st: st.setText(f"{len(folders)} folder(s) • {time.time()-started:.2f}s")
+        folder_count = self._count_tree_folders(tree)
+        if st: st.setText(f"{folder_count} folder(s) • {time.time()-started:.2f}s")
+
+    def _add_folder_tree_items(self, parent_widget_or_item, parent_id=None):
+        """Recursively add folder items to QTreeWidget (matches List view's _add_folder_items)"""
+        try:
+            rows = self.db.get_child_folders(parent_id)
+        except Exception as e:
+            print(f"[SidebarTabs] get_child_folders({parent_id}) failed: {e}")
+            return
+
+        for row in rows:
+            name = row["name"]
+            fid = row["id"]
+
+            # Get recursive photo count (includes subfolders)
+            if hasattr(self.db, "get_image_count_recursive"):
+                photo_count = int(self.db.get_image_count_recursive(fid) or 0)
+            else:
+                # Fallback to non-recursive count
+                try:
+                    folder_paths = self.db.get_images_by_folder(fid)
+                    photo_count = len(folder_paths) if folder_paths else 0
+                except Exception:
+                    photo_count = 0
+
+            # Create tree item with emoji prefix (matching List view)
+            item = QTreeWidgetItem([f"📁 {name}", f"{photo_count:>5}"])
+            item.setData(0, Qt.UserRole, int(fid))
+
+            # Set count column formatting (right-aligned, grey color like List view)
+            item.setTextAlignment(1, Qt.AlignRight | Qt.AlignVCenter)
+            item.setForeground(1, QColor("#888888"))
+
+            # Add to parent
+            if isinstance(parent_widget_or_item, QTreeWidget):
+                parent_widget_or_item.addTopLevelItem(item)
+            else:
+                parent_widget_or_item.addChild(item)
+
+            # Recursively add child folders
+            self._add_folder_tree_items(item, fid)
+
+    def _count_tree_folders(self, tree):
+        """Count total folders in tree"""
+        count = 0
+        def count_recursive(parent_item):
+            nonlocal count
+            for i in range(parent_item.childCount()):
+                count += 1
+                count_recursive(parent_item.child(i))
+
+        for i in range(tree.topLevelItemCount()):
+            count += 1
+            count_recursive(tree.topLevelItem(i))
+        return count
 
     # ---------- dates ----------
     def _load_dates(self, idx:int, gen:int):

@@ -1393,6 +1393,7 @@ class SidebarQt(QWidget):
             results = []
             try:
                 print(f"[Sidebar][counts worker] running for {len(targets)} targets...")
+                # Extract only type and key from targets - DON'T pass Qt objects to worker thread
                 for typ, key, name_item, count_item in targets:
                     try:
                         cnt = 0
@@ -1402,19 +1403,9 @@ class SidebarQt(QWidget):
                             else:
                                 rows = self.db.get_images_by_branch(self.project_id, key) or []
                                 cnt = len(rows)
-#                        elif typ == "folder":
-#                            if hasattr(self.db, "count_for_folder"):
-#                                cnt = int(self.db.count_for_folder(key) or 0)
-#                            else:
-#                                with self.db._connect() as conn:
-#                                    cur = conn.cursor()
-#                                    cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (key,))
-#                                    v = cur.fetchone()
-#                                    cnt = int(v[0]) if v else 0
-
 
                         elif typ == "folder":
-                            # 🆕 Use recursive count including all subfolders
+                            # Use recursive count including all subfolders
                             if hasattr(self.db, "get_image_count_recursive"):
                                 cnt = int(self.db.get_image_count_recursive(key) or 0)
                             elif hasattr(self.db, "count_for_folder"):
@@ -1426,59 +1417,42 @@ class SidebarQt(QWidget):
                                     v = cur.fetchone()
                                     cnt = int(v[0]) if v else 0
 
-                        results.append((typ, key, name_item, count_item, cnt))
+                        # IMPORTANT: Only pass data (typ, key, cnt), NOT Qt objects
+                        results.append((typ, key, cnt))
                     except Exception:
                         traceback.print_exc()
-                        results.append((typ, key, name_item, count_item, 0))
+                        results.append((typ, key, 0))
                 print("[Sidebar][counts worker] finished scanning targets, scheduling UI update")
             except Exception:
                 traceback.print_exc()
+            # Schedule UI update in main thread
             QTimer.singleShot(0, lambda: self._apply_counts_defensive(results))
 
         threading.Thread(target=worker, daemon=True).start()
 
     def _apply_counts_defensive(self, results):
         """
-        Apply counts to UI defensively:
-        - If name_item/count_item provided, update them.
-        - If missing, try to find QStandardItems in the model by payload key and update.
+        Apply counts to UI by finding QStandardItems in model by key.
+        This method runs in the MAIN THREAD (called via QTimer.singleShot).
+
+        Args:
+            results: List of (typ, key, cnt) tuples from worker thread
         """
         try:
-            for typ, key, name_item, count_item, cnt in results:
+            for typ, key, cnt in results:
                 text = str(cnt) if cnt is not None else ""
-                # If we have a QStandardItem count_item directly, set it.
-                if isinstance(count_item, QStandardItem):
-                    try:
-                        count_item.setText(text)
-                        continue
-                    except Exception:
-                        pass
-                # If count_item is a QTreeWidgetItem node (folder-tab), update its second column
-                if count_item is not None and hasattr(count_item, "setText") and not isinstance(count_item, QStandardItem):
-                    try:
-                        count_item.setText(1, text)
-                        continue
-                    except Exception:
-                        pass
-                # If we have a name_item QStandardItem, set sibling column
-                if isinstance(name_item, QStandardItem):
-                    try:
-                        idx = name_item.index()
-                        if idx.isValid():
-                            sib = idx.sibling(idx.row(), 1)
-                            self.model.setData(sib, text)
-                            continue
-                    except Exception:
-                        pass
-                # Defensive fallback: search the model by key (branch or folder id)
+
+                # Find the model item by key and update count column
                 try:
                     found_name, found_count = self._find_model_item_by_key(key)
+
+                    # Try updating count_item directly
                     if found_count is not None:
                         try:
                             found_count.setText(text)
                             continue
                         except Exception:
-                            # try model-level setData on its index
+                            # Fallback: try model-level setData on its index
                             try:
                                 idx = found_count.index()
                                 if idx.isValid():
@@ -1486,7 +1460,8 @@ class SidebarQt(QWidget):
                                     continue
                             except Exception:
                                 pass
-                    # If only found_name is present, set its sibling
+
+                    # Fallback: if only found_name is present, set its sibling column
                     if found_name is not None:
                         try:
                             idx = found_name.index()
@@ -1496,15 +1471,16 @@ class SidebarQt(QWidget):
                                 continue
                         except Exception:
                             pass
+
                 except Exception:
                     traceback.print_exc()
-                    pass
-            # refresh views
+
+            # Refresh view to show updated counts
             try:
                 self.tree.viewport().update()
             except Exception:
                 pass
-            
+
             print("[Sidebar][counts applied] updated UI with counts")
         except Exception:
             traceback.print_exc()

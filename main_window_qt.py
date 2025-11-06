@@ -329,37 +329,40 @@ class ScanController:
             self.logger.error(f"Error building date branches: {e}", exc_info=True)
 
         # Sidebar & grid refresh
-        # Note: If we just called set_project(), it already triggered a refresh
-        # so we need to wait a moment for it to complete before forcing another refresh
-        try:
-            if sidebar_was_updated:
-                # Give the async refresh from set_project() time to complete
-                import time
-                time.sleep(0.5)
+        # CRITICAL: Schedule UI updates in main thread (this method may run in worker thread)
+        def refresh_ui():
+            try:
+                self.logger.info("Reloading sidebar after date branches built...")
+                # Always refresh tabs, regardless of current display mode
+                if hasattr(self.main.sidebar, "tabs_controller"):
+                    self.main.sidebar.tabs_controller.refresh_all(force=True)
+                    self.logger.debug("Tabs refresh completed")
+                # Also reload the sidebar (tree view if in list mode)
+                if hasattr(self.main.sidebar, "reload"):
+                    self.main.sidebar.reload()
+                    self.logger.debug("Sidebar reload completed")
+            except Exception as e:
+                self.logger.error(f"Error reloading sidebar: {e}", exc_info=True)
+            try:
+                if hasattr(self.main.grid, "reload"):
+                    self.main.grid.reload()
+            except Exception:
+                pass
+            # reload thumbnails after scan
+            if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
+                self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
-            self.logger.info("Reloading sidebar after date branches built...")
-            # Always refresh tabs, regardless of current display mode
-            if hasattr(self.main.sidebar, "tabs_controller"):
-                self.main.sidebar.tabs_controller.refresh_all(force=True)
-                self.logger.debug("Tabs refresh completed")
-            # Also reload the sidebar (tree view if in list mode)
-            if hasattr(self.main.sidebar, "reload"):
-                self.main.sidebar.reload()
-                self.logger.debug("Sidebar reload completed")
-        except Exception as e:
-            self.logger.error(f"Error reloading sidebar: {e}", exc_info=True)
-        try:
-            if hasattr(self.main.grid, "reload"):
-                self.main.grid.reload()
-        except Exception:
-            pass
-        # reload thumbnails after scan
-        if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
-            self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+            # summary
+            f, p = self.main._scan_result
+            QMessageBox.information(self.main, "Scan Complete", f"Indexed {p} photos in {f} folders.\nCommitted: {self.main._committed_total} rows.")
 
-        # summary
-        f, p = self.main._scan_result
-        QMessageBox.information(self.main, "Scan Complete", f"Indexed {p} photos in {f} folders.\nCommitted: {self.main._committed_total} rows.")
+        # Schedule refresh in main thread's event loop
+        if sidebar_was_updated:
+            # Wait 500ms before refreshing if sidebar was just updated
+            QTimer.singleShot(500, refresh_ui)
+        else:
+            # Immediate refresh (next event loop iteration)
+            QTimer.singleShot(0, refresh_ui)
 
 
 class SidebarController:

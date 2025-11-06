@@ -249,6 +249,44 @@ class SidebarTabs(QWidget):
         v = tab.layout()
         v.addWidget(QLabel(f"<b>{msg}</b>"))
 
+    # ---------- collapse/expand support ----------
+
+    def toggle_collapse_expand(self):
+        """Toggle collapse/expand all for tree widgets in current tab"""
+        try:
+            current_idx = self.tab_widget.currentIndex()
+            tab = self.tab_widget.widget(current_idx)
+            if not tab:
+                return
+
+            # Find QTreeWidget in current tab
+            tree = None
+            for i in range(tab.layout().count()):
+                widget = tab.layout().itemAt(i).widget()
+                if isinstance(widget, QTreeWidget):
+                    tree = widget
+                    break
+
+            if not tree:
+                return
+
+            # Check if any items are expanded
+            any_expanded = False
+            for i in range(tree.topLevelItemCount()):
+                item = tree.topLevelItem(i)
+                if item.isExpanded():
+                    any_expanded = True
+                    break
+
+            # Toggle: collapse all if any expanded, else expand all
+            if any_expanded:
+                tree.collapseAll()
+            else:
+                tree.expandAll()
+
+        except Exception as e:
+            print(f"[SidebarTabs] toggle_collapse_expand failed: {e}")
+
     # ---------- population dispatcher ----------
 
     def _populate_tab(self, tab_type: str, idx: int, force=False):
@@ -350,10 +388,11 @@ class SidebarTabs(QWidget):
             item_name.setData(Qt.UserRole, key)
             table.setItem(row, 0, item_name)
 
-            # Column 1: Count
+            # Column 1: Count (right-aligned, light grey like List view)
             count_str = str(count) if count is not None else "0"
             item_count = QTableWidgetItem(count_str)
             item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item_count.setForeground(QColor("#BBBBBB"))
             table.setItem(row, 1, item_count)
 
         table.cellDoubleClicked.connect(lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -403,82 +442,27 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Folders</b>"))
 
-        # Parse folder data
-        folders = []
-        for r in (rows or []):
-            fid, path = None, None
-            if isinstance(r, dict):
-                fid = r.get("id")
-                path = r.get("path") or r.get("name") or (f"Folder {fid}" if fid is not None else None)
-            elif isinstance(r, (list, tuple)) and len(r) >= 2:
-                fid, path = r[0], r[1]
-            elif isinstance(r, str):
-                path = r
-            if path:
-                folders.append({"id": fid, "path": str(path)})
+        # Create tree widget matching List view's Folders-Branch appearance
+        tree = QTreeWidget()
+        tree.setHeaderLabels(["Folder", "Photos"])
+        tree.setColumnCount(2)
+        tree.setSelectionMode(QTreeWidget.SingleSelection)
+        tree.setEditTriggers(QTreeWidget.NoEditTriggers)
+        tree.setAlternatingRowColors(True)
+        tree.header().setStretchLastSection(False)
+        tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
-        if not folders:
+        # Build tree structure recursively using database hierarchy (like List view)
+        try:
+            self._add_folder_tree_items(tree, None)
+        except Exception as e:
+            print(f"[SidebarTabs] _finish_folders tree build failed: {e}")
+            traceback.print_exc()
+
+        if tree.topLevelItemCount() == 0:
             self._set_tab_empty(idx, "No folders found")
         else:
-            # Create tree widget for hierarchical folder display
-            tree = QTreeWidget()
-            tree.setHeaderLabels(["Folder", "Photos"])
-            tree.setColumnCount(2)
-            tree.setSelectionMode(QTreeWidget.SingleSelection)
-            tree.setEditTriggers(QTreeWidget.NoEditTriggers)
-            tree.setAlternatingRowColors(True)
-            tree.header().setStretchLastSection(False)
-            tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
-            tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-
-            # Build tree structure from folder paths
-            path_to_item = {}  # Track created tree items by normalized path
-
-            import os
-            for folder in folders:
-                fid = folder["id"]
-                path = folder["path"]
-
-                # Normalize path separators
-                path = path.replace("\\", "/")
-
-                # Get folder count from database if available
-                count = 0
-                try:
-                    if fid and hasattr(self.db, "get_images_by_folder"):
-                        folder_paths = self.db.get_images_by_folder(fid)
-                        count = len(folder_paths) if folder_paths else 0
-                except Exception:
-                    pass
-
-                # Split path into components
-                parts = [p for p in path.split("/") if p]
-
-                # Build tree hierarchy
-                parent_item = None
-                current_path = ""
-
-                for i, part in enumerate(parts):
-                    current_path = "/".join(parts[:i+1])
-
-                    if current_path not in path_to_item:
-                        # Create new tree item
-                        is_leaf = (i == len(parts) - 1)  # Last component
-                        count_str = str(count) if is_leaf else ""
-
-                        item = QTreeWidgetItem([part, count_str])
-                        if is_leaf and fid is not None:
-                            item.setData(0, Qt.UserRole, int(fid))
-
-                        if parent_item:
-                            parent_item.addChild(item)
-                        else:
-                            tree.addTopLevelItem(item)
-
-                        path_to_item[current_path] = item
-
-                    parent_item = path_to_item[current_path]
-
             # Connect double-click to emit folder selection
             tree.itemDoubleClicked.connect(
                 lambda item, col: self.selectFolder.emit(item.data(0, Qt.UserRole)) if item.data(0, Qt.UserRole) else None
@@ -488,7 +472,62 @@ class SidebarTabs(QWidget):
         self._tab_populated.add("folders")
         self._tab_loading.discard("folders")
         st = self._tab_status_labels.get(idx)
-        if st: st.setText(f"{len(folders)} folder(s) • {time.time()-started:.2f}s")
+        folder_count = self._count_tree_folders(tree)
+        if st: st.setText(f"{folder_count} folder(s) • {time.time()-started:.2f}s")
+
+    def _add_folder_tree_items(self, parent_widget_or_item, parent_id=None):
+        """Recursively add folder items to QTreeWidget (matches List view's _add_folder_items)"""
+        try:
+            rows = self.db.get_child_folders(parent_id)
+        except Exception as e:
+            print(f"[SidebarTabs] get_child_folders({parent_id}) failed: {e}")
+            return
+
+        for row in rows:
+            name = row["name"]
+            fid = row["id"]
+
+            # Get recursive photo count (includes subfolders)
+            if hasattr(self.db, "get_image_count_recursive"):
+                photo_count = int(self.db.get_image_count_recursive(fid) or 0)
+            else:
+                # Fallback to non-recursive count
+                try:
+                    folder_paths = self.db.get_images_by_folder(fid)
+                    photo_count = len(folder_paths) if folder_paths else 0
+                except Exception:
+                    photo_count = 0
+
+            # Create tree item with emoji prefix (matching List view)
+            item = QTreeWidgetItem([f"📁 {name}", f"{photo_count:>5}"])
+            item.setData(0, Qt.UserRole, int(fid))
+
+            # Set count column formatting (right-aligned, grey color like List view)
+            item.setTextAlignment(1, Qt.AlignRight | Qt.AlignVCenter)
+            item.setForeground(1, QColor("#888888"))
+
+            # Add to parent
+            if isinstance(parent_widget_or_item, QTreeWidget):
+                parent_widget_or_item.addTopLevelItem(item)
+            else:
+                parent_widget_or_item.addChild(item)
+
+            # Recursively add child folders
+            self._add_folder_tree_items(item, fid)
+
+    def _count_tree_folders(self, tree):
+        """Count total folders in tree"""
+        count = 0
+        def count_recursive(parent_item):
+            nonlocal count
+            for i in range(parent_item.childCount()):
+                count += 1
+                count_recursive(parent_item.child(i))
+
+        for i in range(tree.topLevelItemCount()):
+            count += 1
+            count_recursive(tree.topLevelItem(i))
+        return count
 
     # ---------- dates ----------
     def _load_dates(self, idx:int, gen:int):
@@ -551,7 +590,16 @@ class SidebarTabs(QWidget):
 
             # Populate tree: Years (top level)
             for year in sorted(hier.keys(), reverse=True):
-                year_count = year_counts.get(str(year), 0)
+                # Get accurate year count from database
+                year_count = 0
+                try:
+                    if hasattr(self.db, "count_for_year"):
+                        year_count = self.db.count_for_year(year)
+                    else:
+                        year_count = year_counts.get(str(year), 0)
+                except Exception:
+                    year_count = year_counts.get(str(year), 0)
+
                 year_item = QTreeWidgetItem([str(year), str(year_count)])
                 year_item.setData(0, Qt.UserRole, str(year))
                 tree.addTopLevelItem(year_item)
@@ -565,14 +613,36 @@ class SidebarTabs(QWidget):
                     days_list = months_dict[month]
                     month_num = int(month) if month.isdigit() else 0
                     month_label = month_names[month_num] if 0 < month_num <= 12 else month
-                    month_count = len(days_list)
+
+                    # Get accurate month count from database (not just len(days_list))
+                    month_count = 0
+                    try:
+                        if hasattr(self.db, "count_for_month"):
+                            month_count = self.db.count_for_month(year, month)
+                        else:
+                            month_count = len(days_list)
+                    except Exception:
+                        month_count = len(days_list)
+
                     month_item = QTreeWidgetItem([f"{month_label} {year}", str(month_count)])
                     month_item.setData(0, Qt.UserRole, f"{year}-{month}")
                     year_item.addChild(month_item)
 
-                    # Days (children of month)
+                    # Days (children of month) - WITH COUNTS
                     for day in sorted(days_list, reverse=True):
-                        day_item = QTreeWidgetItem([str(day), ""])  # No count for individual days
+                        # Get day count from database
+                        day_count = 0
+                        try:
+                            if hasattr(self.db, "count_for_day"):
+                                day_count = self.db.count_for_day(day)
+                            else:
+                                # Fallback: count from get_images_by_date
+                                day_paths = self.db.get_images_by_date(day) if hasattr(self.db, "get_images_by_date") else []
+                                day_count = len(day_paths) if day_paths else 0
+                        except Exception:
+                            day_count = 0
+
+                        day_item = QTreeWidgetItem([str(day), str(day_count) if day_count > 0 else ""])
                         day_item.setData(0, Qt.UserRole, str(day))
                         month_item.addChild(day_item)
 
@@ -655,14 +725,16 @@ class SidebarTabs(QWidget):
             table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
             for row, (tag_name, count) in enumerate(tag_items):
-                # Column 0: Tag name
+                # Column 0: Tag name (no emoji prefix to match List view)
                 item_name = QTableWidgetItem(tag_name)
                 item_name.setData(Qt.UserRole, tag_name)
                 table.setItem(row, 0, item_name)
 
-                # Column 1: Count
-                item_count = QTableWidgetItem(str(count))
+                # Column 1: Count (right-aligned, grey color like List view)
+                count_str = str(count) if count else ""
+                item_count = QTableWidgetItem(count_str)
                 item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item_count.setForeground(QColor("#888888"))
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -741,9 +813,10 @@ class SidebarTabs(QWidget):
                 item_name.setData(Qt.UserRole, key)
                 table.setItem(row, 0, item_name)
 
-                # Column 1: Count
+                # Column 1: Count (right-aligned, light grey like List view)
                 item_count = QTableWidgetItem(str(count))
                 item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item_count.setForeground(QColor("#BBBBBB"))
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectDate.emit(table.item(row, 0).data(Qt.UserRole)))
@@ -845,9 +918,10 @@ class SidebarTabs(QWidget):
                 item_name.setToolTip(rep)
             table.setItem(row_idx, 0, item_name)
 
-            # Column 1: Count
+            # Column 1: Count (right-aligned, grey like List view)
             item_count = QTableWidgetItem(str(count))
             item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item_count.setForeground(QColor("#888888"))
             table.setItem(row_idx, 1, item_count)
 
         table.cellDoubleClicked.connect(
@@ -1035,10 +1109,9 @@ class SidebarQt(QWidget):
         try:
             mode = self._effective_display_mode()
             if mode == "tabs":
-                if self.tabs_controller.isVisible():
-                    self.tabs_controller.hide_tabs()
-                else:
-                    self.tabs_controller.show_tabs()
+                # Collapse/expand trees in active tab
+                if hasattr(self, "tabs_controller"):
+                    self.tabs_controller.toggle_collapse_expand()
             else:
                 any_expanded = False
                 for r in range(self.model.rowCount()):

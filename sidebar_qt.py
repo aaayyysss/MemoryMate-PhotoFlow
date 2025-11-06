@@ -981,6 +981,9 @@ class SidebarQt(QWidget):
         # Refresh guard to prevent concurrent reloads
         self._refreshing = False
 
+        # Initialization flag to prevent processEvents() during startup
+        self._initialized = False
+
         self._spin_timer = QTimer(self)
         self._spin_timer.setInterval(60)
         self._spin_timer.timeout.connect(self._tick_spinner)
@@ -1086,6 +1089,9 @@ class SidebarQt(QWidget):
                 self.collapse_all()
         except Exception:
             pass
+
+        # Mark initialization as complete - safe to call processEvents() now
+        self._initialized = True
 
     # ---- header helpers ----
 
@@ -1243,8 +1249,10 @@ class SidebarQt(QWidget):
 
         # CRITICAL FIX: Process pending deleteLater() events before rebuilding
         # This ensures old widgets from tabs are fully cleaned up
-        from PySide6.QtCore import QCoreApplication
-        QCoreApplication.processEvents()
+        # Only process events after initialization is complete
+        if self._initialized:
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
 
         # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
         # removeRows() doesn't properly clean up complex tree structures with UserRole data
@@ -1883,8 +1891,10 @@ class SidebarQt(QWidget):
 
         # CRITICAL: Process pending events before mode switch
         # This ensures all pending widget deletions are completed
-        from PySide6.QtCore import QCoreApplication
-        QCoreApplication.processEvents()
+        # Only process events after initialization is complete
+        if self._initialized:
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
 
         if mode == "tabs":
             # Cancel list mode workers by bumping generation
@@ -1901,7 +1911,10 @@ class SidebarQt(QWidget):
             print("[SidebarQt] Canceled tab workers via hide_tabs()")
 
             # Process events again after hiding tabs to clear tab widgets
-            QCoreApplication.processEvents()
+            # Only after initialization is complete
+            if self._initialized:
+                from PySide6.QtCore import QCoreApplication
+                QCoreApplication.processEvents()
 
             self.tree.show()
             self._build_tree_model()

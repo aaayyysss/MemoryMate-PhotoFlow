@@ -286,7 +286,8 @@ class SidebarTabs(QWidget):
             
         elif tab_type == "quick":
             # quick is cheap and local; no threading needed
-            self._finish_quick(idx, [("today","Today"),("week","This Week"),("month","This Month")], time.time(), gen=None)
+            # Keys must match database expectations in get_images_for_quick_key()
+            self._finish_quick(idx, [("today","Today"),("this-week","This Week"),("this-month","This Month")], time.time(), gen=None)
 
     # ---------- branches ----------
     def _load_branches(self, idx:int, gen:int):
@@ -310,26 +311,31 @@ class SidebarTabs(QWidget):
         self._cancel_timeout(idx)
         self._clear_tab(idx)
 
-        # normalize to [(key, name)]
+        # normalize to [(key, name, count)]
         norm = []
         for r in (rows or []):
+            count = None
             if isinstance(r, (tuple, list)) and len(r) >= 2:
                 key, name = r[0], r[1]
+                count = r[2] if len(r) >= 3 else None
             elif isinstance(r, dict):
                 key  = r.get("branch_key") or r.get("key") or r.get("id") or r.get("name")
                 name = r.get("display_name") or r.get("label") or r.get("name") or str(key)
+                count = r.get("count")
             else:
                 key = name = str(r)
             if key is None:
                 continue
-            norm.append((str(key), str(name)))
+            norm.append((str(key), str(name), count))
 
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Branches</b>"))
 
         lw = QListWidget()
-        for key, name in norm:
-            it = QListWidgetItem(name)
+        for key, name, count in norm:
+            # Add count to display if available
+            display = f"{name} ({count})" if count is not None else name
+            it = QListWidgetItem(display)
             it.setData(Qt.UserRole, key)
             lw.addItem(it)
         lw.itemDoubleClicked.connect(lambda it: self.selectBranch.emit(it.data(Qt.UserRole)))
@@ -415,14 +421,16 @@ class SidebarTabs(QWidget):
             rows = []
             try:
                 if self.project_id:
-                    # try preferred API if you have it:
-                    if hasattr(self.db, "get_date_index"):
-                        rows = self.db.get_date_index(self.project_id) or []  # list of dicts or tuples
-                    elif hasattr(self.db, "get_dates_buckets"):
-                        rows = self.db.get_dates_buckets(self.project_id) or []
+                    # Use list_years_with_counts() which returns [(year, count)]
+                    if hasattr(self.db, "list_years_with_counts"):
+                        rows = self.db.list_years_with_counts() or []
+                    # Fallback: try get_date_hierarchy and extract years
+                    elif hasattr(self.db, "get_date_hierarchy"):
+                        hier = self.db.get_date_hierarchy() or {}
+                        rows = [(year, sum(len(days) for days in months.values()))
+                                for year, months in hier.items()]
                     else:
-                        # fallback: compute distinct YYYY or YYYY-MM from photos table
-                        rows = getattr(self.db, "get_distinct_dates", lambda pid: [])(self.project_id) or []
+                        self._dbg("_load_dates → No date methods available in database")
                 self._dbg(f"_load_dates → got {len(rows)} rows")
             except Exception:
                 traceback.print_exc()
@@ -445,7 +453,14 @@ class SidebarTabs(QWidget):
         import re
         buckets = {}
         for r in (rows or []):
-            if isinstance(r, str):
+            if isinstance(r, (tuple, list)) and len(r) >= 2:
+                # Format: (year, count) from list_years_with_counts()
+                year, count = r[0], r[1]
+                buckets[str(year)] = int(count)
+            elif isinstance(r, (tuple, list)) and len(r) == 1:
+                # Format: (year,) - no count
+                buckets[str(r[0])] = buckets.get(str(r[0]), 0) + 1
+            elif isinstance(r, str):
                 m = re.search(r"(\d{4})(?:[-_](\d{2}))?", r)
                 if m:
                     year = m.group(1)
@@ -458,11 +473,8 @@ class SidebarTabs(QWidget):
                 key = r.get("date_key") or r.get("bucket") or r.get("date")
                 if key:
                     buckets[str(key)] = buckets.get(str(key), 0) + 1
-            elif isinstance(r, (tuple, list)) and r:
-                key = str(r[0])
-                buckets[key] = buckets.get(key, 0) + 1
 
-        norm = [(k, f"{k} ({v})") for k, v in sorted(buckets.items())]
+        norm = [(k, f"{k} ({v})") for k, v in sorted(buckets.items(), reverse=True)]
 
         if not norm:
             self._set_tab_empty(idx, "No date index found")
@@ -801,7 +813,7 @@ class SidebarQt(QWidget):
         self.tabs_controller.selectFolder.connect(lambda folder_id: self._set_grid_context("folder", folder_id))
         self.tabs_controller.selectDate.connect(lambda key: self._set_grid_context("date", key))
         self.tabs_controller.selectTag.connect(
-            lambda name: self._apply_tag_filter(name) if hasattr(self.window(), "_apply_tag_filter") else None
+            lambda name: self.window()._apply_tag_filter(name) if hasattr(self.window(), "_apply_tag_filter") else None
         )        
         
         

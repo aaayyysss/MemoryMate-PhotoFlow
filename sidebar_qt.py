@@ -61,7 +61,7 @@ class SidebarTabs(QWidget):
     # ▼ add with your other Signals
     _finishBranchesSig = Signal(int, list, float, int)  # (idx, rows, started, gen)
     _finishFoldersSig  = Signal(int, list, float, int)
-    _finishDatesSig    = Signal(int, list, float, int)
+    _finishDatesSig    = Signal(int, object, float, int)  # object to accept dict or list
     _finishTagsSig     = Signal(int, list, float, int)
     _finishPeopleSig   = Signal(int, list, float, int)  # 👥 NEW
 

@@ -403,8 +403,8 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Folders</b>"))
 
-        lw = QListWidget()
-        n = 0
+        # Parse folder data
+        folders = []
         for r in (rows or []):
             fid, path = None, None
             if isinstance(r, dict):
@@ -414,24 +414,81 @@ class SidebarTabs(QWidget):
                 fid, path = r[0], r[1]
             elif isinstance(r, str):
                 path = r
-            if path is None:
-                continue
-            it = QListWidgetItem(str(path))
-            if fid is not None:
-                try: it.setData(Qt.UserRole, int(fid))
-                except: pass
-            lw.addItem(it)
-            n += 1
+            if path:
+                folders.append({"id": fid, "path": str(path)})
 
-        lw.itemDoubleClicked.connect(
-            lambda it: (it.data(Qt.UserRole) is not None) and self.selectFolder.emit(int(it.data(Qt.UserRole)))
-        )
-        tab.layout().addWidget(lw, 1)
+        if not folders:
+            self._set_tab_empty(idx, "No folders found")
+        else:
+            # Create tree widget for hierarchical folder display
+            tree = QTreeWidget()
+            tree.setHeaderLabels(["Folder", "Photos"])
+            tree.setColumnCount(2)
+            tree.setSelectionMode(QTreeWidget.SingleSelection)
+            tree.setEditTriggers(QTreeWidget.NoEditTriggers)
+            tree.setAlternatingRowColors(True)
+            tree.header().setStretchLastSection(False)
+            tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+            tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+            # Build tree structure from folder paths
+            path_to_item = {}  # Track created tree items by normalized path
+
+            import os
+            for folder in folders:
+                fid = folder["id"]
+                path = folder["path"]
+
+                # Normalize path separators
+                path = path.replace("\\", "/")
+
+                # Get folder count from database if available
+                count = 0
+                try:
+                    if fid and hasattr(self.db, "get_images_by_folder"):
+                        folder_paths = self.db.get_images_by_folder(fid)
+                        count = len(folder_paths) if folder_paths else 0
+                except Exception:
+                    pass
+
+                # Split path into components
+                parts = [p for p in path.split("/") if p]
+
+                # Build tree hierarchy
+                parent_item = None
+                current_path = ""
+
+                for i, part in enumerate(parts):
+                    current_path = "/".join(parts[:i+1])
+
+                    if current_path not in path_to_item:
+                        # Create new tree item
+                        is_leaf = (i == len(parts) - 1)  # Last component
+                        count_str = str(count) if is_leaf else ""
+
+                        item = QTreeWidgetItem([part, count_str])
+                        if is_leaf and fid is not None:
+                            item.setData(0, Qt.UserRole, int(fid))
+
+                        if parent_item:
+                            parent_item.addChild(item)
+                        else:
+                            tree.addTopLevelItem(item)
+
+                        path_to_item[current_path] = item
+
+                    parent_item = path_to_item[current_path]
+
+            # Connect double-click to emit folder selection
+            tree.itemDoubleClicked.connect(
+                lambda item, col: self.selectFolder.emit(item.data(0, Qt.UserRole)) if item.data(0, Qt.UserRole) else None
+            )
+            tab.layout().addWidget(tree, 1)
 
         self._tab_populated.add("folders")
         self._tab_loading.discard("folders")
         st = self._tab_status_labels.get(idx)
-        if st: st.setText(f"{n} item(s) • {time.time()-started:.2f}s")
+        if st: st.setText(f"{len(folders)} folder(s) • {time.time()-started:.2f}s")
 
     # ---------- dates ----------
     def _load_dates(self, idx:int, gen:int):
@@ -440,25 +497,27 @@ class SidebarTabs(QWidget):
             rows = []
             try:
                 if self.project_id:
-                    # Use list_years_with_counts() which returns [(year, count)]
-                    if hasattr(self.db, "list_years_with_counts"):
-                        rows = self.db.list_years_with_counts() or []
-                    # Fallback: try get_date_hierarchy and extract years
-                    elif hasattr(self.db, "get_date_hierarchy"):
+                    # Get hierarchical date data: {year: {month: [days]}}
+                    if hasattr(self.db, "get_date_hierarchy"):
                         hier = self.db.get_date_hierarchy() or {}
-                        rows = [(year, sum(len(days) for days in months.values()))
-                                for year, months in hier.items()]
+                        # Also get year counts
+                        year_counts = {}
+                        if hasattr(self.db, "list_years_with_counts"):
+                            year_list = self.db.list_years_with_counts() or []
+                            year_counts = {str(y): c for y, c in year_list}
+                        # Build result with hierarchy and counts
+                        rows = {"hierarchy": hier, "year_counts": year_counts}
                     else:
-                        self._dbg("_load_dates → No date methods available in database")
-                self._dbg(f"_load_dates → got {len(rows)} rows")
+                        self._dbg("_load_dates → No date hierarchy method available")
+                self._dbg(f"_load_dates → got hierarchy data")
             except Exception:
                 traceback.print_exc()
-                rows = []
+                rows = {}
             self._finishDatesSig.emit(idx, rows, started, gen)
         threading.Thread(target=work, daemon=True).start()
 
     # ---------- DATES ----------
-    def _finish_dates(self, idx:int, rows:list, started:float, gen:int):
+    def _finish_dates(self, idx:int, rows:list|dict, started:float, gen:int):
         if gen is not None and self._is_stale("dates", gen):
             self._dbg(f"_finish_dates (stale gen={gen}) — ignoring")
             return
@@ -468,48 +527,65 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         tab.layout().addWidget(QLabel("<b>Dates</b>"))
 
-        # bucket normalization
-        import re
-        buckets = {}
-        for r in (rows or []):
-            if isinstance(r, (tuple, list)) and len(r) >= 2:
-                # Format: (year, count) from list_years_with_counts()
-                year, count = r[0], r[1]
-                buckets[str(year)] = int(count)
-            elif isinstance(r, (tuple, list)) and len(r) == 1:
-                # Format: (year,) - no count
-                buckets[str(r[0])] = buckets.get(str(r[0]), 0) + 1
-            elif isinstance(r, str):
-                m = re.search(r"(\d{4})(?:[-_](\d{2}))?", r)
-                if m:
-                    year = m.group(1)
-                    month = m.group(2)
-                    key = f"{year}-{month}" if month else year
-                    buckets[key] = buckets.get(key, 0) + 1
-                else:
-                    buckets["Unknown"] = buckets.get("Unknown", 0) + 1
-            elif isinstance(r, dict):
-                key = r.get("date_key") or r.get("bucket") or r.get("date")
-                if key:
-                    buckets[str(key)] = buckets.get(str(key), 0) + 1
+        # Extract hierarchy and counts from result
+        if isinstance(rows, dict):
+            hier = rows.get("hierarchy", {})
+            year_counts = rows.get("year_counts", {})
+        else:
+            hier = {}
+            year_counts = {}
 
-        norm = [(k, f"{k} ({v})") for k, v in sorted(buckets.items(), reverse=True)]
-
-        if not norm:
+        if not hier:
             self._set_tab_empty(idx, "No date index found")
         else:
-            lw = QListWidget()
-            for key, label in norm:
-                it = QListWidgetItem(label)
-                it.setData(Qt.UserRole, key)
-                lw.addItem(it)
-            lw.itemDoubleClicked.connect(lambda it: self.selectDate.emit(it.data(Qt.UserRole)))
-            tab.layout().addWidget(lw, 1)
+            # Create tree widget: Years → Months → Days
+            tree = QTreeWidget()
+            tree.setHeaderLabels(["Year/Month/Day", "Photos"])
+            tree.setColumnCount(2)
+            tree.setSelectionMode(QTreeWidget.SingleSelection)
+            tree.setEditTriggers(QTreeWidget.NoEditTriggers)
+            tree.setAlternatingRowColors(True)
+            tree.header().setStretchLastSection(False)
+            tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+            tree.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+            # Populate tree: Years (top level)
+            for year in sorted(hier.keys(), reverse=True):
+                year_count = year_counts.get(str(year), 0)
+                year_item = QTreeWidgetItem([str(year), str(year_count)])
+                year_item.setData(0, Qt.UserRole, str(year))
+                tree.addTopLevelItem(year_item)
+
+                # Months (children of year)
+                months_dict = hier[year]
+                month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+                for month in sorted(months_dict.keys(), reverse=True):
+                    days_list = months_dict[month]
+                    month_num = int(month) if month.isdigit() else 0
+                    month_label = month_names[month_num] if 0 < month_num <= 12 else month
+                    month_count = len(days_list)
+                    month_item = QTreeWidgetItem([f"{month_label} {year}", str(month_count)])
+                    month_item.setData(0, Qt.UserRole, f"{year}-{month}")
+                    year_item.addChild(month_item)
+
+                    # Days (children of month)
+                    for day in sorted(days_list, reverse=True):
+                        day_item = QTreeWidgetItem([str(day), ""])  # No count for individual days
+                        day_item.setData(0, Qt.UserRole, str(day))
+                        month_item.addChild(day_item)
+
+            # Connect double-click to emit date selection
+            tree.itemDoubleClicked.connect(lambda item, col: self.selectDate.emit(item.data(0, Qt.UserRole)))
+            tab.layout().addWidget(tree, 1)
 
         self._tab_populated.add("dates")
         self._tab_loading.discard("dates")
         st = self._tab_status_labels.get(idx)
-        if st: st.setText(f"{len(norm)} item(s) • {time.time()-started:.2f}s")
+        if st:
+            year_count = len(hier.keys()) if hier else 0
+            st.setText(f"{year_count} year(s) • {time.time()-started:.2f}s")
 
     # ---------- tags ----------
     def _load_tags(self, idx:int, gen:int):
@@ -692,46 +768,6 @@ class SidebarTabs(QWidget):
         threading.Thread(target=work, daemon=True).start()
 
     # ---------- PEOPLE ----------
-    def _finish_people_1st(self, idx: int, rows: list, started: float, gen: int):
-        if self._is_stale("people", gen):
-            self._dbg(f"_finish_people (stale gen={gen}) — ignoring")
-            return
-        self._cancel_timeout(idx)
-        self._clear_tab(idx)
-
-        tab = self.tab_widget.widget(idx)
-        tab.layout().addWidget(QLabel("<b>👥 People</b>"))
-
-        if not rows:
-            self._set_tab_empty(idx, "No face clusters found")
-            self._tab_populated.add("people")
-            self._tab_loading.discard("people")
-            return
-
-        lw = QListWidget()
-        for row in rows:
-            name = row.get("display_name") or row.get("branch_key")
-            count = row.get("member_count", 0)
-            rep = row.get("rep_path", "")
-            label = f"{name} ({count})"
-            it = QListWidgetItem(label)
-            it.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
-            if rep:
-                it.setToolTip(rep)
-            lw.addItem(it)
-
-        lw.itemDoubleClicked.connect(
-            lambda it: self.selectBranch.emit(it.data(Qt.UserRole))
-        )
-        tab.layout().addWidget(lw, 1)
-
-        self._tab_populated.add("people")
-        self._tab_loading.discard("people")
-        st = self._tab_status_labels.get(idx)
-        if st:
-            st.setText(f"{len(rows)} cluster(s) • {time.time()-started:.2f}s")
-
-    # ---------- PEOPLE ----------
     def _finish_people(self, idx: int, rows: list, started: float, gen: int):
         if self._is_stale("people", gen):
             self._dbg(f"_finish_people (stale gen={gen}) — ignoring")
@@ -784,22 +820,40 @@ class SidebarTabs(QWidget):
             self._tab_loading.discard("people")
             return
 
-        lw = QListWidget()
-        for row in rows:
+        # Create 2-column table: Person | Photos
+        table = QTableWidget()
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Person", "Photos"])
+        table.setRowCount(len(rows))
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.setSelectionMode(QTableWidget.SingleSelection)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.verticalHeader().setVisible(False)
+        table.horizontalHeader().setStretchLastSection(False)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+        for row_idx, row in enumerate(rows):
             name = row.get("display_name") or row.get("branch_key")
             count = row.get("member_count", 0)
             rep = row.get("rep_path", "")
-            label = f"{name} ({count})"
-            it = QListWidgetItem(label)
-            it.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
-            if rep:
-                it.setToolTip(rep)
-            lw.addItem(it)
 
-        lw.itemDoubleClicked.connect(
-            lambda it: self.selectBranch.emit(it.data(Qt.UserRole))
+            # Column 0: Person name
+            item_name = QTableWidgetItem(str(name))
+            item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
+            if rep:
+                item_name.setToolTip(rep)
+            table.setItem(row_idx, 0, item_name)
+
+            # Column 1: Count
+            item_count = QTableWidgetItem(str(count))
+            item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            table.setItem(row_idx, 1, item_count)
+
+        table.cellDoubleClicked.connect(
+            lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole))
         )
-        layout.addWidget(lw, 1)
+        layout.addWidget(table, 1)
 
         self._tab_populated.add("people")
         self._tab_loading.discard("people")

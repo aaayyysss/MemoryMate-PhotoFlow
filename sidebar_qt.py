@@ -38,10 +38,6 @@ except Exception:
 
 from PySide6.QtCore import Signal, QObject
 
-class _ThreadProxy(QObject):
-    done = Signal(object, int, list, float)
-
-
 
 # =====================================================================
 # 1️: SidebarTabs — full tabs-based controller (new)
@@ -54,16 +50,14 @@ class SidebarTabs(QWidget):
     selectDate   = Signal(str)     # e.g. "2025-10" or "2025"
     selectTag    = Signal(str)     # tag name
 
-    # inside class SidebarTabs
- 
-#    _finishQuickSig    = Signal(int, list, float)
-    
+    # Signals for async worker completion
     # ▼ add with your other Signals
     _finishBranchesSig = Signal(int, list, float, int)  # (idx, rows, started, gen)
     _finishFoldersSig  = Signal(int, list, float, int)
     _finishDatesSig    = Signal(int, object, float, int)  # object to accept dict or list
     _finishTagsSig     = Signal(int, list, float, int)
     _finishPeopleSig   = Signal(int, list, float, int)  # 👥 NEW
+    _finishQuickSig    = Signal(int, list, float, int)  # Quick dates
 
     
     def __init__(self, project_id: int | None, parent=None):
@@ -71,12 +65,6 @@ class SidebarTabs(QWidget):
         self._dbg("__init__ started")
         self.db = ReferenceDB()
         self.project_id = project_id
-
-        # at init:
-        self._thread_proxy = _ThreadProxy()
-        self._thread_proxy.done.connect(lambda self_, idx, rows, started:
-            self._finish_branches(idx, rows, started)
-        )
 
         # internal state (lives here now)
         self._tab_populated: set[str] = set()
@@ -101,9 +89,7 @@ class SidebarTabs(QWidget):
         self._finishDatesSig.connect(self._finish_dates, Qt.QueuedConnection)
         self._finishTagsSig.connect(self._finish_tags, Qt.QueuedConnection)
         self._finishPeopleSig.connect(self._finish_people, Qt.QueuedConnection)
-
-#        self._finishQuickSig.connect(self._finish_quick)
-
+        self._finishQuickSig.connect(self._finish_quick, Qt.QueuedConnection)
 
         # initial build – do not populate yet
         self._build_tabs()
@@ -149,7 +135,23 @@ class SidebarTabs(QWidget):
             self._dbg(f"refresh_tab({tab_name}) - tab not found")
 
     def show_tabs(self): self.show()
-    def hide_tabs(self): self.hide()
+    def hide_tabs(self):
+        """Hide tabs and cancel any pending workers"""
+        self._dbg("hide_tabs() called - canceling pending workers")
+        # Bump all generations to invalidate any in-flight workers
+        for key in self._tab_gen.keys():
+            self._bump_gen(key)
+        # Clear loading state
+        self._tab_loading.clear()
+        # Cancel all timers
+        for idx, timer in list(self._tab_timers.items()):
+            try:
+                timer.stop()
+            except:
+                pass
+        self._tab_timers.clear()
+        self._tab_status_labels.clear()
+        self.hide()
 
     # ---------- internal ----------
     def _build_tabs(self):
@@ -241,7 +243,9 @@ class SidebarTabs(QWidget):
         v = tab.layout()
         for i in reversed(range(v.count())):
             w = v.itemAt(i).widget()
-            if w: w.setParent(None)
+            if w:
+                w.setParent(None)
+                w.deleteLater()
 
     def _set_tab_empty(self, idx, msg="No items"):
         tab = self.tab_widget.widget(idx)
@@ -764,11 +768,14 @@ class SidebarTabs(QWidget):
                 traceback.print_exc()
                 rows = []
             # Emit using same signature as other tabs
-            self._finishQuickSig.emit(idx, rows, started, gen) if hasattr(self, "_finishQuickSig") else self._finish_quick(idx, rows, started, gen)
+            self._finishQuickSig.emit(idx, rows, started, gen)
         threading.Thread(target=work, daemon=True).start()
 
     # ---------- QUICK ----------
     def _finish_quick(self, idx:int, rows:list, started:float|None=None, gen:int|None=None):
+        if gen is not None and self._is_stale("quick", gen):
+            self._dbg(f"_finish_quick (stale gen={gen}) — ignoring")
+            return
         self._cancel_timeout(idx)
         self._clear_tab(idx)
 
@@ -955,6 +962,9 @@ class SidebarQt(QWidget):
         self._reload_timer = QTimer(self)
         self._reload_timer.setSingleShot(True)
         self._reload_timer.timeout.connect(self._do_reload_throttled)
+
+        # Worker generation for list mode (to cancel stale workers)
+        self._list_worker_gen = 0
 
         self._spin_timer = QTimer(self)
         self._spin_timer.setInterval(60)
@@ -1389,12 +1399,19 @@ class SidebarQt(QWidget):
             print("[Sidebar][counts] no targets to populate")
             return
 
+        # Bump generation to invalidate any previous workers
+        self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+        current_gen = self._list_worker_gen
+
+        # CRITICAL FIX: Extract only data (typ, key), NOT Qt objects, before passing to worker
+        data_only = [(typ, key) for typ, key, name_item, count_item in targets]
+
         def worker():
             results = []
             try:
-                print(f"[Sidebar][counts worker] running for {len(targets)} targets...")
-                # Extract only type and key from targets - DON'T pass Qt objects to worker thread
-                for typ, key, name_item, count_item in targets:
+                print(f"[Sidebar][counts worker gen={current_gen}] running for {len(data_only)} targets...")
+                # Work only with data, NO Qt objects in worker thread
+                for typ, key in data_only:
                     try:
                         cnt = 0
                         if typ == "branch":
@@ -1422,22 +1439,28 @@ class SidebarQt(QWidget):
                     except Exception:
                         traceback.print_exc()
                         results.append((typ, key, 0))
-                print("[Sidebar][counts worker] finished scanning targets, scheduling UI update")
+                print(f"[Sidebar][counts worker gen={current_gen}] finished scanning targets, scheduling UI update")
             except Exception:
                 traceback.print_exc()
-            # Schedule UI update in main thread
-            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results))
+            # Schedule UI update in main thread with generation check
+            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results, current_gen))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _apply_counts_defensive(self, results):
+    def _apply_counts_defensive(self, results, gen=None):
         """
         Apply counts to UI by finding QStandardItems in model by key.
         This method runs in the MAIN THREAD (called via QTimer.singleShot).
 
         Args:
             results: List of (typ, key, cnt) tuples from worker thread
+            gen: Generation number to check if results are stale
         """
+        # Check if this worker is stale
+        if gen is not None and gen != self._list_worker_gen:
+            print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
+            return
+
         try:
             for typ, key, cnt in results:
                 text = str(cnt) if cnt is not None else ""
@@ -1823,13 +1846,22 @@ class SidebarQt(QWidget):
         except Exception:
             pass
 
+        print(f"[SidebarQt] switch_display_mode({mode}) - canceling old workers")
+
         if mode == "tabs":
+            # Cancel list mode workers by bumping generation
+            self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+            print(f"[SidebarQt] Canceled list workers (new gen={self._list_worker_gen})")
+
             self.tree.hide()
             self.tabs_controller.show_tabs()
             # Ensure tabs are current; SidebarTabs handles its own population
             self.tabs_controller.refresh_all(force=False)
         else:
+            # Cancel tab workers via hide_tabs() which bumps their generations
             self.tabs_controller.hide_tabs()
+            print("[SidebarQt] Canceled tab workers via hide_tabs()")
+
             self.tree.show()
             self._build_tree_model()
 

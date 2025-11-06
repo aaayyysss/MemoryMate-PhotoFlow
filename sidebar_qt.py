@@ -1237,7 +1237,20 @@ class SidebarQt(QWidget):
     def _build_tree_model(self):
         # Build tree synchronously for folders (counts populated right away),
         # and register branch targets for async fill to keep responsiveness.
-        self.model.removeRows(0, self.model.rowCount())
+
+        # CRITICAL FIX: Cancel any pending count workers before rebuilding
+        self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+
+        # CRITICAL FIX: Process pending deleteLater() events before rebuilding
+        # This ensures old widgets from tabs are fully cleaned up
+        from PySide6.QtCore import QCoreApplication
+        QCoreApplication.processEvents()
+
+        # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
+        # removeRows() doesn't properly clean up complex tree structures with UserRole data
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
         self._count_targets = []
         try:
             branch_root = QStandardItem("🌿 Branches")
@@ -1474,6 +1487,11 @@ class SidebarQt(QWidget):
         # Check if this worker is stale
         if gen is not None and gen != self._list_worker_gen:
             print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
+            return
+
+        # Safety check: ensure model is valid before accessing
+        if not self.model or self.model.rowCount() == 0:
+            print("[Sidebar][counts] Model is empty or invalid, skipping count update")
             return
 
         try:
@@ -1863,6 +1881,11 @@ class SidebarQt(QWidget):
 
         print(f"[SidebarQt] switch_display_mode({mode}) - canceling old workers")
 
+        # CRITICAL: Process pending events before mode switch
+        # This ensures all pending widget deletions are completed
+        from PySide6.QtCore import QCoreApplication
+        QCoreApplication.processEvents()
+
         if mode == "tabs":
             # Cancel list mode workers by bumping generation
             self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
@@ -1876,6 +1899,9 @@ class SidebarQt(QWidget):
             # Cancel tab workers via hide_tabs() which bumps their generations
             self.tabs_controller.hide_tabs()
             print("[SidebarQt] Canceled tab workers via hide_tabs()")
+
+            # Process events again after hiding tabs to clear tab widgets
+            QCoreApplication.processEvents()
 
             self.tree.show()
             self._build_tree_model()

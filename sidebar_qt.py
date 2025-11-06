@@ -75,6 +75,8 @@ class SidebarTabs(QWidget):
         self._tab_indexes: dict[str, int] = {}              # "branches"/"folders"/"dates"/"tags"/"quick" -> tab index
         # ▼ add near your state vars
         self._tab_gen: dict[str, int] = {"branches":0, "folders":0, "dates":0, "tags":0, "quick":0}
+        # Guard against concurrent refresh_all calls
+        self._refreshing_all = False
 
         # UI
         v = QVBoxLayout(self)
@@ -117,12 +119,22 @@ class SidebarTabs(QWidget):
     def refresh_all(self, force=False):
         """Repopulate tabs (typically after scans or project switch)."""
         self._dbg(f"refresh_all(force={force}) called")
-        for key in ("branches", "folders", "dates", "tags", "quick"):
-            idx = self._tab_indexes.get(key)
-            self._dbg(f"refresh_all: key={key}, idx={idx}, force={force}")
-            if idx is not None:
-                self._populate_tab(key, idx, force=force)
-        self._dbg(f"refresh_all(force={force}) completed")
+
+        # Guard against concurrent refresh_all calls
+        if self._refreshing_all:
+            self._dbg("refresh_all blocked - already refreshing")
+            return
+
+        try:
+            self._refreshing_all = True
+            for key in ("branches", "folders", "dates", "tags", "quick"):
+                idx = self._tab_indexes.get(key)
+                self._dbg(f"refresh_all: key={key}, idx={idx}, force={force}")
+                if idx is not None:
+                    self._populate_tab(key, idx, force=force)
+            self._dbg(f"refresh_all(force={force}) completed")
+        finally:
+            self._refreshing_all = False
 
     def refresh_tab(self, tab_name: str):
         """Refresh a single tab (e.g., 'tags', 'folders', 'dates')."""
@@ -965,6 +977,9 @@ class SidebarQt(QWidget):
 
         # Worker generation for list mode (to cancel stale workers)
         self._list_worker_gen = 0
+
+        # Refresh guard to prevent concurrent reloads
+        self._refreshing = False
 
         self._spin_timer = QTimer(self)
         self._spin_timer.setInterval(60)
@@ -1886,15 +1901,25 @@ class SidebarQt(QWidget):
             self._reload_block = False
 
     def reload(self):
-        mode = self._effective_display_mode()
-        print(f"[SidebarQt] reload() called, display_mode={mode}")
-        if mode == "tabs":
-            print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
-            self.tabs_controller.refresh_all(force=True)
-            print(f"[SidebarQt] tabs_controller.refresh_all() completed")
-        else:
-            print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
-            self._build_tree_model()
+        # Guard against concurrent reloads
+        if self._refreshing:
+            print("[SidebarQt] reload() blocked - already refreshing")
+            return
+
+        try:
+            self._refreshing = True
+            mode = self._effective_display_mode()
+            print(f"[SidebarQt] reload() called, display_mode={mode}")
+            if mode == "tabs":
+                print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
+                self.tabs_controller.refresh_all(force=True)
+                print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+            else:
+                print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
+                self._build_tree_model()
+        finally:
+            # Always reset flag, even if error occurs
+            self._refreshing = False
         
 
     def _start_spinner(self):

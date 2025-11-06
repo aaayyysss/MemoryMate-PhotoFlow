@@ -333,14 +333,13 @@ class ScanController:
         def refresh_ui():
             try:
                 self.logger.info("Reloading sidebar after date branches built...")
-                # Always refresh tabs, regardless of current display mode
-                if hasattr(self.main.sidebar, "tabs_controller"):
-                    self.main.sidebar.tabs_controller.refresh_all(force=True)
-                    self.logger.debug("Tabs refresh completed")
-                # Also reload the sidebar (tree view if in list mode)
-                if hasattr(self.main.sidebar, "reload"):
+                # CRITICAL FIX: Only reload sidebar if it wasn't just updated via set_project()
+                # set_project() already calls reload(), so reloading again causes double refresh crash
+                if not sidebar_was_updated and hasattr(self.main.sidebar, "reload"):
                     self.main.sidebar.reload()
-                    self.logger.debug("Sidebar reload completed")
+                    self.logger.debug("Sidebar reload completed (mode-aware)")
+                elif sidebar_was_updated:
+                    self.logger.debug("Skipping sidebar reload - already updated by set_project()")
             except Exception as e:
                 self.logger.error(f"Error reloading sidebar: {e}", exc_info=True)
             try:

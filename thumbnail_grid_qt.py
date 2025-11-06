@@ -549,6 +549,13 @@ class ThumbnailGridQt(QWidget):
             start = max(0, start - self._prefetch_radius)
             end = min(self.model.rowCount() - 1, end + self._prefetch_radius)
 
+            # CRITICAL FIX: If we're near the bottom, just load all remaining items
+            # This ensures the last items always load when scrolling down
+            remaining = self.model.rowCount() - end - 1
+            if remaining > 0 and remaining < 100:  # Within 100 items of end
+                end = self.model.rowCount() - 1
+                print(f"[GRID] Near bottom, loading all remaining {remaining} items")
+
             print(f"[GRID] Loading viewport range: {start}-{end} of {self.model.rowCount()}")
 
             token = self._reload_token

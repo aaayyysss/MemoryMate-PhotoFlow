@@ -1467,22 +1467,24 @@ class DetailsPanel(QWidget):
 
 class BreadcrumbNavigation(QWidget):
     """
-    Phase 2 (High Impact): Breadcrumb navigation widget.
-    Replaces project dropdown with clickable breadcrumb trail showing current location.
-    Example: Home > My Photos > 2024 > Vacation
+    Phase 2 (High Impact): Breadcrumb navigation widget with project management.
+    - Home button: Opens project selector/creator
+    - Breadcrumb trail: Shows current location (Project > Folder/Date/Tag)
+    - Clickable segments: Navigate to parent levels
     """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMaximumHeight(32)
+        self.main_window = parent
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        # Home icon button (always present)
+        # Home icon button - opens project management menu
         self.btn_home = QPushButton("🏠")
         self.btn_home.setFixedSize(28, 28)
-        self.btn_home.setToolTip("All Projects")
+        self.btn_home.setToolTip("Project Management (Create/Switch Projects)")
         self.btn_home.setStyleSheet("""
             QPushButton {
                 border: none;
@@ -1494,6 +1496,7 @@ class BreadcrumbNavigation(QWidget):
                 border-radius: 4px;
             }
         """)
+        self.btn_home.clicked.connect(self._show_project_menu)
         layout.addWidget(self.btn_home)
 
         # Breadcrumb labels container (will be populated dynamically)
@@ -1507,6 +1510,79 @@ class BreadcrumbNavigation(QWidget):
 
         # Store breadcrumb path
         self.breadcrumbs = []
+
+    def _show_project_menu(self):
+        """Show project management menu (create new, switch project)."""
+        from PySide6.QtWidgets import QMenu
+        menu = QMenu(self)
+
+        # Add "Create New Project" action
+        act_new_project = menu.addAction("📁 Create New Project...")
+        act_new_project.triggered.connect(self._create_new_project)
+
+        menu.addSeparator()
+
+        # Add existing projects
+        if hasattr(self.main_window, "_projects") and self.main_window._projects:
+            for project in self.main_window._projects:
+                proj_id = project.get("id")
+                proj_name = project.get("name", f"Project {proj_id}")
+                proj_mode = project.get("mode", "scan")
+
+                action = menu.addAction(f"  {proj_name} ({proj_mode})")
+                action.setData(proj_id)
+                action.triggered.connect(lambda checked=False, pid=proj_id: self._switch_project(pid))
+
+        # Show menu below the home button
+        menu.exec(self.btn_home.mapToGlobal(self.btn_home.rect().bottomLeft()))
+
+    def _create_new_project(self):
+        """Create a new project via dialog."""
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+        from app_services import create_project
+
+        project_name, ok = QInputDialog.getText(
+            self,
+            "Create New Project",
+            "Enter project name:",
+            text="My New Project"
+        )
+
+        if ok and project_name.strip():
+            try:
+                # Create project with scan mode
+                new_project = create_project(project_name.strip(), mode="scan")
+                proj_id = new_project.get("id")
+
+                QMessageBox.information(
+                    self,
+                    "Project Created",
+                    f"Project '{project_name}' created successfully!\n\nProject ID: {proj_id}"
+                )
+
+                # Switch to new project
+                self._switch_project(proj_id)
+
+                # Refresh project list
+                if hasattr(self.main_window, "_refresh_project_list"):
+                    self.main_window._refresh_project_list()
+
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    f"Failed to create project:\n{e}"
+                )
+
+    def _switch_project(self, project_id: int):
+        """Switch to a different project."""
+        if hasattr(self.main_window, "_on_project_changed_by_id"):
+            self.main_window._on_project_changed_by_id(project_id)
+        elif hasattr(self.main_window, "project_controller"):
+            # Fallback to project controller
+            self.main_window.project_controller.switch_project(project_id)
+
+        print(f"[Breadcrumb] Switched to project ID: {project_id}")
 
     def set_path(self, segments: list[tuple[str, callable]]):
         """
@@ -1561,16 +1637,17 @@ class BreadcrumbNavigation(QWidget):
 
 class SelectionToolbar(QWidget):
     """
-    Phase 2.3: Context-aware selection toolbar (Google Photos style).
-    Shows action buttons when photos are selected, auto-hides when selection is cleared.
-    Appears above the thumbnail grid.
+    Phase 2.3: Selection toolbar with batch operations.
+    Always visible, buttons disabled when no selection.
+    Provides quick access to: Favorite, Delete, Clear Selection
     """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMaximumHeight(44)
         self.setStyleSheet("""
             SelectionToolbar {
-                background-color: #4A90E2;
+                background-color: #E8F4FD;
+                border: 1px solid #B3D9F2;
                 border-radius: 4px;
                 padding: 4px;
             }
@@ -1581,25 +1658,30 @@ class SelectionToolbar(QWidget):
         layout.setSpacing(8)
 
         # Selection count label
-        self.label_count = QLabel("0 selected")
-        self.label_count.setStyleSheet("color: white; font-weight: bold; font-size: 13px;")
+        self.label_count = QLabel("No photos selected")
+        self.label_count.setStyleSheet("color: #333; font-weight: bold; font-size: 13px;")
         layout.addWidget(self.label_count)
 
         layout.addStretch()
 
-        # Action buttons
+        # Action buttons (black text, disabled when no selection)
         self.btn_favorite = QPushButton("⭐ Favorite")
         self.btn_favorite.setStyleSheet("""
             QPushButton {
-                background-color: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background-color: #4A90E2;
+                color: black;
+                border: 1px solid #3A7BC8;
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.3);
+            QPushButton:hover:enabled {
+                background-color: #357ABD;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
             }
         """)
         layout.addWidget(self.btn_favorite)
@@ -1607,45 +1689,62 @@ class SelectionToolbar(QWidget):
         self.btn_delete = QPushButton("🗑️ Delete")
         self.btn_delete.setStyleSheet("""
             QPushButton {
-                background-color: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background-color: #DC3545;
+                color: black;
+                border: 1px solid #C82333;
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: rgba(220, 53, 69, 0.8);
+            QPushButton:hover:enabled {
+                background-color: #C82333;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
             }
         """)
         layout.addWidget(self.btn_delete)
 
-        self.btn_clear = QPushButton("✕ Clear")
+        self.btn_clear = QPushButton("✕ Clear Selection")
         self.btn_clear.setStyleSheet("""
             QPushButton {
-                background-color: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background-color: #6C757D;
+                color: black;
+                border: 1px solid #5A6268;
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.3);
+            QPushButton:hover:enabled {
+                background-color: #5A6268;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
             }
         """)
         layout.addWidget(self.btn_clear)
 
-        # Hide by default
-        self.hide()
+        # Start with buttons disabled
+        self.btn_favorite.setEnabled(False)
+        self.btn_delete.setEnabled(False)
+        self.btn_clear.setEnabled(False)
 
     def update_selection(self, count: int):
-        """Update selection count and show/hide toolbar."""
+        """Update selection count and enable/disable buttons."""
         if count > 0:
-            self.label_count.setText(f"{count} selected")
-            self.show()
+            self.label_count.setText(f"{count} photo{'s' if count > 1 else ''} selected")
+            self.btn_favorite.setEnabled(True)
+            self.btn_delete.setEnabled(True)
+            self.btn_clear.setEnabled(True)
         else:
-            self.hide()
+            self.label_count.setText("No photos selected")
+            self.btn_favorite.setEnabled(False)
+            self.btn_delete.setEnabled(False)
+            self.btn_clear.setEnabled(False)
 
 
 class CompactBackfillIndicator(QWidget):
@@ -2906,7 +3005,41 @@ class MainWindow(QMainWindow):
 
     def _on_project_changed(self, idx: int):
         self.project_controller.on_project_changed(idx)
-        
+
+    def _on_project_changed_by_id(self, project_id: int):
+        """
+        Phase 2: Switch to a project by ID (used by breadcrumb navigation).
+        Updates the sidebar and grid to show the selected project.
+        """
+        try:
+            # Update grid and sidebar
+            if hasattr(self, "sidebar") and self.sidebar:
+                self.sidebar.set_project(project_id)
+
+            if hasattr(self, "grid") and self.grid:
+                self.grid.project_id = project_id
+                self.grid.set_branch("all")  # Reset to show all photos
+
+            # Update breadcrumb
+            if hasattr(self, "_update_breadcrumb"):
+                QTimer.singleShot(100, self._update_breadcrumb)
+
+            print(f"[MainWindow] Switched to project ID: {project_id}")
+        except Exception as e:
+            print(f"[MainWindow] Error switching project: {e}")
+
+    def _refresh_project_list(self):
+        """
+        Phase 2: Refresh the project list (called after creating a new project).
+        Updates the cached project list for breadcrumb navigation.
+        """
+        try:
+            from app_services import list_projects
+            self._projects = list_projects()
+            print(f"[MainWindow] Refreshed project list: {len(self._projects)} projects")
+        except Exception as e:
+            print(f"[MainWindow] Error refreshing project list: {e}")
+
     def _on_folder_selected(self, folder_id: int):
         # DELEGATED to SidebarController (legacy stub kept for compatibility)
         self.sidebar_controller.on_folder_selected(folder_id)

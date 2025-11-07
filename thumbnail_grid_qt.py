@@ -502,63 +502,75 @@ class ThumbnailGridQt(QWidget):
         """
         Compute visible rows in the list_view and submit workers only for those,
         plus a small prefetch radius. Prevents scheduling workers for the entire dataset.
+
+        Uses scrollbar position for reliable viewport calculation in IconMode.
         """
         try:
             viewport = self.list_view.viewport()
             rect = viewport.rect()
-            if rect.isNull():
+            if rect.isNull() or self.model.rowCount() == 0:
                 # reschedule if viewport not yet fully laid out
                 QTimer.singleShot(50, self.request_visible_thumbnails)
                 return
 
-            # Calculate visible range
+            # CRITICAL FIX: Use scrollbar position instead of indexAt() for reliability
+            # indexAt() doesn't work well in IconMode when scrolled
+            scrollbar = self.list_view.verticalScrollBar()
+            scroll_value = scrollbar.value()
+            scroll_max = scrollbar.maximum()
+
+            # Calculate approximate start position based on scroll percentage
+            if scroll_max > 0:
+                scroll_fraction = scroll_value / scroll_max
+                approx_start = int(scroll_fraction * self.model.rowCount())
+            else:
+                approx_start = 0
+
+            # Try indexAt() first, but fall back to scroll-based calculation
             top_index = self.list_view.indexAt(QPoint(rect.left(), rect.top()))
+            if top_index.isValid() and top_index.row() > approx_start - 50:
+                # indexAt() is working and gives reasonable result
+                start = top_index.row()
+            else:
+                # indexAt() failed or unreliable, use scroll-based estimate
+                start = max(0, approx_start - 20)  # Start a bit before scroll position
+                print(f"[GRID] Using scroll-based start position: {start} (scroll: {scroll_value}/{scroll_max})")
+
+            # Calculate end position
             bottom_index = self.list_view.indexAt(QPoint(rect.left(), rect.bottom() - 1))
 
-            # Get row numbers
-            start = top_index.row() if top_index.isValid() else 0
-
-            # FIX: Better bottom index calculation
-            if bottom_index.isValid():
+            if bottom_index.isValid() and bottom_index.row() > start:
                 end = bottom_index.row()
             else:
-                # If bottom_index is invalid, calculate based on grid layout
-                # Estimate how many items fit in viewport
-                if self.model.rowCount() > 0:
-                    first_item = self.model.item(0)
-                    if first_item:
-                        item_height = first_item.sizeHint().height() + self.thumb_spacing
-                        if item_height > 0:
-                            # Calculate how many rows fit in viewport height
-                            items_per_row = max(1, rect.width() // (first_item.sizeHint().width() + self.thumb_spacing))
-                            visible_rows = (rect.height() // item_height) + 1
-                            visible_items = visible_rows * items_per_row
-                            end = min(self.model.rowCount() - 1, start + visible_items)
-                        else:
-                            end = min(self.model.rowCount() - 1, start + 100)
+                # Calculate based on grid layout
+                first_item = self.model.item(max(0, start))
+                if first_item:
+                    item_width = first_item.sizeHint().width() + self.thumb_spacing
+                    item_height = first_item.sizeHint().height() + self.thumb_spacing
+                    if item_width > 0 and item_height > 0:
+                        items_per_row = max(1, rect.width() // item_width)
+                        visible_rows = (rect.height() // item_height) + 2  # +2 for partial rows
+                        visible_items = visible_rows * items_per_row
+                        end = min(self.model.rowCount() - 1, start + visible_items)
                     else:
-                        end = min(self.model.rowCount() - 1, start + 100)
+                        end = min(self.model.rowCount() - 1, start + 150)
                 else:
-                    end = min(self.model.rowCount() - 1, start + 100)
-
-            # nothing to do
-            if self.model.rowCount() == 0:
-                return
+                    end = min(self.model.rowCount() - 1, start + 150)
 
             # Expand range by prefetch radius
             start = max(0, start - self._prefetch_radius)
             end = min(self.model.rowCount() - 1, end + self._prefetch_radius)
 
-            # CRITICAL FIX: If we're near the bottom, just load all remaining items
-            # This ensures the last items always load when scrolling down
+            # If near bottom, load all remaining
             remaining = self.model.rowCount() - end - 1
-            if remaining > 0 and remaining < 100:  # Within 100 items of end
+            if remaining > 0 and remaining < 100:
                 end = self.model.rowCount() - 1
                 print(f"[GRID] Near bottom, loading all remaining {remaining} items")
 
             print(f"[GRID] Loading viewport range: {start}-{end} of {self.model.rowCount()}")
 
             token = self._reload_token
+            loaded_count = 0
             for row in range(start, end + 1):
                 item = self.model.item(row)
                 if not item:
@@ -573,10 +585,6 @@ class ThumbnailGridQt(QWidget):
                 if item.data(Qt.UserRole + 5):
                     continue
 
-                # NOTE: ThumbnailService now handles all cache checking internally
-                # with its L1 (memory) + L2 (database) cache for fast hits.
-                # We just schedule workers and let the service optimize lookups.
-
                 # schedule worker
                 item.setData(True, Qt.UserRole + 5)  # mark scheduled
                 thumb_h = int(self._thumb_base * self._zoom_factor)
@@ -584,8 +592,11 @@ class ThumbnailGridQt(QWidget):
                 w = ThumbWorker(rpath, npath, thumb_h, row, self.thumb_signal,
                                 self._thumb_cache, token, self._placeholder_pixmap)
 
-
                 self.thread_pool.start(w)
+                loaded_count += 1
+
+            if loaded_count > 0:
+                print(f"[GRID] Queued {loaded_count} new thumbnail workers")
 
         except Exception as e:
             print(f"[GRID] request_visible_thumbnails error: {e}")

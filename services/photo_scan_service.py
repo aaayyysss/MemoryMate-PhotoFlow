@@ -362,22 +362,40 @@ class PhotoScanService:
             return None
 
         # Step 4: Extract dimensions and EXIF date using MetadataService
+        # CRITICAL FIX: Wrap metadata extraction with timeout to prevent hangs
+        # PIL/Pillow can hang on corrupted images, malformed TIFF/EXIF, or files with infinite loops
         width = height = date_taken = None
+        metadata_timeout = 5.0  # 5 seconds per image
 
         if extract_exif_date:
-            # Use metadata service for extraction
+            # Use metadata service for extraction with timeout protection
             try:
-                width, height, date_taken = self.metadata_service.extract_basic_metadata(str(file_path))
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, date_taken = future.result(timeout=metadata_timeout)
+            except FuturesTimeoutError:
+                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit)")
+                # Continue without dimensions/EXIF - photo will still be indexed
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
             except Exception as e:
                 logger.debug(f"Could not extract image metadata from {path_str}: {e}")
                 # Continue without dimensions/EXIF
         else:
-            # Just get dimensions without EXIF
+            # Just get dimensions without EXIF (with timeout)
             try:
-                metadata = self.metadata_service.extract_metadata(str(file_path))
+                future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
+                metadata = future.result(timeout=metadata_timeout)
                 if metadata.success:
                     width = metadata.width
                     height = metadata.height
+            except FuturesTimeoutError:
+                logger.warning(f"Dimension extraction timeout for {path_str} (5s limit)")
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
             except Exception as e:
                 logger.debug(f"Could not extract dimensions from {path_str}: {e}")
 

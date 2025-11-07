@@ -662,8 +662,8 @@ class ReferenceDB:
             )
             rows = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
-            # Get total photo count for "All Photos"
-            cur.execute("SELECT COUNT(DISTINCT path) FROM photo_metadata")
+            # Get total photo count for "All Photos" - Schema v3.0.0: filter by project_id
+            cur.execute("SELECT COUNT(DISTINCT path) FROM photo_metadata WHERE project_id = ?", (project_id,))
             total_count = cur.fetchone()[0]
 
         # ensure 'all' exists and is first, with count
@@ -1877,30 +1877,62 @@ class ReferenceDB:
             """, (year,))
             return cur.fetchall()
 
-    def get_images_by_year(self, year: int) -> list[str]:
-        """All paths for a year. Returns [] if migration not yet run."""
+    def get_images_by_year(self, year: int, project_id: int | None = None) -> list[str]:
+        """
+        All paths for a year. Returns [] if migration not yet run.
+
+        Args:
+            year: Year (e.g. 2024)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
+        """
         if not self._has_created_columns():
             return []
         with self._connect() as conn:
-            cur = conn.execute("""
-                SELECT path
-                FROM photo_metadata
-                WHERE created_year = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (year,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_year = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (year, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_year = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (year,))
             return [r[0] for r in cur.fetchall()]
 
-    def get_images_by_date(self, ymd: str) -> list[str]:
-        """All paths for a day (YYYY-MM-DD). Returns [] if migration not yet run."""
+    def get_images_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
+        """
+        All paths for a day (YYYY-MM-DD). Returns [] if migration not yet run.
+
+        Args:
+            ymd: Date string (YYYY-MM-DD)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
+        """
         if not self._has_created_columns():
             return []
         with self._connect() as conn:
-            cur = conn.execute("""
-                SELECT path
-                FROM photo_metadata
-                WHERE created_date = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (ymd,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_date = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_date = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd,))
             return [r[0] for r in cur.fetchall()]
 
 
@@ -2132,11 +2164,12 @@ class ReferenceDB:
                 print(f"[build_date_branches] ERROR: Project {project_id} not found!")
                 return 0
 
-            # CRITICAL: First, populate the 'all' branch with ALL photos
-            # This ensures the default view shows all photos
-            cur.execute("SELECT path FROM photo_metadata")
+            # CRITICAL: First, populate the 'all' branch with ALL photos from THIS project
+            # This ensures the default view shows all photos for the project
+            # Schema v3.0.0: Filter by project_id
+            cur.execute("SELECT path FROM photo_metadata WHERE project_id = ?", (project_id,))
             all_paths = [r[0] for r in cur.fetchall()]
-            print(f"[build_date_branches] Populating 'all' branch with {len(all_paths)} photos")
+            print(f"[build_date_branches] Populating 'all' branch with {len(all_paths)} photos for project {project_id}")
 
             # Ensure 'all' branch exists
             cur.execute(
@@ -2176,13 +2209,13 @@ class ReferenceDB:
                     "INSERT OR IGNORE INTO branches (project_id, branch_key, display_name) VALUES (?,?,?)",
                     (project_id, branch_key, branch_name),
                 )
-                # link photos - match on date part of date_taken
+                # link photos - match on date part of date_taken (Schema v3.0.0: filter by project_id)
                 cur.execute(
-                    "SELECT path FROM photo_metadata WHERE substr(date_taken, 1, 10) = ?",
-                    (d,)
+                    "SELECT path FROM photo_metadata WHERE substr(date_taken, 1, 10) = ? AND project_id = ?",
+                    (d, project_id)
                 )
                 paths = [r[0] for r in cur.fetchall()]
-                print(f"[build_date_branches] Date {d}: found {len(paths)} photos")
+                print(f"[build_date_branches] Date {d}: found {len(paths)} photos for project {project_id}")
                 if len(paths) > 0:
                     print(f"[build_date_branches] Sample path: {paths[0]}")
 
@@ -2344,11 +2377,16 @@ class ReferenceDB:
             return int(row[0] if row and row[0] is not None else 0)
 
 
-    def get_images_by_month(self, year: int | str, month: int | str) -> list[str]:
+    def get_images_by_month(self, year: int | str, month: int | str, project_id: int | None = None) -> list[str]:
         """
         Return all photo paths for a given year + month (YYYY-MM).
         Auto-detects whether created_date exists, otherwise falls back to date_taken or modified.
         Works even if dates are stored with time parts (e.g. '2022-04-15 10:03:22').
+
+        Args:
+            year: Year (e.g. 2024)
+            month: Month (e.g. 1 or 01)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         y = str(year)
         m = f"{int(month):02d}" if str(month).isdigit() else str(month)
@@ -2366,14 +2404,26 @@ class ReferenceDB:
             else:
                 date_col = "modified"
 
-            cur.execute(
-                f"""
-                SELECT path FROM photo_metadata
-                WHERE {date_col} LIKE ? || '%'
-                ORDER BY {date_col} ASC, path ASC
-                """,
-                (prefix,)
-            )
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur.execute(
+                    f"""
+                    SELECT path FROM photo_metadata
+                    WHERE {date_col} LIKE ? || '%' AND project_id = ?
+                    ORDER BY {date_col} ASC, path ASC
+                    """,
+                    (prefix, project_id)
+                )
+            else:
+                # No project filter
+                cur.execute(
+                    f"""
+                    SELECT path FROM photo_metadata
+                    WHERE {date_col} LIKE ? || '%'
+                    ORDER BY {date_col} ASC, path ASC
+                    """,
+                    (prefix,)
+                )
             return [r[0] for r in cur.fetchall()]
 
     # ======================================================

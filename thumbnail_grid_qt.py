@@ -1576,17 +1576,17 @@ class ThumbnailGridQt(QWidget):
                 return
             dk = self.date_key  # already normalized to YYYY / YYYY-MM / YYYY-MM-DD
             if len(dk) == 4 and dk.isdigit():
-                paths = self.db.get_images_by_year(int(dk))
+                paths = self.db.get_images_by_year(int(dk), self.project_id)
 
             elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
                 year, month = dk.split("-", 1)
-                paths = self.db.get_images_by_month(year, month)
+                paths = self.db.get_images_by_month(year, month, self.project_id)
                 # fallback: if no results, maybe dates have timestamps—try prefix search
                 if not paths:
-                    paths = self.db.get_images_for_quick_key(f"date:{dk}")     
-                
+                    paths = self.db.get_images_for_quick_key(f"date:{dk}")
+
             elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                paths = self.db.get_images_by_date(dk)
+                paths = self.db.get_images_by_date(dk, self.project_id)
             else:
                 # fallback for quick keys (rare)
                 paths = self.db.get_images_for_quick_key(f"date:{dk}")
@@ -1674,11 +1674,11 @@ class ThumbnailGridQt(QWidget):
         elif mode == "date" and key:
             dk = str(key)
             if len(dk) == 4 and dk.isdigit():
-                paths = db.get_images_by_year(int(dk))
+                paths = db.get_images_by_year(int(dk), self.project_id)
             elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
                 paths = db.get_images_by_month_str(dk)
             elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                paths = db.get_images_by_date(dk)
+                paths = db.get_images_by_date(dk, self.project_id)
             else:
                 # fallback for quick keys (e.g. date:this-week)
                 paths = db.get_images_for_quick_key(f"date:{dk}")

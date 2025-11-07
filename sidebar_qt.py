@@ -39,6 +39,89 @@ except Exception:
 from PySide6.QtCore import Signal, QObject
 
 
+# === Phase 3: Drag & Drop Support ===
+class DroppableTreeView(QTreeView):
+    """
+    Custom QTreeView that accepts photo drops for folder assignment.
+    Emits photoDropped signal with (folder_id, photo_paths) when photos are dropped.
+    """
+    photoDropped = Signal(int, list)  # (folder_id, list of photo paths)
+    tagDropped = Signal(str, list)    # (tag_name, list of photo paths)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+
+    def dragEnterEvent(self, event):
+        """Accept drag events if they contain photo paths."""
+        if event.mimeData().hasUrls() or event.mimeData().hasFormat('application/x-photo-paths'):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        """Update drop indicator as drag moves over items."""
+        if event.mimeData().hasUrls() or event.mimeData().hasFormat('application/x-photo-paths'):
+            # Find the item under the cursor
+            index = self.indexAt(event.position().toPoint())
+            if index.isValid():
+                self.setCurrentIndex(index)
+                event.acceptProposedAction()
+            else:
+                event.ignore()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        """Handle photo drop onto folder/tag."""
+        if not (event.mimeData().hasUrls() or event.mimeData().hasFormat('application/x-photo-paths')):
+            event.ignore()
+            return
+
+        # Get the item where photos were dropped
+        index = self.indexAt(event.position().toPoint())
+        if not index.isValid():
+            event.ignore()
+            return
+
+        # Extract photo paths from MIME data
+        paths = []
+        if event.mimeData().hasFormat('application/x-photo-paths'):
+            paths_data = event.mimeData().data('application/x-photo-paths')
+            paths_text = bytes(paths_data).decode('utf-8')
+            paths = [p.strip() for p in paths_text.split('\n') if p.strip()]
+        elif event.mimeData().hasUrls():
+            paths = [url.toLocalFile() for url in event.mimeData().urls()]
+
+        if not paths:
+            event.ignore()
+            return
+
+        # Get the folder/branch ID from the item
+        item = self.model().itemFromIndex(index)
+        if not item:
+            event.ignore()
+            return
+
+        # Check item type and emit appropriate signal
+        folder_id = item.data(Qt.UserRole)
+        branch_key = item.data(Qt.UserRole + 1)
+
+        if folder_id is not None:
+            # Dropped on folder - emit photoDropped signal
+            print(f"[DragDrop] Dropped {len(paths)} photo(s) on folder ID: {folder_id}")
+            self.photoDropped.emit(folder_id, paths)
+            event.acceptProposedAction()
+        elif branch_key is not None:
+            # Dropped on branch/tag - emit tagDropped signal
+            print(f"[DragDrop] Dropped {len(paths)} photo(s) on branch: {branch_key}")
+            self.tagDropped.emit(branch_key, paths)
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+
 # =====================================================================
 # 1️: SidebarTabs — full tabs-based controller (new)
 # ====================================================================
@@ -1037,8 +1120,8 @@ class SidebarQt(QWidget):
         header_layout.addWidget(self.btn_collapse)
         self.btn_collapse.clicked.connect(self._on_collapse_clicked)
 
-        # Tree (list mode)
-        self.tree = QTreeView(self)
+        # Tree (list mode) - Phase 3: Use DroppableTreeView for drag & drop support
+        self.tree = DroppableTreeView(self)
         self.tree.setAlternatingRowColors(True)
         self.tree.setEditTriggers(QTreeView.NoEditTriggers)
         self.tree.setSelectionBehavior(QTreeView.SelectRows)
@@ -1053,6 +1136,10 @@ class SidebarQt(QWidget):
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self._show_menu)
+
+        # Phase 3: Connect drag & drop signals
+        self.tree.photoDropped.connect(self._on_photos_dropped_to_folder)
+        self.tree.tagDropped.connect(self._on_photos_dropped_to_tag)
 
 
         # Layout
@@ -2069,6 +2156,116 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] reflow failed: {e}")
         QTimer.singleShot(0, _reflow)
 
+
+    # === Phase 3: Drag & Drop Handlers ===
+
+    def _on_photos_dropped_to_folder(self, folder_id: int, photo_paths: list):
+        """
+        Handle photos dropped onto a folder in the sidebar tree.
+        Updates the folder_id for all dropped photos in the database.
+        """
+        try:
+            print(f"[DragDrop] Moving {len(photo_paths)} photo(s) to folder ID: {folder_id}")
+
+            # Update folder_id for each photo in the database
+            db = self.db if hasattr(self, 'db') else ReferenceDB()
+            updated_count = 0
+
+            for path in photo_paths:
+                try:
+                    db.set_folder_for_image(path, folder_id)
+                    updated_count += 1
+                except Exception as e:
+                    print(f"[DragDrop] Failed to update folder for {path}: {e}")
+
+            # Show success message
+            QMessageBox.information(
+                self,
+                "Photos Moved",
+                f"Successfully moved {updated_count} photo(s) to the selected folder."
+            )
+
+            # Refresh sidebar and grid to reflect changes
+            if hasattr(self, '_do_reload_throttled'):
+                self._do_reload_throttled()
+
+            # Notify main window to refresh grid
+            if hasattr(self.parent(), 'grid'):
+                self.parent().grid.reload()
+
+            print(f"[DragDrop] Successfully updated {updated_count}/{len(photo_paths)} photo(s)")
+
+        except Exception as e:
+            print(f"[DragDrop] Error moving photos to folder: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Failed to move photos to folder:\n{str(e)}"
+            )
+
+    def _on_photos_dropped_to_tag(self, branch_key: str, photo_paths: list):
+        """
+        Handle photos dropped onto a tag/branch in the sidebar tree.
+        Applies the tag to all dropped photos.
+        """
+        try:
+            print(f"[DragDrop] Adding tag '{branch_key}' to {len(photo_paths)} photo(s)")
+
+            # Determine tag name from branch key
+            tag_name = None
+            if branch_key == "favorite":
+                tag_name = "favorite"
+            elif branch_key.startswith("face_"):
+                tag_name = "face"
+            else:
+                # For other branches, use the branch key as tag name
+                tag_name = branch_key
+
+            if not tag_name:
+                print(f"[DragDrop] Unknown branch key: {branch_key}")
+                return
+
+            # Apply tag to each photo
+            db = self.db if hasattr(self, 'db') else ReferenceDB()
+            tag_service = get_tag_service()
+            tagged_count = 0
+
+            for path in photo_paths:
+                try:
+                    # Add tag to photo
+                    tag_service.add_tag(path, tag_name)
+                    tagged_count += 1
+                except Exception as e:
+                    print(f"[DragDrop] Failed to tag {path}: {e}")
+
+            # Show success message
+            QMessageBox.information(
+                self,
+                "Photos Tagged",
+                f"Successfully tagged {tagged_count} photo(s) with '{tag_name}'."
+            )
+
+            # Refresh sidebar and grid to reflect changes
+            if hasattr(self, '_do_reload_throttled'):
+                self._do_reload_throttled()
+
+            # Notify main window to refresh grid
+            if hasattr(self.parent(), 'grid'):
+                self.parent().grid.reload()
+
+            print(f"[DragDrop] Successfully tagged {tagged_count}/{len(photo_paths)} photo(s)")
+
+        except Exception as e:
+            print(f"[DragDrop] Error tagging photos: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Failed to tag photos:\n{str(e)}"
+            )
 
     def _launch_detached(self, script_path: str):
         """Launch a script in a detached subprocess (used for heavy workers)."""

@@ -56,7 +56,7 @@ from PySide6.QtCore import (
     QObject,
     QEvent, QPropertyAnimation,
     QEasingCurve,
-    QPoint, QModelIndex, QTimer, QItemSelectionModel
+    QPoint, QModelIndex, QTimer, QItemSelectionModel, QMimeData
 )
 
  
@@ -336,6 +336,47 @@ class CenteredThumbnailDelegate(QStyledItemDelegate):
             painter.restore()
  
 
+# === Phase 3: Drag & Drop Support ===
+class DraggableThumbnailModel(QStandardItemModel):
+    """
+    Custom model that provides photo paths as MIME data for drag and drop.
+    Enables dragging photos from the grid to sidebar folders/tags.
+    """
+    def mimeTypes(self):
+        """Return list of MIME types this model supports for drag operations."""
+        return ['text/uri-list', 'application/x-photo-paths']
+
+    def mimeData(self, indexes):
+        """
+        Create MIME data from selected items.
+        Extracts photo paths from Qt.UserRole and provides them in two formats:
+        - text/uri-list: Standard file URIs for external apps
+        - application/x-photo-paths: Custom format with newline-separated paths
+        """
+        mime_data = QMimeData()
+
+        # Get unique photo paths from selected indexes
+        paths = []
+        for index in indexes:
+            if index.isValid():
+                path = index.data(Qt.UserRole)
+                if path and path not in paths:
+                    paths.append(path)
+
+        if not paths:
+            return mime_data
+
+        # Format 1: text/uri-list (standard file URLs)
+        from PySide6.QtCore import QUrl
+        urls = [QUrl.fromLocalFile(str(p)) for p in paths]
+        mime_data.setUrls(urls)
+
+        # Format 2: application/x-photo-paths (custom format with paths separated by newlines)
+        paths_text = '\n'.join(str(p) for p in paths)
+        mime_data.setData('application/x-photo-paths', paths_text.encode('utf-8'))
+
+        print(f"[DragDrop] Created MIME data for {len(paths)} photo(s)")
+        return mime_data
 
 
 class ThumbnailGridQt(QWidget):
@@ -439,11 +480,17 @@ class ThumbnailGridQt(QWidget):
         self.list_view.viewport().setAttribute(Qt.WA_AcceptTouchEvents, True)
         self.grabGesture(Qt.PinchGesture)
 
+        # === Phase 3: Drag & Drop Support ===
+        self.list_view.setDragEnabled(True)
+        self.list_view.setDragDropMode(QAbstractItemView.DragOnly)
+        self.list_view.setDefaultDropAction(Qt.CopyAction)
+
         # Delegates
         self.delegate = CenteredThumbnailDelegate(self.list_view)
-        self.list_view.setItemDelegate(self.delegate)        
-        
-        self.model = QStandardItemModel(self.list_view)
+        self.list_view.setItemDelegate(self.delegate)
+
+        # Phase 3: Use draggable model for drag & drop support
+        self.model = DraggableThumbnailModel(self.list_view)
         self.list_view.setModel(self.model)
 
         # --- Context menu ---

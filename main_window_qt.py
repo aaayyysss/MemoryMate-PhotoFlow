@@ -59,14 +59,14 @@ from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRu
 from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QSplitter, 
-    QHBoxLayout, QVBoxLayout, QLabel, 
+    QMainWindow, QWidget, QSplitter,
+    QHBoxLayout, QVBoxLayout, QLabel,
     QComboBox, QSizePolicy, QToolBar, QMessageBox,
     QDialog, QPushButton, QFileDialog, QScrollArea,
     QCheckBox, QComboBox as QSortComboBox,
     QProgressDialog, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
-    QSlider, QFormLayout, QTextEdit
+    QSlider, QFormLayout, QTextEdit, QButtonGroup
 )
 
 
@@ -2030,6 +2030,55 @@ class MainWindow(QMainWindow):
         self.sort_order_combo.addItems(["Ascending", "Descending"])
         self.sort_order_combo.currentIndexChanged.connect(lambda *_: self._apply_sort_filter())
         tb.addWidget(self.sort_order_combo)
+        ui.separator()
+
+        # Phase 2.3: Grid Size Presets (Google Photos style)
+        # Quick resize buttons: Small / Medium / Large / XL
+        tb.addWidget(QLabel("Grid:"))
+
+        # Create button group for exclusive selection
+        self.grid_size_group = QButtonGroup(self)
+
+        # Small preset
+        self.btn_grid_small = QPushButton("S")
+        self.btn_grid_small.setFixedSize(28, 28)
+        self.btn_grid_small.setCheckable(True)
+        self.btn_grid_small.setToolTip("Small thumbnails (90px)")
+        self.btn_grid_small.setStyleSheet("font-weight: bold;")
+        self.btn_grid_small.clicked.connect(lambda: self._set_grid_preset("small"))
+        self.grid_size_group.addButton(self.btn_grid_small, 0)
+        tb.addWidget(self.btn_grid_small)
+
+        # Medium preset
+        self.btn_grid_medium = QPushButton("M")
+        self.btn_grid_medium.setFixedSize(28, 28)
+        self.btn_grid_medium.setCheckable(True)
+        self.btn_grid_medium.setChecked(True)  # Default
+        self.btn_grid_medium.setToolTip("Medium thumbnails (120px)")
+        self.btn_grid_medium.setStyleSheet("font-weight: bold;")
+        self.btn_grid_medium.clicked.connect(lambda: self._set_grid_preset("medium"))
+        self.grid_size_group.addButton(self.btn_grid_medium, 1)
+        tb.addWidget(self.btn_grid_medium)
+
+        # Large preset
+        self.btn_grid_large = QPushButton("L")
+        self.btn_grid_large.setFixedSize(28, 28)
+        self.btn_grid_large.setCheckable(True)
+        self.btn_grid_large.setToolTip("Large thumbnails (200px)")
+        self.btn_grid_large.setStyleSheet("font-weight: bold;")
+        self.btn_grid_large.clicked.connect(lambda: self._set_grid_preset("large"))
+        self.grid_size_group.addButton(self.btn_grid_large, 2)
+        tb.addWidget(self.btn_grid_large)
+
+        # XL preset
+        self.btn_grid_xl = QPushButton("XL")
+        self.btn_grid_xl.setFixedSize(32, 28)
+        self.btn_grid_xl.setCheckable(True)
+        self.btn_grid_xl.setToolTip("Extra large thumbnails (280px)")
+        self.btn_grid_xl.setStyleSheet("font-weight: bold;")
+        self.btn_grid_xl.clicked.connect(lambda: self._set_grid_preset("xl"))
+        self.grid_size_group.addButton(self.btn_grid_xl, 3)
+        tb.addWidget(self.btn_grid_xl)
 
         # --- Central container
         container = QWidget()
@@ -2688,6 +2737,36 @@ class MainWindow(QMainWindow):
 
         # Phase 2.3: Update rich status bar after sorting
         self._update_status_bar()
+
+    def _set_grid_preset(self, size: str):
+        """
+        Phase 2.3: Set grid thumbnail size using preset (Google Photos style).
+        Instantly resizes grid to Small (90px), Medium (120px), Large (200px), or XL (280px).
+
+        Args:
+            size: One of "small", "medium", "large", "xl"
+        """
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        # Map presets to zoom factors
+        # Formula: zoom_factor = target_height / _thumb_base (where _thumb_base = 120)
+        presets = {
+            "small": 0.75,    # 90px
+            "medium": 1.0,    # 120px (default)
+            "large": 1.67,    # 200px
+            "xl": 2.33        # 280px
+        }
+
+        zoom_factor = presets.get(size, 1.0)
+
+        # Apply zoom with animation
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(zoom_factor, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(zoom_factor)
+
+        print(f"[Grid Preset] Set to {size} (zoom: {zoom_factor})")
 
     def _open_lightbox_from_selection(self):
         """Open the last selected image in lightbox."""

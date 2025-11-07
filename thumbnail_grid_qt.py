@@ -39,24 +39,24 @@ else:
 
 
 from PySide6.QtWidgets import (
-    QWidget, QListView, 
+    QWidget, QListView,
     QVBoxLayout, QMessageBox,
-    QHBoxLayout, QSlider, 
+    QHBoxLayout, QSlider,
     QPushButton, QStyledItemDelegate,
-    QStyle, QMenu, QAbstractItemView
+    QStyle, QMenu, QAbstractItemView, QStyleOptionViewItem
 )
 
 from PySide6.QtCore import (
-    Qt, 
-    QRect, 
-    QSize, 
-    QThreadPool, 
-    QRunnable, 
-    Signal, 
+    Qt,
+    QRect,
+    QSize,
+    QThreadPool,
+    QRunnable,
+    Signal,
     QObject,
-    QEvent, QPropertyAnimation, 
-    QEasingCurve, 
-    QPoint, QModelIndex, QTimer
+    QEvent, QPropertyAnimation,
+    QEasingCurve,
+    QPoint, QModelIndex, QTimer, QItemSelectionModel
 )
 
  
@@ -1188,17 +1188,6 @@ class ThumbnailGridQt(QWidget):
         self.list_view.repaint()
 
 
-    def eventFilter(self, obj, event):
-        """Ctrl + wheel zoom in/out."""
-        if event.type() == QEvent.Wheel and (event.modifiers() & Qt.ControlModifier):
-            delta = event.angleDelta().y()
-            if delta > 0:
-                self.zoom_in()
-            else:
-                self.zoom_out()
-            return True
-        return super().eventFilter(obj, event)
-
     def _animate_zoom_to(self, target_factor: float, duration: int = 200):
         """Smoothly animate zoom factor between current and target value."""
         target_factor = max(self._min_zoom, min(self._max_zoom, target_factor))
@@ -1271,6 +1260,27 @@ class ThumbnailGridQt(QWidget):
             self.openRequested.emit(path)
 
     def eventFilter(self, obj, event):
+        """
+        Phase 2.1: Unified event filter for keyboard shortcuts and mouse events.
+
+        Handles:
+        - Ctrl+Wheel: Zoom in/out
+        - Arrow keys: Navigate grid
+        - Ctrl+A: Select all
+        - Escape: Clear selection
+        - Space/Enter: Open lightbox
+        - Delete: Delete selected
+        """
+        # Ctrl+Wheel zoom (merged from previous eventFilter)
+        if event.type() == QEvent.Wheel and (event.modifiers() & Qt.ControlModifier):
+            delta = event.angleDelta().y()
+            if delta > 0:
+                self.zoom_in()
+            else:
+                self.zoom_out()
+            return True
+
+        # Keyboard shortcuts
         if obj is self.list_view and event.type() == QEvent.KeyPress:
             key = event.key()
             mods = event.modifiers()
@@ -1291,7 +1301,76 @@ class ThumbnailGridQt(QWidget):
                 if paths:
                     self.deleteRequested.emit(paths)
                 return True
+
+            # Space or Enter -> open lightbox for current/selected item
+            if key in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter):
+                current = self.list_view.currentIndex()
+                if current.isValid():
+                    path = current.data(Qt.UserRole)
+                    if path:
+                        self.openRequested.emit(path)
+                return True
+
+            # Arrow key navigation (Up/Down/Left/Right)
+            if key in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right):
+                return self._handle_arrow_navigation(key, mods)
+
         return super().eventFilter(obj, event)
+
+    def _handle_arrow_navigation(self, key, mods):
+        """
+        Phase 2.1: Handle arrow key navigation in grid view.
+
+        Moves selection up/down/left/right based on grid layout.
+        Supports Shift for range selection.
+        """
+        current_index = self.list_view.currentIndex()
+        if not current_index.isValid():
+            # No current selection - select first item
+            if self.model.rowCount() > 0:
+                first_index = self.model.index(0, 0)
+                self.list_view.setCurrentIndex(first_index)
+                if not (mods & Qt.ShiftModifier):
+                    self.list_view.selectionModel().select(first_index, QItemSelectionModel.ClearAndSelect)
+            return True
+
+        current_row = current_index.row()
+        total_rows = self.model.rowCount()
+
+        # Calculate items per row based on current grid layout
+        viewport_width = self.list_view.viewport().width()
+        item_width = self.delegate.sizeHint(QStyleOptionViewItem(), current_index).width()
+        spacing = self.list_view.spacing()
+        items_per_row = max(1, viewport_width // (item_width + spacing))
+
+        # Determine target row based on key
+        target_row = current_row
+        if key == Qt.Key_Left:
+            target_row = max(0, current_row - 1)
+        elif key == Qt.Key_Right:
+            target_row = min(total_rows - 1, current_row + 1)
+        elif key == Qt.Key_Up:
+            target_row = max(0, current_row - items_per_row)
+        elif key == Qt.Key_Down:
+            target_row = min(total_rows - 1, current_row + items_per_row)
+
+        # Apply navigation
+        if target_row != current_row:
+            target_index = self.model.index(target_row, 0)
+            self.list_view.setCurrentIndex(target_index)
+
+            # Handle selection based on modifiers
+            if mods & Qt.ShiftModifier:
+                # Shift: Extend selection (range select)
+                self.list_view.selectionModel().select(target_index, QItemSelectionModel.Select)
+            else:
+                # No modifier: Move selection (clear previous)
+                self.list_view.selectionModel().select(target_index, QItemSelectionModel.ClearAndSelect)
+
+            # Ensure target item is visible
+            self.list_view.scrollTo(target_index, QAbstractItemView.EnsureVisible)
+
+        return True
 
     def get_selected_paths(self):
         selection = self.list_view.selectionModel().selectedIndexes()

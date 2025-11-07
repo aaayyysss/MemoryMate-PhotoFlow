@@ -382,14 +382,32 @@ class ReferenceDB:
             row = cur.fetchone()
             return int(row[0]) if row and row[0] is not None else 0
 
-    def get_all_folders(self) -> list[dict]:
+    def get_all_folders(self, project_id: int | None = None) -> list[dict]:
         """
         Return all folders as list of dicts: {id, parent_id, path, name}.
+
+        Args:
+            project_id: Filter folders to only those containing photos from this project.
+                       If None, returns all folders globally (backward compatibility).
+
         Useful to build an in-memory tree quickly in the UI thread.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id, parent_id, path, name FROM photo_folders ORDER BY parent_id IS NOT NULL, parent_id, name")
+            if project_id is not None:
+                # CRITICAL FIX: Filter folders by project_id
+                # Only return folders that contain photos belonging to this project
+                cur.execute("""
+                    SELECT DISTINCT pf.id, pf.parent_id, pf.path, pf.name
+                    FROM photo_folders pf
+                    INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                    ORDER BY pf.parent_id IS NOT NULL, pf.parent_id, pf.name
+                """, (project_id,))
+            else:
+                # No filter - return all folders globally (backward compatibility)
+                cur.execute("SELECT id, parent_id, path, name FROM photo_folders ORDER BY parent_id IS NOT NULL, parent_id, name")
             rows = [{"id": r[0], "parent_id": r[1], "path": r[2], "name": r[3]} for r in cur.fetchall()]
         return rows
 
@@ -1109,25 +1127,54 @@ class ReferenceDB:
             conn.commit()
 
 
-    def get_child_folders(self, parent_id):
+    def get_child_folders(self, parent_id, project_id: int | None = None):
         """
         Return child folders for a given parent.
+
+        Args:
+            parent_id: Parent folder ID. Use None for root folders.
+            project_id: Filter folders to only those containing photos from this project.
+                       If None, returns all folders (backward compatibility).
+
         Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-            if parent_id is None:
-                cur.execute("""
-                    SELECT id, name FROM photo_folders
-                    WHERE parent_id IS NULL
-                    ORDER BY name
-                """)
+            if project_id is not None:
+                # CRITICAL FIX: Filter folders by project_id
+                # Only return child folders that contain photos from this project
+                if parent_id is None:
+                    cur.execute("""
+                        SELECT DISTINCT pf.id, pf.name
+                        FROM photo_folders pf
+                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
+                        INNER JOIN project_images pi ON pm.path = pi.image_path
+                        WHERE pf.parent_id IS NULL AND pi.project_id = ?
+                        ORDER BY pf.name
+                    """, (project_id,))
+                else:
+                    cur.execute("""
+                        SELECT DISTINCT pf.id, pf.name
+                        FROM photo_folders pf
+                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
+                        INNER JOIN project_images pi ON pm.path = pi.image_path
+                        WHERE pf.parent_id = ? AND pi.project_id = ?
+                        ORDER BY pf.name
+                    """, (parent_id, project_id))
             else:
-                cur.execute("""
-                    SELECT id, name FROM photo_folders
-                    WHERE parent_id = ?
-                    ORDER BY name
-                """, (parent_id,))
+                # No filter - return all folders (backward compatibility)
+                if parent_id is None:
+                    cur.execute("""
+                        SELECT id, name FROM photo_folders
+                        WHERE parent_id IS NULL
+                        ORDER BY name
+                    """)
+                else:
+                    cur.execute("""
+                        SELECT id, name FROM photo_folders
+                        WHERE parent_id = ?
+                        ORDER BY name
+                    """, (parent_id,))
             rows = [{"id": r[0], "name": r[1]} for r in cur.fetchall()]
         return rows
 
@@ -2598,24 +2645,49 @@ class ReferenceDB:
             return [os.path.abspath(r[0]) for r in rows if r and r[0]]
 
 
-    def get_image_count_recursive(self, folder_id: int) -> int:
+    def get_image_count_recursive(self, folder_id: int, project_id: int | None = None) -> int:
         """
         Return total number of images under this folder, including its subfolders.
+
+        Args:
+            folder_id: Folder ID to count photos in
+            project_id: Filter count to only photos from this project.
+                       If None, counts all photos (backward compatibility).
+
         Uses recursive CTE for performance. Corrected to use photo_metadata table.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("""
-                WITH RECURSIVE subfolders(id) AS (
-                    SELECT id FROM photo_folders WHERE id = ?
-                    UNION ALL
-                    SELECT f.id
-                    FROM photo_folders f
-                    JOIN subfolders s ON f.parent_id = s.id
-                )
-                SELECT COUNT(*) FROM photo_metadata p   -- ✅ FIXED
-                WHERE p.folder_id IN (SELECT id FROM subfolders)
-            """, (folder_id,))
+            if project_id is not None:
+                # CRITICAL FIX: Filter count by project_id
+                # Only count photos that belong to this project
+                cur.execute("""
+                    WITH RECURSIVE subfolders(id) AS (
+                        SELECT id FROM photo_folders WHERE id = ?
+                        UNION ALL
+                        SELECT f.id
+                        FROM photo_folders f
+                        JOIN subfolders s ON f.parent_id = s.id
+                    )
+                    SELECT COUNT(DISTINCT pm.path)
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pm.folder_id IN (SELECT id FROM subfolders)
+                      AND pi.project_id = ?
+                """, (folder_id, project_id))
+            else:
+                # No filter - count all photos (backward compatibility)
+                cur.execute("""
+                    WITH RECURSIVE subfolders(id) AS (
+                        SELECT id FROM photo_folders WHERE id = ?
+                        UNION ALL
+                        SELECT f.id
+                        FROM photo_folders f
+                        JOIN subfolders s ON f.parent_id = s.id
+                    )
+                    SELECT COUNT(*) FROM photo_metadata p
+                    WHERE p.folder_id IN (SELECT id FROM subfolders)
+                """, (folder_id,))
             row = cur.fetchone()
             return row[0] if row else 0
 

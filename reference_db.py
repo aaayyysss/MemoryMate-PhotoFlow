@@ -2380,19 +2380,22 @@ class ReferenceDB:
     # 🏷️ New Tagging System (normalized)
     # ======================================================
 
-    def _get_photo_id_by_path(self, path: str) -> int | None:
+    def _get_photo_id_by_path(self, path: str, project_id: int | None = None) -> int | None:
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
+            if project_id is not None:
+                cur.execute("SELECT id FROM photo_metadata WHERE path = ? AND project_id = ?", (path, project_id))
+            else:
+                cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
             row = cur.fetchone()
             return row[0] if row else None
 
-    def add_tag(self, path: str, tag_name: str):
+    def add_tag(self, path: str, tag_name: str, project_id: int | None = None):
         """Assign a tag to a photo by path. Creates the tag if needed."""
         tag_name = tag_name.strip()
         if not tag_name:
             return
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return
         with self._connect() as conn:
@@ -2405,9 +2408,9 @@ class ReferenceDB:
             cur.execute("INSERT OR IGNORE INTO photo_tags (photo_id, tag_id) VALUES (?, ?)", (photo_id, tag_id))
             conn.commit()
 
-    def remove_tag(self, path: str, tag_name: str):
+    def remove_tag(self, path: str, tag_name: str, project_id: int | None = None):
         """Remove a tag from a photo by path."""
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return
         with self._connect() as conn:
@@ -2419,9 +2422,9 @@ class ReferenceDB:
                 cur.execute("DELETE FROM photo_tags WHERE photo_id = ? AND tag_id = ?", (photo_id, tag_id))
                 conn.commit()
 
-    def get_tags_for_photo(self, path: str) -> list[str]:
+    def get_tags_for_photo(self, path: str, project_id: int | None = None) -> list[str]:
         """Return list of tags assigned to a specific photo path."""
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return []
         with self._connect() as conn:
@@ -2670,7 +2673,7 @@ class ReferenceDB:
 
 
     # >>> FIX 1: get_tags_for_paths — chunked to avoid SQLite 999 param cap
-    def get_tags_for_paths(self, paths: list[str]) -> dict[str, list[str]]:
+    def get_tags_for_paths(self, paths: list[str], project_id: int | None = None) -> dict[str, list[str]]:
         if not paths:
             return {}
         import os
@@ -2691,14 +2694,25 @@ class ReferenceDB:
             cur = conn.cursor()
             for i in range(0, len(npaths), CHUNK):
                 chunk = npaths[i:i+CHUNK]
-                q = f"""
-                    SELECT pm.path, t.name
-                    FROM photo_metadata pm
-                    JOIN photo_tags pt ON pt.photo_id = pm.id
-                    JOIN tags t       ON t.id = pt.tag_id
-                    WHERE pm.path IN ({','.join(['?']*len(chunk))})
-                """
-                cur.execute(q, chunk)
+                if project_id is not None:
+                    q = f"""
+                        SELECT pm.path, t.name
+                        FROM photo_metadata pm
+                        JOIN photo_tags pt ON pt.photo_id = pm.id
+                        JOIN tags t       ON t.id = pt.tag_id
+                        WHERE pm.path IN ({','.join(['?']*len(chunk))})
+                          AND pm.project_id = ?
+                    """
+                    cur.execute(q, chunk + [project_id])
+                else:
+                    q = f"""
+                        SELECT pm.path, t.name
+                        FROM photo_metadata pm
+                        JOIN photo_tags pt ON pt.photo_id = pm.id
+                        JOIN tags t       ON t.id = pt.tag_id
+                        WHERE pm.path IN ({','.join(['?']*len(chunk))})
+                    """
+                    cur.execute(q, chunk)
                 for row in cur.fetchall():
                     npath, tagname = row[0], row[1]
                     original = nmap.get(norm(npath))

@@ -551,8 +551,9 @@ class SidebarTabs(QWidget):
         started = time.time()
         def work():
             try:
-                rows = self.db.get_all_folders() or []    # expect list[dict{id,path}] or tuples
-                self._dbg(f"_load_folders → got {len(rows)} rows")
+                # CRITICAL FIX: Pass project_id to filter folders by project
+                rows = self.db.get_all_folders(self.project_id) or []    # expect list[dict{id,path}] or tuples
+                self._dbg(f"_load_folders → got {len(rows)} rows for project_id={self.project_id}")
             except Exception:
                 traceback.print_exc()
                 rows = []
@@ -1685,14 +1686,15 @@ class SidebarQt(QWidget):
             traceback.print_exc()
 
     def _add_folder_items(self, parent_item, parent_id=None):
-        rows = self.db.get_child_folders(parent_id)
+        # CRITICAL FIX: Pass project_id to filter folders and counts by project
+        rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
         for row in rows:
             name = row["name"]
             fid = row["id"]
-#            photo_count = self._get_photo_count(fid)
 
             if hasattr(self.db, "get_image_count_recursive"):
-                photo_count = int(self.db.get_image_count_recursive(fid) or 0)
+                # CRITICAL FIX: Pass project_id to count only photos from this project
+                photo_count = int(self.db.get_image_count_recursive(fid, project_id=self.project_id) or 0)
             else:
                 photo_count = self._get_photo_count(fid)
 

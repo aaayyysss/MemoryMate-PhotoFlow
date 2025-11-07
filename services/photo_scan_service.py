@@ -131,6 +131,7 @@ class PhotoScanService:
 
     def scan_repository(self,
                        root_folder: str,
+                       project_id: int,
                        incremental: bool = True,
                        skip_unchanged: bool = True,
                        extract_exif_date: bool = True,
@@ -141,6 +142,7 @@ class PhotoScanService:
 
         Args:
             root_folder: Root folder to scan
+            project_id: Project ID to associate scanned photos with
             incremental: If True, skip files that haven't changed
             skip_unchanged: Skip files with matching mtime
             extract_exif_date: Extract EXIF DateTimeOriginal
@@ -197,6 +199,7 @@ class PhotoScanService:
                     row = self._process_file(
                         file_path=file_path,
                         root_path=root_path,
+                        project_id=project_id,
                         existing_metadata=existing_metadata,
                         skip_unchanged=skip_unchanged,
                         extract_exif_date=extract_exif_date,
@@ -215,7 +218,7 @@ class PhotoScanService:
 
                     # Flush batch if needed
                     if len(batch_rows) >= self.batch_size:
-                        self._write_batch(batch_rows)
+                        self._write_batch(batch_rows, project_id)
                         batch_rows.clear()
 
                     # Report progress
@@ -231,7 +234,7 @@ class PhotoScanService:
 
                 # Final batch flush
                 if batch_rows:
-                    self._write_batch(batch_rows)
+                    self._write_batch(batch_rows, project_id)
 
             finally:
                 executor.shutdown(wait=False)
@@ -314,6 +317,7 @@ class PhotoScanService:
     def _process_file(self,
                      file_path: Path,
                      root_path: Path,
+                     project_id: int,
                      existing_metadata: Dict[str, str],
                      skip_unchanged: bool,
                      extract_exif_date: bool,
@@ -401,7 +405,7 @@ class PhotoScanService:
 
         # Step 5: Ensure folder hierarchy exists
         try:
-            folder_id = self._ensure_folder_hierarchy(file_path.parent, root_path)
+            folder_id = self._ensure_folder_hierarchy(file_path.parent, root_path, project_id)
         except Exception as e:
             logger.error(f"Failed to create folder hierarchy for {path_str}: {e}")
             self._stats['photos_failed'] += 1
@@ -414,13 +418,14 @@ class PhotoScanService:
         # (path, folder_id, size_kb, modified, width, height, date_taken, tags)
         return (path_str, folder_id, size_kb, mtime, width, height, date_taken, None)
 
-    def _ensure_folder_hierarchy(self, folder_path: Path, root_path: Path) -> int:
+    def _ensure_folder_hierarchy(self, folder_path: Path, root_path: Path, project_id: int) -> int:
         """
         Ensure folder and all parent folders exist in database.
 
         Args:
             folder_path: Current folder path
             root_path: Repository root path
+            project_id: Project ID for folder ownership
 
         Returns:
             Folder ID
@@ -429,7 +434,8 @@ class PhotoScanService:
         root_id = self.folder_repo.ensure_folder(
             path=str(root_path),
             name=root_path.name,
-            parent_id=None
+            parent_id=None,
+            project_id=project_id
         )
 
         # If folder is root, return root_id
@@ -449,7 +455,8 @@ class PhotoScanService:
                 current_parent_id = self.folder_repo.ensure_folder(
                     path=str(current_path),
                     name=part,
-                    parent_id=current_parent_id
+                    parent_id=current_parent_id,
+                    project_id=project_id
                 )
 
             return current_parent_id
@@ -460,28 +467,32 @@ class PhotoScanService:
             return self.folder_repo.ensure_folder(
                 path=str(folder_path),
                 name=folder_path.name,
-                parent_id=root_id
+                parent_id=root_id,
+                project_id=project_id
             )
 
-    def _write_batch(self, rows: List[Tuple]):
+    def _write_batch(self, rows: List[Tuple], project_id: int):
         """
         Write a batch of photo rows to database.
 
         Args:
             rows: List of tuples (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            project_id: Project ID for photo ownership
         """
         if not rows:
             return
 
         try:
-            affected = self.photo_repo.bulk_upsert(rows)
+            affected = self.photo_repo.bulk_upsert(rows, project_id)
             logger.debug(f"Wrote batch of {affected} photos to database")
         except Exception as e:
             logger.error(f"Failed to write batch: {e}", exc_info=True)
             # Try individual writes as fallback
             for row in rows:
                 try:
-                    self.photo_repo.upsert(*row)
+                    # Unpack row and add project_id
+                    path, folder_id, size_kb, modified, width, height, date_taken, tags = row
+                    self.photo_repo.upsert(path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags)
                 except Exception as e2:
                     logger.error(f"Failed to write individual photo {row[0]}: {e2}")
 

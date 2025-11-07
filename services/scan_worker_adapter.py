@@ -30,6 +30,7 @@ class ScanWorkerAdapter(QObject):
 
     def __init__(self,
                  folder: str,
+                 project_id: int,
                  incremental: bool,
                  settings: Dict[str, Any],
                  db_writer: Optional[Any] = None):
@@ -38,6 +39,7 @@ class ScanWorkerAdapter(QObject):
 
         Args:
             folder: Root folder to scan
+            project_id: Project ID to associate scanned photos with
             incremental: Enable incremental scanning
             settings: Application settings dict
             db_writer: Optional DBWriter (not used - kept for API compatibility)
@@ -45,6 +47,7 @@ class ScanWorkerAdapter(QObject):
         super().__init__()
 
         self.folder = folder
+        self.project_id = project_id
         self.incremental = incremental
         self.settings = settings
         self.db_writer = db_writer  # Kept for compatibility, but not used
@@ -97,6 +100,7 @@ class ScanWorkerAdapter(QObject):
             # Run the scan
             result: ScanResult = self.service.scan_repository(
                 root_folder=self.folder,
+                project_id=self.project_id,
                 incremental=self.incremental,
                 skip_unchanged=skip_unchanged,
                 extract_exif_date=extract_exif,

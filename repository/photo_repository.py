@@ -23,12 +23,13 @@ class PhotoRepository(BaseRepository):
     def _table_name(self) -> str:
         return "photo_metadata"
 
-    def get_by_path(self, path: str) -> Optional[Dict[str, Any]]:
+    def get_by_path(self, path: str, project_id: int) -> Optional[Dict[str, Any]]:
         """
-        Get photo metadata by file path.
+        Get photo metadata by file path and project.
 
         Args:
             path: Full file path
+            project_id: Project ID
 
         Returns:
             Photo metadata dict or None
@@ -38,7 +39,10 @@ class PhotoRepository(BaseRepository):
 
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM photo_metadata WHERE path = ?", (normalized_path,))
+            cur.execute(
+                "SELECT * FROM photo_metadata WHERE path = ? AND project_id = ?",
+                (normalized_path, project_id)
+            )
             return cur.fetchone()
 
     def _normalize_path(self, path: str) -> str:
@@ -62,20 +66,21 @@ class PhotoRepository(BaseRepository):
         normalized = normalized.replace('\\', '/')
         return normalized
 
-    def get_by_folder(self, folder_id: int, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    def get_by_folder(self, folder_id: int, project_id: int, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """
-        Get all photos in a folder.
+        Get all photos in a folder within a project.
 
         Args:
             folder_id: Folder ID
+            project_id: Project ID
             limit: Optional maximum number of results
 
         Returns:
             List of photo metadata dicts
         """
         return self.find_all(
-            where_clause="folder_id = ?",
-            params=(folder_id,),
+            where_clause="folder_id = ? AND project_id = ?",
+            params=(folder_id, project_id),
             order_by="modified DESC",
             limit=limit
         )
@@ -100,6 +105,7 @@ class PhotoRepository(BaseRepository):
     def upsert(self,
                path: str,
                folder_id: int,
+               project_id: int,
                size_kb: Optional[float] = None,
                modified: Optional[str] = None,
                width: Optional[int] = None,
@@ -107,11 +113,12 @@ class PhotoRepository(BaseRepository):
                date_taken: Optional[str] = None,
                tags: Optional[str] = None) -> int:
         """
-        Insert or update photo metadata.
+        Insert or update photo metadata for a project.
 
         Args:
             path: Full file path
             folder_id: Folder ID
+            project_id: Project ID
             size_kb: File size in KB
             modified: Last modified timestamp
             width: Image width in pixels
@@ -131,9 +138,9 @@ class PhotoRepository(BaseRepository):
 
         sql = """
             INSERT INTO photo_metadata
-                (path, folder_id, size_kb, modified, width, height, date_taken, tags, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(path) DO UPDATE SET
+                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(path, project_id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 size_kb = excluded.size_kb,
                 modified = excluded.modified,
@@ -146,23 +153,24 @@ class PhotoRepository(BaseRepository):
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute(sql, (normalized_path, folder_id, size_kb, modified, width, height, date_taken, tags, now))
+            cur.execute(sql, (normalized_path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, now))
             conn.commit()
 
             # Get the ID of the inserted/updated row
-            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (normalized_path,))
+            cur.execute("SELECT id FROM photo_metadata WHERE path = ? AND project_id = ?", (normalized_path, project_id))
             result = cur.fetchone()
             photo_id = result['id'] if result else None
 
-        self.logger.debug(f"Upserted photo: {normalized_path} (id={photo_id})")
+        self.logger.debug(f"Upserted photo: {normalized_path} (id={photo_id}, project={project_id})")
         return photo_id
 
-    def bulk_upsert(self, rows: List[tuple]) -> int:
+    def bulk_upsert(self, rows: List[tuple], project_id: int) -> int:
         """
-        Bulk insert or update multiple photos.
+        Bulk insert or update multiple photos for a project.
 
         Args:
             rows: List of tuples: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            project_id: Project ID
 
         Returns:
             Number of rows affected
@@ -173,23 +181,24 @@ class PhotoRepository(BaseRepository):
         import time
         now = time.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Normalize paths and add updated_at timestamp to each row
+        # Normalize paths and add project_id + updated_at timestamp to each row
         rows_normalized = []
         for row in rows:
             # Unpack: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
             path = row[0]
             normalized_path = self._normalize_path(path)
-            # Rebuild tuple with normalized path
-            normalized_row = (normalized_path,) + row[1:] + (now,)
+            # Rebuild tuple with normalized path and project_id
+            # New order: (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
+            normalized_row = (normalized_path, row[1], project_id) + row[2:] + (now,)
             rows_normalized.append(normalized_row)
 
         rows_with_timestamp = rows_normalized
 
         sql = """
             INSERT INTO photo_metadata
-                (path, folder_id, size_kb, modified, width, height, date_taken, tags, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(path) DO UPDATE SET
+                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(path, project_id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 size_kb = excluded.size_kb,
                 modified = excluded.modified,
@@ -206,7 +215,7 @@ class PhotoRepository(BaseRepository):
             conn.commit()
             affected = cur.rowcount
 
-        self.logger.info(f"Bulk upserted {affected} photos")
+        self.logger.info(f"Bulk upserted {affected} photos for project {project_id}")
         return affected
 
     def update_metadata_status(self, photo_id: int, status: str, fail_count: int = 0):
@@ -257,17 +266,18 @@ class PhotoRepository(BaseRepository):
             cur.execute(sql, (max_failures,))
             return [row['path'] for row in cur.fetchall()]
 
-    def count_by_folder(self, folder_id: int) -> int:
+    def count_by_folder(self, folder_id: int, project_id: int) -> int:
         """
-        Count photos in a specific folder.
+        Count photos in a specific folder within a project.
 
         Args:
             folder_id: Folder ID
+            project_id: Project ID
 
         Returns:
             Number of photos
         """
-        return self.count(where_clause="folder_id = ?", params=(folder_id,))
+        return self.count(where_clause="folder_id = ? AND project_id = ?", params=(folder_id, project_id))
 
     def search(self,
                query: str,

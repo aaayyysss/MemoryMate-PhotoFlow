@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "2.0.0"
+SCHEMA_VERSION = "3.0.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 -- Insert initial version marker
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES ('2.0.0', 'Repository layer schema - migrated from reference_db.py');
+VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean project isolation');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -138,20 +138,24 @@ CREATE TABLE IF NOT EXISTS export_history (
 -- PHOTO LIBRARY TABLES (Core photo management)
 -- ============================================================================
 
--- Photo folders (hierarchical folder structure)
+-- Photo folders (hierarchical folder structure with project ownership)
 CREATE TABLE IF NOT EXISTS photo_folders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    path TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
     parent_id INTEGER NULL,
-    FOREIGN KEY(parent_id) REFERENCES photo_folders(id)
+    project_id INTEGER NOT NULL,
+    FOREIGN KEY(parent_id) REFERENCES photo_folders(id),
+    FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
 );
 
--- Photo metadata (main photo index with all metadata)
+-- Photo metadata (main photo index with all metadata and project ownership)
 CREATE TABLE IF NOT EXISTS photo_metadata (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    path TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
     folder_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
     size_kb REAL,
     modified TEXT,
     width INTEGER,
@@ -165,7 +169,9 @@ CREATE TABLE IF NOT EXISTS photo_metadata (
     created_ts INTEGER,
     created_date TEXT,
     created_year INTEGER,
-    FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
+    FOREIGN KEY(folder_id) REFERENCES photo_folders(id),
+    FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
 );
 
 -- ============================================================================
@@ -208,6 +214,14 @@ CREATE INDEX IF NOT EXISTS idx_branches_key ON branches(project_id, branch_key);
 CREATE INDEX IF NOT EXISTS idx_projimgs_project ON project_images(project_id);
 CREATE INDEX IF NOT EXISTS idx_projimgs_branch ON project_images(project_id, branch_key);
 CREATE INDEX IF NOT EXISTS idx_projimgs_path ON project_images(image_path);
+
+-- Photo folders indexes
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project ON photo_folders(project_id);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_parent ON photo_folders(parent_id);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_path ON photo_folders(path);
+
+-- Photo metadata indexes (project_id for fast filtering)
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project ON photo_metadata(project_id);
 
 -- Photo metadata indexes (date and metadata)
 CREATE INDEX IF NOT EXISTS idx_meta_date ON photo_metadata(date_taken);
@@ -291,6 +305,10 @@ def get_expected_indexes() -> list[str]:
         "idx_projimgs_project",
         "idx_projimgs_branch",
         "idx_projimgs_path",
+        "idx_photo_folders_project",
+        "idx_photo_folders_parent",
+        "idx_photo_folders_path",
+        "idx_photo_metadata_project",
         "idx_meta_date",
         "idx_meta_modified",
         "idx_meta_updated",
@@ -313,6 +331,10 @@ MIGRATIONS = {
     },
     "2.0.0": {
         "description": "Repository layer schema with all tables and indexes",
+        "sql": "-- Superseded by 3.0.0"
+    },
+    "3.0.0": {
+        "description": "Added project_id to photo_folders and photo_metadata for clean project isolation",
         "sql": SCHEMA_SQL
     }
 }

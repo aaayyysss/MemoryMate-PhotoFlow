@@ -309,6 +309,217 @@ sys.excepthook = exception_hook
 
 ---
 
-**Status Updated:** 2025-11-07 05:42:05 (user time)
-**Next Action:** Add comprehensive logging and resume debugging in next session
-**User Status:** Taking a break ☕
+**Status Updated:** 2025-11-07 12:16:05 (user time)
+**Current Status:** ✅ ROOT CAUSE IDENTIFIED - Implementing comprehensive fix
+
+---
+
+## 🆕 New Crash Analysis (Session 2)
+
+### Crash Pattern Discovery
+
+Analysis of two fresh crash logs revealed a **critical Qt widget lifecycle issue**:
+
+**Common Pattern:**
+- Both crashes occurred during tab/list mode switching
+- Both crashes were silent (no Python traceback)
+- Crashes happened when tab workers completed AFTER tabs were hidden
+- Last log entry: `_load_tags → got 0 rows` (worker thread)
+- No `_finish_tags` logs (signal handler never ran or crashed before logging)
+
+### Root Cause #2: Race Condition in Widget Lifecycle
+
+The application has a **race condition** between:
+1. **Tab workers** completing asynchronously and emitting signals
+2. **Mode switching** hiding tabs and invalidating UI state
+3. **reload()** calling `refresh_all()` on hidden tabs
+
+**Crash Sequence:**
+1. User switches from tabs to list mode
+2. `hide_tabs()` bumps worker generations and hides tabs
+3. `processEvents()` processes pending signal deliveries
+4. **BUG:** `reload()` can still call `refresh_all()` on hidden tabs
+5. Worker signals delivered to finish handlers
+6. **Finish handlers access deleted/invalid widgets**
+7. **Segmentation fault** (Qt C++ crash, no Python traceback)
+
+### Key Issues Found
+
+#### Issue 1: Missing Null Checks in _clear_tab()
+```python
+# BEFORE (sidebar_qt.py:332-343)
+def _clear_tab(self, idx):
+    tab = self.tab_widget.widget(idx)
+    if not tab: return
+    v = tab.layout()  # ⚠️ Could be None
+    for i in reversed(range(v.count())):
+        w = v.itemAt(i).widget()  # ⚠️ itemAt(i) could be None
+```
+
+**Problem:** No null checks for layout or layout items, causing crashes when widgets are being deleted.
+
+#### Issue 2: Missing Null Checks in _finish_tags()
+```python
+# BEFORE (sidebar_qt.py:804-805)
+tab = self.tab_widget.widget(idx)
+tab.layout().addWidget(QLabel("<b>Tags</b>"))  # ⚠️ No null check
+```
+
+**Problem:** Direct widget access without checking if tab/layout exists.
+
+#### Issue 3: reload() Refreshes Hidden Tabs
+```python
+# BEFORE (sidebar_qt.py:2077-2081)
+def reload(self):
+    mode = self._effective_display_mode()
+    if mode == "tabs":
+        self.tabs_controller.refresh_all(force=True)  # ⚠️ Even if hidden!
+```
+
+**Problem:** `reload()` checks settings mode but doesn't check if tabs are actually visible, causing refresh of hidden tabs.
+
+---
+
+## ✅ Solution Implemented (This Session)
+
+### Changes Made
+
+#### 1. Enhanced _clear_tab() with Safety Checks
+**File:** `sidebar_qt.py` (lines 332-356)
+
+Added comprehensive null checks and exception handling:
+```python
+def _clear_tab(self, idx):
+    self._dbg(f"_clear_tab idx={idx}")
+    self._cancel_timeout(idx)
+
+    tab = self.tab_widget.widget(idx)
+    if not tab:
+        self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")
+        return
+
+    v = tab.layout()
+    if not v:
+        self._dbg(f"_clear_tab idx={idx} - layout is None, skipping")
+        return
+
+    try:
+        for i in reversed(range(v.count())):
+            item = v.itemAt(i)
+            if not item:
+                continue
+            w = item.widget()
+            if w:
+                w.setParent(None)
+                w.deleteLater()
+    except Exception as e:
+        self._dbg(f"_clear_tab idx={idx} - Exception: {e}")
+        traceback.print_exc()
+```
+
+#### 2. Enhanced _finish_tags() with Safety Checks
+**File:** `sidebar_qt.py` (lines 810-826)
+
+Added null checks before widget access:
+```python
+def _finish_tags(self, idx, rows, started, gen):
+    self._dbg(f"_finish_tags called: idx={idx}, gen={gen}, rows_count={len(rows) if rows else 0}")
+    if self._is_stale("tags", gen):
+        return
+
+    tab = self.tab_widget.widget(idx)
+    if not tab:
+        self._dbg(f"_finish_tags - tab is None, aborting")
+        return
+
+    layout = tab.layout()
+    if not layout:
+        self._dbg(f"_finish_tags - layout is None, aborting")
+        return
+
+    layout.addWidget(QLabel("<b>Tags</b>"))
+```
+
+#### 3. Fixed reload() to Check Tab Visibility
+**File:** `sidebar_qt.py` (lines 2113-2149)
+
+Added visibility check to prevent refreshing hidden tabs:
+```python
+def reload(self):
+    mode = self._effective_display_mode()
+    tabs_visible = self.tabs_controller.isVisible()
+    print(f"[SidebarQt] reload() called, mode={mode}, tabs_visible={tabs_visible}")
+
+    # CRITICAL FIX: Only refresh tabs if actually visible
+    if mode == "tabs" and tabs_visible:
+        self.tabs_controller.refresh_all(force=True)
+    elif mode == "tabs" and not tabs_visible:
+        print(f"[SidebarQt] WARNING: mode=tabs but tabs not visible, skipping")
+    else:
+        self._build_tree_model()
+```
+
+#### 4. Added Global Exception Hook
+**File:** `main_qt.py` (lines 45-56)
+
+Installed Python exception hook to catch unhandled exceptions:
+```python
+import traceback
+def exception_hook(exctype, value, tb):
+    print("=" * 80)
+    print("UNHANDLED EXCEPTION CAUGHT:")
+    print("=" * 80)
+    traceback.print_exception(exctype, value, tb)
+    logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+
+sys.excepthook = exception_hook
+```
+
+#### 5. Added Comprehensive Logging
+
+Added detailed logging throughout:
+- Mode switching operations
+- Tab visibility state
+- Widget access operations
+- Error conditions
+
+**Benefits:**
+- Easier debugging of future issues
+- Clear audit trail of operations
+- Early detection of invalid states
+
+### Files Modified
+- `sidebar_qt.py` - 100+ lines modified (safety checks, logging)
+- `main_qt.py` - 12 lines added (exception hook)
+
+---
+
+## 🧪 Expected Results
+
+### What Should Be Fixed ✅
+- ✅ No crash when tabs receive worker signals after being hidden
+- ✅ No crash from accessing null widgets/layouts
+- ✅ No crash when reload() called after mode switch
+- ✅ Better error messages for debugging
+- ✅ Graceful handling of widget lifecycle edge cases
+
+### What to Test
+1. **Scenario 1:** Fresh DB → Scan → Switch modes repeatedly
+2. **Scenario 2:** Scan → Create new project → Switch modes
+3. **Scenario 3:** Rapid mode switching during tab loading
+4. **Scenario 4:** Reload during mode transitions
+
+---
+
+## 📝 Next Steps
+
+1. **User Testing:** User should test with provided crash scenario
+2. **Monitor Logs:** Check for new WARNING/ERROR messages
+3. **Verify Fix:** Confirm crashes no longer occur
+4. **Performance:** Ensure no performance degradation
+
+---
+
+**Status Updated:** 2025-11-07 (current session)
+**Next Action:** Commit changes and push for user testing
+**Fix Status:** 🟢 COMPREHENSIVE FIX IMPLEMENTED

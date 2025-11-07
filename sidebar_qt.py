@@ -643,19 +643,19 @@ class SidebarTabs(QWidget):
         def work():
             rows = []
             try:
-                if self.project_id:
-                    # Get hierarchical date data: {year: {month: [days]}}
-                    if hasattr(self.db, "get_date_hierarchy"):
-                        hier = self.db.get_date_hierarchy() or {}
-                        # Also get year counts
-                        year_counts = {}
-                        if hasattr(self.db, "list_years_with_counts"):
-                            year_list = self.db.list_years_with_counts() or []
-                            year_counts = {str(y): c for y, c in year_list}
-                        # Build result with hierarchy and counts
-                        rows = {"hierarchy": hier, "year_counts": year_counts}
-                    else:
-                        self._dbg("_load_dates → No date hierarchy method available")
+                # Get hierarchical date data: {year: {month: [days]}}
+                # Note: Database methods don't require project_id - they query all photos
+                if hasattr(self.db, "get_date_hierarchy"):
+                    hier = self.db.get_date_hierarchy() or {}
+                    # Also get year counts
+                    year_counts = {}
+                    if hasattr(self.db, "list_years_with_counts"):
+                        year_list = self.db.list_years_with_counts() or []
+                        year_counts = {str(y): c for y, c in year_list}
+                    # Build result with hierarchy and counts
+                    rows = {"hierarchy": hier, "year_counts": year_counts}
+                else:
+                    self._dbg("_load_dates → No date hierarchy method available")
                 self._dbg(f"_load_dates → got hierarchy data")
             except Exception:
                 traceback.print_exc()

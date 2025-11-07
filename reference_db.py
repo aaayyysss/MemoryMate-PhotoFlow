@@ -387,23 +387,24 @@ class ReferenceDB:
         Return all folders as list of dicts: {id, parent_id, path, name}.
 
         Args:
-            project_id: Filter folders to only those containing photos from this project.
+            project_id: Filter folders by project_id (Schema v3.0.0 direct column filtering).
                        If None, returns all folders globally (backward compatibility).
 
-        Useful to build an in-memory tree quickly in the UI thread.
+        Returns:
+            List of folder dicts with keys: id, parent_id, path, name
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_folders table.
+              This is much faster than v2.0.0's junction table approach.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter folders by project_id
-                # Only return folders that contain photos belonging to this project
+                # Schema v3.0.0: Direct project_id column filtering
                 cur.execute("""
-                    SELECT DISTINCT pf.id, pf.parent_id, pf.path, pf.name
-                    FROM photo_folders pf
-                    INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                    ORDER BY pf.parent_id IS NOT NULL, pf.parent_id, pf.name
+                    SELECT id, parent_id, path, name
+                    FROM photo_folders
+                    WHERE project_id = ?
+                    ORDER BY parent_id IS NOT NULL, parent_id, name
                 """, (project_id,))
             else:
                 # No filter - return all folders globally (backward compatibility)
@@ -411,11 +412,27 @@ class ReferenceDB:
             rows = [{"id": r[0], "parent_id": r[1], "path": r[2], "name": r[3]} for r in cur.fetchall()]
         return rows
 
-    def count_for_folder(self, folder_id: int) -> int:
-        """Alias for get_folder_photo_count / faster direct SQL for the UI."""
+    def count_for_folder(self, folder_id: int, project_id: int | None = None) -> int:
+        """
+        Count photos in a folder (faster direct SQL for the UI).
+
+        Args:
+            folder_id: The folder ID to count photos in
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ? AND project_id = ?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
             row = cur.fetchone()
             return int(row[0]) if row and row[0] is not None else 0
 
@@ -1133,33 +1150,32 @@ class ReferenceDB:
 
         Args:
             parent_id: Parent folder ID. Use None for root folders.
-            project_id: Filter folders to only those containing photos from this project.
+            project_id: Filter folders by project_id (Schema v3.0.0 direct column filtering).
                        If None, returns all folders (backward compatibility).
 
-        Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
+        Returns:
+            List of dicts with keys: id, name
+
+        Note: Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
+              Schema v3.0.0 uses direct project_id column in photo_folders table.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter folders by project_id
-                # Only return child folders that contain photos from this project
+                # Schema v3.0.0: Direct project_id column filtering
                 if parent_id is None:
                     cur.execute("""
-                        SELECT DISTINCT pf.id, pf.name
-                        FROM photo_folders pf
-                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                        INNER JOIN project_images pi ON pm.path = pi.image_path
-                        WHERE pf.parent_id IS NULL AND pi.project_id = ?
-                        ORDER BY pf.name
+                        SELECT id, name
+                        FROM photo_folders
+                        WHERE parent_id IS NULL AND project_id = ?
+                        ORDER BY name
                     """, (project_id,))
                 else:
                     cur.execute("""
-                        SELECT DISTINCT pf.id, pf.name
-                        FROM photo_folders pf
-                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                        INNER JOIN project_images pi ON pm.path = pi.image_path
-                        WHERE pf.parent_id = ? AND pi.project_id = ?
-                        ORDER BY pf.name
+                        SELECT id, name
+                        FROM photo_folders
+                        WHERE parent_id = ? AND project_id = ?
+                        ORDER BY name
                     """, (parent_id, project_id))
             else:
                 # No filter - return all folders (backward compatibility)
@@ -1179,38 +1195,54 @@ class ReferenceDB:
         return rows
 
 
-    def get_descendant_folder_ids(self, folder_id: int) -> list[int]:
+    def get_descendant_folder_ids(self, folder_id: int, project_id: int | None = None) -> list[int]:
         """
         Recursively get all descendant folder IDs for a given folder.
-        Returns a list including the folder_id itself and all nested subfolders.
+
+        Args:
+            folder_id: The root folder ID
+            project_id: Filter folders by project_id (Schema v3.0.0). If None, gets all descendants.
+
+        Returns:
+            List including the folder_id itself and all nested subfolders
+
+        Note: Schema v3.0.0 filters by direct project_id column in photo_folders table.
         """
         result = [folder_id]
         try:
             with self._connect() as conn:
                 cur = conn.cursor()
                 # Get immediate children
-                cur.execute("SELECT id FROM photo_folders WHERE parent_id = ?", (folder_id,))
+                if project_id is not None:
+                    # Schema v3.0.0: Filter by project_id
+                    cur.execute("SELECT id FROM photo_folders WHERE parent_id = ? AND project_id = ?", (folder_id, project_id))
+                else:
+                    # No project filter
+                    cur.execute("SELECT id FROM photo_folders WHERE parent_id = ?", (folder_id,))
                 children = [r[0] for r in cur.fetchall()]
 
                 # Recursively get descendants of each child
                 for child_id in children:
-                    result.extend(self.get_descendant_folder_ids(child_id))
+                    result.extend(self.get_descendant_folder_ids(child_id, project_id=project_id))
 
             return result
         except Exception as e:
             print(f"[DB ERROR] get_descendant_folder_ids failed: {e}")
             return [folder_id]  # Fallback to just the folder itself
 
-    def get_images_by_folder(self, folder_id: int, include_subfolders: bool = True):
+    def get_images_by_folder(self, folder_id: int, include_subfolders: bool = True, project_id: int | None = None):
         """
         Return list of image paths belonging to the given folder_id.
 
         Args:
             folder_id: The folder ID to query
             include_subfolders: If True (default), includes photos from all nested subfolders
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos in folder.
 
         Returns:
             List of photo paths
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
         """
         try:
             with self._connect() as conn:
@@ -1218,26 +1250,57 @@ class ReferenceDB:
 
                 if include_subfolders:
                     # Get folder and all descendant folder IDs
-                    folder_ids = self.get_descendant_folder_ids(folder_id)
+                    folder_ids = self.get_descendant_folder_ids(folder_id, project_id=project_id)
                     placeholders = ','.join('?' * len(folder_ids))
-                    query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) ORDER BY path"
-                    cur.execute(query, folder_ids)
+
+                    if project_id is not None:
+                        # Schema v3.0.0: Filter by project_id
+                        query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) AND project_id = ? ORDER BY path"
+                        cur.execute(query, folder_ids + [project_id])
+                    else:
+                        # No project filter
+                        query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) ORDER BY path"
+                        cur.execute(query, folder_ids)
+
                     rows = [r[0] for r in cur.fetchall()]
-                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=True) -> {len(rows)} paths from {len(folder_ids)} folders")
+                    print(f"[DB] get_images_by_folder({folder_id}, subfolders=True, project={project_id}) -> {len(rows)} paths from {len(folder_ids)} folders")
                 else:
-                    # Original behavior: only this folder
-                    cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+                    # Only this folder
+                    if project_id is not None:
+                        # Schema v3.0.0: Filter by project_id
+                        cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? AND project_id = ? ORDER BY path", (folder_id, project_id))
+                    else:
+                        # No project filter
+                        cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+
                     rows = [r[0] for r in cur.fetchall()]
-                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=False) -> {len(rows)} paths")
+                    print(f"[DB] get_images_by_folder({folder_id}, subfolders=False, project={project_id}) -> {len(rows)} paths")
 
                 return rows
         except Exception as e:
             print(f"[DB ERROR] get_images_by_folder failed: {e}")
             return []
 
-    def count_photos_in_folder(self, folder_id: int) -> int:
+    def count_photos_in_folder(self, folder_id: int, project_id: int | None = None) -> int:
+        """
+        Count photos in a folder.
+
+        Args:
+            folder_id: The folder ID
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=? AND project_id=?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
             return cur.fetchone()[0] or 0
 
     def update_folder_counts(self):
@@ -1251,10 +1314,26 @@ class ReferenceDB:
             """)
             conn.commit()
 
-    def get_folder_photo_count(self, folder_id):
-        """Get photo count for a specific folder."""
+    def get_folder_photo_count(self, folder_id, project_id: int | None = None):
+        """
+        Get photo count for a specific folder.
+
+        Args:
+            folder_id: The folder ID
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=? AND project_id=?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
             row = cur.fetchone()
             return row[0] if row else 0
 

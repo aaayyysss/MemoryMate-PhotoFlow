@@ -1687,28 +1687,47 @@ class SidebarQt(QWidget):
 
     def _add_folder_items(self, parent_item, parent_id=None):
         # CRITICAL FIX: Pass project_id to filter folders and counts by project
-        rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
+        try:
+            rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
+        except Exception as e:
+            print(f"[Sidebar] Error in get_child_folders: {e}")
+            import traceback
+            traceback.print_exc()
+            rows = []
+
         for row in rows:
-            name = row["name"]
-            fid = row["id"]
+            try:
+                name = row["name"]
+                fid = row["id"]
 
-            if hasattr(self.db, "get_image_count_recursive"):
-                # CRITICAL FIX: Pass project_id to count only photos from this project
-                photo_count = int(self.db.get_image_count_recursive(fid, project_id=self.project_id) or 0)
-            else:
-                photo_count = self._get_photo_count(fid)
+                if hasattr(self.db, "get_image_count_recursive"):
+                    # CRITICAL FIX: Pass project_id to count only photos from this project
+                    try:
+                        photo_count = int(self.db.get_image_count_recursive(fid, project_id=self.project_id) or 0)
+                    except Exception as e:
+                        print(f"[Sidebar] Error in get_image_count_recursive for folder {fid}: {e}")
+                        photo_count = 0
+                else:
+                    photo_count = self._get_photo_count(fid)
 
-            name_item = QStandardItem(f"📁 {name}")
-            count_item = QStandardItem(str(photo_count))
-            count_item.setText(f"{photo_count:>5}")
-            name_item.setEditable(False)
-            count_item.setEditable(False)
-            name_item.setData("folder", Qt.UserRole)
-            name_item.setData(fid, Qt.UserRole + 1)
-            count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            count_item.setForeground(QColor("#888888"))
-            parent_item.appendRow([name_item, count_item])
-            self._add_folder_items(name_item, fid)
+                name_item = QStandardItem(f"📁 {name}")
+                count_item = QStandardItem(str(photo_count))
+                count_item.setText(f"{photo_count:>5}")
+                name_item.setEditable(False)
+                count_item.setEditable(False)
+                name_item.setData("folder", Qt.UserRole)
+                name_item.setData(fid, Qt.UserRole + 1)
+                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                count_item.setForeground(QColor("#888888"))
+                parent_item.appendRow([name_item, count_item])
+
+                # Recursive call with error handling
+                self._add_folder_items(name_item, fid)
+            except Exception as e:
+                print(f"[Sidebar] Error adding folder item: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
 
 
     def _build_by_date_section(self):

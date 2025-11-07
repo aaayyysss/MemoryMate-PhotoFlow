@@ -1360,6 +1360,8 @@ class SidebarQt(QWidget):
             for r in range(self.model.rowCount()):
                 idx = self.model.index(r, 0)
                 self.tree.expand(idx)
+            # Force column width recalculation after building tree
+            QTimer.singleShot(0, self._recalculate_columns)
         except Exception as e:
             QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
 
@@ -1432,7 +1434,10 @@ class SidebarQt(QWidget):
                 self.tree.viewport().update()
             except Exception:
                 pass
-            
+
+            # Recalculate columns after count updates
+            QTimer.singleShot(0, self._recalculate_columns)
+
             print("[Sidebar][counts applied] updated UI with counts")
         except Exception:
             traceback.print_exc()
@@ -1553,6 +1558,9 @@ class SidebarQt(QWidget):
                 self.tree.viewport().update()
             except Exception:
                 pass
+
+            # Recalculate columns after count updates
+            QTimer.singleShot(0, self._recalculate_columns)
 
             print("[Sidebar][counts applied] updated UI with counts")
         except Exception:
@@ -1849,6 +1857,8 @@ class SidebarQt(QWidget):
     def collapse_all(self):
         try:
             self.tree.collapseAll()
+            # Force column width recalculation after collapse
+            QTimer.singleShot(0, self._recalculate_columns)
             try:
                 if self.settings:
                     self.settings.set("sidebar_folded", True)
@@ -1862,6 +1872,8 @@ class SidebarQt(QWidget):
             for r in range(self.model.rowCount()):
                 idx = self.model.index(r, 0)
                 self.tree.expand(idx)
+            # Force column width recalculation after expand
+            QTimer.singleShot(0, self._recalculate_columns)
             try:
                 if self.settings:
                     self.settings.set("sidebar_folded", False)
@@ -1869,6 +1881,18 @@ class SidebarQt(QWidget):
                 pass
         except Exception:
             pass
+
+    def _recalculate_columns(self):
+        """Force tree view to recalculate column widths"""
+        try:
+            header = self.tree.header()
+            # Recalculate column 1 (counts) to fit content
+            header.resizeSection(1, header.sectionSizeHint(1))
+            # Force viewport update to ensure column 0 (names) uses remaining space
+            self.tree.viewport().update()
+            self.tree.scheduleDelayedItemsLayout()
+        except Exception as e:
+            print(f"[Sidebar] _recalculate_columns failed: {e}")
 
     def toggle_fold(self, folded: bool):
         if folded:

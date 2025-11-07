@@ -386,6 +386,10 @@ class ReferenceDB:
         """
         Return all folders as list of dicts: {id, parent_id, path, name}.
         Useful to build an in-memory tree quickly in the UI thread.
+
+        NOTE: In schema v2.0.0, photo_folders is a GLOBAL table (no project_id).
+        Folders are shared across all projects. Project filtering happens at
+        the photo level via the project_images junction table.
         """
         with self._connect() as conn:
             cur = conn.cursor()

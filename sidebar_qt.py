@@ -553,8 +553,9 @@ class SidebarTabs(QWidget):
         started = time.time()
         def work():
             try:
+                # NOTE: In v2.0.0, folders are GLOBAL (no project filtering at folder level)
                 rows = self.db.get_all_folders() or []    # expect list[dict{id,path}] or tuples
-                self._dbg(f"_load_folders → got {len(rows)} rows")
+                self._dbg(f"_load_folders → got {len(rows)} folders (global table)")
             except Exception:
                 traceback.print_exc()
                 rows = []

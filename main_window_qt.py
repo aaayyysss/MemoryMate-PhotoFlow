@@ -1465,6 +1465,100 @@ class DetailsPanel(QWidget):
             return None
 
 
+class BreadcrumbNavigation(QWidget):
+    """
+    Phase 2 (High Impact): Breadcrumb navigation widget.
+    Replaces project dropdown with clickable breadcrumb trail showing current location.
+    Example: Home > My Photos > 2024 > Vacation
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMaximumHeight(32)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        # Home icon button (always present)
+        self.btn_home = QPushButton("🏠")
+        self.btn_home.setFixedSize(28, 28)
+        self.btn_home.setToolTip("All Projects")
+        self.btn_home.setStyleSheet("""
+            QPushButton {
+                border: none;
+                background-color: transparent;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+                border-radius: 4px;
+            }
+        """)
+        layout.addWidget(self.btn_home)
+
+        # Breadcrumb labels container (will be populated dynamically)
+        self.breadcrumb_container = QWidget()
+        self.breadcrumb_layout = QHBoxLayout(self.breadcrumb_container)
+        self.breadcrumb_layout.setContentsMargins(0, 0, 0, 0)
+        self.breadcrumb_layout.setSpacing(4)
+        layout.addWidget(self.breadcrumb_container)
+
+        layout.addStretch()
+
+        # Store breadcrumb path
+        self.breadcrumbs = []
+
+    def set_path(self, segments: list[tuple[str, callable]]):
+        """
+        Set breadcrumb path with clickable segments.
+
+        Args:
+            segments: List of (label, callback) tuples
+                     Example: [("My Photos", lambda: navigate_home()),
+                              ("2024", lambda: navigate_to_year(2024))]
+        """
+        # Clear existing breadcrumbs
+        while self.breadcrumb_layout.count():
+            item = self.breadcrumb_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        self.breadcrumbs = segments
+
+        for i, (label, callback) in enumerate(segments):
+            # Add separator before each segment (except first)
+            if i > 0:
+                sep = QLabel(">")
+                sep.setStyleSheet("color: #999; font-size: 12px;")
+                self.breadcrumb_layout.addWidget(sep)
+
+            # Add clickable segment
+            btn = QPushButton(label)
+            btn.setStyleSheet("""
+                QPushButton {
+                    border: none;
+                    background-color: transparent;
+                    color: #333;
+                    font-size: 13px;
+                    padding: 4px 8px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(0, 0, 0, 0.1);
+                    border-radius: 4px;
+                    text-decoration: underline;
+                }
+            """)
+            btn.setCursor(Qt.PointingHandCursor)
+            if callback:
+                btn.clicked.connect(callback)
+
+            # Last segment is bold (current location)
+            if i == len(segments) - 1:
+                btn.setStyleSheet(btn.styleSheet() + "QPushButton { font-weight: bold; color: #000; }")
+
+            self.breadcrumb_layout.addWidget(btn)
+
+
 class SelectionToolbar(QWidget):
     """
     Phase 2.3: Context-aware selection toolbar (Google Photos style).
@@ -2177,19 +2271,17 @@ class MainWindow(QMainWindow):
         # Phase 2.3: Removed huge BackfillStatusPanel (120-240px)
         # Replaced with compact indicator in top bar
 
-        # --- Top bar (with project dropdown + compact backfill indicator)
+        # --- Top bar (with breadcrumb navigation + compact backfill indicator)
         topbar = QWidget()
         top_layout = QHBoxLayout(topbar)
         top_layout.setContentsMargins(6, 6, 6, 6)
 
-        self.project_combo = QComboBox()
-        self._projects = list_projects()
-        for p in self._projects:
-            self.project_combo.addItem(f"{p['id']} — {p['name']} ({p['mode']})", p["id"])
-        self.project_combo.currentIndexChanged.connect(self._on_project_changed)
+        # Phase 2 (High Impact): Breadcrumb Navigation replaces project dropdown
+        self.breadcrumb_nav = BreadcrumbNavigation(self)
+        top_layout.addWidget(self.breadcrumb_nav, 1)
 
-        top_layout.addWidget(QLabel("Project:"))
-        top_layout.addWidget(self.project_combo, 1)
+        # Keep project data for backwards compatibility
+        self._projects = list_projects()
 
         # Phase 2.3: Add compact backfill indicator (right-aligned)
         try:
@@ -2298,11 +2390,6 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(self.splitter, 1)
 
-        if default_pid is not None:
-            idx = self.project_combo.findData(default_pid)
-            if idx >= 0:
-                self.project_combo.setCurrentIndex(idx)
-
         # --- Wire toolbar actions
         act_select_all.triggered.connect(self.grid.list_view.selectAll)
         act_clear_sel.triggered.connect(self.grid.list_view.clearSelection)
@@ -2321,6 +2408,8 @@ class MainWindow(QMainWindow):
         self.grid.deleteRequested.connect(lambda paths: self._confirm_delete(paths))
         # Phase 2.3: Update status bar when grid data is reloaded
         self.grid.gridReloaded.connect(lambda: self._update_status_bar())
+        # Phase 2: Update breadcrumb navigation when grid changes
+        self.grid.gridReloaded.connect(lambda: self._update_breadcrumb())
         # Phase 2.3: Update selection toolbar when selection changes
         self.grid.selectionChanged.connect(lambda n: self.selection_toolbar.update_selection(n))
 
@@ -2343,6 +2432,9 @@ class MainWindow(QMainWindow):
             self._init_progress_pollers()
         except Exception as e:
             print(f"[MainWindow] ⚠️ Progress pollers init failed: {e}")
+
+        # Phase 2: Initialize breadcrumb navigation
+        QTimer.singleShot(100, self._update_breadcrumb)
 
         # === Initialize database schema at startup ===
         try:
@@ -3156,6 +3248,61 @@ class MainWindow(QMainWindow):
             print(f"[Shutdown] Thumb cache clear error: {e}")
 
         super().closeEvent(event)
+
+    def _update_breadcrumb(self):
+        """
+        Phase 2 (High Impact): Update breadcrumb navigation based on current grid state.
+        Shows: Project > Folder/Date/Branch path
+        """
+        try:
+            if not hasattr(self, "breadcrumb_nav") or not hasattr(self, "grid"):
+                return
+
+            segments = []
+
+            # Get current project name
+            project_name = "My Photos"
+            if hasattr(self, "_projects") and self._projects:
+                default_pid = get_default_project_id()
+                for p in self._projects:
+                    if p.get("id") == default_pid:
+                        project_name = p.get("name", "My Photos")
+                        break
+
+            # Always start with project
+            segments.append((project_name, None))  # No callback for current project
+
+            # Add navigation context
+            if self.grid.navigation_mode == "folder" and hasattr(self.grid, "navigation_key"):
+                # For folder mode, show folder path
+                folder_id = self.grid.navigation_key
+                # TODO: Get folder name from DB
+                segments.append(("Folder View", lambda: self.grid.set_branch("all")))
+                segments.append((f"Folder #{folder_id}", None))
+            elif self.grid.navigation_mode == "date" and hasattr(self.grid, "navigation_key"):
+                # For date mode, show date path
+                date_key = str(self.grid.navigation_key)
+                segments.append(("Timeline", lambda: self.grid.set_branch("all")))
+                segments.append((date_key, None))
+            elif self.grid.navigation_mode == "branch":
+                # For branch mode, show "All Photos"
+                segments.append(("All Photos", None))
+            elif hasattr(self.grid, "active_tag_filter") and self.grid.active_tag_filter:
+                # Tag filter mode
+                tag = self.grid.active_tag_filter
+                segments.append(("Tags", lambda: self._apply_tag_filter("all")))
+                if tag == "favorite":
+                    segments.append(("Favorites", None))
+                elif tag == "face":
+                    segments.append(("Faces", None))
+                else:
+                    segments.append((tag, None))
+            else:
+                segments.append(("All Photos", None))
+
+            self.breadcrumb_nav.set_path(segments)
+        except Exception as e:
+            print(f"[MainWindow] _update_breadcrumb error: {e}")
 
     def _update_status_bar(self, selection_count=None):
         """

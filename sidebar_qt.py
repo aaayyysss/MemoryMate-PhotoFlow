@@ -749,7 +749,7 @@ class SidebarTabs(QWidget):
                         day_count = 0
                         try:
                             if hasattr(self.db, "count_for_day"):
-                                day_count = self.db.count_for_day(day)
+                                day_count = self.db.count_for_day(day, project_id=self.project_id)
                             else:
                                 # Fallback: count from get_images_by_date
                                 day_paths = self.db.get_images_by_date(day) if hasattr(self.db, "get_images_by_date") else []
@@ -1385,7 +1385,7 @@ class SidebarQt(QWidget):
             quick_root.setEditable(False)
             self.model.appendRow([quick_root, QStandardItem("")])
             try:
-                quick_rows = self.db.get_quick_date_counts()
+                quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
             except Exception:
                 quick_rows = []
             for row in quick_rows:
@@ -1689,7 +1689,7 @@ class SidebarQt(QWidget):
         from PySide6.QtGui import QStandardItem, QColor
         from PySide6.QtCore import Qt
         try:
-            hier = self.db.get_date_hierarchy()
+            hier = self.db.get_date_hierarchy(project_id=self.project_id)
         except Exception:
             return
         if not hier or not isinstance(hier, dict):
@@ -1710,7 +1710,7 @@ class SidebarQt(QWidget):
 
         for year in sorted(hier.keys(), key=lambda y: int(str(y))):
             try:
-                y_count = self.db.count_for_year(year)
+                y_count = self.db.count_for_year(year, project_id=self.project_id)
             except Exception:
                 y_count = 0
             y_item = QStandardItem(str(year))
@@ -1726,7 +1726,7 @@ class SidebarQt(QWidget):
             for month in sorted(months.keys(), key=lambda m: int(str(m))):
                 m_label = f"{int(month):02d}"
                 try:
-                    m_count = self.db.count_for_month(year, month)
+                    m_count = self.db.count_for_month(year, month, project_id=self.project_id)
                 except Exception:
                     m_count = 0
                 m_item = QStandardItem(m_label)
@@ -1747,7 +1747,7 @@ class SidebarQt(QWidget):
                     d_label = f"{int(day):02d}"
                     ymd = f"{year}-{m_label}-{d_label}"
                     try:
-                        d_count = self.db.count_for_day(ymd)
+                        d_count = self.db.count_for_day(ymd, project_id=self.project_id)
                     except Exception:
                         d_count = 0
                     d_item = QStandardItem(d_label)

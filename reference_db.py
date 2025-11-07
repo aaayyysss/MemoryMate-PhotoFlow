@@ -1806,16 +1806,30 @@ class ReferenceDB:
         # unsupported → no window
         return (None, None, "meta")
 
-    def _count_between_meta_dates(self, conn, start_iso: str, end_iso: str) -> int:
+    def _count_between_meta_dates(self, conn, start_iso: str, end_iso: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT COUNT(*)
-            FROM photo_metadata
-            WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
-            """,
-            (start_iso, end_iso)
-        )
+        if project_id is not None:
+            # Filter by project_id using project_images junction table
+            cur.execute(
+                """
+                SELECT COUNT(DISTINCT pm.path)
+                FROM photo_metadata pm
+                INNER JOIN project_images pi ON pm.path = pi.image_path
+                WHERE pi.project_id = ?
+                  AND date(COALESCE(pm.date_taken, pm.modified)) BETWEEN ? AND ?
+                """,
+                (project_id, start_iso, end_iso)
+            )
+        else:
+            # No project filter - count all photos globally
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+                """,
+                (start_iso, end_iso)
+            )
         row = cur.fetchone()
         return int(row[0] or 0)
 
@@ -1832,16 +1846,30 @@ class ReferenceDB:
         )
         return [r[0] for r in cur.fetchall()]
 
-    def _count_recent_updated(self, conn, start_ts: str) -> int:
+    def _count_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT COUNT(*)
-            FROM photo_metadata
-            WHERE updated_at >= ?
-            """,
-            (start_ts,)
-        )
+        if project_id is not None:
+            # Filter by project_id using project_images junction table
+            cur.execute(
+                """
+                SELECT COUNT(DISTINCT pm.path)
+                FROM photo_metadata pm
+                INNER JOIN project_images pi ON pm.path = pi.image_path
+                WHERE pi.project_id = ?
+                  AND pm.updated_at >= ?
+                """,
+                (project_id, start_ts)
+            )
+        else:
+            # No project filter - count all photos globally
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE updated_at >= ?
+                """,
+                (start_ts,)
+            )
         row = cur.fetchone()
         return int(row[0] or 0)
 
@@ -1858,9 +1886,12 @@ class ReferenceDB:
         )
         return [r[0] for r in cur.fetchall()]
 
-    def get_quick_date_counts(self) -> list[dict]:
+    def get_quick_date_counts(self, project_id: int | None = None) -> list[dict]:
         """
         Return list of dicts: {key, label, count} for quick date branches.
+
+        Args:
+            project_id: Filter by project_id if provided, otherwise count all photos globally
         """
         QUICK = [
             ("date:today",       "Today"),
@@ -1875,9 +1906,9 @@ class ReferenceDB:
             for key, label in QUICK:
                 start, end, mode = self._date_window_for_key(key)
                 if mode == "updated":
-                    cnt = self._count_recent_updated(conn, start) if start else 0
+                    cnt = self._count_recent_updated(conn, start, project_id) if start else 0
                 else:
-                    cnt = self._count_between_meta_dates(conn, start, end) if start and end else 0
+                    cnt = self._count_between_meta_dates(conn, start, end, project_id) if start and end else 0
                 out.append({"key": key, "label": label, "count": cnt})
         return out
 
@@ -2034,21 +2065,36 @@ class ReferenceDB:
     # ===============================================
     # 📅 Phase 1: Date hierarchy + counts + loaders
     # ===============================================
-    def get_date_hierarchy(self) -> dict:
+    def get_date_hierarchy(self, project_id: int | None = None) -> dict:
         """
         Return nested dict {year: {month: [days...]}} from photo_metadata.created_date.
         Assumes created_date is 'YYYY-MM-DD'.
+
+        Args:
+            project_id: Filter by project_id if provided, otherwise use all photos globally
         """
         from collections import defaultdict
         hier = defaultdict(lambda: defaultdict(list))
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT DISTINCT created_date
-                FROM photo_metadata
-                WHERE created_date IS NOT NULL
-                ORDER BY created_date ASC
-            """)
+            if project_id is not None:
+                # Filter by project_id using project_images junction table
+                cur.execute("""
+                    SELECT DISTINCT pm.created_date
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                      AND pm.created_date IS NOT NULL
+                    ORDER BY pm.created_date ASC
+                """, (project_id,))
+            else:
+                # No project filter - use all photos globally
+                cur.execute("""
+                    SELECT DISTINCT created_date
+                    FROM photo_metadata
+                    WHERE created_date IS NOT NULL
+                    ORDER BY created_date ASC
+                """)
             for (ds,) in cur.fetchall():
                 try:
                     y, m, d = str(ds).split("-", 2)
@@ -2057,37 +2103,92 @@ class ReferenceDB:
                     pass
         return {y: dict(m) for y, m in hier.items()}
 
-    def count_for_year(self, year: int | str) -> int:
+    def count_for_year(self, year: int | str, project_id: int | None = None) -> int:
+        """
+        Count photos for a given year.
+
+        Args:
+            year: Year to count (e.g., 2024)
+            project_id: Filter by project_id if provided, otherwise count all photos globally
+        """
         y = str(year)
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT COUNT(*) FROM photo_metadata
-                WHERE created_date LIKE ? || '-%'
-            """, (y,))
+            if project_id is not None:
+                # Filter by project_id using project_images junction table
+                cur.execute("""
+                    SELECT COUNT(DISTINCT pm.path)
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                      AND pm.created_date LIKE ? || '-%'
+                """, (project_id, y))
+            else:
+                # No project filter - count all photos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM photo_metadata
+                    WHERE created_date LIKE ? || '-%'
+                """, (y,))
             row = cur.fetchone()
             return int(row[0] if row and row[0] is not None else 0)
 
-    def count_for_month(self, year: int | str, month: int | str) -> int:
+    def count_for_month(self, year: int | str, month: int | str, project_id: int | None = None) -> int:
+        """
+        Count photos for a given year and month.
+
+        Args:
+            year: Year (e.g., 2024)
+            month: Month (1-12)
+            project_id: Filter by project_id if provided, otherwise count all photos globally
+        """
         y = str(year)
         m = f"{int(month):02d}" if str(month).isdigit() else str(month)
         ym = f"{y}-{m}"
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT COUNT(*) FROM photo_metadata
-                WHERE created_date LIKE ? || '-%'
-            """, (ym,))
+            if project_id is not None:
+                # Filter by project_id using project_images junction table
+                cur.execute("""
+                    SELECT COUNT(DISTINCT pm.path)
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                      AND pm.created_date LIKE ? || '-%'
+                """, (project_id, ym))
+            else:
+                # No project filter - count all photos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM photo_metadata
+                    WHERE created_date LIKE ? || '-%'
+                """, (ym,))
             row = cur.fetchone()
             return int(row[0] if row and row[0] is not None else 0)
 
-    def count_for_day(self, day_yyyymmdd: str) -> int:
+    def count_for_day(self, day_yyyymmdd: str, project_id: int | None = None) -> int:
+        """
+        Count photos for a given day.
+
+        Args:
+            day_yyyymmdd: Date in YYYY-MM-DD format
+            project_id: Filter by project_id if provided, otherwise count all photos globally
+        """
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT COUNT(*) FROM photo_metadata
-                WHERE created_date = ?
-            """, (day_yyyymmdd,))
+            if project_id is not None:
+                # Filter by project_id using project_images junction table
+                cur.execute("""
+                    SELECT COUNT(DISTINCT pm.path)
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                      AND pm.created_date = ?
+                """, (project_id, day_yyyymmdd))
+            else:
+                # No project filter - count all photos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM photo_metadata
+                    WHERE created_date = ?
+                """, (day_yyyymmdd,))
             row = cur.fetchone()
             return int(row[0] if row and row[0] is not None else 0)
 

@@ -343,6 +343,7 @@ class ThumbnailGridQt(QWidget):
     selectionChanged = Signal(int)# count of selected items
     deleteRequested = Signal(list)# list[str] paths to delete
     openRequested = Signal(str)#path to open (double-click/lightbox)
+    gridReloaded = Signal()  # Phase 2.3: emitted after grid data is reloaded
         
     def __init__(self, project_id=None):
         super().__init__()        
@@ -1216,8 +1217,10 @@ class ThumbnailGridQt(QWidget):
             self.zoom_slider.blockSignals(False)
 
         self._zoom_anim.valueChanged.connect(_on_zoom_anim_val)
+        # Phase 2.3: Emit gridReloaded when zoom animation finishes (for status bar update)
+        self._zoom_anim.finished.connect(lambda: self.gridReloaded.emit())
         self._zoom_anim.start()
-        
+
 
     def zoom_in(self):
         self._animate_zoom_to(self._zoom_factor * 1.1)
@@ -1476,6 +1479,9 @@ class ThumbnailGridQt(QWidget):
 
         print(f"[GRID] Loaded {len(self._paths)} thumbnails in custom mode")
 
+        # Phase 2.3: Emit signal for status bar update
+        self.gridReloaded.emit()
+
     def reload_priortoContext_driven(self):
         """
         Load image paths based on current load_mode and refresh thumbnail grid.
@@ -1705,6 +1711,9 @@ class ThumbnailGridQt(QWidget):
             print(f"[GRID] Reloaded {final_count}/{base_count} thumbnails in {mode}-mode (tag={tag})")
         else:
             print(f"[GRID] Reloaded {final_count} thumbnails in {mode}-mode (base={base_count})")
+
+        # Phase 2.3: Emit signal for status bar update
+        self.gridReloaded.emit()
 
     # ============================================================
     def _load_paths(self, paths: list[str]):

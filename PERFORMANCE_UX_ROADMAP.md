@@ -308,22 +308,23 @@ class ThumbnailCache:
 
 ## 📝 Current Status
 
-**Phase:** Phase 2 - UI/UX Enhancements (PHASE 1 COMPLETE!) 🎉
+**Phase:** Phase 2 - UI/UX Enhancements (PHASES 1 & 2 COMPLETE!) 🎉🎉
 **Completed:**
 - ✅ Phase 1A (1.1): Virtual Scrolling & Lazy Loading
 - ✅ Phase 1B (1.3): Memory Management
-- ✅ Phase 2.1: Keyboard Shortcuts
+- ✅ Phase 2.1: Keyboard Shortcuts (Apple Photos-level navigation)
 - ✅ Phase 2.3: Rich Status Bar (context-aware display)
 - ✅ Phase 2.3: Compact Backfill Indicator (replaced 120-240px panel)
 - ✅ Phase 2.3: Grid Size Presets (S/M/L/XL instant resize buttons)
 - ✅ Phase 2.3: Selection Toolbar (context-aware with ⭐/🗑️/✕ actions)
+- ✅ Phase 2 (High Impact): Breadcrumb Navigation (replaced project dropdown)
+- ✅ Phase 2 (High Impact): Folder Navigation Fix (shows all nested subfolders)
 
-**All Phase 1 Critical Improvements Complete!**
+**All Phase 1 & Phase 2 High-Impact Improvements Complete!**
 
-**Next Tasks (Phase 2 - High Impact):**
-- Phase 2.2: Drag & Drop
-- Breadcrumb Navigation
-- Enhanced Menus
+**Next Tasks (Phase 3 - Polish):**
+- Enhanced Menus (File/View/Tools/Help simplification)
+- Drag & Drop functionality
 
 **Branch:** claude/hello-afte-011CUsFwuiZmEewaPxb27ssp
 

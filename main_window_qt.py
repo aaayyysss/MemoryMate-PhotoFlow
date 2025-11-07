@@ -1929,11 +1929,12 @@ class MainWindow(QMainWindow):
         self.sort_order_combo.currentIndexChanged.connect(lambda *_: self._apply_sort_filter())
 
         # --- Grid signals
-        self.grid.selectionChanged.connect(
-            lambda n: self.statusBar().showMessage(f"{n} selected")
-        )
+        # Phase 2.3: Use rich status bar instead of simple message
+        self.grid.selectionChanged.connect(lambda n: self._update_status_bar(selection_count=n))
         self.grid.openRequested.connect(lambda p: self._open_lightbox(p))
         self.grid.deleteRequested.connect(lambda paths: self._confirm_delete(paths))
+        # Phase 2.3: Update status bar when grid data is reloaded
+        self.grid.gridReloaded.connect(lambda: self._update_status_bar())
 
         # --- Auto-update details panel on selection change
         def _update_details_from_selection():
@@ -2009,13 +2010,13 @@ class MainWindow(QMainWindow):
 
         if tag in (None, "", "all"):
             self.grid.apply_tag_filter(None)
-            self.statusBar().showMessage("Showing all photos")
             print("[TAG FILTER] Cleared.")
         else:
             self.grid.apply_tag_filter(tag)
-            msg = f"Filtered by tag '{tag}'"
-            self.statusBar().showMessage(msg)
             print(f"[TAG FILTER] Applied: {tag}")
+
+        # Phase 2.3: Update rich status bar after filter change
+        self._update_status_bar()
 
 
     def _clear_tag_filter(self):
@@ -2450,6 +2451,9 @@ class MainWindow(QMainWindow):
         descending = self.sort_order_combo.currentText() == "Descending"
         self.grid.apply_sorting(sort_field, descending)
 
+        # Phase 2.3: Update rich status bar after sorting
+        self._update_status_bar()
+
     def _open_lightbox_from_selection(self):
         """Open the last selected image in lightbox."""
         paths = self.grid.get_selected_paths()
@@ -2692,6 +2696,75 @@ class MainWindow(QMainWindow):
             print(f"[Shutdown] Thumb cache clear error: {e}")
 
         super().closeEvent(event)
+
+    def _update_status_bar(self, selection_count=None):
+        """
+        Phase 2.3: Rich status bar with context-aware information.
+
+        Shows: Total photos | Current view | Selection count | Zoom level | Filter status
+
+        Similar to Google Photos / iPhone Photos status bars.
+        """
+        try:
+            parts = []
+
+            # 1. Total photo count
+            if hasattr(self, "grid") and self.grid:
+                total = self.grid.model.rowCount() if hasattr(self.grid, "model") else 0
+                parts.append(f"📸 {total:,} photo{'' if total == 1 else 's'}")
+
+            # 2. Current view/context
+            current_view = None
+            if hasattr(self, "grid") and self.grid:
+                # Determine what's being shown
+                if hasattr(self.grid, "navigation_mode") and self.grid.navigation_mode:
+                    mode = self.grid.navigation_mode
+                    if mode == "folder":
+                        current_view = "Folder view"
+                    elif mode == "date":
+                        key = getattr(self.grid, "navigation_key", None)
+                        current_view = f"📅 {key}" if key else "Date view"
+                    elif mode == "branch":
+                        current_view = "All Photos"
+                elif hasattr(self.grid, "active_tag_filter") and self.grid.active_tag_filter:
+                    tag = self.grid.active_tag_filter
+                    if tag == "favorite":
+                        current_view = "⭐ Favorites"
+                    elif tag == "face":
+                        current_view = "👥 Faces"
+                    else:
+                        current_view = f"🏷️ {tag}"
+                else:
+                    current_view = "All Photos"
+
+            if current_view:
+                parts.append(current_view)
+
+            # 3. Selection count (only if > 0)
+            if selection_count is not None and selection_count > 0:
+                parts.append(f"Selected: {selection_count}")
+
+            # 4. Zoom level (if grid has zoom info)
+            if hasattr(self, "grid") and hasattr(self.grid, "thumb_height"):
+                height = self.grid.thumb_height
+                if height <= 100:
+                    zoom = "Small"
+                elif height <= 160:
+                    zoom = "Medium"
+                elif height <= 220:
+                    zoom = "Large"
+                else:
+                    zoom = "XL"
+                parts.append(f"Zoom: {zoom}")
+
+            # Combine all parts with separator
+            message = " • ".join(parts) if parts else "Ready"
+            self.statusBar().showMessage(message)
+
+        except Exception as e:
+            print(f"[MainWindow] _update_status_bar error: {e}")
+            # Fallback to simple message
+            self.statusBar().showMessage("Ready")
 
 
     def _init_progress_pollers(self):

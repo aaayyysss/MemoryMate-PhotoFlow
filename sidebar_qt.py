@@ -607,9 +607,9 @@ class SidebarTabs(QWidget):
     def _add_folder_tree_items(self, parent_widget_or_item, parent_id=None):
         """Recursively add folder items to QTreeWidget (matches List view's _add_folder_items)"""
         try:
-            rows = self.db.get_child_folders(parent_id)
+            rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
         except Exception as e:
-            print(f"[SidebarTabs] get_child_folders({parent_id}) failed: {e}")
+            print(f"[SidebarTabs] get_child_folders({parent_id}, project_id={self.project_id}) failed: {e}")
             return
 
         for row in rows:
@@ -622,7 +622,7 @@ class SidebarTabs(QWidget):
             else:
                 # Fallback to non-recursive count
                 try:
-                    folder_paths = self.db.get_images_by_folder(fid)
+                    folder_paths = self.db.get_images_by_folder(fid, project_id=self.project_id)
                     photo_count = len(folder_paths) if folder_paths else 0
                 except Exception:
                     photo_count = 0
@@ -1289,9 +1289,9 @@ class SidebarQt(QWidget):
     def _get_photo_count(self, folder_id: int) -> int:
         try:
             if hasattr(self.db, "count_for_folder"):
-                return int(self.db.count_for_folder(folder_id) or 0)
+                return int(self.db.count_for_folder(folder_id, project_id=self.project_id) or 0)
             if hasattr(self.db, "get_folder_photo_count"):
-                return int(self.db.get_folder_photo_count(folder_id) or 0)
+                return int(self.db.get_folder_photo_count(folder_id, project_id=self.project_id) or 0)
             with self.db._connect() as conn:
                 cur = conn.cursor()
                 cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
@@ -1515,7 +1515,7 @@ class SidebarQt(QWidget):
 
     def _add_folder_items_async(self, parent_item, parent_id=None):
         # kept for folder-tab lazy usage if desired, but not used for tree-mode counts
-        rows = self.db.get_child_folders(parent_id)
+        rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
         for row in rows:
             name = row["name"]
             fid = row["id"]
@@ -1619,7 +1619,7 @@ class SidebarQt(QWidget):
                             if hasattr(self.db, "get_image_count_recursive"):
                                 cnt = int(self.db.get_image_count_recursive(key) or 0)
                             elif hasattr(self.db, "count_for_folder"):
-                                cnt = int(self.db.count_for_folder(key) or 0)
+                                cnt = int(self.db.count_for_folder(key, project_id=self.project_id) or 0)
                             else:
                                 with self.db._connect() as conn:
                                     cur = conn.cursor()

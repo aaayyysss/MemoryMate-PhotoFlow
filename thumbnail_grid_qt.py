@@ -1569,7 +1569,7 @@ class ThumbnailGridQt(QWidget):
         elif self.load_mode == "folder":
             if not self.current_folder_id:
                 return
-            paths = self.db.get_images_by_folder(self.current_folder_id)
+            paths = self.db.get_images_by_folder(self.current_folder_id, project_id=self.project_id)
 
         elif self.load_mode == "date":
             if not self.date_key:
@@ -1668,7 +1668,7 @@ class ThumbnailGridQt(QWidget):
 
         # --- 1️: Determine base photo paths by navigation mode ---
         if mode == "folder" and key:
-            paths = db.get_images_by_folder(key)
+            paths = db.get_images_by_folder(key, project_id=self.project_id)
         elif mode == "branch" and key:
             paths = db.get_images_by_branch(self.project_id, key)
         elif mode == "date" and key:

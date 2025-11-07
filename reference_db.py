@@ -1211,6 +1211,22 @@ class ReferenceDB:
             row = cur.fetchone()
             return row[0] if row else 0
 
+    # === Phase 3: Drag & Drop Support ===
+    def set_folder_for_image(self, path: str, folder_id: int):
+        """
+        Update the folder_id for a specific image (drag & drop support).
+
+        Args:
+            path: Image file path
+            folder_id: New folder ID to assign
+        """
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE photo_metadata SET folder_id = ? WHERE path = ?",
+                (folder_id, path)
+            )
+            conn.commit()
+            print(f"[DB] Updated folder_id={folder_id} for image: {path}")
 
     def get_images_by_branch(self, project_id: int, branch_key: str):
         """

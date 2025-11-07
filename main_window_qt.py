@@ -56,7 +56,7 @@ from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
 
 from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer
 
-from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QIcon, QTransform, QPalette, QColor, QGuiApplication
+from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QActionGroup, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QSplitter,
@@ -2187,70 +2187,227 @@ class MainWindow(QMainWindow):
         ui.separator()
 
         # === Menu Bar ===
+        # === Phase 3: Enhanced Menus (Modern Structure) ===
         menu_bar = self.menuBar()
-        menu_settings = menu_bar.addMenu("⚙️ Settings")
+
+        # ========== FILE MENU ==========
+        menu_file = menu_bar.addMenu("File")
+
+        act_scan_repo_menu = QAction("Scan Repository…", self)
+        act_scan_repo_menu.setShortcut("Ctrl+O")
+        act_scan_repo_menu.setToolTip("Scan a directory to add photos to the current project")
+        menu_file.addAction(act_scan_repo_menu)
+
+        menu_file.addSeparator()
 
         act_preferences = QAction("Preferences…", self)
         act_preferences.setShortcut("Ctrl+,")
         act_preferences.setIcon(QIcon.fromTheme("preferences-system"))
-        menu_settings.addAction(act_preferences)
+        menu_file.addAction(act_preferences)
         act_preferences.triggered.connect(self._open_preferences)
 
+        # ========== VIEW MENU ==========
+        menu_view = menu_bar.addMenu("View")
 
-        # ... after act_preferences created ...
-        act_toggle_sidebar_mode = QAction("Toggle Sidebar Mode (List/Tabs)", self)
+        # Zoom controls
+        act_zoom_in = QAction("Zoom In", self)
+        act_zoom_in.setShortcut("Ctrl++")
+        act_zoom_in.setToolTip("Increase thumbnail size")
+        menu_view.addAction(act_zoom_in)
+
+        act_zoom_out = QAction("Zoom Out", self)
+        act_zoom_out.setShortcut("Ctrl+-")
+        act_zoom_out.setToolTip("Decrease thumbnail size")
+        menu_view.addAction(act_zoom_out)
+
+        menu_view.addSeparator()
+
+        # Grid Size submenu
+        menu_grid_size = menu_view.addMenu("Grid Size")
+
+        act_grid_small_menu = QAction("Small (90px)", self)
+        act_grid_small_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_small_menu)
+
+        act_grid_medium_menu = QAction("Medium (120px)", self)
+        act_grid_medium_menu.setCheckable(True)
+        act_grid_medium_menu.setChecked(True)  # Default
+        menu_grid_size.addAction(act_grid_medium_menu)
+
+        act_grid_large_menu = QAction("Large (200px)", self)
+        act_grid_large_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_large_menu)
+
+        act_grid_xl_menu = QAction("XL (280px)", self)
+        act_grid_xl_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_xl_menu)
+
+        # Group grid size actions for exclusive selection
+        self.grid_size_menu_group = QActionGroup(self)
+        self.grid_size_menu_group.addAction(act_grid_small_menu)
+        self.grid_size_menu_group.addAction(act_grid_medium_menu)
+        self.grid_size_menu_group.addAction(act_grid_large_menu)
+        self.grid_size_menu_group.addAction(act_grid_xl_menu)
+
+        menu_view.addSeparator()
+
+        # Sort By submenu
+        menu_sort = menu_view.addMenu("Sort By")
+
+        act_sort_date = QAction("Date", self)
+        act_sort_date.setCheckable(True)
+        menu_sort.addAction(act_sort_date)
+
+        act_sort_filename = QAction("Filename", self)
+        act_sort_filename.setCheckable(True)
+        act_sort_filename.setChecked(True)  # Default
+        menu_sort.addAction(act_sort_filename)
+
+        act_sort_size = QAction("Size", self)
+        act_sort_size.setCheckable(True)
+        menu_sort.addAction(act_sort_size)
+
+        # Group sort actions for exclusive selection
+        self.sort_menu_group = QActionGroup(self)
+        self.sort_menu_group.addAction(act_sort_date)
+        self.sort_menu_group.addAction(act_sort_filename)
+        self.sort_menu_group.addAction(act_sort_size)
+
+        menu_view.addSeparator()
+
+        # Sidebar submenu
+        menu_sidebar = menu_view.addMenu("Sidebar")
+
+        act_toggle_sidebar = QAction("Show/Hide Sidebar", self)
+        act_toggle_sidebar.setShortcut("Ctrl+B")
+        act_toggle_sidebar.setCheckable(True)
+        act_toggle_sidebar.setChecked(True)  # Default visible
+        menu_sidebar.addAction(act_toggle_sidebar)
+
+        act_toggle_sidebar_mode = QAction("Toggle List/Tabs Mode", self)
         act_toggle_sidebar_mode.setShortcut("Ctrl+Alt+S")
         act_toggle_sidebar_mode.setToolTip("Toggle Sidebar between List and Tabs (Ctrl+Alt+S)")
-        menu_settings.addAction(act_toggle_sidebar_mode)
+        menu_sidebar.addAction(act_toggle_sidebar_mode)
 
-        menu_settings.addSeparator()
-        menu_settings.addAction("About Photo App", lambda: QMessageBox.information(self, "About", "MemoryMate PhotoFlow  (Alpha)\n© 2025"))
+        # ========== FILTERS MENU ==========
+        menu_filters = menu_bar.addMenu("Filters")
 
-        # === Database Menu ===
-        menu_db = menu_bar.addMenu("🗄️ Database")
+        self.btn_all = QAction("All Photos", self)
+        self.btn_all.setCheckable(True)
+        self.btn_all.setChecked(True)
+        menu_filters.addAction(self.btn_all)
 
-        act_db_fresh = QAction("Fresh Start (delete DB)…", self)
-        act_db_check = QAction("Self-Check / Report…", self)
-        act_db_rebuild_dates = QAction("Rebuild Date Index", self)  # safe no-op if not implemented
-        act_migrate = QAction("Data Migration… (created_ts / year / date)", self)
-        
-        menu_db.addAction(act_db_fresh)
-        menu_db.addAction(act_db_check)
-        menu_db.addSeparator()
-        menu_db.addAction(act_db_rebuild_dates)
-        menu_db.addAction(act_migrate)
-                
-        # Metadata Backfill submenu (use menu_bar which is already defined above)
-        meta_menu = menu_bar.addMenu("🔍 Metadata Backfill")
-        act_meta_start = meta_menu.addAction("Start Persistent Backfill (background)")
-        act_meta_single = meta_menu.addAction("Run Backfill (foreground)")
-        act_meta_auto = meta_menu.addAction("Auto-run after scan")
+        self.btn_fav = QAction("Favorites", self)
+        self.btn_fav.setCheckable(True)
+        menu_filters.addAction(self.btn_fav)
+
+        self.btn_faces = QAction("Faces", self)
+        self.btn_faces.setCheckable(True)
+        menu_filters.addAction(self.btn_faces)
+
+        # Group filter actions for exclusive selection
+        self.filter_menu_group = QActionGroup(self)
+        self.filter_menu_group.addAction(self.btn_all)
+        self.filter_menu_group.addAction(self.btn_fav)
+        self.filter_menu_group.addAction(self.btn_faces)
+
+        # ========== TOOLS MENU ==========
+        menu_tools = menu_bar.addMenu("Tools")
+
+        act_scan_repo_tools = QAction("Scan Repository…", self)
+        act_scan_repo_tools.setToolTip("Scan a directory to add photos to the current project")
+        menu_tools.addAction(act_scan_repo_tools)
+
+        menu_tools.addSeparator()
+
+        # Metadata Backfill submenu
+        menu_backfill = menu_tools.addMenu("Metadata Backfill")
+
+        act_meta_start = menu_backfill.addAction("Start Background Backfill")
+        act_meta_single = menu_backfill.addAction("Run Foreground Backfill")
+        menu_backfill.addSeparator()
+        act_meta_auto = menu_backfill.addAction("Auto-run after scan")
         act_meta_auto.setCheckable(True)
         act_meta_auto.setChecked(self.settings.get("auto_run_backfill_after_scan", False))
+
+        act_clear_cache = QAction("Clear Thumbnail Cache…", self)
+        menu_tools.addAction(act_clear_cache)
+        act_clear_cache.triggered.connect(self._on_clear_thumbnail_cache)
+
+        menu_tools.addSeparator()
+
+        # Database submenu (advanced operations)
+        menu_db = menu_tools.addMenu("Database")
+
+        act_db_fresh = QAction("Fresh Start (delete DB)…", self)
+        menu_db.addAction(act_db_fresh)
+
+        act_db_check = QAction("Self-Check / Report…", self)
+        menu_db.addAction(act_db_check)
+
+        menu_db.addSeparator()
+
+        act_db_rebuild_dates = QAction("Rebuild Date Index", self)
+        menu_db.addAction(act_db_rebuild_dates)
+
+        act_migrate = QAction("Data Migration… (created_ts / year / date)", self)
+        menu_db.addAction(act_migrate)
+
+        act_optimize = QAction("Optimize Indexes (date/updated)", self)
+        menu_db.addAction(act_optimize)
+
+        # ========== HELP MENU ==========
+        menu_help = menu_bar.addMenu("Help")
+
+        act_about = QAction("About MemoryMate PhotoFlow", self)
+        menu_help.addAction(act_about)
+
+        act_shortcuts = QAction("Keyboard Shortcuts", self)
+        act_shortcuts.setShortcut("F1")
+        menu_help.addAction(act_shortcuts)
+
+        menu_help.addSeparator()
+
+        act_report_bug = QAction("Report Bug…", self)
+        menu_help.addAction(act_report_bug)
+
+        # ========== MENU ACTION CONNECTIONS ==========
+
+        # File menu connections
+        act_scan_repo_menu.triggered.connect(lambda: self._on_scan_repository() if hasattr(self, '_on_scan_repository') else None)
+
+        # View menu connections
+        act_zoom_in.triggered.connect(self._on_zoom_in)
+        act_zoom_out.triggered.connect(self._on_zoom_out)
+
+        act_grid_small_menu.triggered.connect(lambda: self._set_grid_preset("small"))
+        act_grid_medium_menu.triggered.connect(lambda: self._set_grid_preset("medium"))
+        act_grid_large_menu.triggered.connect(lambda: self._set_grid_preset("large"))
+        act_grid_xl_menu.triggered.connect(lambda: self._set_grid_preset("xl"))
+
+        act_sort_date.triggered.connect(lambda: self._apply_menu_sort("Date"))
+        act_sort_filename.triggered.connect(lambda: self._apply_menu_sort("Filename"))
+        act_sort_size.triggered.connect(lambda: self._apply_menu_sort("Size"))
+
+        act_toggle_sidebar.toggled.connect(self._on_toggle_sidebar_visibility)
+        # act_toggle_sidebar_mode connection happens later (line ~2430)
+
+        # Filter menu connections
+        self.btn_all.triggered.connect(lambda: self._apply_tag_filter("all"))
+        self.btn_fav.triggered.connect(lambda: self._apply_tag_filter("favorite"))
+        self.btn_faces.triggered.connect(lambda: self._apply_tag_filter("face"))
+
+        # Tools menu connections
+        act_scan_repo_tools.triggered.connect(lambda: self._on_scan_repository() if hasattr(self, '_on_scan_repository') else None)
 
         act_meta_start.triggered.connect(lambda: self.backfill_panel._on_start_background())
         act_meta_single.triggered.connect(lambda: self.backfill_panel._on_run_foreground())
         act_meta_auto.toggled.connect(lambda v: self.settings.set("auto_run_backfill_after_scan", bool(v)))
- 
-        # === 🧠 Tag Filters ===
-        tool_tag_bar = ui.menu("🧠 Tags")
-        self.btn_all = ui.menu_action(tool_tag_bar, "All", checkable=True, handler=lambda: self._apply_tag_filter("all"))
-        self.btn_all.setChecked(True)
-        self.btn_fav = ui.menu_action(tool_tag_bar, "⭐ Favorites", checkable=True, handler=lambda: self._apply_tag_filter("favorite"))
-        self.btn_faces = ui.menu_action(tool_tag_bar, "🧍 Faces", checkable=True, handler=lambda: self._apply_tag_filter("face")) 
 
-        tools_menu = self.menuBar().addMenu("🧰 Tools")
-
-        act_clear_cache = tools_menu.addAction("🧹 Clear Thumbnail Cache…")
-        act_clear_cache.triggered.connect(self._on_clear_thumbnail_cache)
-
-        act_migrate.triggered.connect(self._run_date_migration)
         act_db_fresh.triggered.connect(self._db_fresh_start)
         act_db_check.triggered.connect(self._db_self_check)
         act_db_rebuild_dates.triggered.connect(self._db_rebuild_date_index)
-        
-        act_optimize = QAction("Optimize Indexes (date/updated)", self)
-        menu_db.addAction(act_optimize)
+        act_migrate.triggered.connect(self._run_date_migration)
 
         def _optimize_db():
             try:
@@ -2259,7 +2416,12 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", str(e))
 
-        act_optimize.triggered.connect(_optimize_db)    
+        act_optimize.triggered.connect(_optimize_db)
+
+        # Help menu connections
+        act_about.triggered.connect(lambda: QMessageBox.information(self, "About", "MemoryMate PhotoFlow (Alpha)\n© 2025"))
+        act_shortcuts.triggered.connect(self._show_keyboard_shortcuts)
+        act_report_bug.triggered.connect(lambda: self._open_url("https://github.com/anthropics/memorymate-photoflow/issues"))    
 
         # 📂 Scan Repository Action
         act_scan_repo = tb.addAction("📂 Scan Repository…")
@@ -2486,6 +2648,12 @@ class MainWindow(QMainWindow):
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
         self.splitter.setStretchFactor(2, 0)
+
+        # Phase 3: Set initial splitter sizes for better usability
+        # Sidebar: 250px, Grid: takes remaining, Details: 300px
+        self.splitter.setSizes([250, 1000, 300])
+        # Make splitter handle more visible and easier to grab
+        self.splitter.setHandleWidth(3)
 
         main_layout.addWidget(self.splitter, 1)
 
@@ -3101,6 +3269,113 @@ class MainWindow(QMainWindow):
             self.grid._set_zoom_factor(zoom_factor)
 
         print(f"[Grid Preset] Set to {size} (zoom: {zoom_factor})")
+
+    # === Phase 3: Enhanced Menu Handlers ===
+
+    def _on_zoom_in(self):
+        """Phase 3: Zoom in (increase thumbnail size)."""
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        current_zoom = getattr(self.grid, "_zoom_factor", 1.0)
+        new_zoom = min(current_zoom + 0.25, 3.0)  # Max zoom 3.0
+
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(new_zoom, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(new_zoom)
+
+        print(f"[Menu Zoom] Zoom In: {current_zoom:.2f} → {new_zoom:.2f}")
+
+    def _on_zoom_out(self):
+        """Phase 3: Zoom out (decrease thumbnail size)."""
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        current_zoom = getattr(self.grid, "_zoom_factor", 1.0)
+        new_zoom = max(current_zoom - 0.25, 0.5)  # Min zoom 0.5
+
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(new_zoom, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(new_zoom)
+
+        print(f"[Menu Zoom] Zoom Out: {current_zoom:.2f} → {new_zoom:.2f}")
+
+    def _apply_menu_sort(self, sort_type: str):
+        """Phase 3: Apply sorting from View menu."""
+        if not hasattr(self, "sort_combo"):
+            return
+
+        # Map menu sort type to combo box index
+        sort_map = {
+            "Filename": 0,
+            "Date": 1,
+            "Size": 2
+        }
+
+        index = sort_map.get(sort_type, 0)
+        self.sort_combo.setCurrentIndex(index)
+        self._apply_sort_filter()
+
+        print(f"[Menu Sort] Applied: {sort_type}")
+
+    def _on_toggle_sidebar_visibility(self, checked: bool):
+        """Phase 3: Show/hide sidebar from View menu."""
+        if hasattr(self, "sidebar") and self.sidebar:
+            self.sidebar.setVisible(checked)
+            print(f"[Menu Sidebar] Visibility: {checked}")
+
+    def _show_keyboard_shortcuts(self):
+        """Phase 3: Show keyboard shortcuts help dialog."""
+        shortcuts_text = """
+<h2>Keyboard Shortcuts</h2>
+
+<h3>Navigation</h3>
+<table>
+<tr><td><b>Arrow Keys</b></td><td>Navigate grid</td></tr>
+<tr><td><b>Space / Enter</b></td><td>Open lightbox</td></tr>
+<tr><td><b>Escape</b></td><td>Clear selection / Close lightbox</td></tr>
+</table>
+
+<h3>Selection</h3>
+<table>
+<tr><td><b>Ctrl+Click</b></td><td>Toggle selection</td></tr>
+<tr><td><b>Shift+Click</b></td><td>Range selection</td></tr>
+<tr><td><b>Ctrl+A</b></td><td>Select all</td></tr>
+</table>
+
+<h3>View</h3>
+<table>
+<tr><td><b>Ctrl++</b></td><td>Zoom in</td></tr>
+<tr><td><b>Ctrl+-</b></td><td>Zoom out</td></tr>
+<tr><td><b>Ctrl+B</b></td><td>Toggle sidebar</td></tr>
+<tr><td><b>Ctrl+Alt+S</b></td><td>Toggle sidebar mode (List/Tabs)</td></tr>
+</table>
+
+<h3>Actions</h3>
+<table>
+<tr><td><b>Ctrl+O</b></td><td>Scan repository</td></tr>
+<tr><td><b>Ctrl+,</b></td><td>Preferences</td></tr>
+<tr><td><b>F1</b></td><td>Show keyboard shortcuts</td></tr>
+</table>
+        """
+
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Keyboard Shortcuts")
+        msg_box.setTextFormat(Qt.TextFormat.RichText)
+        msg_box.setText(shortcuts_text)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg_box.exec()
+
+    def _open_url(self, url: str):
+        """Phase 3: Open URL in default browser."""
+        try:
+            import webbrowser
+            webbrowser.open(url)
+            print(f"[Menu] Opened URL: {url}")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Could not open URL:\n{url}\n\nError: {e}")
 
     def _open_lightbox_from_selection(self):
         """Open the last selected image in lightbox."""

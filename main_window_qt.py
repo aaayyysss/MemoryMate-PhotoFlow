@@ -293,9 +293,23 @@ class ScanController:
         try:
             self.logger.info("Building date branches...")
             from reference_db import ReferenceDB
+            from app_services import get_default_project_id
             db = ReferenceDB()
-            branch_count = db.build_date_branches()
-            self.logger.info(f"Created {branch_count} date branch entries")
+
+            # CRITICAL FIX: Get current project_id to associate scanned photos with correct project
+            # Without this, all photos go to project_id=1 regardless of which project is active
+            current_project_id = self.main.grid.project_id
+            if current_project_id is None:
+                self.logger.warning("Grid project_id is None, using default project")
+                current_project_id = get_default_project_id()
+
+            if current_project_id is None:
+                self.logger.error("No project found! Cannot build date branches.")
+                raise ValueError("No project available to associate scanned photos")
+
+            self.logger.info(f"Building date branches for project_id={current_project_id}")
+            branch_count = db.build_date_branches(current_project_id)
+            self.logger.info(f"Created {branch_count} date branch entries for project {current_project_id}")
 
             # CRITICAL: Backfill created_date field immediately after scan
             # This populates created_date from date_taken so get_date_hierarchy() works

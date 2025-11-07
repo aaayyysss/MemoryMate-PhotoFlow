@@ -64,7 +64,7 @@ from PySide6.QtWidgets import (
     QComboBox, QSizePolicy, QToolBar, QMessageBox,
     QDialog, QPushButton, QFileDialog, QScrollArea,
     QCheckBox, QComboBox as QSortComboBox,
-    QProgressDialog, QApplication, QStyle,
+    QProgressDialog, QProgressBar, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
     QSlider, QFormLayout, QTextEdit, QButtonGroup
 )
@@ -1539,7 +1539,6 @@ class BreadcrumbNavigation(QWidget):
     def _create_new_project(self):
         """Create a new project via dialog."""
         from PySide6.QtWidgets import QInputDialog, QMessageBox
-        from app_services import create_project
 
         project_name, ok = QInputDialog.getText(
             self,
@@ -1551,8 +1550,8 @@ class BreadcrumbNavigation(QWidget):
         if ok and project_name.strip():
             try:
                 # Create project with scan mode
-                new_project = create_project(project_name.strip(), mode="scan")
-                proj_id = new_project.get("id")
+                db = ReferenceDB()
+                proj_id = db.create_project(project_name.strip(), folder="", mode="scan")
 
                 QMessageBox.information(
                     self,

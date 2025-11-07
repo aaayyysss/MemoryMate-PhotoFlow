@@ -59,14 +59,14 @@ from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRu
 from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QSplitter, 
-    QHBoxLayout, QVBoxLayout, QLabel, 
+    QMainWindow, QWidget, QSplitter,
+    QHBoxLayout, QVBoxLayout, QLabel,
     QComboBox, QSizePolicy, QToolBar, QMessageBox,
     QDialog, QPushButton, QFileDialog, QScrollArea,
     QCheckBox, QComboBox as QSortComboBox,
     QProgressDialog, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
-    QSlider, QFormLayout, QTextEdit
+    QSlider, QFormLayout, QTextEdit, QButtonGroup
 )
 
 
@@ -1465,6 +1465,95 @@ class DetailsPanel(QWidget):
             return None
 
 
+class SelectionToolbar(QWidget):
+    """
+    Phase 2.3: Context-aware selection toolbar (Google Photos style).
+    Shows action buttons when photos are selected, auto-hides when selection is cleared.
+    Appears above the thumbnail grid.
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMaximumHeight(44)
+        self.setStyleSheet("""
+            SelectionToolbar {
+                background-color: #4A90E2;
+                border-radius: 4px;
+                padding: 4px;
+            }
+        """)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 6, 12, 6)
+        layout.setSpacing(8)
+
+        # Selection count label
+        self.label_count = QLabel("0 selected")
+        self.label_count.setStyleSheet("color: white; font-weight: bold; font-size: 13px;")
+        layout.addWidget(self.label_count)
+
+        layout.addStretch()
+
+        # Action buttons
+        self.btn_favorite = QPushButton("⭐ Favorite")
+        self.btn_favorite.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+        """)
+        layout.addWidget(self.btn_favorite)
+
+        self.btn_delete = QPushButton("🗑️ Delete")
+        self.btn_delete.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgba(220, 53, 69, 0.8);
+            }
+        """)
+        layout.addWidget(self.btn_delete)
+
+        self.btn_clear = QPushButton("✕ Clear")
+        self.btn_clear.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+        """)
+        layout.addWidget(self.btn_clear)
+
+        # Hide by default
+        self.hide()
+
+    def update_selection(self, count: int):
+        """Update selection count and show/hide toolbar."""
+        if count > 0:
+            self.label_count.setText(f"{count} selected")
+            self.show()
+        else:
+            self.hide()
+
+
 class CompactBackfillIndicator(QWidget):
     """
     Phase 2.3: Compact progress indicator for metadata backfill.
@@ -2030,6 +2119,55 @@ class MainWindow(QMainWindow):
         self.sort_order_combo.addItems(["Ascending", "Descending"])
         self.sort_order_combo.currentIndexChanged.connect(lambda *_: self._apply_sort_filter())
         tb.addWidget(self.sort_order_combo)
+        ui.separator()
+
+        # Phase 2.3: Grid Size Presets (Google Photos style)
+        # Quick resize buttons: Small / Medium / Large / XL
+        tb.addWidget(QLabel("Grid:"))
+
+        # Create button group for exclusive selection
+        self.grid_size_group = QButtonGroup(self)
+
+        # Small preset
+        self.btn_grid_small = QPushButton("S")
+        self.btn_grid_small.setFixedSize(28, 28)
+        self.btn_grid_small.setCheckable(True)
+        self.btn_grid_small.setToolTip("Small thumbnails (90px)")
+        self.btn_grid_small.setStyleSheet("font-weight: bold;")
+        self.btn_grid_small.clicked.connect(lambda: self._set_grid_preset("small"))
+        self.grid_size_group.addButton(self.btn_grid_small, 0)
+        tb.addWidget(self.btn_grid_small)
+
+        # Medium preset
+        self.btn_grid_medium = QPushButton("M")
+        self.btn_grid_medium.setFixedSize(28, 28)
+        self.btn_grid_medium.setCheckable(True)
+        self.btn_grid_medium.setChecked(True)  # Default
+        self.btn_grid_medium.setToolTip("Medium thumbnails (120px)")
+        self.btn_grid_medium.setStyleSheet("font-weight: bold;")
+        self.btn_grid_medium.clicked.connect(lambda: self._set_grid_preset("medium"))
+        self.grid_size_group.addButton(self.btn_grid_medium, 1)
+        tb.addWidget(self.btn_grid_medium)
+
+        # Large preset
+        self.btn_grid_large = QPushButton("L")
+        self.btn_grid_large.setFixedSize(28, 28)
+        self.btn_grid_large.setCheckable(True)
+        self.btn_grid_large.setToolTip("Large thumbnails (200px)")
+        self.btn_grid_large.setStyleSheet("font-weight: bold;")
+        self.btn_grid_large.clicked.connect(lambda: self._set_grid_preset("large"))
+        self.grid_size_group.addButton(self.btn_grid_large, 2)
+        tb.addWidget(self.btn_grid_large)
+
+        # XL preset
+        self.btn_grid_xl = QPushButton("XL")
+        self.btn_grid_xl.setFixedSize(32, 28)
+        self.btn_grid_xl.setCheckable(True)
+        self.btn_grid_xl.setToolTip("Extra large thumbnails (280px)")
+        self.btn_grid_xl.setStyleSheet("font-weight: bold;")
+        self.btn_grid_xl.clicked.connect(lambda: self._set_grid_preset("xl"))
+        self.grid_size_group.addButton(self.btn_grid_xl, 3)
+        tb.addWidget(self.btn_grid_xl)
 
         # --- Central container
         container = QWidget()
@@ -2110,8 +2248,21 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.sidebar)
 
+        # Phase 2.3: Grid container with selection toolbar
+        self.grid_container = QWidget()
+        grid_layout = QVBoxLayout(self.grid_container)
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+        grid_layout.setSpacing(4)
+
+        # Selection toolbar (hidden by default, shows when items selected)
+        self.selection_toolbar = SelectionToolbar(self)
+        grid_layout.addWidget(self.selection_toolbar)
+
+        # Thumbnail grid
         self.grid = ThumbnailGridQt(project_id=default_pid)
-        self.splitter.addWidget(self.grid)
+        grid_layout.addWidget(self.grid)
+
+        self.splitter.addWidget(self.grid_container)
 
         # 🔗 Now that grid exists — connect toolbar actions safely
         act_select_all.triggered.connect(self.grid.list_view.selectAll)
@@ -2170,6 +2321,13 @@ class MainWindow(QMainWindow):
         self.grid.deleteRequested.connect(lambda paths: self._confirm_delete(paths))
         # Phase 2.3: Update status bar when grid data is reloaded
         self.grid.gridReloaded.connect(lambda: self._update_status_bar())
+        # Phase 2.3: Update selection toolbar when selection changes
+        self.grid.selectionChanged.connect(lambda n: self.selection_toolbar.update_selection(n))
+
+        # --- Wire selection toolbar buttons
+        self.selection_toolbar.btn_favorite.clicked.connect(self._toggle_favorite_selection)
+        self.selection_toolbar.btn_delete.clicked.connect(self._request_delete_from_selection)
+        self.selection_toolbar.btn_clear.clicked.connect(self.grid.list_view.clearSelection)
 
         # --- Auto-update details panel on selection change
         def _update_details_from_selection():
@@ -2689,12 +2847,79 @@ class MainWindow(QMainWindow):
         # Phase 2.3: Update rich status bar after sorting
         self._update_status_bar()
 
+    def _set_grid_preset(self, size: str):
+        """
+        Phase 2.3: Set grid thumbnail size using preset (Google Photos style).
+        Instantly resizes grid to Small (90px), Medium (120px), Large (200px), or XL (280px).
+
+        Args:
+            size: One of "small", "medium", "large", "xl"
+        """
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        # Map presets to zoom factors
+        # Formula: zoom_factor = target_height / _thumb_base (where _thumb_base = 120)
+        presets = {
+            "small": 0.75,    # 90px
+            "medium": 1.0,    # 120px (default)
+            "large": 1.67,    # 200px
+            "xl": 2.33        # 280px
+        }
+
+        zoom_factor = presets.get(size, 1.0)
+
+        # Apply zoom with animation
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(zoom_factor, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(zoom_factor)
+
+        print(f"[Grid Preset] Set to {size} (zoom: {zoom_factor})")
+
     def _open_lightbox_from_selection(self):
         """Open the last selected image in lightbox."""
         paths = self.grid.get_selected_paths()
         print(f"[MAIN_open_lightbox_from_selection] paths: {paths}")
         if paths:
             self._open_lightbox(paths[-1])
+
+    def _toggle_favorite_selection(self):
+        """
+        Phase 2.3: Toggle favorite tag for all selected photos.
+        Called from selection toolbar.
+        """
+        paths = self.grid.get_selected_paths()
+        if not paths:
+            return
+
+        # Check if any photo is already favorited
+        db = ReferenceDB()
+        has_favorite = False
+        for path in paths:
+            tags = db.get_tags_for_paths([path]).get(path, [])
+            if "favorite" in tags:
+                has_favorite = True
+                break
+
+        # Toggle: if any is favorite, unfavorite all; otherwise favorite all
+        if has_favorite:
+            # Unfavorite all
+            for path in paths:
+                db.remove_tag(path, "favorite")
+            msg = f"Removed favorite from {len(paths)} photo(s)"
+        else:
+            # Favorite all
+            for path in paths:
+                db.add_tag(path, "favorite")
+            msg = f"Added {len(paths)} photo(s) to favorites"
+
+        # Refresh grid to show updated tag icons
+        if hasattr(self.grid, "reload"):
+            self.grid.reload()
+
+        self.statusBar().showMessage(msg, 3000)
+        print(f"[Favorite] {msg}")
 
     def _request_delete_from_selection(self):
         """Trigger delete for currently selected images."""

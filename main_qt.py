@@ -30,6 +30,21 @@ logger = get_logger(__name__)
 # ✅ Other imports
 from splash_qt import SplashScreen, StartupWorker
 
+# ✅ Global exception hook to catch unhandled exceptions
+import traceback
+
+def exception_hook(exctype, value, tb):
+    """Global exception handler to catch and log unhandled exceptions"""
+    print("=" * 80)
+    print("UNHANDLED EXCEPTION CAUGHT:")
+    print("=" * 80)
+    traceback.print_exception(exctype, value, tb)
+    logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+    print("=" * 80)
+    sys.__excepthook__(exctype, value, tb)
+
+sys.excepthook = exception_hook
+
 
 #if __name__ == "__main__":
 #    # HiDPI/Retina pixmaps

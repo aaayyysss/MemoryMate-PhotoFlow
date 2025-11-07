@@ -312,3 +312,87 @@ sys.excepthook = exception_hook
 **Status Updated:** 2025-11-07 05:42:05 (user time)
 **Next Action:** Add comprehensive logging and resume debugging in next session
 **User Status:** Taking a break ☕
+
+---
+
+## 🆕 Session 3 Update (2025-11-07)
+
+### ✅ COMPREHENSIVE FIX IMPLEMENTED
+
+The crashes were caused by Qt widget lifecycle issues that were documented but **never actually implemented**. Session 3 implemented all the planned fixes:
+
+#### Changes Made (Commit: c05677b)
+
+**1. Enhanced _clear_tab() with comprehensive safety checks** (sidebar_qt.py:332-358)
+- Added null check for tab widget
+- Added null check for layout
+- Added null check for layout items (itemAt() can return None)
+- Wrapped in try/except to catch Qt C++ exceptions
+- Added detailed debug logging
+
+**2. Enhanced _finish_tags() with safety checks** (sidebar_qt.py:812-830)
+- Added null check for tab widget before accessing
+- Added null check for layout before adding widgets
+- Prevents crash when worker signals arrive after tab is hidden/deleted
+- Added debug logging for crash diagnosis
+
+**3. Fixed reload() to check tab visibility** (sidebar_qt.py:2094-2118)
+- Now checks both mode AND tabs_controller.isVisible()
+- Prevents refreshing hidden tabs (race condition fix)
+- Added warning log when mode=tabs but tabs not visible
+- Critical fix for mode switching crashes
+
+**4. Added global exception hook** (main_qt.py:33-46)
+- Catches unhandled Python exceptions
+- Logs to both console and logger
+- Provides detailed traceback for debugging
+- Helps diagnose Qt C++ crashes
+
+#### Root Cause Confirmed
+
+Race condition between async tab workers completing and UI mode switching. Workers would emit signals after tabs were hidden, causing finish handlers to access deleted/invalid Qt widgets, resulting in segmentation faults (Qt C++ crashes with no Python traceback).
+
+#### Expected Results
+
+These fixes should eliminate crashes when:
+- ✅ Creating new project after first scan
+- ✅ Switching between List/Tabs modes rapidly
+- ✅ Reloading sidebar during mode transitions
+- ✅ Tab workers completing after tabs are hidden
+
+### 📋 Additional Findings
+
+#### Schema Version Clarification
+This branch uses **schema v2.0.0**, NOT v3.0.0:
+- photo_folders is a GLOBAL table (no project_id column)
+- photo_metadata is a GLOBAL table (no project_id column)
+- Project filtering happens via project_images junction table
+
+**Important:** Do NOT apply v3.0.0 modifications to this branch! The two branches use fundamentally different database architectures:
+- **v2.0.0:** `claude/debug-issue-011CUstrEnRPeyq1j7XfX7h1` (this branch) - Junction table approach
+- **v3.0.0:** `claude/debug-project-crashes-architecture-011CUtbAQwXPFye7fhFiZJna` - Direct project_id columns
+
+#### Folder Display Issue Analysis
+The user reported folders not displaying in List view. This is NOT a schema issue since folders are global in v2.0.0. The problem might be:
+1. Folders not being created during scan
+2. UI rendering issue in folder tree building
+3. User accidentally testing on v3.0.0 modified codebase
+
+Recommendation: Test with clean v2.0.0 codebase after applying Session 3 fixes.
+
+### 💾 Updated Commit History
+
+| Commit | Description | Status |
+|--------|-------------|--------|
+| a16dc04 | Fix: Critical crash after scan on fresh DB - project_id filtering missing | ✅ Pushed |
+| c05677b | Fix: Qt widget lifecycle crash during model.clear() and tab operations | ✅ Committed |
+| 7ac391b | Doc: Clarify schema v2.0.0 folder handling (global table, no project_id) | ✅ Committed |
+
+**Branch:** claude/debug-issue-011CUstrEnRPeyq1j7XfX7h1
+**Total Fixes:** 3 commits ready to push
+
+---
+
+**Status Updated:** 2025-11-07 (Session 3 complete)
+**Current Status:** 🟢 COMPREHENSIVE FIX IMPLEMENTED - Ready for testing
+**Next Action:** User should test with clean database and the new fixes

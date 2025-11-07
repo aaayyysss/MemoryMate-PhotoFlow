@@ -331,8 +331,8 @@ class SidebarTabs(QWidget):
 
     def _clear_tab(self, idx):
         self._dbg(f"_clear_tab idx={idx}")
-
         self._cancel_timeout(idx)
+
         tab = self.tab_widget.widget(idx)
         if not tab:
             self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")

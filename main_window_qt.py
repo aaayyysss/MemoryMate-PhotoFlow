@@ -3534,7 +3534,8 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] folder_id={folder_id}")
         if folder_id is not None:
             try:
-                paths = db.get_images_by_folder(folder_id)
+                project_id = getattr(self.grid, "project_id", None)
+                paths = db.get_images_by_folder(folder_id, project_id=project_id)
                 context = f"folder({folder_id})"
                 
             except Exception as e:

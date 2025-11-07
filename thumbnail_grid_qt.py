@@ -893,7 +893,7 @@ class ThumbnailGridQt(QWidget):
         try:
             from services.tag_service import get_tag_service
             tag_service = get_tag_service()
-            present_map = tag_service.get_tags_for_paths(paths)
+            present_map = tag_service.get_tags_for_paths(paths, self.project_id)
             print(f"[ContextMenu] Got tags for {len(paths)} path(s): {present_map}")
         except Exception as e:
             print(f"[ContextMenu] Error getting tags: {e}")
@@ -988,11 +988,11 @@ class ThumbnailGridQt(QWidget):
             if "favorite" in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, "favorite")
+                    tag_service.remove_tag(p, "favorite", self.project_id)
                 print(f"[Tag] Removed 'favorite' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, "favorite")
+                count = tag_service.assign_tags_bulk(paths, "favorite", self.project_id)
                 print(f"[Tag] Added 'favorite' → {count} photo(s)")
 
             self._refresh_tags_for_paths(paths)
@@ -1027,11 +1027,11 @@ class ThumbnailGridQt(QWidget):
             if "face" in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, "face")
+                    tag_service.remove_tag(p, "face", self.project_id)
                 print(f"[Tag] Removed 'face' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, "face")
+                count = tag_service.assign_tags_bulk(paths, "face", self.project_id)
                 print(f"[Tag] Added 'face' → {count} photo(s)")
 
             self._refresh_tags_for_paths(paths)
@@ -1068,11 +1068,11 @@ class ThumbnailGridQt(QWidget):
             if tagname in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, tagname)
+                    tag_service.remove_tag(p, tagname, self.project_id)
                 print(f"[Tag] Removed '{tagname}' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, tagname)
+                count = tag_service.assign_tags_bulk(paths, tagname, self.project_id)
                 print(f"[Tag] Added '{tagname}' → {count} photo(s)")
 
             self._refresh_tags_for_paths(paths)
@@ -1110,7 +1110,7 @@ class ThumbnailGridQt(QWidget):
                 tag_service = get_tag_service()
                 # Ensure tag exists and assign to photos
                 tag_service.ensure_tag_exists(tname)
-                count = tag_service.assign_tags_bulk(paths, tname)
+                count = tag_service.assign_tags_bulk(paths, tname, self.project_id)
                 print(f"[Tag] Created and assigned '{tname}' → {count} photo(s)")
                 self._refresh_tags_for_paths(paths)
 
@@ -1128,7 +1128,7 @@ class ThumbnailGridQt(QWidget):
             tag_service = get_tag_service()
             for p in paths:
                 for t in list(present_tags):
-                    tag_service.remove_tag(p, t)
+                    tag_service.remove_tag(p, t, self.project_id)
             print(f"[Tag] Cleared all tags → {len(paths)} photo(s)")
             self._refresh_tags_for_paths(paths)
 
@@ -1159,7 +1159,7 @@ class ThumbnailGridQt(QWidget):
         try:
             # Use TagService for proper layered architecture
             tag_service = get_tag_service()
-            tags_map = tag_service.get_tags_for_paths(paths)
+            tags_map = tag_service.get_tags_for_paths(paths, self.project_id)
         except Exception:
             return
         # normalize to the same format used in load()

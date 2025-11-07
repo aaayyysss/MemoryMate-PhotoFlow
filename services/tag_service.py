@@ -60,19 +60,20 @@ class TagService:
     # TAG ASSIGNMENT (Work with paths, not IDs)
     # ========================================================================
 
-    def assign_tag(self, photo_path: str, tag_name: str) -> bool:
+    def assign_tag(self, photo_path: str, tag_name: str, project_id: int) -> bool:
         """
         Assign a tag to a photo by file path.
 
         Args:
             photo_path: Full path to photo file
             tag_name: Tag name to assign
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             True if assigned, False if photo not found or already had tag
 
         Example:
-            >>> service.assign_tag("/photos/img001.jpg", "favorite")
+            >>> service.assign_tag("/photos/img001.jpg", "favorite", project_id=1)
             True
         """
         tag_name = tag_name.strip()
@@ -81,10 +82,10 @@ class TagService:
             return False
 
         # Get photo ID from path, creating photo_metadata entry if needed
-        photo = self._photo_repo.get_by_path(photo_path)
+        photo = self._photo_repo.get_by_path(photo_path, project_id)
         if not photo:
             # Auto-create photo_metadata entry if it doesn't exist
-            photo_id = self._ensure_photo_metadata_exists(photo_path)
+            photo_id = self._ensure_photo_metadata_exists(photo_path, project_id)
             if not photo_id:
                 self.logger.warning(f"Photo not found and could not be created: {photo_path}")
                 return False
@@ -108,23 +109,24 @@ class TagService:
             self.logger.error(f"Failed to assign tag '{tag_name}' to {photo_path}: {e}")
             return False
 
-    def remove_tag(self, photo_path: str, tag_name: str) -> bool:
+    def remove_tag(self, photo_path: str, tag_name: str, project_id: int) -> bool:
         """
         Remove a tag from a photo by file path.
 
         Args:
             photo_path: Full path to photo file
             tag_name: Tag name to remove
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             True if removed, False if not found
 
         Example:
-            >>> service.remove_tag("/photos/img001.jpg", "favorite")
+            >>> service.remove_tag("/photos/img001.jpg", "favorite", project_id=1)
             True
         """
         # Get photo ID
-        photo = self._photo_repo.get_by_path(photo_path)
+        photo = self._photo_repo.get_by_path(photo_path, project_id)
         if not photo:
             return False
 
@@ -205,20 +207,21 @@ class TagService:
     # BULK OPERATIONS
     # ========================================================================
 
-    def assign_tags_bulk(self, photo_paths: List[str], tag_name: str) -> int:
+    def assign_tags_bulk(self, photo_paths: List[str], tag_name: str, project_id: int) -> int:
         """
         Assign a tag to multiple photos (bulk operation).
 
         Args:
             photo_paths: List of photo file paths
             tag_name: Tag name to assign
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Number of photos successfully tagged
 
         Example:
             >>> paths = ['/photos/img001.jpg', '/photos/img002.jpg']
-            >>> service.assign_tags_bulk(paths, "vacation")
+            >>> service.assign_tags_bulk(paths, "vacation", project_id=1)
             2
         """
         if not photo_paths:
@@ -237,12 +240,12 @@ class TagService:
             created_count = 0
 
             for path in photo_paths:
-                photo = self._photo_repo.get_by_path(path)
+                photo = self._photo_repo.get_by_path(path, project_id)
 
                 # If photo doesn't exist in photo_metadata, create it
                 # (This happens when photos are in project_images but not photo_metadata)
                 if not photo:
-                    photo_id = self._ensure_photo_metadata_exists(path)
+                    photo_id = self._ensure_photo_metadata_exists(path, project_id)
                     if photo_id:
                         photo_ids.append(photo_id)
                         created_count += 1
@@ -265,7 +268,7 @@ class TagService:
             self.logger.error(f"Failed bulk tag assignment: {e}", exc_info=True)
             return 0
 
-    def _ensure_photo_metadata_exists(self, path: str) -> Optional[int]:
+    def _ensure_photo_metadata_exists(self, path: str, project_id: int) -> Optional[int]:
         """
         Ensure a photo exists in photo_metadata table.
 
@@ -274,6 +277,7 @@ class TagService:
 
         Args:
             path: Photo file path
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Photo ID, or None if creation failed
@@ -294,7 +298,7 @@ class TagService:
             folder_name = os.path.basename(folder_path) if folder_path else "Unknown"
 
             # Ensure folder exists (with no parent for simplicity)
-            folder_id = folder_repo.ensure_folder(folder_path, folder_name, None)
+            folder_id = folder_repo.ensure_folder(folder_path, folder_name, None, project_id)
 
             # Get file stats
             stat = os.stat(path)
@@ -306,6 +310,7 @@ class TagService:
             photo_id = self._photo_repo.upsert(
                 path=path,
                 folder_id=folder_id,
+                project_id=project_id,
                 size_kb=size_kb,
                 modified=modified,
                 width=None,  # Will be populated by metadata scan later
@@ -321,19 +326,20 @@ class TagService:
             self.logger.error(f"Failed to ensure photo_metadata exists for {path}: {e}", exc_info=True)
             return None
 
-    def get_tags_for_paths(self, photo_paths: List[str]) -> Dict[str, List[str]]:
+    def get_tags_for_paths(self, photo_paths: List[str], project_id: int) -> Dict[str, List[str]]:
         """
         Get tags for multiple photos (bulk operation).
 
         Args:
             photo_paths: List of photo file paths
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Dict mapping photo_path to list of tag names
 
         Example:
             >>> paths = ['/photos/img001.jpg', '/photos/img002.jpg']
-            >>> service.get_tags_for_paths(paths)
+            >>> service.get_tags_for_paths(paths, project_id=1)
             {
                 '/photos/img001.jpg': ['favorite', 'vacation'],
                 '/photos/img002.jpg': ['vacation', 'beach']
@@ -348,7 +354,7 @@ class TagService:
             id_to_path = {}
 
             for path in photo_paths:
-                photo = self._photo_repo.get_by_path(path)
+                photo = self._photo_repo.get_by_path(path, project_id)
                 if photo:
                     photo_id = photo['id']
                     path_to_id[path] = photo_id

@@ -3421,7 +3421,7 @@ class MainWindow(QMainWindow):
         db = ReferenceDB()
         has_favorite = False
         for path in paths:
-            tags = db.get_tags_for_paths([path]).get(path, [])
+            tags = db.get_tags_for_paths([path], self.grid.project_id).get(path, [])
             if "favorite" in tags:
                 has_favorite = True
                 break
@@ -3430,12 +3430,12 @@ class MainWindow(QMainWindow):
         if has_favorite:
             # Unfavorite all
             for path in paths:
-                db.remove_tag(path, "favorite")
+                db.remove_tag(path, "favorite", self.grid.project_id)
             msg = f"Removed favorite from {len(paths)} photo(s)"
         else:
             # Favorite all
             for path in paths:
-                db.add_tag(path, "favorite")
+                db.add_tag(path, "favorite", self.grid.project_id)
             msg = f"Added {len(paths)} photo(s) to favorites"
 
         # Refresh grid to show updated tag icons

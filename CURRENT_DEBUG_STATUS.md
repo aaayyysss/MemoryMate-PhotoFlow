@@ -309,90 +309,217 @@ sys.excepthook = exception_hook
 
 ---
 
-**Status Updated:** 2025-11-07 05:42:05 (user time)
-**Next Action:** Add comprehensive logging and resume debugging in next session
-**User Status:** Taking a break ☕
+**Status Updated:** 2025-11-07 12:16:05 (user time)
+**Current Status:** ✅ ROOT CAUSE IDENTIFIED - Implementing comprehensive fix
 
 ---
 
-## 🆕 Session 3 Update (2025-11-07)
+## 🆕 New Crash Analysis (Session 2)
 
-### ✅ COMPREHENSIVE FIX IMPLEMENTED
+### Crash Pattern Discovery
 
-The crashes were caused by Qt widget lifecycle issues that were documented but **never actually implemented**. Session 3 implemented all the planned fixes:
+Analysis of two fresh crash logs revealed a **critical Qt widget lifecycle issue**:
 
-#### Changes Made (Commit: c05677b)
+**Common Pattern:**
+- Both crashes occurred during tab/list mode switching
+- Both crashes were silent (no Python traceback)
+- Crashes happened when tab workers completed AFTER tabs were hidden
+- Last log entry: `_load_tags → got 0 rows` (worker thread)
+- No `_finish_tags` logs (signal handler never ran or crashed before logging)
 
-**1. Enhanced _clear_tab() with comprehensive safety checks** (sidebar_qt.py:332-358)
-- Added null check for tab widget
-- Added null check for layout
-- Added null check for layout items (itemAt() can return None)
-- Wrapped in try/except to catch Qt C++ exceptions
-- Added detailed debug logging
+### Root Cause #2: Race Condition in Widget Lifecycle
 
-**2. Enhanced _finish_tags() with safety checks** (sidebar_qt.py:812-830)
-- Added null check for tab widget before accessing
-- Added null check for layout before adding widgets
-- Prevents crash when worker signals arrive after tab is hidden/deleted
-- Added debug logging for crash diagnosis
+The application has a **race condition** between:
+1. **Tab workers** completing asynchronously and emitting signals
+2. **Mode switching** hiding tabs and invalidating UI state
+3. **reload()** calling `refresh_all()` on hidden tabs
 
-**3. Fixed reload() to check tab visibility** (sidebar_qt.py:2094-2118)
-- Now checks both mode AND tabs_controller.isVisible()
-- Prevents refreshing hidden tabs (race condition fix)
-- Added warning log when mode=tabs but tabs not visible
-- Critical fix for mode switching crashes
+**Crash Sequence:**
+1. User switches from tabs to list mode
+2. `hide_tabs()` bumps worker generations and hides tabs
+3. `processEvents()` processes pending signal deliveries
+4. **BUG:** `reload()` can still call `refresh_all()` on hidden tabs
+5. Worker signals delivered to finish handlers
+6. **Finish handlers access deleted/invalid widgets**
+7. **Segmentation fault** (Qt C++ crash, no Python traceback)
 
-**4. Added global exception hook** (main_qt.py:33-46)
-- Catches unhandled Python exceptions
-- Logs to both console and logger
-- Provides detailed traceback for debugging
-- Helps diagnose Qt C++ crashes
+### Key Issues Found
 
-#### Root Cause Confirmed
+#### Issue 1: Missing Null Checks in _clear_tab()
+```python
+# BEFORE (sidebar_qt.py:332-343)
+def _clear_tab(self, idx):
+    tab = self.tab_widget.widget(idx)
+    if not tab: return
+    v = tab.layout()  # ⚠️ Could be None
+    for i in reversed(range(v.count())):
+        w = v.itemAt(i).widget()  # ⚠️ itemAt(i) could be None
+```
 
-Race condition between async tab workers completing and UI mode switching. Workers would emit signals after tabs were hidden, causing finish handlers to access deleted/invalid Qt widgets, resulting in segmentation faults (Qt C++ crashes with no Python traceback).
+**Problem:** No null checks for layout or layout items, causing crashes when widgets are being deleted.
 
-#### Expected Results
+#### Issue 2: Missing Null Checks in _finish_tags()
+```python
+# BEFORE (sidebar_qt.py:804-805)
+tab = self.tab_widget.widget(idx)
+tab.layout().addWidget(QLabel("<b>Tags</b>"))  # ⚠️ No null check
+```
 
-These fixes should eliminate crashes when:
-- ✅ Creating new project after first scan
-- ✅ Switching between List/Tabs modes rapidly
-- ✅ Reloading sidebar during mode transitions
-- ✅ Tab workers completing after tabs are hidden
+**Problem:** Direct widget access without checking if tab/layout exists.
 
-### 📋 Additional Findings
+#### Issue 3: reload() Refreshes Hidden Tabs
+```python
+# BEFORE (sidebar_qt.py:2077-2081)
+def reload(self):
+    mode = self._effective_display_mode()
+    if mode == "tabs":
+        self.tabs_controller.refresh_all(force=True)  # ⚠️ Even if hidden!
+```
 
-#### Schema Version Clarification
-This branch uses **schema v2.0.0**, NOT v3.0.0:
-- photo_folders is a GLOBAL table (no project_id column)
-- photo_metadata is a GLOBAL table (no project_id column)
-- Project filtering happens via project_images junction table
-
-**Important:** Do NOT apply v3.0.0 modifications to this branch! The two branches use fundamentally different database architectures:
-- **v2.0.0:** `claude/debug-issue-011CUstrEnRPeyq1j7XfX7h1` (this branch) - Junction table approach
-- **v3.0.0:** `claude/debug-project-crashes-architecture-011CUtbAQwXPFye7fhFiZJna` - Direct project_id columns
-
-#### Folder Display Issue Analysis
-The user reported folders not displaying in List view. This is NOT a schema issue since folders are global in v2.0.0. The problem might be:
-1. Folders not being created during scan
-2. UI rendering issue in folder tree building
-3. User accidentally testing on v3.0.0 modified codebase
-
-Recommendation: Test with clean v2.0.0 codebase after applying Session 3 fixes.
-
-### 💾 Updated Commit History
-
-| Commit | Description | Status |
-|--------|-------------|--------|
-| a16dc04 | Fix: Critical crash after scan on fresh DB - project_id filtering missing | ✅ Pushed |
-| c05677b | Fix: Qt widget lifecycle crash during model.clear() and tab operations | ✅ Committed |
-| 7ac391b | Doc: Clarify schema v2.0.0 folder handling (global table, no project_id) | ✅ Committed |
-
-**Branch:** claude/debug-issue-011CUstrEnRPeyq1j7XfX7h1
-**Total Fixes:** 3 commits ready to push
+**Problem:** `reload()` checks settings mode but doesn't check if tabs are actually visible, causing refresh of hidden tabs.
 
 ---
 
-**Status Updated:** 2025-11-07 (Session 3 complete)
-**Current Status:** 🟢 COMPREHENSIVE FIX IMPLEMENTED - Ready for testing
-**Next Action:** User should test with clean database and the new fixes
+## ✅ Solution Implemented (This Session)
+
+### Changes Made
+
+#### 1. Enhanced _clear_tab() with Safety Checks
+**File:** `sidebar_qt.py` (lines 332-356)
+
+Added comprehensive null checks and exception handling:
+```python
+def _clear_tab(self, idx):
+    self._dbg(f"_clear_tab idx={idx}")
+    self._cancel_timeout(idx)
+
+    tab = self.tab_widget.widget(idx)
+    if not tab:
+        self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")
+        return
+
+    v = tab.layout()
+    if not v:
+        self._dbg(f"_clear_tab idx={idx} - layout is None, skipping")
+        return
+
+    try:
+        for i in reversed(range(v.count())):
+            item = v.itemAt(i)
+            if not item:
+                continue
+            w = item.widget()
+            if w:
+                w.setParent(None)
+                w.deleteLater()
+    except Exception as e:
+        self._dbg(f"_clear_tab idx={idx} - Exception: {e}")
+        traceback.print_exc()
+```
+
+#### 2. Enhanced _finish_tags() with Safety Checks
+**File:** `sidebar_qt.py` (lines 810-826)
+
+Added null checks before widget access:
+```python
+def _finish_tags(self, idx, rows, started, gen):
+    self._dbg(f"_finish_tags called: idx={idx}, gen={gen}, rows_count={len(rows) if rows else 0}")
+    if self._is_stale("tags", gen):
+        return
+
+    tab = self.tab_widget.widget(idx)
+    if not tab:
+        self._dbg(f"_finish_tags - tab is None, aborting")
+        return
+
+    layout = tab.layout()
+    if not layout:
+        self._dbg(f"_finish_tags - layout is None, aborting")
+        return
+
+    layout.addWidget(QLabel("<b>Tags</b>"))
+```
+
+#### 3. Fixed reload() to Check Tab Visibility
+**File:** `sidebar_qt.py` (lines 2113-2149)
+
+Added visibility check to prevent refreshing hidden tabs:
+```python
+def reload(self):
+    mode = self._effective_display_mode()
+    tabs_visible = self.tabs_controller.isVisible()
+    print(f"[SidebarQt] reload() called, mode={mode}, tabs_visible={tabs_visible}")
+
+    # CRITICAL FIX: Only refresh tabs if actually visible
+    if mode == "tabs" and tabs_visible:
+        self.tabs_controller.refresh_all(force=True)
+    elif mode == "tabs" and not tabs_visible:
+        print(f"[SidebarQt] WARNING: mode=tabs but tabs not visible, skipping")
+    else:
+        self._build_tree_model()
+```
+
+#### 4. Added Global Exception Hook
+**File:** `main_qt.py` (lines 45-56)
+
+Installed Python exception hook to catch unhandled exceptions:
+```python
+import traceback
+def exception_hook(exctype, value, tb):
+    print("=" * 80)
+    print("UNHANDLED EXCEPTION CAUGHT:")
+    print("=" * 80)
+    traceback.print_exception(exctype, value, tb)
+    logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+
+sys.excepthook = exception_hook
+```
+
+#### 5. Added Comprehensive Logging
+
+Added detailed logging throughout:
+- Mode switching operations
+- Tab visibility state
+- Widget access operations
+- Error conditions
+
+**Benefits:**
+- Easier debugging of future issues
+- Clear audit trail of operations
+- Early detection of invalid states
+
+### Files Modified
+- `sidebar_qt.py` - 100+ lines modified (safety checks, logging)
+- `main_qt.py` - 12 lines added (exception hook)
+
+---
+
+## 🧪 Expected Results
+
+### What Should Be Fixed ✅
+- ✅ No crash when tabs receive worker signals after being hidden
+- ✅ No crash from accessing null widgets/layouts
+- ✅ No crash when reload() called after mode switch
+- ✅ Better error messages for debugging
+- ✅ Graceful handling of widget lifecycle edge cases
+
+### What to Test
+1. **Scenario 1:** Fresh DB → Scan → Switch modes repeatedly
+2. **Scenario 2:** Scan → Create new project → Switch modes
+3. **Scenario 3:** Rapid mode switching during tab loading
+4. **Scenario 4:** Reload during mode transitions
+
+---
+
+## 📝 Next Steps
+
+1. **User Testing:** User should test with provided crash scenario
+2. **Monitor Logs:** Check for new WARNING/ERROR messages
+3. **Verify Fix:** Confirm crashes no longer occur
+4. **Performance:** Ensure no performance degradation
+
+---
+
+**Status Updated:** 2025-11-07 (current session)
+**Next Action:** Commit changes and push for user testing
+**Fix Status:** 🟢 COMPREHENSIVE FIX IMPLEMENTED

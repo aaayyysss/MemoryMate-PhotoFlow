@@ -337,12 +337,10 @@ class SidebarTabs(QWidget):
         if not tab:
             self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")
             return
-
         v = tab.layout()
         if not v:
             self._dbg(f"_clear_tab idx={idx} - layout is None, skipping")
             return
-
         try:
             for i in reversed(range(v.count())):
                 item = v.itemAt(i)
@@ -353,7 +351,7 @@ class SidebarTabs(QWidget):
                     w.setParent(None)
                     w.deleteLater()
         except Exception as e:
-            self._dbg(f"_clear_tab idx={idx} - Exception: {e}")
+            self._dbg(f"_clear_tab idx={idx} - Exception during widget cleanup: {e}")
             import traceback
             traceback.print_exc()
 
@@ -553,9 +551,9 @@ class SidebarTabs(QWidget):
         started = time.time()
         def work():
             try:
-                # NOTE: In v2.0.0, folders are GLOBAL (no project filtering at folder level)
-                rows = self.db.get_all_folders() or []    # expect list[dict{id,path}] or tuples
-                self._dbg(f"_load_folders → got {len(rows)} folders (global table)")
+                # CRITICAL FIX: Pass project_id to filter folders by project
+                rows = self.db.get_all_folders(self.project_id) or []    # expect list[dict{id,path}] or tuples
+                self._dbg(f"_load_folders → got {len(rows)} rows for project_id={self.project_id}")
             except Exception:
                 traceback.print_exc()
                 rows = []
@@ -667,19 +665,19 @@ class SidebarTabs(QWidget):
             rows = []
             try:
                 # Get hierarchical date data: {year: {month: [days]}}
-                # Note: Database methods don't require project_id - they query all photos
+                # CRITICAL FIX: Pass project_id to filter dates by project
                 if hasattr(self.db, "get_date_hierarchy"):
-                    hier = self.db.get_date_hierarchy() or {}
-                    # Also get year counts
+                    hier = self.db.get_date_hierarchy(self.project_id) or {}
+                    # Also get year counts - now filtered by project_id
                     year_counts = {}
                     if hasattr(self.db, "list_years_with_counts"):
-                        year_list = self.db.list_years_with_counts() or []
+                        year_list = self.db.list_years_with_counts(self.project_id) or []
                         year_counts = {str(y): c for y, c in year_list}
                     # Build result with hierarchy and counts
                     rows = {"hierarchy": hier, "year_counts": year_counts}
                 else:
                     self._dbg("_load_dates → No date hierarchy method available")
-                self._dbg(f"_load_dates → got hierarchy data")
+                self._dbg(f"_load_dates → got hierarchy data for project_id={self.project_id}")
             except Exception:
                 traceback.print_exc()
                 rows = {}
@@ -820,14 +818,12 @@ class SidebarTabs(QWidget):
 
         tab = self.tab_widget.widget(idx)
         if not tab:
-            self._dbg(f"_finish_tags - tab is None, aborting")
+            self._dbg(f"_finish_tags - tab is None at idx={idx}, aborting")
             return
-
         layout = tab.layout()
         if not layout:
-            self._dbg(f"_finish_tags - layout is None, aborting")
+            self._dbg(f"_finish_tags - layout is None at idx={idx}, aborting")
             return
-
         layout.addWidget(QLabel("<b>Tags</b>"))
 
         # Process rows which can be: tuples (tag, count), dicts, or strings
@@ -879,7 +875,10 @@ class SidebarTabs(QWidget):
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
-            tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
+            if tab.layout():
+                tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
+            else:
+                self._dbg(f"_finish_tags - layout is None when adding table, aborting")
 
         self._tab_populated.add("tags")
         self._tab_loading.discard("tags")
@@ -1376,17 +1375,41 @@ class SidebarQt(QWidget):
         # CRITICAL FIX: Cancel any pending count workers before rebuilding
         self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
 
-        # CRITICAL FIX: Process pending deleteLater() events before rebuilding
-        # This ensures old widgets from tabs are fully cleaned up
-        # Only process events after initialization is complete
+        # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
+        # This ensures:
+        # 1. Old widgets from tabs are fully cleaned up
+        # 2. Async count workers have checked their generation and aborted
+        # 3. No pending model item updates are in the event queue
+        # Without this, workers can access model items during clear() causing crashes
         if self._initialized:
             from PySide6.QtCore import QCoreApplication
+            print("[Sidebar] Processing pending events before model clear")
             QCoreApplication.processEvents()
+            # Process events twice to catch worker callbacks scheduled during first pass
+            QCoreApplication.processEvents()
+            print("[Sidebar] Pending events processed")
+
+        # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
+        # Qt can crash if the view has active selections/iterators when model is cleared
+        print("[Sidebar] Detaching model from tree view")
+        self.tree.setModel(None)
+
+        # Clear selection to release any Qt internal references
+        if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+            try:
+                self.tree.selectionModel().clear()
+            except Exception:
+                pass
 
         # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
         # removeRows() doesn't properly clean up complex tree structures with UserRole data
+        print("[Sidebar] Clearing model")
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
+        # Reattach model after clearing
+        print("[Sidebar] Reattaching model to tree view")
+        self.tree.setModel(self.model)
 
         self._count_targets = []
         try:
@@ -1631,6 +1654,12 @@ class SidebarQt(QWidget):
             print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
             return
 
+        # CRITICAL SAFETY: Check if model is detached (being rebuilt)
+        # If model is not attached to tree view, skip update to prevent crashes
+        if self.tree.model() != self.model:
+            print("[Sidebar][counts] Model is detached (rebuilding), skipping count update")
+            return
+
         # Safety check: ensure model is valid before accessing
         if not self.model or self.model.rowCount() == 0:
             print("[Sidebar][counts] Model is empty or invalid, skipping count update")
@@ -1687,28 +1716,48 @@ class SidebarQt(QWidget):
             traceback.print_exc()
 
     def _add_folder_items(self, parent_item, parent_id=None):
-        rows = self.db.get_child_folders(parent_id)
+        # CRITICAL FIX: Pass project_id to filter folders and counts by project
+        try:
+            rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
+        except Exception as e:
+            print(f"[Sidebar] Error in get_child_folders: {e}")
+            import traceback
+            traceback.print_exc()
+            rows = []
+
         for row in rows:
-            name = row["name"]
-            fid = row["id"]
-#            photo_count = self._get_photo_count(fid)
+            try:
+                name = row["name"]
+                fid = row["id"]
 
-            if hasattr(self.db, "get_image_count_recursive"):
-                photo_count = int(self.db.get_image_count_recursive(fid) or 0)
-            else:
-                photo_count = self._get_photo_count(fid)
+                if hasattr(self.db, "get_image_count_recursive"):
+                    # CRITICAL FIX: Pass project_id to count only photos from this project
+                    try:
+                        photo_count = int(self.db.get_image_count_recursive(fid, project_id=self.project_id) or 0)
+                    except Exception as e:
+                        print(f"[Sidebar] Error in get_image_count_recursive for folder {fid}: {e}")
+                        photo_count = 0
+                else:
+                    photo_count = self._get_photo_count(fid)
 
-            name_item = QStandardItem(f"📁 {name}")
-            count_item = QStandardItem(str(photo_count))
-            count_item.setText(f"{photo_count:>5}")
-            name_item.setEditable(False)
-            count_item.setEditable(False)
-            name_item.setData("folder", Qt.UserRole)
-            name_item.setData(fid, Qt.UserRole + 1)
-            count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            count_item.setForeground(QColor("#888888"))
-            parent_item.appendRow([name_item, count_item])
-            self._add_folder_items(name_item, fid)
+                name_item = QStandardItem(f"📁 {name}")
+                count_item = QStandardItem(str(photo_count))
+                count_item.setText(f"{photo_count:>5}")
+                name_item.setEditable(False)
+                count_item.setEditable(False)
+                name_item.setData("folder", Qt.UserRole)
+                name_item.setData(fid, Qt.UserRole + 1)
+                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                count_item.setForeground(QColor("#888888"))
+                parent_item.appendRow([name_item, count_item])
+
+                # Recursive call with error handling
+                self._add_folder_items(name_item, fid)
+            except Exception as e:
+                print(f"[Sidebar] Error adding folder item: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
 
 
     def _build_by_date_section(self):
@@ -2054,23 +2103,53 @@ class SidebarQt(QWidget):
             self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
             print(f"[SidebarQt] Canceled list workers (new gen={self._list_worker_gen})")
 
+            print("[SidebarQt] Hiding tree view")
             self.tree.hide()
+            print("[SidebarQt] Showing tabs controller")
             self.tabs_controller.show_tabs()
             # Force refresh tabs when switching to tabs mode (ensures fresh data after scans)
-            self.tabs_controller.refresh_all(force=True)
+            print("[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch")
+            try:
+                self.tabs_controller.refresh_all(force=True)
+                print("[SidebarQt] tabs_controller.refresh_all() completed after mode switch")
+            except Exception as e:
+                print(f"[SidebarQt] ERROR in tabs_controller.refresh_all() after mode switch: {e}")
+                import traceback
+                traceback.print_exc()
         else:
             # Cancel tab workers via hide_tabs() which bumps their generations
+            print("[SidebarQt] Hiding tabs controller")
             self.tabs_controller.hide_tabs()
             print("[SidebarQt] Canceled tab workers via hide_tabs()")
 
             # Process events again after hiding tabs to clear tab widgets
             # Only after initialization is complete
             if self._initialized:
+                print("[SidebarQt] Processing pending events after hide_tabs()")
                 from PySide6.QtCore import QCoreApplication
                 QCoreApplication.processEvents()
+                print("[SidebarQt] Finished processing events")
 
+            # CRITICAL FIX: Clear tree view selection before showing to prevent stale Qt references
+            print("[SidebarQt] Clearing tree view selection before rebuild")
+            try:
+                if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+                    self.tree.selectionModel().clear()
+                # Clear any expand/collapse state that might hold stale references
+                self.tree.collapseAll()
+            except Exception as e:
+                print(f"[SidebarQt] Warning: Could not clear tree selection: {e}")
+
+            print("[SidebarQt] Showing tree view")
             self.tree.show()
-            self._build_tree_model()
+            print("[SidebarQt] Calling _build_tree_model()")
+            try:
+                self._build_tree_model()
+                print("[SidebarQt] _build_tree_model() completed")
+            except Exception as e:
+                print(f"[SidebarQt] ERROR in _build_tree_model(): {e}")
+                import traceback
+                traceback.print_exc()
 
         try:
             self.btn_mode_toggle.setChecked(mode == "tabs")
@@ -2102,18 +2181,30 @@ class SidebarQt(QWidget):
             self._refreshing = True
             mode = self._effective_display_mode()
             tabs_visible = self.tabs_controller.isVisible()
-            print(f"[SidebarQt] reload() called, mode={mode}, tabs_visible={tabs_visible}")
+            print(f"[SidebarQt] reload() called, display_mode={mode}, tabs_visible={tabs_visible}")
 
-            # CRITICAL FIX: Only refresh tabs if actually visible
+            # CRITICAL FIX: Only refresh tabs if they're actually visible
+            # This prevents crashes when reload() is called after switching to list mode
+            # but before settings are fully updated
             if mode == "tabs" and tabs_visible:
                 print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
-                self.tabs_controller.refresh_all(force=True)
-                print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+                try:
+                    self.tabs_controller.refresh_all(force=True)
+                    print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+                except Exception as e:
+                    print(f"[SidebarQt] ERROR in tabs_controller.refresh_all(): {e}")
+                    import traceback
+                    traceback.print_exc()
             elif mode == "tabs" and not tabs_visible:
                 print(f"[SidebarQt] WARNING: mode=tabs but tabs not visible, skipping refresh")
             else:
                 print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
-                self._build_tree_model()
+                try:
+                    self._build_tree_model()
+                except Exception as e:
+                    print(f"[SidebarQt] ERROR in _build_tree_model(): {e}")
+                    import traceback
+                    traceback.print_exc()
         finally:
             # Always reset flag, even if error occurs
             self._refreshing = False

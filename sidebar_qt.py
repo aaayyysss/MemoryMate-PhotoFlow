@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
     QVBoxLayout, QMessageBox, QTreeWidgetItem, QTreeWidget,
     QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar,
-    QTableWidget, QTableWidgetItem
+    QTableWidget, QTableWidgetItem, QScrollArea
 )
 from PySide6.QtCore import Qt, QPoint, Signal, QTimer
 from PySide6.QtGui import (
@@ -265,6 +265,15 @@ class SidebarTabs(QWidget):
         v = tab.layout()
         v.addWidget(QLabel(f"<b>{msg}</b>"))
 
+    def _wrap_in_scroll_area(self, widget):
+        """Wrap a widget in a QScrollArea for vertical scrolling support"""
+        scroll = QScrollArea()
+        scroll.setWidget(widget)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        return scroll
+
     # ---------- collapse/expand support ----------
 
     def toggle_collapse_expand(self):
@@ -412,7 +421,7 @@ class SidebarTabs(QWidget):
             table.setItem(row, 1, item_count)
 
         table.cellDoubleClicked.connect(lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole)))
-        tab.layout().addWidget(table, 1)
+        tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
 
         self._tab_populated.add("branches")
         self._tab_loading.discard("branches")
@@ -483,7 +492,7 @@ class SidebarTabs(QWidget):
             tree.itemDoubleClicked.connect(
                 lambda item, col: self.selectFolder.emit(item.data(0, Qt.UserRole)) if item.data(0, Qt.UserRole) else None
             )
-            tab.layout().addWidget(tree, 1)
+            tab.layout().addWidget(self._wrap_in_scroll_area(tree), 1)
 
         self._tab_populated.add("folders")
         self._tab_loading.discard("folders")
@@ -664,7 +673,7 @@ class SidebarTabs(QWidget):
 
             # Connect double-click to emit date selection
             tree.itemDoubleClicked.connect(lambda item, col: self.selectDate.emit(item.data(0, Qt.UserRole)))
-            tab.layout().addWidget(tree, 1)
+            tab.layout().addWidget(self._wrap_in_scroll_area(tree), 1)
 
         self._tab_populated.add("dates")
         self._tab_loading.discard("dates")
@@ -754,7 +763,7 @@ class SidebarTabs(QWidget):
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
-            tab.layout().addWidget(table, 1)
+            tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
 
         self._tab_populated.add("tags")
         self._tab_loading.discard("tags")
@@ -839,7 +848,7 @@ class SidebarTabs(QWidget):
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectDate.emit(table.item(row, 0).data(Qt.UserRole)))
-            tab.layout().addWidget(table, 1)
+            tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
 
         self._tab_populated.add("quick")
         self._tab_loading.discard("quick")
@@ -946,7 +955,7 @@ class SidebarTabs(QWidget):
         table.cellDoubleClicked.connect(
             lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole))
         )
-        layout.addWidget(table, 1)
+        layout.addWidget(self._wrap_in_scroll_area(table), 1)
 
         self._tab_populated.add("people")
         self._tab_loading.discard("people")

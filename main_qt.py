@@ -42,6 +42,19 @@ from splash_qt import SplashScreen, StartupWorker
 
 
 if __name__ == "__main__":
+    # Install global exception handler to catch crashes
+    import traceback
+    def exception_hook(exctype, value, tb):
+        print("=" * 80)
+        print("UNHANDLED EXCEPTION CAUGHT:")
+        print("=" * 80)
+        traceback.print_exception(exctype, value, tb)
+        print("=" * 80)
+        logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+        sys.__excepthook__(exctype, value, tb)
+
+    sys.excepthook = exception_hook
+
     # Qt app
     app = QApplication(sys.argv)
     app.setApplicationName("Memory Mate - Photo Flow")

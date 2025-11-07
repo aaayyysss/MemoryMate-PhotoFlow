@@ -334,13 +334,26 @@ class SidebarTabs(QWidget):
 
         self._cancel_timeout(idx)
         tab = self.tab_widget.widget(idx)
-        if not tab: return
+        if not tab:
+            self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")
+            return
         v = tab.layout()
-        for i in reversed(range(v.count())):
-            w = v.itemAt(i).widget()
-            if w:
-                w.setParent(None)
-                w.deleteLater()
+        if not v:
+            self._dbg(f"_clear_tab idx={idx} - layout is None, skipping")
+            return
+        try:
+            for i in reversed(range(v.count())):
+                item = v.itemAt(i)
+                if not item:
+                    continue
+                w = item.widget()
+                if w:
+                    w.setParent(None)
+                    w.deleteLater()
+        except Exception as e:
+            self._dbg(f"_clear_tab idx={idx} - Exception during widget cleanup: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _set_tab_empty(self, idx, msg="No items"):
         tab = self.tab_widget.widget(idx)
@@ -795,6 +808,7 @@ class SidebarTabs(QWidget):
 
     # ---------- TAGS ----------
     def _finish_tags(self, idx:int, rows:list, started:float, gen:int):
+        self._dbg(f"_finish_tags called: idx={idx}, gen={gen}, rows_count={len(rows) if rows else 0}")
         if self._is_stale("tags", gen):
             self._dbg(f"_finish_tags (stale gen={gen}) — ignoring")
             return
@@ -802,7 +816,14 @@ class SidebarTabs(QWidget):
         self._clear_tab(idx)
 
         tab = self.tab_widget.widget(idx)
-        tab.layout().addWidget(QLabel("<b>Tags</b>"))
+        if not tab:
+            self._dbg(f"_finish_tags - tab is None at idx={idx}, aborting")
+            return
+        layout = tab.layout()
+        if not layout:
+            self._dbg(f"_finish_tags - layout is None at idx={idx}, aborting")
+            return
+        layout.addWidget(QLabel("<b>Tags</b>"))
 
         # Process rows which can be: tuples (tag, count), dicts, or strings
         tag_items = []  # list of (tag_name, count)
@@ -853,7 +874,10 @@ class SidebarTabs(QWidget):
                 table.setItem(row, 1, item_count)
 
             table.cellDoubleClicked.connect(lambda row, col: self.selectTag.emit(table.item(row, 0).data(Qt.UserRole)))
-            tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
+            if tab.layout():
+                tab.layout().addWidget(self._wrap_in_scroll_area(table), 1)
+            else:
+                self._dbg(f"_finish_tags - layout is None when adding table, aborting")
 
         self._tab_populated.add("tags")
         self._tab_loading.discard("tags")
@@ -2028,23 +2052,43 @@ class SidebarQt(QWidget):
             self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
             print(f"[SidebarQt] Canceled list workers (new gen={self._list_worker_gen})")
 
+            print("[SidebarQt] Hiding tree view")
             self.tree.hide()
+            print("[SidebarQt] Showing tabs controller")
             self.tabs_controller.show_tabs()
             # Force refresh tabs when switching to tabs mode (ensures fresh data after scans)
-            self.tabs_controller.refresh_all(force=True)
+            print("[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch")
+            try:
+                self.tabs_controller.refresh_all(force=True)
+                print("[SidebarQt] tabs_controller.refresh_all() completed after mode switch")
+            except Exception as e:
+                print(f"[SidebarQt] ERROR in tabs_controller.refresh_all() after mode switch: {e}")
+                import traceback
+                traceback.print_exc()
         else:
             # Cancel tab workers via hide_tabs() which bumps their generations
+            print("[SidebarQt] Hiding tabs controller")
             self.tabs_controller.hide_tabs()
             print("[SidebarQt] Canceled tab workers via hide_tabs()")
 
             # Process events again after hiding tabs to clear tab widgets
             # Only after initialization is complete
             if self._initialized:
+                print("[SidebarQt] Processing pending events after hide_tabs()")
                 from PySide6.QtCore import QCoreApplication
                 QCoreApplication.processEvents()
+                print("[SidebarQt] Finished processing events")
 
+            print("[SidebarQt] Showing tree view")
             self.tree.show()
-            self._build_tree_model()
+            print("[SidebarQt] Calling _build_tree_model()")
+            try:
+                self._build_tree_model()
+                print("[SidebarQt] _build_tree_model() completed")
+            except Exception as e:
+                print(f"[SidebarQt] ERROR in _build_tree_model(): {e}")
+                import traceback
+                traceback.print_exc()
 
         try:
             self.btn_mode_toggle.setChecked(mode == "tabs")
@@ -2075,14 +2119,31 @@ class SidebarQt(QWidget):
         try:
             self._refreshing = True
             mode = self._effective_display_mode()
-            print(f"[SidebarQt] reload() called, display_mode={mode}")
-            if mode == "tabs":
+            tabs_visible = self.tabs_controller.isVisible()
+            print(f"[SidebarQt] reload() called, display_mode={mode}, tabs_visible={tabs_visible}")
+
+            # CRITICAL FIX: Only refresh tabs if they're actually visible
+            # This prevents crashes when reload() is called after switching to list mode
+            # but before settings are fully updated
+            if mode == "tabs" and tabs_visible:
                 print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
-                self.tabs_controller.refresh_all(force=True)
-                print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+                try:
+                    self.tabs_controller.refresh_all(force=True)
+                    print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+                except Exception as e:
+                    print(f"[SidebarQt] ERROR in tabs_controller.refresh_all(): {e}")
+                    import traceback
+                    traceback.print_exc()
+            elif mode == "tabs" and not tabs_visible:
+                print(f"[SidebarQt] WARNING: mode=tabs but tabs not visible, skipping refresh")
             else:
                 print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
-                self._build_tree_model()
+                try:
+                    self._build_tree_model()
+                except Exception as e:
+                    print(f"[SidebarQt] ERROR in _build_tree_model(): {e}")
+                    import traceback
+                    traceback.print_exc()
         finally:
             # Always reset flag, even if error occurs
             self._refreshing = False

@@ -1,0 +1,25 @@
+2025-11-07 16:32:50,365 [INFO] [root:118] ================================================================================
+2025-11-07 16:32:50,365 [INFO] [root:119] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-07 16:32:50,365 [INFO] [root:120] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.21.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main\app_log.txt
+2025-11-07 16:32:50,366 [INFO] [root:121] ================================================================================
+2025-11-07 16:32:50,452 [INFO] [__main__:66] Qt message handler installed to suppress TIFF warnings
+2025-11-07 16:32:51,001 [INFO] [services.search_service:103] SearchService initialized
+2025-11-07 16:33:24,161 [INFO] [root:118] ================================================================================
+2025-11-07 16:33:24,161 [INFO] [root:119] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-07 16:33:24,161 [INFO] [root:120] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.21.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main\app_log.txt
+2025-11-07 16:33:24,161 [INFO] [root:121] ================================================================================
+2025-11-07 16:33:24,303 [INFO] [__main__:66] Qt message handler installed to suppress TIFF warnings
+2025-11-07 16:33:24,733 [INFO] [services.search_service:103] SearchService initialized
+2025-11-07 16:33:45,269 [INFO] [db_writer:80] DBWriter timer started in worker thread
+2025-11-07 16:33:45,321 [INFO] [services.scan_worker_adapter:80] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
+2025-11-07 16:33:45,323 [INFO] [services.photo_scan_service:165] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
+2025-11-07 16:33:45,326 [INFO] [services.photo_scan_service:172] Discovered 15 candidate image files
+2025-11-07 16:33:45,554 [INFO] [PhotoRepository:209] Bulk upserted 15 photos
+2025-11-07 16:33:45,563 [INFO] [services.photo_scan_service:246] Scan complete: 15 indexed, 0 skipped, 0 failed in 0.2s
+2025-11-07 16:33:45,567 [INFO] [services.scan_worker_adapter:112] Scan completed: 15 photos, 1 folders in 0.2s
+2025-11-07 16:33:45,582 [INFO] [main_window_qt:294] Building date branches...
+2025-11-07 16:33:45,686 [INFO] [main_window_qt:310] Building date branches for project_id=1
+2025-11-07 16:33:45,697 [INFO] [main_window_qt:312] Created 8 date branch entries for project 1
+2025-11-07 16:33:45,699 [INFO] [main_window_qt:317] Backfilling created_date fields...
+2025-11-07 16:33:45,706 [INFO] [main_window_qt:320] Backfilled 15 rows with created_date
+2025-11-07 16:33:45,713 [INFO] [main_window_qt:349] Reloading sidebar after date branches built...

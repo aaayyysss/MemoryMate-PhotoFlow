@@ -1701,18 +1701,40 @@ class ReferenceDB:
             print(json.dumps(db.get_metadata_stats(), indent=2))
 
 
-    def list_years_with_counts(self) -> list[tuple[int, int]]:
-        """[(year, count)] newest first. Returns [] if migration not yet run."""
+    def list_years_with_counts(self, project_id: int | None = None) -> list[tuple[int, int]]:
+        """
+        Get list of years with photo counts.
+
+        Args:
+            project_id: Filter by project_id if provided, otherwise use all photos globally
+
+        Returns:
+            [(year, count)] newest first. Returns [] if migration not yet run.
+        """
         if not self._has_created_columns():
             return []
         with self._connect() as conn:
-            cur = conn.execute("""
-                SELECT created_year, COUNT(*)
-                FROM photo_metadata
-                WHERE created_year IS NOT NULL
-                GROUP BY created_year
-                ORDER BY created_year DESC
-            """)
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id using project_images junction table
+                cur.execute("""
+                    SELECT pm.created_year, COUNT(DISTINCT pm.path)
+                    FROM photo_metadata pm
+                    INNER JOIN project_images pi ON pm.path = pi.image_path
+                    WHERE pi.project_id = ?
+                      AND pm.created_year IS NOT NULL
+                    GROUP BY pm.created_year
+                    ORDER BY pm.created_year DESC
+                """, (project_id,))
+            else:
+                # No project filter - use all photos globally
+                cur.execute("""
+                    SELECT created_year, COUNT(*)
+                    FROM photo_metadata
+                    WHERE created_year IS NOT NULL
+                    GROUP BY created_year
+                    ORDER BY created_year DESC
+                """)
             return cur.fetchall()
 
     def list_days_in_year(self, year: int) -> list[tuple[str, int]]:
@@ -1961,25 +1983,28 @@ class ReferenceDB:
 # === END: Quick-date helpers ===============================================
 
 
-    def build_date_branches(self):
+    def build_date_branches(self, project_id: int):
         """
         Build branches for each date_taken value in photo_metadata.
         If they already exist, skip.
 
+        Args:
+            project_id: The project ID to associate photos with
+
         NOTE: Uses date_taken field (populated during scan) instead of created_date.
         Also populates the 'all' branch with all photos.
         """
+        print(f"[build_date_branches] Using project_id={project_id}")
+
         with self._connect() as conn:
             cur = conn.cursor()
 
-            # get project (default first)
-            cur.execute("SELECT id FROM projects ORDER BY id LIMIT 1")
+            # Verify project exists
+            cur.execute("SELECT id FROM projects WHERE id = ?", (project_id,))
             row = cur.fetchone()
             if not row:
-                print("[build_date_branches] No projects found!")
+                print(f"[build_date_branches] ERROR: Project {project_id} not found!")
                 return 0
-            project_id = row[0]
-            print(f"[build_date_branches] Using project_id={project_id}")
 
             # CRITICAL: First, populate the 'all' branch with ALL photos
             # This ensures the default view shows all photos

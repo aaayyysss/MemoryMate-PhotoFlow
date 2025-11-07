@@ -1382,10 +1382,27 @@ class SidebarQt(QWidget):
             from PySide6.QtCore import QCoreApplication
             QCoreApplication.processEvents()
 
+        # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
+        # Qt can crash if the view has active selections/iterators when model is cleared
+        print("[Sidebar] Detaching model from tree view")
+        self.tree.setModel(None)
+
+        # Clear selection to release any Qt internal references
+        if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+            try:
+                self.tree.selectionModel().clear()
+            except Exception:
+                pass
+
         # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
         # removeRows() doesn't properly clean up complex tree structures with UserRole data
+        print("[Sidebar] Clearing model")
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
+        # Reattach model after clearing
+        print("[Sidebar] Reattaching model to tree view")
+        self.tree.setModel(self.model)
 
         self._count_targets = []
         try:
@@ -2099,6 +2116,16 @@ class SidebarQt(QWidget):
                 from PySide6.QtCore import QCoreApplication
                 QCoreApplication.processEvents()
                 print("[SidebarQt] Finished processing events")
+
+            # CRITICAL FIX: Clear tree view selection before showing to prevent stale Qt references
+            print("[SidebarQt] Clearing tree view selection before rebuild")
+            try:
+                if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+                    self.tree.selectionModel().clear()
+                # Clear any expand/collapse state that might hold stale references
+                self.tree.collapseAll()
+            except Exception as e:
+                print(f"[SidebarQt] Warning: Could not clear tree selection: {e}")
 
             print("[SidebarQt] Showing tree view")
             self.tree.show()

@@ -315,11 +315,11 @@ class ThumbnailCache:
 - ✅ Phase 2.1: Keyboard Shortcuts
 - ✅ Phase 2.3: Rich Status Bar (context-aware display)
 - ✅ Phase 2.3: Compact Backfill Indicator (replaced 120-240px panel)
+- ✅ Phase 2.3: Grid Size Presets (S/M/L/XL instant resize buttons)
 
 **Next Tasks:**
 - Phase 2.2: Drag & Drop
 - Phase 2.3: Selection Toolbar (context-aware)
-- Phase 2.3: Grid Size Presets (Small/Medium/Large/XL)
 
 **Branch:** claude/hello-afte-011CUsFwuiZmEewaPxb27ssp
 

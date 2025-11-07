@@ -401,9 +401,16 @@ class SidebarTabs(QWidget):
         self._dbg(f"_populate_tab({tab_type}, idx={idx}, force={force})")
         self._dbg(f"  populated={tab_type in self._tab_populated}, loading={tab_type in self._tab_loading}")
 
-        if force and tab_type in self._tab_populated:
-            self._dbg(f"  Force refresh: removing {tab_type} from populated set")
-            self._tab_populated.discard(tab_type)
+        # Force refresh: clear both populated and loading states
+        if force:
+            if tab_type in self._tab_populated:
+                self._dbg(f"  Force refresh: removing {tab_type} from populated set")
+                self._tab_populated.discard(tab_type)
+            if tab_type in self._tab_loading:
+                self._dbg(f"  Force refresh: removing {tab_type} from loading set (canceling in-progress)")
+                self._tab_loading.discard(tab_type)
+                # Bump generation to invalidate any in-progress workers
+                self._bump_gen(tab_type)
 
         if tab_type in self._tab_populated or tab_type in self._tab_loading:
             self._dbg(f"  Skipping {tab_type}: already populated or loading")
@@ -430,7 +437,7 @@ class SidebarTabs(QWidget):
         elif tab_type == "people":
             self._show_loading(idx, "Loading People…")
             self._load_people(idx, gen)
-            
+
         elif tab_type == "quick":
             self._show_loading(idx, "Loading Quick Dates…")
             self._load_quick(idx, gen)
@@ -2023,8 +2030,8 @@ class SidebarQt(QWidget):
 
             self.tree.hide()
             self.tabs_controller.show_tabs()
-            # Ensure tabs are current; SidebarTabs handles its own population
-            self.tabs_controller.refresh_all(force=False)
+            # Force refresh tabs when switching to tabs mode (ensures fresh data after scans)
+            self.tabs_controller.refresh_all(force=True)
         else:
             # Cancel tab workers via hide_tabs() which bumps their generations
             self.tabs_controller.hide_tabs()

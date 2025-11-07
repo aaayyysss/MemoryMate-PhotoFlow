@@ -331,16 +331,31 @@ class SidebarTabs(QWidget):
 
     def _clear_tab(self, idx):
         self._dbg(f"_clear_tab idx={idx}")
-
         self._cancel_timeout(idx)
+
         tab = self.tab_widget.widget(idx)
-        if not tab: return
+        if not tab:
+            self._dbg(f"_clear_tab idx={idx} - tab is None, skipping")
+            return
+
         v = tab.layout()
-        for i in reversed(range(v.count())):
-            w = v.itemAt(i).widget()
-            if w:
-                w.setParent(None)
-                w.deleteLater()
+        if not v:
+            self._dbg(f"_clear_tab idx={idx} - layout is None, skipping")
+            return
+
+        try:
+            for i in reversed(range(v.count())):
+                item = v.itemAt(i)
+                if not item:
+                    continue
+                w = item.widget()
+                if w:
+                    w.setParent(None)
+                    w.deleteLater()
+        except Exception as e:
+            self._dbg(f"_clear_tab idx={idx} - Exception: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _set_tab_empty(self, idx, msg="No items"):
         tab = self.tab_widget.widget(idx)
@@ -795,6 +810,7 @@ class SidebarTabs(QWidget):
 
     # ---------- TAGS ----------
     def _finish_tags(self, idx:int, rows:list, started:float, gen:int):
+        self._dbg(f"_finish_tags called: idx={idx}, gen={gen}, rows_count={len(rows) if rows else 0}")
         if self._is_stale("tags", gen):
             self._dbg(f"_finish_tags (stale gen={gen}) — ignoring")
             return
@@ -802,7 +818,16 @@ class SidebarTabs(QWidget):
         self._clear_tab(idx)
 
         tab = self.tab_widget.widget(idx)
-        tab.layout().addWidget(QLabel("<b>Tags</b>"))
+        if not tab:
+            self._dbg(f"_finish_tags - tab is None, aborting")
+            return
+
+        layout = tab.layout()
+        if not layout:
+            self._dbg(f"_finish_tags - layout is None, aborting")
+            return
+
+        layout.addWidget(QLabel("<b>Tags</b>"))
 
         # Process rows which can be: tuples (tag, count), dicts, or strings
         tag_items = []  # list of (tag_name, count)
@@ -2075,11 +2100,16 @@ class SidebarQt(QWidget):
         try:
             self._refreshing = True
             mode = self._effective_display_mode()
-            print(f"[SidebarQt] reload() called, display_mode={mode}")
-            if mode == "tabs":
+            tabs_visible = self.tabs_controller.isVisible()
+            print(f"[SidebarQt] reload() called, mode={mode}, tabs_visible={tabs_visible}")
+
+            # CRITICAL FIX: Only refresh tabs if actually visible
+            if mode == "tabs" and tabs_visible:
                 print(f"[SidebarQt] Calling tabs_controller.refresh_all(force=True)")
                 self.tabs_controller.refresh_all(force=True)
                 print(f"[SidebarQt] tabs_controller.refresh_all() completed")
+            elif mode == "tabs" and not tabs_visible:
+                print(f"[SidebarQt] WARNING: mode=tabs but tabs not visible, skipping refresh")
             else:
                 print(f"[SidebarQt] Calling _build_tree_model() instead of tabs refresh")
                 self._build_tree_model()

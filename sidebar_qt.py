@@ -1375,12 +1375,19 @@ class SidebarQt(QWidget):
         # CRITICAL FIX: Cancel any pending count workers before rebuilding
         self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
 
-        # CRITICAL FIX: Process pending deleteLater() events before rebuilding
-        # This ensures old widgets from tabs are fully cleaned up
-        # Only process events after initialization is complete
+        # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
+        # This ensures:
+        # 1. Old widgets from tabs are fully cleaned up
+        # 2. Async count workers have checked their generation and aborted
+        # 3. No pending model item updates are in the event queue
+        # Without this, workers can access model items during clear() causing crashes
         if self._initialized:
             from PySide6.QtCore import QCoreApplication
+            print("[Sidebar] Processing pending events before model clear")
             QCoreApplication.processEvents()
+            # Process events twice to catch worker callbacks scheduled during first pass
+            QCoreApplication.processEvents()
+            print("[Sidebar] Pending events processed")
 
         # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
         # Qt can crash if the view has active selections/iterators when model is cleared
@@ -1645,6 +1652,12 @@ class SidebarQt(QWidget):
         # Check if this worker is stale
         if gen is not None and gen != self._list_worker_gen:
             print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
+            return
+
+        # CRITICAL SAFETY: Check if model is detached (being rebuilt)
+        # If model is not attached to tree view, skip update to prevent crashes
+        if self.tree.model() != self.model:
+            print("[Sidebar][counts] Model is detached (rebuilding), skipping count update")
             return
 
         # Safety check: ensure model is valid before accessing

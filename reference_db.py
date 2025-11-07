@@ -1132,14 +1132,57 @@ class ReferenceDB:
         return rows
 
 
-    def get_images_by_folder(self, folder_id: int):
-        """Return list of image paths belonging to the given folder_id."""
+    def get_descendant_folder_ids(self, folder_id: int) -> list[int]:
+        """
+        Recursively get all descendant folder IDs for a given folder.
+        Returns a list including the folder_id itself and all nested subfolders.
+        """
+        result = [folder_id]
         try:
             with self._connect() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
-                rows = [r[0] for r in cur.fetchall()]
-                print(f"[DB] get_images_by_folder({folder_id}) -> {len(rows)} paths")
+                # Get immediate children
+                cur.execute("SELECT id FROM photo_folders WHERE parent_id = ?", (folder_id,))
+                children = [r[0] for r in cur.fetchall()]
+
+                # Recursively get descendants of each child
+                for child_id in children:
+                    result.extend(self.get_descendant_folder_ids(child_id))
+
+            return result
+        except Exception as e:
+            print(f"[DB ERROR] get_descendant_folder_ids failed: {e}")
+            return [folder_id]  # Fallback to just the folder itself
+
+    def get_images_by_folder(self, folder_id: int, include_subfolders: bool = True):
+        """
+        Return list of image paths belonging to the given folder_id.
+
+        Args:
+            folder_id: The folder ID to query
+            include_subfolders: If True (default), includes photos from all nested subfolders
+
+        Returns:
+            List of photo paths
+        """
+        try:
+            with self._connect() as conn:
+                cur = conn.cursor()
+
+                if include_subfolders:
+                    # Get folder and all descendant folder IDs
+                    folder_ids = self.get_descendant_folder_ids(folder_id)
+                    placeholders = ','.join('?' * len(folder_ids))
+                    query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) ORDER BY path"
+                    cur.execute(query, folder_ids)
+                    rows = [r[0] for r in cur.fetchall()]
+                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=True) -> {len(rows)} paths from {len(folder_ids)} folders")
+                else:
+                    # Original behavior: only this folder
+                    cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+                    rows = [r[0] for r in cur.fetchall()]
+                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=False) -> {len(rows)} paths")
+
                 return rows
         except Exception as e:
             print(f"[DB ERROR] get_images_by_folder failed: {e}")

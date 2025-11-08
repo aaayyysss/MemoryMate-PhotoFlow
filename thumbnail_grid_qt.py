@@ -1676,12 +1676,12 @@ class ThumbnailGridQt(QWidget):
             if len(dk) == 4 and dk.isdigit():
                 paths = db.get_images_by_year(int(dk), self.project_id)
             elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
-                paths = db.get_images_by_month_str(dk)
+                paths = db.get_images_by_month_str(dk, self.project_id)
             elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
                 paths = db.get_images_by_date(dk, self.project_id)
             else:
                 # fallback for quick keys (e.g. date:this-week)
-                paths = db.get_images_for_quick_key(f"date:{dk}")
+                paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
         else:
             paths = []
 
@@ -1691,7 +1691,7 @@ class ThumbnailGridQt(QWidget):
 
         # --- 2️: Overlay tag filter (if active) ---
         if tag:
-            tagged_paths = db.get_image_paths_for_tag(tag)
+            tagged_paths = db.get_image_paths_for_tag(tag, self.project_id)
 
             def norm(p: str):
                 try:

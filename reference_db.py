@@ -2013,17 +2013,31 @@ class ReferenceDB:
         row = cur.fetchone()
         return int(row[0] or 0)
 
-    def _paths_between_meta_dates(self, conn, start_iso: str, end_iso: str) -> list[str]:
+    def _paths_between_meta_dates(self, conn, start_iso: str, end_iso: str, project_id: int | None = None) -> list[str]:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT path
-            FROM photo_metadata
-            WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
-            ORDER BY COALESCE(date_taken, modified) DESC, path
-            """,
-            (start_iso, end_iso)
-        )
+        if project_id is not None:
+            # Schema v3.0.0: Filter by project_id
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+                  AND project_id = ?
+                ORDER BY COALESCE(date_taken, modified) DESC, path
+                """,
+                (start_iso, end_iso, project_id)
+            )
+        else:
+            # No project filter
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+                ORDER BY COALESCE(date_taken, modified) DESC, path
+                """,
+                (start_iso, end_iso)
+            )
         return [r[0] for r in cur.fetchall()]
 
     def _count_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> int:
@@ -2053,17 +2067,30 @@ class ReferenceDB:
         row = cur.fetchone()
         return int(row[0] or 0)
 
-    def _paths_recent_updated(self, conn, start_ts: str) -> list[str]:
+    def _paths_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> list[str]:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT path
-            FROM photo_metadata
-            WHERE updated_at >= ?
-            ORDER BY updated_at DESC, path
-            """,
-            (start_ts,)
-        )
+        if project_id is not None:
+            # Schema v3.0.0: Filter by project_id
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE updated_at >= ? AND project_id = ?
+                ORDER BY updated_at DESC, path
+                """,
+                (start_ts, project_id)
+            )
+        else:
+            # No project filter
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE updated_at >= ?
+                ORDER BY updated_at DESC, path
+                """,
+                (start_ts,)
+            )
         return [r[0] for r in cur.fetchall()]
 
     def get_quick_date_counts(self, project_id: int | None = None) -> list[dict]:
@@ -2092,12 +2119,16 @@ class ReferenceDB:
                 out.append({"key": key, "label": label, "count": cnt})
         return out
 
-    def get_images_for_quick_key(self, key: str) -> list[str]:
+    def get_images_for_quick_key(self, key: str, project_id: int | None = None) -> list[str]:
         """
         Resolve a 'date:*' branch key (used in sidebar quick-date branches)
         to actual photo paths from photo_metadata.
         Supports date:today / date:this-week / date:this-month / date:last-30d /
         date:this-year / date:indexed-7d / date:YYYY / date:YYYY-MM-DD
+
+        Args:
+            key: Quick date key (e.g., "date:today", "date:2024", etc.)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         # Normalize and detect "date:YYYY" / "date:YYYY-MM-DD"
         k = key.strip()
@@ -2109,22 +2140,26 @@ class ReferenceDB:
         # direct date buckets (year/day) via created_* columns
         if len(val) == 4 and val.isdigit():
             y = int(val)
-            return self.get_images_by_year(y)
+            return self.get_images_by_year(y, project_id)
         if len(val) == 10 and val[4] == "-" and val[7] == "-":
-            return self.get_images_by_date(val)
+            return self.get_images_by_date(val, project_id)
 
         # otherwise treat as a "quick window" key
         start, end, mode = self._date_window_for_key(k)
         with self._connect() as conn:
             if mode == "updated":
-                return self._paths_recent_updated(conn, start) if start else []
+                return self._paths_recent_updated(conn, start, project_id) if start else []
             if start and end:
-                return self._paths_between_meta_dates(conn, start, end)
+                return self._paths_between_meta_dates(conn, start, end, project_id)
             return []
 
-    def get_images_by_month_str(self, ym: str):
+    def get_images_by_month_str(self, ym: str, project_id: int | None = None):
         """
         Accepts 'YYYY-MM' (or lenient 'YYYY-M') and normalizes internally.
+
+        Args:
+            ym: Month string in format YYYY-MM
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         import re
         ym = str(ym).strip()
@@ -2135,7 +2170,7 @@ class ReferenceDB:
         mo = int(m.group(2))
         if mo < 1 or mo > 12:
             return []
-        return self.get_images_by_month(y, mo)
+        return self.get_images_by_month(y, mo, project_id)
 
 
 # === END: Quick-date helpers ===============================================
@@ -2772,19 +2807,34 @@ class ReferenceDB:
     # <<< FIX 1
 
 
-    def get_image_paths_for_tag(self, tag_name: str) -> list[str]:
+    def get_image_paths_for_tag(self, tag_name: str, project_id: int | None = None) -> list[str]:
         """
         Return a list of image file paths for the given tag name using photo_tags table.
+
+        Args:
+            tag_name: Name of the tag to filter by
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-            rows = cur.execute("""
-                SELECT DISTINCT p.path
-                FROM photo_metadata AS p
-                JOIN photo_tags AS pt ON p.id = pt.photo_id
-                JOIN tags AS tg ON tg.id = pt.tag_id
-                WHERE tg.name = ?
-            """, (tag_name,)).fetchall()
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                rows = cur.execute("""
+                    SELECT DISTINCT p.path
+                    FROM photo_metadata AS p
+                    JOIN photo_tags AS pt ON p.id = pt.photo_id
+                    JOIN tags AS tg ON tg.id = pt.tag_id
+                    WHERE tg.name = ? AND p.project_id = ?
+                """, (tag_name, project_id)).fetchall()
+            else:
+                # No project filter
+                rows = cur.execute("""
+                    SELECT DISTINCT p.path
+                    FROM photo_metadata AS p
+                    JOIN photo_tags AS pt ON p.id = pt.photo_id
+                    JOIN tags AS tg ON tg.id = pt.tag_id
+                    WHERE tg.name = ?
+                """, (tag_name,)).fetchall()
             return [os.path.abspath(r[0]) for r in rows if r and r[0]]
 
 

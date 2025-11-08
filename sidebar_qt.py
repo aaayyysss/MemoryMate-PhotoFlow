@@ -1409,8 +1409,10 @@ class SidebarQt(QWidget):
         try:
             # Add one final processEvents() right before clear to catch any last-minute callbacks
             # This is critical for Windows where Qt can have delayed internal state updates
-            from PySide6.QtCore import QCoreApplication
-            QCoreApplication.processEvents()
+            # IMPORTANT: Only do this AFTER initialization to avoid processing events too early
+            if self._initialized:
+                from PySide6.QtCore import QCoreApplication
+                QCoreApplication.processEvents()
 
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])

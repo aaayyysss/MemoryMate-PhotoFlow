@@ -995,22 +995,36 @@ class ThumbnailGridQt(QWidget):
                 count = tag_service.assign_tags_bulk(paths, "favorite", self.project_id)
                 print(f"[Tag] Added 'favorite' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if "favorite" in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == "favorite":
                     print(f"[Tag] Reloading grid - removed tag matches active filter 'favorite'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen is act_face:
             # Check if any photos are selected
@@ -1034,22 +1048,36 @@ class ThumbnailGridQt(QWidget):
                 count = tag_service.assign_tags_bulk(paths, "face", self.project_id)
                 print(f"[Tag] Added 'face' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if "face" in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == "face":
                     print(f"[Tag] Reloading grid - removed tag matches active filter 'face'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen in toggle_actions:
             # Check if any photos are selected
@@ -1075,22 +1103,36 @@ class ThumbnailGridQt(QWidget):
                 count = tag_service.assign_tags_bulk(paths, tagname, self.project_id)
                 print(f"[Tag] Added '{tagname}' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if tagname in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == tagname.lower():
                     print(f"[Tag] Reloading grid - removed tag matches active filter '{active_tag}'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen is act_new_tag:
             # Check if any photos are selected

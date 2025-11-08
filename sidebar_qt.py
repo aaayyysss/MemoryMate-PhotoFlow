@@ -1876,7 +1876,9 @@ class SidebarQt(QWidget):
         try:
             # Use TagService for proper layered architecture
             tag_service = get_tag_service()
-            tag_rows = tag_service.get_all_tags_with_counts()
+            # CRITICAL: Pass project_id to filter tags by current project (Schema v3.0.0)
+            tag_rows = tag_service.get_all_tags_with_counts(self.project_id)
+            print(f"[Sidebar] reload_tags_only → got {len(tag_rows)} tags for project_id={self.project_id}")
         except Exception as e:
             print(f"[Sidebar] reload_tags_only skipped: {e}")
             return

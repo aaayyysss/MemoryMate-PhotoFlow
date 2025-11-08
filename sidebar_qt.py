@@ -794,13 +794,14 @@ class SidebarTabs(QWidget):
         ARCHITECTURE: UI Layer → TagService → TagRepository → Database
         """
         started = time.time()
+        project_id = self.project_id  # Capture project_id before thread starts
         def work():
             rows = []
             try:
                 # Use TagService for proper layered architecture
                 tag_service = get_tag_service()
-                rows = tag_service.get_all_tags_with_counts() or []  # list of (tag_name, count) tuples
-                self._dbg(f"_load_tags → got {len(rows)} rows")
+                rows = tag_service.get_all_tags_with_counts(project_id) or []  # list of (tag_name, count) tuples
+                self._dbg(f"_load_tags → got {len(rows)} rows for project_id={project_id}")
             except Exception:
                 traceback.print_exc()
                 rows = []

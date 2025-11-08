@@ -214,9 +214,12 @@ class TagRepository(BaseRepository):
     # TAG STATISTICS & QUERIES
     # ========================================================================
 
-    def get_all_with_counts(self) -> List[Tuple[str, int]]:
+    def get_all_with_counts(self, project_id: int | None = None) -> List[Tuple[str, int]]:
         """
         Get all tags with their photo counts.
+
+        Args:
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all tags globally.
 
         Returns:
             List of tuples: (tag_name, photo_count)
@@ -224,13 +227,26 @@ class TagRepository(BaseRepository):
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT t.name, COUNT(pt.photo_id) as count
-                FROM tags t
-                LEFT JOIN photo_tags pt ON pt.tag_id = t.id
-                GROUP BY t.id, t.name
-                ORDER BY t.name COLLATE NOCASE
-            """)
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id by joining with photo_metadata
+                cur.execute("""
+                    SELECT t.name, COUNT(DISTINCT pt.photo_id) as count
+                    FROM tags t
+                    LEFT JOIN photo_tags pt ON pt.tag_id = t.id
+                    LEFT JOIN photo_metadata pm ON pm.id = pt.photo_id
+                    WHERE pm.project_id = ? OR pm.id IS NULL
+                    GROUP BY t.id, t.name
+                    ORDER BY t.name COLLATE NOCASE
+                """, (project_id,))
+            else:
+                # No project filter - get all tags globally
+                cur.execute("""
+                    SELECT t.name, COUNT(pt.photo_id) as count
+                    FROM tags t
+                    LEFT JOIN photo_tags pt ON pt.tag_id = t.id
+                    GROUP BY t.id, t.name
+                    ORDER BY t.name COLLATE NOCASE
+                """)
             return [(row['name'], row['count']) for row in cur.fetchall()]
 
     def get_photo_count(self, tag_id: int) -> int:

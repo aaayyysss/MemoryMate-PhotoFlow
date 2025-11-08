@@ -387,20 +387,23 @@ class TagService:
     # TAG MANAGEMENT
     # ========================================================================
 
-    def get_all_tags_with_counts(self) -> List[Tuple[str, int]]:
+    def get_all_tags_with_counts(self, project_id: int | None = None) -> List[Tuple[str, int]]:
         """
         Get all tags with their photo counts.
+
+        Args:
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all tags globally.
 
         Returns:
             List of tuples: (tag_name, photo_count)
             Ordered alphabetically by tag name
 
         Example:
-            >>> service.get_all_tags_with_counts()
+            >>> service.get_all_tags_with_counts(project_id=1)
             [('beach', 5), ('favorite', 12), ('vacation', 8)]
         """
         try:
-            return self._tag_repo.get_all_with_counts()
+            return self._tag_repo.get_all_with_counts(project_id)
         except Exception as e:
             self.logger.error(f"Failed to get tags with counts: {e}")
             return []

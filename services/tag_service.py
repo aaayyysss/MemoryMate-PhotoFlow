@@ -268,6 +268,46 @@ class TagService:
             self.logger.error(f"Failed bulk tag assignment: {e}", exc_info=True)
             return 0
 
+    def _find_parent_folder_id(self, folder_path: str, folder_repo, project_id: int) -> Optional[int]:
+        """
+        Find the parent folder ID for a given folder path.
+
+        Walks up the directory tree to find an existing parent folder in the database.
+        If no parent is found, returns None (indicating this should be a root folder).
+
+        Args:
+            folder_path: Full path to the folder
+            folder_repo: FolderRepository instance
+            project_id: Project ID
+
+        Returns:
+            Parent folder ID, or None if this is a root folder
+        """
+        import os
+
+        # Walk up the directory tree to find existing parent
+        current_path = os.path.dirname(folder_path)
+
+        while current_path:
+            # Try to find this parent in the database
+            parent_folder = folder_repo.get_by_path(current_path, project_id)
+            if parent_folder:
+                self.logger.debug(f"Found parent folder for {folder_path}: {current_path} (id={parent_folder['id']})")
+                return parent_folder['id']
+
+            # Move up one level
+            parent_path = os.path.dirname(current_path)
+
+            # Avoid infinite loop - stop if we're not making progress
+            if parent_path == current_path:
+                break
+
+            current_path = parent_path
+
+        # No parent found - this will be a root folder
+        self.logger.debug(f"No parent found for {folder_path} - will be root folder")
+        return None
+
     def _ensure_photo_metadata_exists(self, path: str, project_id: int) -> Optional[int]:
         """
         Ensure a photo exists in photo_metadata table.
@@ -297,8 +337,12 @@ class TagService:
             folder_path = os.path.dirname(path)
             folder_name = os.path.basename(folder_path) if folder_path else "Unknown"
 
-            # Ensure folder exists (with no parent for simplicity)
-            folder_id = folder_repo.ensure_folder(folder_path, folder_name, None, project_id)
+            # CRITICAL FIX: Find proper parent folder instead of using None
+            # Using None creates orphaned folders that break the tree view
+            parent_id = self._find_parent_folder_id(folder_path, folder_repo, project_id)
+
+            # Ensure folder exists with proper parent
+            folder_id = folder_repo.ensure_folder(folder_path, folder_name, parent_id, project_id)
 
             # Get file stats
             stat = os.stat(path)

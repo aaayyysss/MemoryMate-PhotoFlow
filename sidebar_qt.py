@@ -1404,13 +1404,54 @@ class SidebarQt(QWidget):
 
         # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
         # removeRows() doesn't properly clean up complex tree structures with UserRole data
+        # ADDITIONAL FIX: Wrap model.clear() in try/except to handle Qt crashes during rapid switching
         print("[Sidebar] Clearing model")
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+        try:
+            # Add one final processEvents() right before clear to catch any last-minute callbacks
+            # This is critical for Windows where Qt can have delayed internal state updates
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
 
-        # Reattach model after clearing
-        print("[Sidebar] Reattaching model to tree view")
-        self.tree.setModel(self.model)
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+        except Exception as e:
+            # If model.clear() crashes (Qt internal error), create a new model instead
+            print(f"[Sidebar] ERROR during model.clear(): {e}")
+            print("[Sidebar] Creating new model as fallback")
+            import traceback
+            traceback.print_exc()
+
+            try:
+                # Disconnect old model signals to prevent crashes
+                try:
+                    self.tree.setModel(None)
+                except:
+                    pass
+
+                # Create a brand new model
+                old_model = self.model
+                self.model = QStandardItemModel(self.tree)
+                self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+                self.tree.setModel(self.model)
+
+                # Try to delete old model (let Qt clean it up)
+                try:
+                    old_model.deleteLater()
+                except:
+                    pass
+
+                print("[Sidebar] New model created successfully")
+            except Exception as inner_e:
+                print(f"[Sidebar] CRITICAL: Failed to create new model: {inner_e}")
+                import traceback
+                traceback.print_exc()
+                # Last resort: just continue with whatever model state we have
+                # Better to have a broken sidebar than crash the entire app
+                return
+        else:
+            # Normal path: model was cleared successfully, reattach it
+            print("[Sidebar] Reattaching model to tree view")
+            self.tree.setModel(self.model)
 
         self._count_targets = []
         try:

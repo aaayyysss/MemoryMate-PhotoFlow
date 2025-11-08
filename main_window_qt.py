@@ -3204,12 +3204,25 @@ class MainWindow(QMainWindow):
         Updates the sidebar and grid to show the selected project.
         """
         try:
-            # Update grid and sidebar
+            # CRITICAL: Check if already on this project to prevent redundant reloads and crashes
+            current_project_id = getattr(self.grid, 'project_id', None) if hasattr(self, 'grid') else None
+            if current_project_id == project_id:
+                print(f"[MainWindow] Already on project {project_id}, skipping switch")
+                return
+
+            # CRITICAL ORDER: Update grid FIRST before sidebar to prevent race condition
+            # Sidebar.set_project() triggers callbacks that reload grid, so grid.project_id
+            # must be set BEFORE those callbacks fire
+            if hasattr(self, "grid") and self.grid:
+                self.grid.project_id = project_id
+                print(f"[MainWindow] Set grid.project_id = {project_id}")
+
+            # Now update sidebar (this triggers reload which will use the new grid.project_id)
             if hasattr(self, "sidebar") and self.sidebar:
                 self.sidebar.set_project(project_id)
 
+            # Finally, explicitly reload grid to show all photos
             if hasattr(self, "grid") and self.grid:
-                self.grid.project_id = project_id
                 self.grid.set_branch("all")  # Reset to show all photos
 
             # Update breadcrumb

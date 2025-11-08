@@ -1658,109 +1658,122 @@ class ThumbnailGridQt(QWidget):
         Centralized reload logic combining navigation context + optional tag overlay.
         Includes user feedback via status bar and detailed console logs.
         """
-        import os
-        from PySide6.QtCore import QSize
-        from PySide6.QtGui import QStandardItem
+        # CRITICAL: Prevent concurrent reloads that cause crashes
+        # Similar to sidebar._refreshing flag pattern
+        if getattr(self, '_reloading', False):
+            print("[GRID] reload() blocked - already reloading (prevents concurrent reload crash)")
+            return
 
-        db = self.db
-        ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
-        mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
+        try:
+            self._reloading = True
 
-        # --- 1️: Determine base photo paths by navigation mode ---
-        if mode == "folder" and key:
-            paths = db.get_images_by_folder(key, project_id=self.project_id)
-        elif mode == "branch" and key:
-            paths = db.get_images_by_branch(self.project_id, key)
-        elif mode == "date" and key:
-            dk = str(key)
-            if len(dk) == 4 and dk.isdigit():
-                paths = db.get_images_by_year(int(dk), self.project_id)
-            elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
-                paths = db.get_images_by_month_str(dk, self.project_id)
-            elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                paths = db.get_images_by_date(dk, self.project_id)
+            import os
+            from PySide6.QtCore import QSize
+            from PySide6.QtGui import QStandardItem
+
+            db = self.db
+            ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
+            mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
+
+            # --- 1️: Determine base photo paths by navigation mode ---
+            if mode == "folder" and key:
+                paths = db.get_images_by_folder(key, project_id=self.project_id)
+            elif mode == "branch" and key:
+                paths = db.get_images_by_branch(self.project_id, key)
+            elif mode == "date" and key:
+                dk = str(key)
+                if len(dk) == 4 and dk.isdigit():
+                    paths = db.get_images_by_year(int(dk), self.project_id)
+                elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
+                    paths = db.get_images_by_month_str(dk, self.project_id)
+                elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
+                    paths = db.get_images_by_date(dk, self.project_id)
+                else:
+                    # fallback for quick keys (e.g. date:this-week)
+                    paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
             else:
-                # fallback for quick keys (e.g. date:this-week)
-                paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
-        else:
-            paths = []
+                paths = []
 
-        base_count = len(paths)
+            base_count = len(paths)
 
 
 
-        # --- 2️: Overlay tag filter (if active) ---
-        if tag:
-            tagged_paths = db.get_image_paths_for_tag(tag, self.project_id)
+            # --- 2️: Overlay tag filter (if active) ---
+            if tag:
+                tagged_paths = db.get_image_paths_for_tag(tag, self.project_id)
 
-            def norm(p: str):
-                try:
-                    return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
-                except Exception:
-                    return str(p).strip().lower()
+                def norm(p: str):
+                    try:
+                        return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
+                    except Exception:
+                        return str(p).strip().lower()
 
-            base_n = {norm(p): p for p in paths}
-            tag_n = {norm(p): p for p in tagged_paths}
+                base_n = {norm(p): p for p in paths}
+                tag_n = {norm(p): p for p in tagged_paths}
 
-            if base_n and tag_n:
-                # intersection of context & tagged photos
-                selected = base_n.keys() & tag_n.keys()
-                paths = [base_n[k] for k in selected]
-                print(f"[TAG FILTER] Context intersected: {len(selected)}/{len(base_n)} matched (tag='{tag}')")
+                if base_n and tag_n:
+                    # intersection of context & tagged photos
+                    selected = base_n.keys() & tag_n.keys()
+                    paths = [base_n[k] for k in selected]
+                    print(f"[TAG FILTER] Context intersected: {len(selected)}/{len(base_n)} matched (tag='{tag}')")
 
-                # if nothing matched but tag exists, fallback to show all tagged photos
-                if not paths and tagged_paths:
+                    # if nothing matched but tag exists, fallback to show all tagged photos
+                    if not paths and tagged_paths:
+                        paths = list(tag_n.values())
+                        self.context["mode"] = "tag"
+                        print(f"[TAG FILTER] No matches in context, fallback to all tagged ({len(paths)})")
+
+                elif not base_n and tag_n:
+                    # no navigation context active → show all tagged photos
                     paths = list(tag_n.values())
                     self.context["mode"] = "tag"
-                    print(f"[TAG FILTER] No matches in context, fallback to all tagged ({len(paths)})")
+                    print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
 
-            elif not base_n and tag_n:
-                # no navigation context active → show all tagged photos
-                paths = list(tag_n.values())
-                self.context["mode"] = "tag"
-                print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
+                else:
+                    # No tagged photos exist for this tag - show empty grid
+                    paths = []
+                    print(f"[TAG FILTER] No tagged photos found for '{tag}' - showing empty grid")
 
+            final_count = len(paths)
+
+            # --- 3️: Render grid ---
+            self._load_paths(paths)
+
+            # --- 4️: User feedback ---
+            context_label = {
+                "folder": "Folder",
+                "branch": "Branch",
+                "date": "Date",
+                "tag": "Tag"
+            }.get(mode or "unknown", "Unknown")
+
+            tag_label = f" [Tag: {tag}]" if tag else ""
+            status_msg = (
+                f"{context_label}: {key or '—'} → "
+                f"{final_count} photo(s) shown"
+                f"{' (filtered)' if tag else ''}"
+            )
+
+            # Status bar update (if parent has one)
+            mw = self.window()
+            if hasattr(mw, "statusBar"):
+                try:
+                    mw.statusBar().showMessage(status_msg)
+                except Exception:
+                    pass
+
+            # Detailed console log
+            if tag:
+                print(f"[GRID] Reloaded {final_count}/{base_count} thumbnails in {mode}-mode (tag={tag})")
             else:
-                # No tagged photos exist for this tag - show empty grid
-                paths = []
-                print(f"[TAG FILTER] No tagged photos found for '{tag}' - showing empty grid")
-        
-        final_count = len(paths)
+                print(f"[GRID] Reloaded {final_count} thumbnails in {mode}-mode (base={base_count})")
 
-        # --- 3️: Render grid ---
-        self._load_paths(paths)
+            # Phase 2.3: Emit signal for status bar update
+            self.gridReloaded.emit()
 
-        # --- 4️: User feedback ---
-        context_label = {
-            "folder": "Folder",
-            "branch": "Branch",
-            "date": "Date",
-            "tag": "Tag"
-        }.get(mode or "unknown", "Unknown")
-
-        tag_label = f" [Tag: {tag}]" if tag else ""
-        status_msg = (
-            f"{context_label}: {key or '—'} → "
-            f"{final_count} photo(s) shown"
-            f"{' (filtered)' if tag else ''}"
-        )
-
-        # Status bar update (if parent has one)
-        mw = self.window()
-        if hasattr(mw, "statusBar"):
-            try:
-                mw.statusBar().showMessage(status_msg)
-            except Exception:
-                pass
-
-        # Detailed console log
-        if tag:
-            print(f"[GRID] Reloaded {final_count}/{base_count} thumbnails in {mode}-mode (tag={tag})")
-        else:
-            print(f"[GRID] Reloaded {final_count} thumbnails in {mode}-mode (base={base_count})")
-
-        # Phase 2.3: Emit signal for status bar update
-        self.gridReloaded.emit()
+        finally:
+            # Always reset flag even if exception occurs
+            self._reloading = False
 
     # ============================================================
     def _load_paths(self, paths: list[str]):

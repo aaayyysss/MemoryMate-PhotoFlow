@@ -2,11 +2,12 @@
 
 ## Summary
 
-Fixed 3 critical issues discovered during 9,3K photo testing:
+Fixed 4 critical issues discovered during 9,3K photo testing:
 
 1. ✅ **Project toggle crash** (P01→P02→P01→P02)
 2. ✅ **Date/Folder count mismatch** (81% of photos missing from date tree)
-3. ⚠️ **Tagging freeze** (3+ minute black screen) - INVESTIGATION IN PROGRESS
+3. ✅ **Orphaned folders** (Tags appearing in Folders section with wrong counts)
+4. ⚠️ **Tagging freeze** (3+ minute black screen) - INVESTIGATION IN PROGRESS
 
 ---
 
@@ -169,7 +170,19 @@ None currently. Issue only affects first tag operation after loading large datas
 7. ✅ Should show same count as "Folders" section
 ```
 
-### Test 3: Tagging Freeze (Issue #3)
+### Test 3: Orphaned Folders (Issue #3)
+```bash
+1. Run: python fix_orphaned_folders.py --dry-run
+2. Note which orphaned folders will be fixed
+3. Run: python fix_orphaned_folders.py
+4. Restart app
+5. Check sidebar (List and Tabs views)
+6. ✅ "inbox" folders should only appear under proper parents
+7. ✅ List and Tabs counts should match
+8. ✅ "All Photos" count should be correct (not inflated)
+```
+
+### Test 4: Tagging Freeze (Issue #4)
 ```bash
 1. Load large dataset (9K+ photos)
 2. Right-click a photo
@@ -186,7 +199,9 @@ None currently. Issue only affects first tag operation after loading large datas
 | File | Lines | Description |
 |------|-------|-------------|
 | sidebar_qt.py | 1405-1454 | Error handling for model.clear() |
-| fix_missing_created_year.py | 1-165 | New backfill script |
+| fix_missing_created_year.py | 1-165 | Backfill script for missing dates |
+| fix_orphaned_folders.py | 1-195 | Cleanup script for orphaned folders |
+| ORPHANED_FOLDERS_FIX.md | - | Complete orphaned folders documentation |
 
 ---
 
@@ -198,6 +213,7 @@ None currently. Issue only affects first tag operation after loading large datas
 1. `da26878` - Fix: Prevent crash during rapid project toggling (initial)
 2. `b4a8e90` - Fix: Guard processEvents() during initialization
 3. `1a66194` - Add: Backfill script to fix missing created_year
+4. `c189940` - Fix: Remove orphaned folders causing sidebar count mismatch
 
 ---
 
@@ -210,4 +226,86 @@ None currently. Issue only affects first tag operation after loading large datas
 
 ---
 
-**Status**: 2 out of 3 issues fixed. Issue #3 under investigation.
+**Status**: 3 out of 4 issues fixed. Issue #4 (tagging freeze) under investigation.
+
+---
+
+## Issue 3: Orphaned Folders (Tags in Folders Section) ✅ FIXED
+
+### Problem
+Folders appearing incorrectly in sidebar with count mismatches:
+- **List view**: "inbox" folders show 0 count
+- **Tabs view**: Same "inbox" folders show 1 count  
+- **All Photos**: Count inflated (300 instead of 298)
+
+### Root Cause Analysis
+
+Database investigation revealed **orphaned folder entries**:
+
+```
+Orphaned Folder ID 18:
+  Name: 'inbox'
+  Path: c:\...\test-photos\inbox  ← LOWERCASE (incorrect)
+  Parent: NULL  ← Should have parent!
+  Photos: 1
+
+Orphaned Folder ID 19:
+  Name: 'inbox'
+  Path: c:\...\test-photos - copy\inbox  ← LOWERCASE (incorrect)
+  Parent: NULL  ← Should have parent!
+  Photos: 1
+```
+
+Compared to legitimate folders:
+```
+Folder ID 2:
+  Path: C:\...\Test-Photos\inbox  ← Proper Windows casing
+  Parent: 1 (Test-Photos root)
+  Photos: 85
+```
+
+**Why this happened:**
+1. Initial scan creates folders with Windows proper casing
+2. Rescan encounters photos with lowercase paths
+3. Case-sensitive folder matching fails to find existing folder
+4. New folder created with lowercase path + `parent_id = NULL`
+
+**Impact:**
+- List view (tree): Orphans skipped → 0 count
+- Tabs view (direct query): Shows all folders → 1 count
+- All Photos: 298 + 2 orphans = 300
+
+### Solution
+Created `fix_orphaned_folders.py` cleanup script:
+- Identifies orphaned folders (lowercase paths, `parent_id = NULL`)
+- Finds matching legitimate folders (case-insensitive)
+- Reassigns photos from orphaned → legitimate folders
+- Deletes orphaned folder entries
+
+### Usage
+```bash
+# Preview what will be fixed
+python fix_orphaned_folders.py --dry-run
+
+# Apply the fix
+python fix_orphaned_folders.py
+
+# Fix specific project
+python fix_orphaned_folders.py --project-id 1
+```
+
+### Expected Results
+After running the script:
+- Orphaned "inbox" folders removed from sidebar
+- List and Tabs views show consistent counts
+- "All Photos" shows correct count (298, not 300)
+- Photos reassigned to proper parent folders
+
+### Files Added
+- `fix_orphaned_folders.py` - Cleanup script (195 lines)
+- `ORPHANED_FOLDERS_FIX.md` - Complete documentation
+
+### Commit
+- `c189940` - Fix orphaned folders ✅
+
+---

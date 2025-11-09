@@ -132,6 +132,7 @@ class SidebarTabs(QWidget):
     selectFolder = Signal(int)     # folder_id
     selectDate   = Signal(str)     # e.g. "2025-10" or "2025"
     selectTag    = Signal(str)     # tag name
+    selectVideos = Signal()        # 🎬 NEW: show all videos
 
     # Signals for async worker completion
     # ▼ add with your other Signals
@@ -141,6 +142,7 @@ class SidebarTabs(QWidget):
     _finishTagsSig     = Signal(int, list, float, int)
     _finishPeopleSig   = Signal(int, list, float, int)  # 👥 NEW
     _finishQuickSig    = Signal(int, list, float, int)  # Quick dates
+    _finishVideosSig   = Signal(int, list, float, int)  # 🎬 NEW: videos
 
     
     def __init__(self, project_id: int | None, parent=None):
@@ -155,9 +157,9 @@ class SidebarTabs(QWidget):
         self._tab_timers: dict[int, QTimer] = {}
         self._tab_status_labels: dict[int, QLabel] = {}
         self._count_targets: list[tuple] = []               # optional future use
-        self._tab_indexes: dict[str, int] = {}              # "branches"/"folders"/"dates"/"tags"/"quick" -> tab index
+        self._tab_indexes: dict[str, int] = {}              # "branches"/"folders"/"dates"/"tags"/"quick"/"videos" -> tab index
         # ▼ add near your state vars
-        self._tab_gen: dict[str, int] = {"branches":0, "folders":0, "dates":0, "tags":0, "quick":0}
+        self._tab_gen: dict[str, int] = {"branches":0, "folders":0, "dates":0, "tags":0, "quick":0, "videos":0}
         # Guard against concurrent refresh_all calls
         self._refreshing_all = False
 
@@ -175,6 +177,7 @@ class SidebarTabs(QWidget):
         self._finishTagsSig.connect(self._finish_tags, Qt.QueuedConnection)
         self._finishPeopleSig.connect(self._finish_people, Qt.QueuedConnection)
         self._finishQuickSig.connect(self._finish_quick, Qt.QueuedConnection)
+        self._finishVideosSig.connect(self._finish_videos, Qt.QueuedConnection)  # 🎬 NEW
 
         # initial build – do not populate yet
         self._build_tabs()
@@ -210,7 +213,7 @@ class SidebarTabs(QWidget):
 
         try:
             self._refreshing_all = True
-            for key in ("branches", "folders", "dates", "tags", "quick"):
+            for key in ("branches", "folders", "dates", "tags", "quick", "videos"):
                 idx = self._tab_indexes.get(key)
                 self._dbg(f"refresh_all: key={key}, idx={idx}, force={force}")
                 if idx is not None:
@@ -260,6 +263,7 @@ class SidebarTabs(QWidget):
             ("dates",    "By Date"),
             ("tags",     "Tags"),
             ("people",   "People"),          # 👥 NEW
+            ("videos",   "Videos"),          # 🎬 NEW
             ("quick",    "Quick Dates"),
         ]:
 
@@ -450,7 +454,9 @@ class SidebarTabs(QWidget):
         elif tab_type == "people":
             self._show_loading(idx, "Loading People…")
             self._load_people(idx, gen)
-
+        elif tab_type == "videos":
+            self._show_loading(idx, "Loading Videos…")
+            self._load_videos(idx, gen)
         elif tab_type == "quick":
             self._show_loading(idx, "Loading Quick Dates…")
             self._load_quick(idx, gen)
@@ -1078,6 +1084,69 @@ class SidebarTabs(QWidget):
         st = self._tab_status_labels.get(idx)
         if st:
             st.setText(f"{len(rows)} cluster(s) • {time.time()-started:.2f}s")
+
+    # ---------- VIDEOS (🎬 Phase 4) ----------
+    def _load_videos(self, idx: int, gen: int):
+        """Load videos for current project"""
+        started = time.time()
+        def work():
+            try:
+                rows = []
+                if self.project_id:
+                    # Get videos from video_metadata table via VideoService
+                    from services.video_service import VideoService
+                    video_service = VideoService()
+                    videos = video_service.get_videos_by_project(self.project_id)
+                    # Transform to (path, count) tuples for consistency
+                    rows = [(v.get('path', ''), 1) for v in videos]
+                self._dbg(f"_load_videos → got {len(rows)} videos")
+            except Exception:
+                traceback.print_exc()
+                rows = []
+            self._finishVideosSig.emit(idx, rows, started, gen)
+        threading.Thread(target=work, daemon=True).start()
+
+    def _finish_videos(self, idx: int, rows: list, started: float, gen: int):
+        """Display videos tab"""
+        if self._is_stale("videos", gen):
+            self._dbg(f"_finish_videos (stale gen={gen}) — ignoring")
+            return
+        self._cancel_timeout(idx)
+        self._clear_tab(idx)
+
+        tab = self.tab_widget.widget(idx)
+        layout = tab.layout()
+
+        # === Header ===
+        layout.addWidget(QLabel("<b>🎬 Videos</b>"))
+
+        if not rows:
+            self._set_tab_empty(idx, "No videos found")
+            self._tab_populated.add("videos")
+            self._tab_loading.discard("videos")
+            return
+
+        # Create simple list of video paths
+        list_widget = QListWidget()
+        list_widget.setSelectionMode(QListWidget.SingleSelection)
+
+        for video_path, _ in rows:
+            import os
+            filename = os.path.basename(video_path)
+            item = QListWidgetItem(f"🎬 {filename}")
+            item.setData(Qt.UserRole, video_path)
+            list_widget.addItem(item)
+
+        # Double-click to select videos view
+        list_widget.itemDoubleClicked.connect(lambda item: self.selectVideos.emit())
+
+        layout.addWidget(list_widget, 1)
+
+        self._tab_populated.add("videos")
+        self._tab_loading.discard("videos")
+        st = self._tab_status_labels.get(idx)
+        if st:
+            st.setText(f"{len(rows)} video(s) • {time.time()-started:.2f}s")
 
 # =====================================================================
 # 2️ SidebarQt — main sidebar container with toggle

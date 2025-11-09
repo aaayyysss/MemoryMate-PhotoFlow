@@ -396,26 +396,42 @@ class SidebarController:
 
     def on_folder_selected(self, folder_id: int):
         self.main.grid.set_folder(folder_id)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
     def on_branch_selected(self, branch_key: str):
         self.main.grid.set_branch(branch_key)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if hasattr(self.main.grid, "_on_slider_changed"):
             self.main.grid._on_slider_changed(self.main.grid.zoom_slider.value())
-            
+
         if hasattr(self.main.grid, "list_view"):
             self.main.grid.list_view.scrollToTop()
-            
+
+        if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
+            self.main.thumbnails.clear()
+            self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+
+    def on_videos_selected(self):
+        """Handle videos tab selection - show all videos for current project"""
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.main.grid, "set_videos"):
+            self.main.grid.set_videos()
+
+        if getattr(self.main, "active_tag_filter", "all") != "all":
+            self.main._apply_tag_filter(self.main.active_tag_filter)
+
+        if hasattr(self.main.grid, "list_view"):
+            self.main.grid.list_view.scrollToTop()
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
@@ -2622,7 +2638,10 @@ class MainWindow(QMainWindow):
 
         self.sidebar.on_branch_selected = self.sidebar_controller.on_branch_selected
         self.sidebar.folderSelected.connect(self.sidebar_controller.on_folder_selected)
-        
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.sidebar, 'selectVideos'):
+            self.sidebar.selectVideos.connect(self.sidebar_controller.on_videos_selected)
+
         self.splitter.addWidget(self.sidebar)
 
         # Phase 2.3: Grid container with selection toolbar

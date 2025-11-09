@@ -363,6 +363,20 @@ class TagService:
                 tags=None
             )
 
+            # CRITICAL FIX: Also add photo to project_images for 'all' branch
+            # Without this, the photo exists in photo_metadata but not in project_images,
+            # causing count mismatches (e.g., 299 in metadata vs 298 in all branch)
+            try:
+                db = self._photo_repo._db_connection
+                db.add_project_image(project_id=project_id, image_path=path, branch_key='all', label=None)
+                self.logger.debug(f"Added photo to project_images (all branch): {path}")
+            except Exception as e:
+                # If photo already exists in project_images, that's fine
+                if "UNIQUE constraint failed" in str(e):
+                    self.logger.debug(f"Photo already in project_images: {path}")
+                else:
+                    self.logger.warning(f"Failed to add photo to project_images: {e}")
+
             self.logger.debug(f"Created photo_metadata entry for: {path} (id={photo_id})")
             return photo_id
 

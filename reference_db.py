@@ -2852,6 +2852,166 @@ class ReferenceDB:
                 """, (tag_name,)).fetchall()
             return [os.path.abspath(r[0]) for r in rows if r and r[0]]
 
+    def get_images_by_branch_and_tag(self, project_id: int, branch_key: str, tag_name: str) -> list[str]:
+        """
+        Get image paths that match BOTH a branch AND a tag in a single efficient query.
+
+        This method fixes the UI freeze issue caused by loading all branch photos (2856)
+        then filtering in memory. Instead, it uses SQL JOIN to get only matching photos.
+
+        Args:
+            project_id: Project ID to filter by
+            branch_key: Branch key (e.g., 'all', 'date:2024-01-15')
+            tag_name: Tag name to filter by
+
+        Returns:
+            List of image paths that are in the branch AND have the tag
+
+        Example:
+            # Get photos in 'all' branch with tag 'Himmel' (returns 2 photos, not 2856!)
+            paths = db.get_images_by_branch_and_tag(1, 'all', 'Himmel')
+            # Result: 2 photos instead of loading 2856 and filtering in memory
+
+        Performance:
+            - OLD: Load 2856 photos → filter in memory → UI freezes for minutes
+            - NEW: SQL JOIN returns 2 photos → UI responds instantly
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Efficient query: JOIN branch + tag in single pass
+            # Only returns photos that match BOTH conditions
+            rows = cur.execute("""
+                SELECT DISTINCT pm.path
+                FROM photo_metadata pm
+                JOIN project_images pi ON pm.path = pi.image_path AND pm.project_id = pi.project_id
+                JOIN photo_tags pt ON pm.id = pt.photo_id
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pm.project_id = ?
+                  AND pi.branch_key = ?
+                  AND t.name = ?
+                  AND t.project_id = ?
+                ORDER BY pm.path
+            """, (project_id, branch_key, tag_name, project_id)).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_branch_and_tag(project={project_id}, branch={branch_key}, tag={tag_name}) "
+                f"→ {len(paths)} photos (efficient JOIN query)"
+            )
+
+            return paths
+
+    def get_images_by_folder_and_tag(self, project_id: int, folder_id: int, tag_name: str, include_subfolders: bool = True) -> list[str]:
+        """
+        Get image paths in a folder (optionally including subfolders) that have a specific tag.
+
+        Efficient query using SQL JOIN instead of loading all folder photos then filtering.
+
+        Args:
+            project_id: Project ID to filter by
+            folder_id: Folder ID
+            tag_name: Tag name to filter by
+            include_subfolders: If True, include photos from nested subfolders
+
+        Returns:
+            List of image paths that are in the folder AND have the tag
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            if include_subfolders:
+                # Get all descendant folder IDs
+                folder_ids = self.get_descendant_folder_ids(folder_id, project_id=project_id)
+                placeholders = ','.join('?' * len(folder_ids))
+
+                rows = cur.execute(f"""
+                    SELECT DISTINCT pm.path
+                    FROM photo_metadata pm
+                    JOIN photo_tags pt ON pm.id = pt.photo_id
+                    JOIN tags t ON pt.tag_id = t.id
+                    WHERE pm.project_id = ?
+                      AND pm.folder_id IN ({placeholders})
+                      AND t.name = ?
+                      AND t.project_id = ?
+                    ORDER BY pm.path
+                """, [project_id] + folder_ids + [tag_name, project_id]).fetchall()
+            else:
+                rows = cur.execute("""
+                    SELECT DISTINCT pm.path
+                    FROM photo_metadata pm
+                    JOIN photo_tags pt ON pm.id = pt.photo_id
+                    JOIN tags t ON pt.tag_id = t.id
+                    WHERE pm.project_id = ?
+                      AND pm.folder_id = ?
+                      AND t.name = ?
+                      AND t.project_id = ?
+                    ORDER BY pm.path
+                """, (project_id, folder_id, tag_name, project_id)).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_folder_and_tag(project={project_id}, folder={folder_id}, tag={tag_name}, subfolders={include_subfolders}) "
+                f"→ {len(paths)} photos"
+            )
+
+            return paths
+
+    def get_images_by_date_and_tag(self, project_id: int, date_key: str, tag_name: str) -> list[str]:
+        """
+        Get image paths for a date (year/month/day) that have a specific tag.
+
+        Args:
+            project_id: Project ID to filter by
+            date_key: Date key (YYYY, YYYY-MM, or YYYY-MM-DD)
+            tag_name: Tag name to filter by
+
+        Returns:
+            List of image paths that match the date AND have the tag
+        """
+        # Determine date query based on date_key format
+        if len(date_key) == 4:  # Year
+            date_where = "pm.created_year = ?"
+            date_params = [int(date_key)]
+        elif len(date_key) == 7:  # Year-Month
+            date_where = "pm.created_date LIKE ?"
+            date_params = [f"{date_key}%"]
+        elif len(date_key) == 10:  # Year-Month-Day
+            date_where = "pm.created_date = ?"
+            date_params = [date_key]
+        else:
+            self.logger.warning(f"Invalid date_key format: {date_key}")
+            return []
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            query = f"""
+                SELECT DISTINCT pm.path
+                FROM photo_metadata pm
+                JOIN photo_tags pt ON pm.id = pt.photo_id
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pm.project_id = ?
+                  AND {date_where}
+                  AND t.name = ?
+                  AND t.project_id = ?
+                ORDER BY pm.path
+            """
+
+            params = [project_id] + date_params + [tag_name, project_id]
+            rows = cur.execute(query, params).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_date_and_tag(project={project_id}, date={date_key}, tag={tag_name}) "
+                f"→ {len(paths)} photos"
+            )
+
+            return paths
+
 
     def get_image_count_recursive(self, folder_id: int, project_id: int | None = None) -> int:
         """

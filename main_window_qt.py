@@ -87,6 +87,10 @@ from sidebar_qt import SidebarQt
 
 from thumbnail_grid_qt import ThumbnailGridQt
 
+# 🎬 Phase 4.4: Video player support
+from video_player_qt import VideoPlayerPanel
+from thumbnail_grid_qt import is_video_file
+
 from app_services import (
     list_projects, get_default_project_id, 
     scan_signals, scan_repository, 
@@ -2658,6 +2662,12 @@ class MainWindow(QMainWindow):
         self.grid = ThumbnailGridQt(project_id=default_pid)
         grid_layout.addWidget(self.grid)
 
+        # 🎬 Phase 4.4: Video player panel (hidden by default)
+        self.video_player = VideoPlayerPanel(self)
+        self.video_player.hide()
+        self.video_player.closed.connect(self._on_video_player_closed)
+        grid_layout.addWidget(self.video_player)
+
         self.splitter.addWidget(self.grid_container)
 
         # 🔗 Now that grid exists — connect toolbar actions safely
@@ -3641,12 +3651,53 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 3) Launch dialog
+        # 🎬 Phase 4.4: Check if this is a video file
+        if is_video_file(path):
+            print(f"[VideoPlayer] Opening video: {path}")
+            self._open_video_player(path)
+            return
+
+        # 3) Launch dialog for photos
         dlg = LightboxDialog(path, self)
         dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev
         dlg.resize(900, 700)
         dlg.exec()
 
+    def _open_video_player(self, video_path: str):
+        """
+        Open video player for the given video path.
+        🎬 Phase 4.4: Video playback support
+        """
+        if not video_path:
+            return
+
+        # Get video metadata from database
+        metadata = None
+        try:
+            from reference_db import ReferenceDB
+            db = ReferenceDB()
+            project_id = getattr(self.grid, 'project_id', None)
+            if project_id:
+                metadata = db.get_video_by_path(video_path, project_id)
+        except Exception as e:
+            print(f"[VideoPlayer] Failed to load metadata: {e}")
+
+        # Hide grid, show video player
+        self.grid.hide()
+        self.video_player.show()
+
+        # Load and play video
+        self.video_player.load_video(video_path, metadata)
+        print(f"[VideoPlayer] Opened: {video_path}")
+
+    def _on_video_player_closed(self):
+        """
+        Handle video player close event.
+        🎬 Phase 4.4: Return to grid view when player closes
+        """
+        self.video_player.hide()
+        self.grid.show()
+        print("[VideoPlayer] Closed, returning to grid")
 
     def resizeEvent(self, event):
         """

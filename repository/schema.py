@@ -100,7 +100,8 @@ CREATE TABLE IF NOT EXISTS project_images (
     branch_key TEXT,
     image_path TEXT NOT NULL,
     label TEXT,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(project_id, branch_key, image_path)
 );
 
 -- Face crops (face thumbnails for each branch)

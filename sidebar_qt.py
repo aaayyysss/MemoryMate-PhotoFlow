@@ -1364,11 +1364,11 @@ class SidebarQt(QWidget):
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    mw.grid.display_thumbnails(paths)
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
                     mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
                 else:
-                    print(f"[Sidebar] Unable to display videos")
+                    print(f"[Sidebar] Unable to display videos - grid.load_custom_paths not found")
             except Exception as e:
                 print(f"[Sidebar] Failed to load all videos: {e}")
 
@@ -1395,11 +1395,11 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    mw.grid.display_thumbnails(paths)
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
-                    print(f"[Sidebar] Unable to display filtered videos")
+                    print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
                 print(f"[Sidebar] Failed to filter videos by duration: {e}")
 
@@ -1417,11 +1417,11 @@ class SidebarQt(QWidget):
                 label = quality_labels.get(value, value)
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    mw.grid.display_thumbnails(paths)
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
-                    print(f"[Sidebar] Unable to display filtered videos")
+                    print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
                 print(f"[Sidebar] Failed to filter videos by resolution: {e}")
 
@@ -1437,11 +1437,11 @@ class SidebarQt(QWidget):
                     videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                     filtered = video_service.search_videos(videos, query)
                     paths = [v['path'] for v in filtered]
-                    if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                        mw.grid.display_thumbnails(paths)
+                    if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                        mw.grid.load_custom_paths(paths)
                         mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
                     else:
-                        print(f"[Sidebar] Unable to display search results")
+                        print(f"[Sidebar] Unable to display search results - grid.load_custom_paths not found")
                 except Exception as e:
                     print(f"[Sidebar] Failed to search videos: {e}")
 

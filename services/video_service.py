@@ -638,6 +638,262 @@ class VideoService:
 
         return filtered
 
+    # ========================================================================
+    # ADVANCED FILTERING (Option 7)
+    # ========================================================================
+
+    def filter_by_codec(self, videos: List[Dict[str, Any]],
+                       codecs: List[str] = None) -> List[Dict[str, Any]]:
+        """
+        Filter videos by codec.
+
+        Args:
+            videos: List of video metadata dicts
+            codecs: List of codec names (case-insensitive, e.g., ['h264', 'hevc', 'vp9'])
+                   None returns all videos with codec metadata
+
+        Returns:
+            Filtered list of videos
+
+        Example:
+            >>> # Get H.264 and H.265 videos
+            >>> videos = service.get_videos_by_project(1)
+            >>> h26x = service.filter_by_codec(videos, codecs=['h264', 'hevc'])
+
+            >>> # Get VP9 videos
+            >>> vp9 = service.filter_by_codec(videos, codecs=['vp9'])
+        """
+        if codecs is None:
+            # Return all videos that have codec metadata
+            return [v for v in videos if v.get('codec')]
+
+        # Normalize codec names to lowercase
+        codecs_lower = [c.lower() for c in codecs]
+
+        filtered = []
+        for video in videos:
+            codec = video.get('codec')
+            if codec is None:
+                continue
+
+            # Match codec (case-insensitive)
+            if codec.lower() in codecs_lower:
+                filtered.append(video)
+
+        return filtered
+
+    def filter_by_file_size(self, videos: List[Dict[str, Any]],
+                           min_mb: float = None,
+                           max_mb: float = None,
+                           size_range: str = None) -> List[Dict[str, Any]]:
+        """
+        Filter videos by file size.
+
+        Args:
+            videos: List of video metadata dicts
+            min_mb: Minimum file size in MB (None = no minimum)
+            max_mb: Maximum file size in MB (None = no maximum)
+            size_range: Size range preset: 'small' (<100MB), 'medium' (100MB-1GB),
+                       'large' (1GB-5GB), 'xlarge' (>5GB)
+
+        Returns:
+            Filtered list of videos
+
+        Example:
+            >>> # Get small files (<100MB)
+            >>> videos = service.get_videos_by_project(1)
+            >>> small = service.filter_by_file_size(videos, size_range='small')
+
+            >>> # Get files between 500MB and 2GB
+            >>> mid = service.filter_by_file_size(videos, min_mb=500, max_mb=2000)
+        """
+        # Size range presets
+        presets = {
+            'small': (None, 100),      # < 100MB
+            'medium': (100, 1024),     # 100MB - 1GB
+            'large': (1024, 5120),     # 1GB - 5GB
+            'xlarge': (5120, None)     # > 5GB
+        }
+
+        if size_range and size_range.lower() in presets:
+            min_mb, max_mb = presets[size_range.lower()]
+
+        filtered = []
+        for video in videos:
+            size_kb = video.get('size_kb')
+            if size_kb is None:
+                continue
+
+            size_mb = size_kb / 1024
+
+            if min_mb is not None and size_mb < min_mb:
+                continue
+            if max_mb is not None and size_mb > max_mb:
+                continue
+
+            filtered.append(video)
+
+        return filtered
+
+    def filter_by_date(self, videos: List[Dict[str, Any]],
+                      start_date: str = None,
+                      end_date: str = None,
+                      year: int = None,
+                      use_modified: bool = False) -> List[Dict[str, Any]]:
+        """
+        Filter videos by date taken or modified.
+
+        Args:
+            videos: List of video metadata dicts
+            start_date: Start date (YYYY-MM-DD format, inclusive)
+            end_date: End date (YYYY-MM-DD format, inclusive)
+            year: Year filter (shortcut for start_date=YYYY-01-01, end_date=YYYY-12-31)
+            use_modified: Use modified date instead of date_taken (default: False)
+
+        Returns:
+            Filtered list of videos
+
+        Example:
+            >>> # Get videos from 2024
+            >>> videos = service.get_videos_by_project(1)
+            >>> y2024 = service.filter_by_date(videos, year=2024)
+
+            >>> # Get videos from Jan-Mar 2024
+            >>> q1 = service.filter_by_date(videos, start_date='2024-01-01', end_date='2024-03-31')
+        """
+        from datetime import datetime
+
+        # Year shortcut
+        if year is not None:
+            start_date = f"{year}-01-01"
+            end_date = f"{year}-12-31"
+
+        # Parse dates
+        start_dt = None
+        end_dt = None
+
+        if start_date:
+            try:
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            except ValueError:
+                self.logger.warning(f"Invalid start_date format: {start_date}")
+
+        if end_date:
+            try:
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                self.logger.warning(f"Invalid end_date format: {end_date}")
+
+        # Select date field
+        date_field = 'modified' if use_modified else 'date_taken'
+
+        filtered = []
+        for video in videos:
+            date_str = video.get(date_field)
+            if not date_str:
+                continue
+
+            try:
+                # Parse date (handle both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS formats)
+                date_only = date_str.split(' ')[0]  # Extract YYYY-MM-DD part
+                video_dt = datetime.strptime(date_only, '%Y-%m-%d')
+
+                # Apply filters
+                if start_dt and video_dt < start_dt:
+                    continue
+                if end_dt and video_dt > end_dt:
+                    continue
+
+                filtered.append(video)
+            except (ValueError, IndexError):
+                self.logger.debug(f"Failed to parse date {date_str} for video {video.get('path')}")
+
+        return filtered
+
+    def filter_combined(self, videos: List[Dict[str, Any]],
+                       filters: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Apply multiple filters in combination.
+
+        Args:
+            videos: List of video metadata dicts
+            filters: Dict of filter criteria with keys:
+                    - duration_min: Minimum duration in seconds
+                    - duration_max: Maximum duration in seconds
+                    - resolution_quality: Quality preset ('sd', 'hd', 'fhd', '4k')
+                    - codecs: List of codec names
+                    - size_min_mb: Minimum file size in MB
+                    - size_max_mb: Maximum file size in MB
+                    - start_date: Start date (YYYY-MM-DD)
+                    - end_date: End date (YYYY-MM-DD)
+                    - year: Year filter
+                    - query: Search query for path/tags
+
+        Returns:
+            Filtered list of videos matching all criteria
+
+        Example:
+            >>> # Get HD H.264 videos from 2024 longer than 5 minutes
+            >>> videos = service.get_videos_by_project(1)
+            >>> filtered = service.filter_combined(videos, {
+            ...     'resolution_quality': 'hd',
+            ...     'codecs': ['h264'],
+            ...     'year': 2024,
+            ...     'duration_min': 300
+            ... })
+        """
+        result = videos
+
+        # Apply duration filter
+        if 'duration_min' in filters or 'duration_max' in filters:
+            result = self.filter_by_duration(
+                result,
+                min_seconds=filters.get('duration_min'),
+                max_seconds=filters.get('duration_max')
+            )
+
+        # Apply resolution filter
+        if 'resolution_quality' in filters:
+            result = self.filter_by_resolution(
+                result,
+                quality=filters.get('resolution_quality')
+            )
+
+        # Apply codec filter
+        if 'codecs' in filters:
+            result = self.filter_by_codec(
+                result,
+                codecs=filters.get('codecs')
+            )
+
+        # Apply file size filter
+        if 'size_min_mb' in filters or 'size_max_mb' in filters or 'size_range' in filters:
+            result = self.filter_by_file_size(
+                result,
+                min_mb=filters.get('size_min_mb'),
+                max_mb=filters.get('size_max_mb'),
+                size_range=filters.get('size_range')
+            )
+
+        # Apply date filter
+        if 'start_date' in filters or 'end_date' in filters or 'year' in filters:
+            result = self.filter_by_date(
+                result,
+                start_date=filters.get('start_date'),
+                end_date=filters.get('end_date'),
+                year=filters.get('year'),
+                use_modified=filters.get('use_modified', False)
+            )
+
+        # Apply search query
+        if 'query' in filters:
+            result = self.search_videos(
+                result,
+                query=filters.get('query')
+            )
+
+        return result
+
 
 # ========================================================================
 # SINGLETON PATTERN

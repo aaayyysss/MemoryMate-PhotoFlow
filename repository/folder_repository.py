@@ -23,6 +23,8 @@ class FolderRepository(BaseRepository):
         """
         Get folder by file system path and project.
 
+        Uses case-insensitive matching on Windows to handle path casing variations.
+
         Args:
             path: File system path
             project_id: Project ID
@@ -32,10 +34,30 @@ class FolderRepository(BaseRepository):
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT * FROM photo_folders WHERE path = ? AND project_id = ?",
-                (path, project_id)
-            )
+
+            # CRITICAL FIX: Use case-insensitive matching on Windows
+            # Windows file paths are case-insensitive but can be stored with different casing
+            # SQLite's = operator is case-sensitive, so we normalize paths for comparison
+            import platform
+            if platform.system() == 'Windows':
+                # Normalize both stored and query paths to lowercase for comparison
+                # Also normalize slashes for consistency
+                normalized_path = path.lower().replace('/', '\\')
+                cur.execute(
+                    """
+                    SELECT * FROM photo_folders
+                    WHERE LOWER(REPLACE(path, '/', '\\')) = ?
+                    AND project_id = ?
+                    """,
+                    (normalized_path, project_id)
+                )
+            else:
+                # Unix-like systems: use exact match (case-sensitive)
+                cur.execute(
+                    "SELECT * FROM photo_folders WHERE path = ? AND project_id = ?",
+                    (path, project_id)
+                )
+
             return cur.fetchone()
 
     def get_children(self, parent_id: Optional[int], project_id: int) -> List[Dict[str, Any]]:

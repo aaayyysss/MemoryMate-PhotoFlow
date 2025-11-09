@@ -131,19 +131,15 @@ class VideoThumbnailWorker(QRunnable):
 
                 # Generate thumbnail
                 try:
-                    thumbnail_data = self.thumbnail_service.generate_thumbnail(
+                    # generate_thumbnail() returns file path string, not bytes
+                    # It already saves the thumbnail to disk (no need for separate caching)
+                    thumbnail_path = self.thumbnail_service.generate_thumbnail(
                         video_path,
+                        width=int(self.thumbnail_height * 4/3),  # Maintain 4:3 aspect ratio
                         height=self.thumbnail_height
                     )
 
-                    if thumbnail_data:
-                        # Cache thumbnail
-                        self.thumbnail_service.cache_thumbnail(
-                            video_path,
-                            thumbnail_data,
-                            height=self.thumbnail_height
-                        )
-
+                    if thumbnail_path:
                         # Update database status
                         video_id = video['id']
                         self.video_repo.update(
@@ -151,8 +147,14 @@ class VideoThumbnailWorker(QRunnable):
                             thumbnail_status='ok'
                         )
 
-                        # Emit thumbnail ready signal
-                        self.signals.thumbnail_ready.emit(video_path, thumbnail_data)
+                        # Read thumbnail file as bytes for signal emission
+                        try:
+                            with open(thumbnail_path, 'rb') as f:
+                                thumbnail_data = f.read()
+                            self.signals.thumbnail_ready.emit(video_path, thumbnail_data)
+                        except Exception as read_error:
+                            logger.warning(f"[VideoThumbnailWorker] Generated thumbnail but couldn't read: {read_error}")
+                            # Still count as success since thumbnail file exists
 
                         success_count += 1
                         logger.info(f"[VideoThumbnailWorker] ✓ Generated thumbnail: {video_path}")

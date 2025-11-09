@@ -218,7 +218,10 @@ class PhotoScanService:
             batch_rows = []
             folders_seen: Set[str] = set()
 
-            executor = ThreadPoolExecutor(max_workers=4)
+            # CRITICAL FIX: Increase thread pool size to prevent deadlock
+            # With max_workers=4, if 4 files timeout simultaneously, the pool deadlocks
+            # Using 8 workers provides headroom for timeouts while maintaining reasonable concurrency
+            executor = ThreadPoolExecutor(max_workers=8)
 
             try:
                 for i, file_path in enumerate(all_files, 1):
@@ -443,10 +446,12 @@ class PhotoScanService:
         if extract_exif_date:
             # Use metadata service for extraction with timeout protection
             try:
+                logger.debug(f"[Scan] Processing metadata for: {path_str}")
                 future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
                 width, height, date_taken = future.result(timeout=metadata_timeout)
+                logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
             except FuturesTimeoutError:
-                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit)")
+                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
                 # Continue without dimensions/EXIF - photo will still be indexed
                 try:
                     future.cancel()

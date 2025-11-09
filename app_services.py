@@ -210,13 +210,16 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
     if not root_folder.exists():
         raise ValueError(f"Folder not found: {root_folder}")
 
+    # Get or create default project for this scan
+    project_id = db._get_or_create_default_project()
+
     # --- Gather all files first for total count ---
     all_files = []
     for current_dir, _, files in os.walk(root_folder):
         if cancel_callback and cancel_callback():
             print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
             return 0, 0
-                
+
         for fn in files:
             if fn.lower().split(".")[-1] in ["jpg", "jpeg", "png", "heic", "tif", "tiff", "webp"]:
                 all_files.append(Path(current_dir) / fn)
@@ -240,7 +243,7 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
         parent_id = folder_map.get(str(parent_path)) if parent_path else None
 
         if str(folder_path) not in folder_map:
-            folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id)
+            folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id, project_id)
             folder_map[str(folder_path)] = folder_id
             folder_count += 1
         else:
@@ -283,6 +286,7 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
             height=height,
             date_taken=date_taken,
             tags=None,
+            project_id=project_id,
         )
         photo_count += 1
 

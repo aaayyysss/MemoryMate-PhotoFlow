@@ -1107,11 +1107,20 @@ class ReferenceDB:
         conn.commit()
 
 
-    def scan_repository(self, repo_path: str):
-        """Recursively scan a photo repo and index in photo_folders and photo_metadata."""
+    def scan_repository(self, repo_path: str, project_id: int = None):
+        """Recursively scan a photo repo and index in photo_folders and photo_metadata.
+
+        Args:
+            repo_path: Path to repository to scan
+            project_id: Project ID (uses default if None)
+        """
         repo = Path(repo_path).resolve()
         if not repo.exists():
             raise FileNotFoundError(f"Repository not found: {repo}")
+
+        # Get or create default project
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
 
         supported_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.tif', '.tiff'}
 
@@ -1120,7 +1129,7 @@ class ReferenceDB:
             parent = folder_path.parent if folder_path.parent != folder_path else None
             if parent and parent.exists():
                 cur = conn.cursor()
-                cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(parent),))
+                cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (str(parent), project_id))
                 prow = cur.fetchone()
                 if prow:
                     parent_id = prow[0]
@@ -1128,13 +1137,13 @@ class ReferenceDB:
                     parent_id = get_or_create_folder(conn, parent)
 
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(folder_path),))
+            cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (str(folder_path), project_id))
             row = cur.fetchone()
             if row:
                 return row[0]
             cur.execute(
-                "INSERT INTO photo_folders (parent_id, path, name) VALUES (?, ?, ?)",
-                (parent_id, str(folder_path), folder_path.name)
+                "INSERT INTO photo_folders (parent_id, path, name, project_id) VALUES (?, ?, ?, ?)",
+                (parent_id, str(folder_path), folder_path.name, project_id)
             )
             conn.commit()
             return cur.lastrowid
@@ -1396,18 +1405,47 @@ class ReferenceDB:
                 print(f"[get_images_by_branch] Available branch_keys in DB: {existing_keys[:10]}")
             return results
 
-
-    def ensure_folder(self, path: str, name: str, parent_id: int | None):
-        """Return folder_id; create if not exists."""
+    def _get_or_create_default_project(self):
+        """Get or create default project for scans. Returns project_id."""
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_folders WHERE path=?", (path,))
+            # Try to get first project
+            cur.execute("SELECT id FROM projects ORDER BY id ASC LIMIT 1")
+            row = cur.fetchone()
+            if row:
+                return row[0]
+
+            # No projects exist - create default
+            cur.execute(
+                "INSERT INTO projects (name, folder, mode) VALUES (?, ?, ?)",
+                ("Default Project", ".", "date")
+            )
+            conn.commit()
+            return cur.lastrowid
+
+    def ensure_folder(self, path: str, name: str, parent_id: int | None, project_id: int = None):
+        """Return folder_id; create if not exists.
+
+        Args:
+            path: Full folder path
+            name: Folder name
+            parent_id: Parent folder ID (None for root)
+            project_id: Project ID (uses default if None)
+        """
+        # If no project_id provided, get or create default project
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # Check if folder exists for this project
+            cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (path, project_id))
             row = cur.fetchone()
             if row:
                 return row[0]
             cur.execute(
-                "INSERT INTO photo_folders (name, path, parent_id) VALUES (?,?,?)",
-                (name, path, parent_id)
+                "INSERT INTO photo_folders (name, path, parent_id, project_id) VALUES (?,?,?,?)",
+                (name, path, parent_id, project_id)
             )
             conn.commit()
             return cur.lastrowid
@@ -1485,10 +1523,10 @@ class ReferenceDB:
                     ))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1501,16 +1539,16 @@ class ReferenceDB:
                             created_date = COALESCE(excluded.created_date, created_date),
                             created_year = COALESCE(excluded.created_year, created_year)
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
             else:
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1521,12 +1559,12 @@ class ReferenceDB:
                             updated_at= excluded.updated_at,
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1535,7 +1573,7 @@ class ReferenceDB:
                             date_taken= excluded.date_taken,
                             tags      = excluded.tags,
                             updated_at= excluded.updated_at
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
             conn.commit()
 
     # ---------------------------
@@ -1677,13 +1715,20 @@ class ReferenceDB:
             return stats
 
     # Keep existing methods below mostly unchanged — but ensure upsert_photo_metadata sets metadata_status ok when metadata present.
-    def upsert_photo_metadata(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
+    def upsert_photo_metadata(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None, project_id=None):
         """
         Upsert row; if migration (created_* columns) exists, also write created_ts/date/year
         derived from date_taken (preferred) or modified (fallback). If not migrated yet,
         it safely uses the legacy column set.
         This updated version also sets metadata_status to 'ok' and metadata_fail_count=0 if width/height are provided.
+
+        Args:
+            project_id: Project ID (uses default if None)
         """
+        # Get or create default project if not provided
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
+
         with self._connect() as conn:
             cur = conn.cursor()
             ok_meta = (width is not None and height is not None) or (date_taken is not None)
@@ -1692,10 +1737,10 @@ class ReferenceDB:
                 # When metadata is present, mark metadata_status ok
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1710,16 +1755,16 @@ class ReferenceDB:
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1732,16 +1777,16 @@ class ReferenceDB:
                             created_date = COALESCE(excluded.created_date, created_date),
                             created_year = COALESCE(excluded.created_year, created_year)
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
             else:
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1752,12 +1797,12 @@ class ReferenceDB:
                             updated_at= excluded.updated_at,
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1766,7 +1811,7 @@ class ReferenceDB:
                             date_taken= excluded.date_taken,
                             tags      = excluded.tags,
                             updated_at= excluded.updated_at
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
             conn.commit()
 
 

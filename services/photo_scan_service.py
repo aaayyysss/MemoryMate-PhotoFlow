@@ -167,7 +167,8 @@ class PhotoScanService:
                        skip_unchanged: bool = True,
                        extract_exif_date: bool = True,
                        ignore_folders: Optional[Set[str]] = None,
-                       progress_callback: Optional[Callable[[ScanProgress], None]] = None) -> ScanResult:
+                       progress_callback: Optional[Callable[[ScanProgress], None]] = None,
+                       on_video_metadata_finished: Optional[Callable[[int, int], None]] = None) -> ScanResult:
         """
         Scan a photo repository and index all photos.
 
@@ -287,7 +288,10 @@ class PhotoScanService:
 
             # Step 6: Launch background workers for video processing
             if self._stats['videos_indexed'] > 0:
-                self.video_metadata_worker, self.video_thumbnail_worker = self._launch_video_workers(project_id)
+                self.video_metadata_worker, self.video_thumbnail_worker = self._launch_video_workers(
+                    project_id,
+                    on_metadata_finished_callback=on_video_metadata_finished
+                )
 
             # Finalize
             duration = time.time() - start_time
@@ -674,12 +678,13 @@ class PhotoScanService:
         except Exception as e:
             logger.error(f"Error processing videos: {e}", exc_info=True)
 
-    def _launch_video_workers(self, project_id: int):
+    def _launch_video_workers(self, project_id: int, on_metadata_finished_callback=None):
         """
         Launch background workers for video metadata extraction and thumbnail generation.
 
         Args:
             project_id: Project ID for which to process videos
+            on_metadata_finished_callback: Optional callback(success, failed) to call when metadata extraction finishes
 
         Returns:
             Tuple of (metadata_worker, thumbnail_worker) or (None, None) if failed
@@ -701,6 +706,11 @@ class PhotoScanService:
             metadata_worker.signals.finished.connect(
                 lambda success, failed: logger.info(f"[Metadata] Complete: {success} successful, {failed} failed")
             )
+
+            # CRITICAL: Connect callback BEFORE starting worker to avoid race condition
+            if on_metadata_finished_callback:
+                metadata_worker.signals.finished.connect(on_metadata_finished_callback)
+                logger.info("Connected metadata finished callback for sidebar refresh")
 
             QThreadPool.globalInstance().start(metadata_worker)
             logger.info("✓ Video metadata extraction worker started")

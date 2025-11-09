@@ -219,7 +219,28 @@ class ScanController:
             self.thread = QThread(self.main)
             print(f"[ScanController] QThread created")
 
-            self.worker = ScanWorker(folder, current_project_id, incremental, self.main.settings, db_writer=self.db_writer)
+            # CRITICAL: Define callback for video metadata extraction completion
+            # This will refresh the sidebar counts after metadata extraction finishes
+            def on_video_metadata_finished(success, failed):
+                """Refresh sidebar video counts after metadata extraction completes."""
+                self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
+                self.logger.info("Refreshing sidebar to update video filter counts...")
+
+                # Schedule sidebar refresh in main thread
+                from PySide6.QtCore import QTimer
+                def refresh_sidebar_videos():
+                    try:
+                        if hasattr(self.main, 'sidebar') and hasattr(self.main.sidebar, "refresh_all"):
+                            self.main.sidebar.refresh_all(force=True)
+                            self.logger.info("✓ Sidebar refreshed after video metadata extraction")
+                    except Exception as e:
+                        self.logger.error(f"Error refreshing sidebar after metadata extraction: {e}")
+
+                QTimer.singleShot(0, refresh_sidebar_videos)
+
+            self.worker = ScanWorker(folder, current_project_id, incremental, self.main.settings,
+                                    db_writer=self.db_writer,
+                                    on_video_metadata_finished=on_video_metadata_finished)
             print(f"[ScanController] ScanWorker instance created with project_id={current_project_id}")
 
             self.worker.moveToThread(self.thread)
@@ -396,38 +417,8 @@ class ScanController:
             # Immediate refresh (next event loop iteration)
             QTimer.singleShot(0, refresh_ui)
 
-        # CRITICAL FIX: Connect to video metadata worker to refresh sidebar when extraction completes
-        # The sidebar is built immediately after scan, but video metadata extraction continues
-        # in the background. We need to refresh the sidebar counts once extraction finishes.
-        try:
-            if (self.worker and
-                hasattr(self.worker, 'service') and
-                hasattr(self.worker.service, 'video_metadata_worker') and
-                self.worker.service.video_metadata_worker is not None):
-
-                metadata_worker = self.worker.service.video_metadata_worker
-
-                def on_metadata_finished(success, failed):
-                    """Refresh sidebar video counts after metadata extraction completes."""
-                    self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
-                    self.logger.info("Refreshing sidebar to update video filter counts...")
-
-                    # Schedule sidebar refresh in main thread
-                    def refresh_sidebar_videos():
-                        try:
-                            if hasattr(self.main.sidebar, "refresh_all"):
-                                self.main.sidebar.refresh_all(force=True)
-                                self.logger.info("Sidebar refreshed after video metadata extraction")
-                        except Exception as e:
-                            self.logger.error(f"Error refreshing sidebar after metadata extraction: {e}")
-
-                    QTimer.singleShot(0, refresh_sidebar_videos)
-
-                # Connect the signal
-                metadata_worker.signals.finished.connect(on_metadata_finished)
-                self.logger.info("Connected to video metadata worker finished signal for sidebar refresh")
-        except Exception as e:
-            self.logger.warning(f"Could not connect to video metadata worker: {e}")
+        # Note: Video metadata worker callback is now connected at worker creation time
+        # in start_scan() to avoid race conditions with worker finishing before cleanup runs
 
 
 class SidebarController:

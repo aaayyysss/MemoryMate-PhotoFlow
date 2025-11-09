@@ -33,7 +33,8 @@ class ScanWorkerAdapter(QObject):
                  project_id: int,
                  incremental: bool,
                  settings: Dict[str, Any],
-                 db_writer: Optional[Any] = None):
+                 db_writer: Optional[Any] = None,
+                 on_video_metadata_finished: Optional[Any] = None):
         """
         Initialize adapter.
 
@@ -43,6 +44,7 @@ class ScanWorkerAdapter(QObject):
             incremental: Enable incremental scanning
             settings: Application settings dict
             db_writer: Optional DBWriter (not used - kept for API compatibility)
+            on_video_metadata_finished: Optional callback for when video metadata extraction finishes
         """
         super().__init__()
 
@@ -51,6 +53,7 @@ class ScanWorkerAdapter(QObject):
         self.incremental = incremental
         self.settings = settings
         self.db_writer = db_writer  # Kept for compatibility, but not used
+        self.on_video_metadata_finished = on_video_metadata_finished
 
         # Create service instance
         self.service = PhotoScanService(
@@ -105,7 +108,8 @@ class ScanWorkerAdapter(QObject):
                 skip_unchanged=skip_unchanged,
                 extract_exif_date=extract_exif,
                 ignore_folders=ignore_folders if ignore_folders else None,
-                progress_callback=on_progress
+                progress_callback=on_progress,
+                on_video_metadata_finished=self.on_video_metadata_finished
             )
 
             # Update statistics

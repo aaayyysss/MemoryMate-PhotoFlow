@@ -262,27 +262,46 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
     # Get or create default project for this scan
     project_id = db._get_or_create_default_project()
 
-    # --- Gather all files first for total count ---
-    all_files = []
+    # --- Gather all media files (photos + videos) first for total count ---
+    all_photos = []
+    all_videos = []
+
     for current_dir, _, files in os.walk(root_folder):
         if cancel_callback and cancel_callback():
             print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
             return 0, 0
 
         for fn in files:
-            if fn.lower().split(".")[-1] in ["jpg", "jpeg", "png", "heic", "tif", "tiff", "webp"]:
-                all_files.append(Path(current_dir) / fn)
-    total_files = len(all_files)
+            ext = fn.lower().split(".")[-1]
+            file_path = Path(current_dir) / fn
+
+            # Detect photos
+            if ext in ["jpg", "jpeg", "png", "heic", "tif", "tiff", "webp"]:
+                all_photos.append(file_path)
+            # Detect videos
+            elif ext in ["mp4", "m4v", "mov", "mpeg", "mpg", "mpe", "wmv", "asf",
+                        "avi", "mkv", "webm", "flv", "f4v", "3gp", "3g2", "ogv",
+                        "ts", "mts", "m2ts"]:
+                all_videos.append(file_path)
+
+    total_photos = len(all_photos)
+    total_videos = len(all_videos)
+    total_files = total_photos + total_videos
+
     if total_files == 0:
-        scan_signals.progress.emit(100, "No images found.")
+        scan_signals.progress.emit(100, "No media files found.")
         return 0, 0
+
+    print(f"[SCAN] Found {total_photos} photos and {total_videos} videos")
 
     folder_map = {}
     folder_count = 0
     photo_count = 0
+    video_count = 0
 
-    # --- Step 1: Walk folders ---
-    for idx, file_path in enumerate(all_files):
+    # --- Step 1: Process Photos ---
+    print(f"[SCAN] Processing {total_photos} photos...")
+    for idx, file_path in enumerate(all_photos):
         if cancel_callback and cancel_callback():
             print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
             return 0, 0
@@ -330,19 +349,96 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
         )
         photo_count += 1
 
-        # --- Step 5: Progress reporting ---
-        pct = int((idx + 1) / total_files * 100)
-        scan_signals.progress.emit(pct, f"{photo_count} / {total_files} processed")
+        # --- Step 5: Progress reporting (photos only) ---
+        processed = idx + 1
+        pct = int(processed / total_files * 100)
+        scan_signals.progress.emit(pct, f"Photos: {processed}/{total_photos} | Videos: 0/{total_videos}")
 
+    # --- Step 2: Process Videos ---
+    if total_videos > 0:
+        print(f"[SCAN] Processing {total_videos} videos...")
+        try:
+            from services.video_service import VideoService
+            video_service = VideoService()
+
+            for v_idx, video_path in enumerate(all_videos):
+                if cancel_callback and cancel_callback():
+                    print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
+                    break
+
+                # Ensure folder exists for video
+                folder_path = video_path.parent
+                parent_path = folder_path.parent if folder_path != root_folder else None
+                parent_id = folder_map.get(str(parent_path)) if parent_path else None
+
+                if str(folder_path) not in folder_map:
+                    folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id, project_id)
+                    folder_map[str(folder_path)] = folder_id
+                    folder_count += 1
+                else:
+                    folder_id = folder_map[str(folder_path)]
+
+                # Get file stats
+                stat = os.stat(video_path)
+                size_kb = stat.st_size / 1024
+                modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+                # Index video (status will be 'pending' for metadata/thumbnail extraction)
+                video_service.index_video(
+                    path=str(video_path),
+                    project_id=project_id,
+                    folder_id=folder_id,
+                    size_kb=size_kb,
+                    modified=modified
+                )
+                video_count += 1
+
+                # Progress reporting (videos)
+                processed = total_photos + v_idx + 1
+                pct = int(processed / total_files * 100)
+                scan_signals.progress.emit(pct, f"Photos: {total_photos}/{total_photos} | Videos: {v_idx + 1}/{total_videos}")
+
+            print(f"[SCAN] Indexed {video_count} videos (metadata extraction pending)")
+
+        except ImportError as e:
+            print(f"[SCAN] ⚠️ VideoService not available, skipping videos: {e}")
+        except Exception as e:
+            print(f"[SCAN] ⚠️ Error processing videos: {e}")
 
     # --- Step 6: Rebuild date index ---
-    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {folder_count} folders")
-    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos")
+    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {video_count} videos, {folder_count} folders")
+    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos, {video_count} videos")
 
     # Trigger post-scan date indexing
     rebuild_date_index_with_progress()
 
-    return folder_count, photo_count
+    # --- Step 7: Launch background workers for video processing ---
+    if video_count > 0:
+        try:
+            from PySide6.QtCore import QThreadPool
+            from workers.video_metadata_worker import VideoMetadataWorker
+            from workers.video_thumbnail_worker import VideoThumbnailWorker
+
+            print(f"[SCAN] Launching background workers for {video_count} videos...")
+
+            # Launch metadata extraction worker
+            metadata_worker = VideoMetadataWorker(project_id=project_id)
+            QThreadPool.globalInstance().start(metadata_worker)
+            print(f"[SCAN] ✓ Metadata extraction worker started")
+
+            # Launch thumbnail generation worker
+            thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+            QThreadPool.globalInstance().start(thumbnail_worker)
+            print(f"[SCAN] ✓ Thumbnail generation worker started")
+
+            scan_signals.progress.emit(100, f"🎬 Processing {video_count} videos in background...")
+
+        except ImportError as e:
+            print(f"[SCAN] ⚠️ Video workers not available: {e}")
+        except Exception as e:
+            print(f"[SCAN] ⚠️ Error launching video workers: {e}")
+
+    return folder_count, photo_count, video_count
 
 #    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {folder_count} folders")
 #    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos")

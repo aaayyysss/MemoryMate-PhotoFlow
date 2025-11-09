@@ -23,6 +23,7 @@ class ScanResult:
     photos_indexed: int
     photos_skipped: int
     photos_failed: int
+    videos_indexed: int  # 🎬 NEW: video count
     duration_seconds: float
     interrupted: bool = False
 
@@ -179,7 +180,7 @@ class PhotoScanService:
         """
         start_time = time.time()
         self._cancelled = False
-        self._stats = {'photos_indexed': 0, 'photos_skipped': 0, 'photos_failed': 0, 'folders_found': 0}
+        self._stats = {'photos_indexed': 0, 'photos_skipped': 0, 'photos_failed': 0, 'videos_indexed': 0, 'folders_found': 0}
 
         root_path = Path(root_folder).resolve()
         if not root_path.exists():
@@ -188,15 +189,19 @@ class PhotoScanService:
         logger.info(f"Starting scan: {root_folder} (incremental={incremental})")
 
         try:
-            # Step 1: Discover all image files
-            all_files = self._discover_files(root_path, ignore_folders or self.DEFAULT_IGNORE_FOLDERS)
+            # Step 1: Discover all media files (photos + videos)
+            ignore_set = ignore_folders or self.DEFAULT_IGNORE_FOLDERS
+            all_files = self._discover_files(root_path, ignore_set)
+            all_videos = self._discover_videos(root_path, ignore_set)
+
             total_files = len(all_files)
+            total_videos = len(all_videos)
 
-            logger.info(f"Discovered {total_files} candidate image files")
+            logger.info(f"Discovered {total_files} candidate image files and {total_videos} video files")
 
-            if total_files == 0:
-                logger.warning("No image files found")
-                return ScanResult(0, 0, 0, 0, time.time() - start_time)
+            if total_files == 0 and total_videos == 0:
+                logger.warning("No media files found")
+                return ScanResult(0, 0, 0, 0, 0, time.time() - start_time)
 
             # Step 2: Load existing metadata for incremental scan
             existing_metadata = {}
@@ -260,15 +265,25 @@ class PhotoScanService:
             finally:
                 executor.shutdown(wait=False)
 
-            # Step 4: Create default project and branch if needed
+            # Step 4: Process videos
+            if total_videos > 0 and not self._cancelled:
+                logger.info(f"Processing {total_videos} videos...")
+                self._process_videos(all_videos, root_path, project_id, folders_seen, progress_callback)
+
+            # Step 5: Create default project and branch if needed
             self._ensure_default_project(root_folder)
+
+            # Step 6: Launch background workers for video processing
+            if self._stats['videos_indexed'] > 0:
+                self._launch_video_workers(project_id)
 
             # Finalize
             duration = time.time() - start_time
             self._stats['folders_found'] = len(folders_seen)
 
             logger.info(
-                f"Scan complete: {self._stats['photos_indexed']} indexed, "
+                f"Scan complete: {self._stats['photos_indexed']} photos indexed, "
+                f"{self._stats['videos_indexed']} videos indexed, "
                 f"{self._stats['photos_skipped']} skipped, "
                 f"{self._stats['photos_failed']} failed in {duration:.1f}s"
             )
@@ -278,6 +293,7 @@ class PhotoScanService:
                 photos_indexed=self._stats['photos_indexed'],
                 photos_skipped=self._stats['photos_skipped'],
                 photos_failed=self._stats['photos_failed'],
+                videos_indexed=self._stats['videos_indexed'],
                 duration_seconds=duration,
                 interrupted=self._cancelled
             )
@@ -317,6 +333,33 @@ class PhotoScanService:
                     image_files.append(Path(dirpath) / filename)
 
         return image_files
+
+    def _discover_videos(self, root_path: Path, ignore_folders: Set[str]) -> List[Path]:
+        """
+        Discover all video files in directory tree.
+
+        Args:
+            root_path: Root directory
+            ignore_folders: Folder names to skip
+
+        Returns:
+            List of video file paths
+        """
+        video_files = []
+
+        for dirpath, dirnames, filenames in os.walk(root_path):
+            # Filter ignored directories in-place
+            dirnames[:] = [
+                d for d in dirnames
+                if d not in ignore_folders and not d.startswith(".")
+            ]
+
+            for filename in filenames:
+                ext = Path(filename).suffix.lower()
+                if ext in self.VIDEO_EXTENSIONS:
+                    video_files.append(Path(dirpath) / filename)
+
+        return video_files
 
     def _load_existing_metadata(self) -> Dict[str, str]:
         """
@@ -551,3 +594,106 @@ class PhotoScanService:
 
         except Exception as e:
             logger.warning(f"Could not create default project: {e}")
+
+    def _process_videos(self, video_files: List[Path], root_path: Path, project_id: int,
+                       folders_seen: Set[str], progress_callback: Optional[Callable] = None):
+        """
+        Process discovered video files and index them.
+
+        Args:
+            video_files: List of video file paths
+            root_path: Root directory of scan
+            project_id: Project ID
+            folders_seen: Set of folder paths already seen
+            progress_callback: Optional progress callback
+        """
+        try:
+            from services.video_service import VideoService
+            video_service = VideoService()
+
+            for i, video_path in enumerate(video_files, 1):
+                if self._cancelled:
+                    logger.info("Video processing cancelled by user")
+                    break
+
+                try:
+                    # Track folder
+                    folder_path = os.path.dirname(str(video_path))
+                    folders_seen.add(folder_path)
+
+                    # Ensure folder exists
+                    self._ensure_folder_hierarchy(video_path, root_path, project_id)
+
+                    # Get file stats
+                    stat = os.stat(video_path)
+                    size_kb = stat.st_size / 1024
+                    modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+                    # Find folder_id
+                    folder_id = None
+                    try:
+                        folder_record = self.folder_repo.find_by_path(folder_path)
+                        if folder_record:
+                            folder_id = folder_record['id']
+                    except:
+                        pass
+
+                    # Index video (status will be 'pending' for metadata/thumbnail extraction)
+                    video_service.index_video(
+                        path=str(video_path),
+                        project_id=project_id,
+                        folder_id=folder_id,
+                        size_kb=size_kb,
+                        modified=modified
+                    )
+                    self._stats['videos_indexed'] += 1
+
+                except Exception as e:
+                    logger.warning(f"Failed to index video {video_path}: {e}")
+
+                # Report progress
+                if progress_callback and (i % 10 == 0 or i == len(video_files)):
+                    progress = ScanProgress(
+                        current=i,
+                        total=len(video_files),
+                        percent=int((i / len(video_files)) * 100),
+                        message=f"Indexed {self._stats['videos_indexed']}/{len(video_files)} videos",
+                        current_file=str(video_path)
+                    )
+                    progress_callback(progress)
+
+            logger.info(f"Indexed {self._stats['videos_indexed']} videos (metadata extraction pending)")
+
+        except ImportError:
+            logger.warning("VideoService not available, skipping video indexing")
+        except Exception as e:
+            logger.error(f"Error processing videos: {e}", exc_info=True)
+
+    def _launch_video_workers(self, project_id: int):
+        """
+        Launch background workers for video metadata extraction and thumbnail generation.
+
+        Args:
+            project_id: Project ID for which to process videos
+        """
+        try:
+            from PySide6.QtCore import QThreadPool
+            from workers.video_metadata_worker import VideoMetadataWorker
+            from workers.video_thumbnail_worker import VideoThumbnailWorker
+
+            logger.info(f"Launching background workers for {self._stats['videos_indexed']} videos...")
+
+            # Launch metadata extraction worker
+            metadata_worker = VideoMetadataWorker(project_id=project_id)
+            QThreadPool.globalInstance().start(metadata_worker)
+            logger.info("✓ Video metadata extraction worker started")
+
+            # Launch thumbnail generation worker
+            thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+            QThreadPool.globalInstance().start(thumbnail_worker)
+            logger.info("✓ Video thumbnail generation worker started")
+
+        except ImportError as e:
+            logger.warning(f"Video workers not available: {e}")
+        except Exception as e:
+            logger.error(f"Error launching video workers: {e}", exc_info=True)

@@ -24,8 +24,8 @@ class ScanWorkerAdapter(QObject):
         error(str): Error message
     """
 
-    progress = Signal(int, str)      # percent, message
-    finished = Signal(int, int)      # folders, photos
+    progress = Signal(int, str)          # percent, message
+    finished = Signal(int, int, int)     # folders, photos, videos
     error = Signal(str)
 
     def __init__(self,
@@ -115,11 +115,12 @@ class ScanWorkerAdapter(QObject):
             # Emit completion
             logger.info(
                 f"Scan completed: {result.photos_indexed} photos, "
+                f"{result.videos_indexed} videos, "
                 f"{result.folders_found} folders in {result.duration_seconds:.1f}s"
             )
 
             try:
-                self.finished.emit(result.folders_found, result.photos_indexed)
+                self.finished.emit(result.folders_found, result.photos_indexed, result.videos_indexed)
             except Exception as e:
                 logger.warning(f"Failed to emit finished signal: {e}")
 

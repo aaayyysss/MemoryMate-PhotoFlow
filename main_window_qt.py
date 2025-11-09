@@ -230,7 +230,7 @@ class ScanController:
             self.worker.error.connect(self._on_error)
             self.thread.started.connect(lambda: print("[ScanController] QThread STARTED!"))
             self.thread.started.connect(self.worker.run)
-            self.worker.finished.connect(lambda f, p: self.thread.quit())
+            self.worker.finished.connect(lambda f, p, v=0: self.thread.quit())
             self.thread.finished.connect(self._cleanup)
             print(f"[ScanController] Signals connected")
 
@@ -280,9 +280,9 @@ class ScanController:
         if self.main._scan_progress.wasCanceled():
             self.cancel()
 
-    def _on_finished(self, folders, photos):
-        print(f"[ScanController] scan finished: {folders} folders, {photos} photos")
-        self.main._scan_result = (folders, photos)
+    def _on_finished(self, folders, photos, videos=0):
+        print(f"[ScanController] scan finished: {folders} folders, {photos} photos, {videos} videos")
+        self.main._scan_result = (folders, photos, videos)
 
     def _on_error(self, err_text: str):
         try:

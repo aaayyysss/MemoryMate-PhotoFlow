@@ -39,6 +39,10 @@ class ReferenceDB:
         Args:
             db_file: Path to database file (default: reference_data.db)
         """
+        # Initialize logger
+        from logging_config import get_logger
+        self.logger = get_logger(__name__)
+
         # CRITICAL FIX: Convert to absolute path BEFORE storing
         # This ensures _connect() uses the same database file as DatabaseConnection
         import os

@@ -1717,66 +1717,51 @@ class ThumbnailGridQt(QWidget):
             ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
             mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
 
-            # --- 1️: Determine base photo paths by navigation mode ---
-            if mode == "folder" and key:
-                paths = db.get_images_by_folder(key, project_id=self.project_id)
-            elif mode == "branch" and key:
-                paths = db.get_images_by_branch(self.project_id, key)
-            elif mode == "date" and key:
-                dk = str(key)
-                if len(dk) == 4 and dk.isdigit():
-                    paths = db.get_images_by_year(int(dk), self.project_id)
-                elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
-                    paths = db.get_images_by_month_str(dk, self.project_id)
-                elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                    paths = db.get_images_by_date(dk, self.project_id)
-                else:
-                    # fallback for quick keys (e.g. date:this-week)
-                    paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
-            else:
-                paths = []
+            # --- 1️+2️: Determine base photo paths by navigation mode AND tag filter ---
+            # CRITICAL FIX: Use efficient database queries instead of in-memory intersection
+            # OLD (SLOW): Load all 2856 photos → filter in memory → UI freeze
+            # NEW (FAST): SQL JOIN returns only matching photos → instant response
 
-            base_count = len(paths)
-
-
-
-            # --- 2️: Overlay tag filter (if active) ---
             if tag:
-                tagged_paths = db.get_image_paths_for_tag(tag, self.project_id)
-
-                def norm(p: str):
-                    try:
-                        return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
-                    except Exception:
-                        return str(p).strip().lower()
-
-                base_n = {norm(p): p for p in paths}
-                tag_n = {norm(p): p for p in tagged_paths}
-
-                if base_n and tag_n:
-                    # intersection of context & tagged photos
-                    selected = base_n.keys() & tag_n.keys()
-                    paths = [base_n[k] for k in selected]
-                    print(f"[TAG FILTER] Context intersected: {len(selected)}/{len(base_n)} matched (tag='{tag}')")
-
-                    # if nothing matched but tag exists, fallback to show all tagged photos
-                    if not paths and tagged_paths:
-                        paths = list(tag_n.values())
-                        self.context["mode"] = "tag"
-                        print(f"[TAG FILTER] No matches in context, fallback to all tagged ({len(paths)})")
-
-                elif not base_n and tag_n:
-                    # no navigation context active → show all tagged photos
-                    paths = list(tag_n.values())
+                # Tag filter is active - use efficient JOIN queries
+                if mode == "folder" and key:
+                    paths = db.get_images_by_folder_and_tag(self.project_id, key, tag, include_subfolders=True)
+                    print(f"[TAG FILTER] Folder {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "branch" and key:
+                    paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
+                    print(f"[TAG FILTER] Branch {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "date" and key:
+                    dk = str(key)
+                    paths = db.get_images_by_date_and_tag(self.project_id, dk, tag)
+                    print(f"[TAG FILTER] Date {dk} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                else:
+                    # No navigation context - show all tagged photos
+                    paths = db.get_image_paths_for_tag(tag, self.project_id)
                     self.context["mode"] = "tag"
                     print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
 
+            else:
+                # No tag filter - use normal navigation queries
+                if mode == "folder" and key:
+                    paths = db.get_images_by_folder(key, project_id=self.project_id)
+                elif mode == "branch" and key:
+                    paths = db.get_images_by_branch(self.project_id, key)
+                elif mode == "date" and key:
+                    dk = str(key)
+                    if len(dk) == 4 and dk.isdigit():
+                        paths = db.get_images_by_year(int(dk), self.project_id)
+                    elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
+                        paths = db.get_images_by_month_str(dk, self.project_id)
+                    elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
+                        paths = db.get_images_by_date(dk, self.project_id)
+                    else:
+                        # fallback for quick keys (e.g. date:this-week)
+                        paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
                 else:
-                    # No tagged photos exist for this tag - show empty grid
                     paths = []
-                    print(f"[TAG FILTER] No tagged photos found for '{tag}' - showing empty grid")
 
             final_count = len(paths)
+            base_count = final_count  # For status message compatibility
 
             # --- 3️: Render grid ---
             self._load_paths(paths)

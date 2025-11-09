@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "3.0.0"
+SCHEMA_VERSION = "3.1.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS schema_version (
 -- Insert initial version marker
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean project isolation');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.1.0', 'Added project_id to tags table for proper tag isolation between projects');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -179,9 +182,13 @@ CREATE TABLE IF NOT EXISTS photo_metadata (
 -- ============================================================================
 
 -- Tags (tag definitions)
+-- Schema v3.1.0: Added project_id for proper tag isolation between projects
 CREATE TABLE IF NOT EXISTS tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL COLLATE NOCASE
+    name TEXT NOT NULL COLLATE NOCASE,
+    project_id INTEGER NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(name, project_id)
 );
 
 -- Photo tags (many-to-many: photos to tags)
@@ -235,8 +242,10 @@ CREATE INDEX IF NOT EXISTS idx_photo_created_year ON photo_metadata(created_year
 CREATE INDEX IF NOT EXISTS idx_photo_created_date ON photo_metadata(created_date);
 CREATE INDEX IF NOT EXISTS idx_photo_created_ts ON photo_metadata(created_ts);
 
--- Tag indexes
+-- Tag indexes (v3.1.0: Added project_id indexes)
 CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name);
+CREATE INDEX IF NOT EXISTS idx_tags_project ON tags(project_id);
+CREATE INDEX IF NOT EXISTS idx_tags_project_name ON tags(project_id, name);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id);
 """

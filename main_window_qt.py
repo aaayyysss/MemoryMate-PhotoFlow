@@ -381,8 +381,12 @@ class ScanController:
                 self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
             # summary
-            f, p = self.main._scan_result
-            QMessageBox.information(self.main, "Scan Complete", f"Indexed {p} photos in {f} folders.\nCommitted: {self.main._committed_total} rows.")
+            f, p, v = self.main._scan_result if len(self.main._scan_result) == 3 else (*self.main._scan_result, 0)
+            msg = f"Indexed {p} photos"
+            if v > 0:
+                msg += f" and {v} videos"
+            msg += f" in {f} folders.\nCommitted: {self.main._committed_total} rows."
+            QMessageBox.information(self.main, "Scan Complete", msg)
 
         # Schedule refresh in main thread's event loop
         if sidebar_was_updated:

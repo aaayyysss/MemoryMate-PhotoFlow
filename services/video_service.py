@@ -494,6 +494,150 @@ class VideoService:
             self.logger.error(f"Failed to get video info for {video_id}: {e}")
             return None
 
+    # ========================================================================
+    # VIDEO FILTERING & SEARCH (Option 3)
+    # ========================================================================
+
+    def filter_by_duration(self, videos: List[Dict[str, Any]],
+                          min_seconds: float = None,
+                          max_seconds: float = None) -> List[Dict[str, Any]]:
+        """
+        Filter videos by duration range.
+
+        Args:
+            videos: List of video metadata dicts
+            min_seconds: Minimum duration in seconds (None = no minimum)
+            max_seconds: Maximum duration in seconds (None = no maximum)
+
+        Returns:
+            Filtered list of videos
+
+        Example:
+            >>> # Get short videos (< 30 seconds)
+            >>> videos = service.get_videos_by_project(1)
+            >>> short = service.filter_by_duration(videos, max_seconds=30)
+
+            >>> # Get long videos (> 5 minutes)
+            >>> long = service.filter_by_duration(videos, min_seconds=300)
+        """
+        filtered = []
+        for video in videos:
+            duration = video.get('duration_seconds')
+            if duration is None:
+                continue
+
+            if min_seconds is not None and duration < min_seconds:
+                continue
+            if max_seconds is not None and duration > max_seconds:
+                continue
+
+            filtered.append(video)
+
+        return filtered
+
+    def filter_by_resolution(self, videos: List[Dict[str, Any]],
+                           min_width: int = None,
+                           min_height: int = None,
+                           quality: str = None) -> List[Dict[str, Any]]:
+        """
+        Filter videos by resolution.
+
+        Args:
+            videos: List of video metadata dicts
+            min_width: Minimum width in pixels (None = no minimum)
+            min_height: Minimum height in pixels (None = no minimum)
+            quality: Quality preset: 'sd' (480p), 'hd' (720p), 'fhd' (1080p), '4k' (2160p)
+
+        Returns:
+            Filtered list of videos
+
+        Example:
+            >>> # Get HD videos (720p+)
+            >>> videos = service.get_videos_by_project(1)
+            >>> hd = service.filter_by_resolution(videos, quality='hd')
+
+            >>> # Get 4K videos
+            >>> uhd = service.filter_by_resolution(videos, quality='4k')
+        """
+        # Quality presets
+        presets = {
+            'sd': (640, 480),
+            'hd': (1280, 720),
+            'fhd': (1920, 1080),
+            '4k': (3840, 2160)
+        }
+
+        if quality and quality.lower() in presets:
+            min_width, min_height = presets[quality.lower()]
+
+        filtered = []
+        for video in videos:
+            width = video.get('width')
+            height = video.get('height')
+
+            if width is None or height is None:
+                continue
+
+            if min_width is not None and width < min_width:
+                continue
+            if min_height is not None and height < min_height:
+                continue
+
+            filtered.append(video)
+
+        return filtered
+
+    def search_videos(self, videos: List[Dict[str, Any]],
+                     query: str,
+                     search_path: bool = True,
+                     search_tags: bool = True) -> List[Dict[str, Any]]:
+        """
+        Search videos by filename or tags.
+
+        Args:
+            videos: List of video metadata dicts
+            query: Search query (case-insensitive)
+            search_path: Search in file paths
+            search_tags: Search in tags (if available)
+
+        Returns:
+            Filtered list of videos matching query
+
+        Example:
+            >>> videos = service.get_videos_by_project(1)
+            >>> vacation = service.search_videos(videos, "vacation")
+            >>> birthday = service.search_videos(videos, "birthday")
+        """
+        if not query:
+            return videos
+
+        query_lower = query.lower()
+        filtered = []
+
+        for video in videos:
+            matched = False
+
+            # Search in path
+            if search_path:
+                path = video.get('path', '')
+                if query_lower in path.lower():
+                    matched = True
+
+            # Search in tags (if available)
+            if search_tags and not matched:
+                tags = video.get('tags', [])
+                if isinstance(tags, str):
+                    tags = [t.strip() for t in tags.split(',')]
+                for tag in tags:
+                    if query_lower in tag.lower():
+                        matched = True
+                        break
+
+            if matched:
+                filtered.append(video)
+
+        return filtered
+
 
 # ========================================================================
 # SINGLETON PATTERN

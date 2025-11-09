@@ -28,38 +28,40 @@
 - ✅ Connected `sidebar.selectVideos` signal to controller
 - ✅ Wired up video selection flow
 
-### Phase 4.3: Grid View Updates ⏳ TODO
-**Status**: Not started
+### Phase 4.3: Grid View Updates ✅ COMPLETE
+**Commit**: bbf6fe2
+**Status**: Implemented
 
-**Required Changes in `thumbnail_grid_qt.py`**:
+**Changes Made in `thumbnail_grid_qt.py`**:
 
-1. Add `set_videos()` method to ThumbnailGridQt:
-   ```python
-   def set_videos(self):
-       """Display all videos for current project"""
-       if not self.project_id:
-           return
+✅ **Implemented Features**:
 
-       # Load videos from VideoService
-       from services.video_service import VideoService
-       video_service = VideoService()
-       videos = video_service.get_videos_by_project(self.project_id)
+1. **set_videos() method** - Shows all videos for current project
+   - Sets navigation_mode to "videos"
+   - Calls reload() to fetch and display videos
 
-       # Extract video paths
-       video_paths = [v['path'] for v in videos]
+2. **Video mode in reload()** - Loads videos via VideoService
+   - Added "videos" case to load video paths
+   - Updates status bar with video count
+   - Handles video context label ("Videos: — → N video(s) shown")
 
-       # Update grid with video paths
-       self.load_images(video_paths)
-   ```
+3. **Video file detection** - Helper functions added:
+   - `is_video_file(path)` - Checks common video extensions
+   - `format_duration(seconds)` - Formats as MM:SS or H:MM:SS
 
-2. Add video detection in thumbnail delegate:
-   - Check file extension (.mp4, .mov, .avi, etc.)
-   - Add duration badge overlay (e.g., "2:35" in bottom-right corner)
-   - Add 🎬 play icon overlay
+4. **Duration badge rendering** in CenteredThumbnailDelegate:
+   - Detects video files automatically
+   - Renders 50x20px badge in bottom-right corner
+   - Black background (180 alpha), white bold text
+   - Shows duration (e.g., "2:35") or 🎬 icon if unavailable
 
-3. Update thumbnail generation:
-   - Use VideoThumbnailService for video files
-   - Cache video thumbnails separately
+5. **Video metadata loading** in _load_paths():
+   - Fetches duration from video_metadata table
+   - Stores in UserRole + 3 for delegate access
+
+6. **ReferenceDB.get_video_by_path()** - Database access:
+   - Queries video_metadata table by path and project_id
+   - Returns complete metadata including duration_seconds
 
 ### Phase 4.4: Video Player Panel ⏳ TODO
 **Status**: Not started

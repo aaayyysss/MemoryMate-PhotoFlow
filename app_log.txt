@@ -1,25 +1,170 @@
-2025-11-07 16:32:50,365 [INFO] [root:118] ================================================================================
-2025-11-07 16:32:50,365 [INFO] [root:119] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-07 16:32:50,365 [INFO] [root:120] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.21.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-07 16:32:50,366 [INFO] [root:121] ================================================================================
-2025-11-07 16:32:50,452 [INFO] [__main__:66] Qt message handler installed to suppress TIFF warnings
-2025-11-07 16:32:51,001 [INFO] [services.search_service:103] SearchService initialized
-2025-11-07 16:33:24,161 [INFO] [root:118] ================================================================================
-2025-11-07 16:33:24,161 [INFO] [root:119] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-07 16:33:24,161 [INFO] [root:120] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.21.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-07 16:33:24,161 [INFO] [root:121] ================================================================================
-2025-11-07 16:33:24,303 [INFO] [__main__:66] Qt message handler installed to suppress TIFF warnings
-2025-11-07 16:33:24,733 [INFO] [services.search_service:103] SearchService initialized
-2025-11-07 16:33:45,269 [INFO] [db_writer:80] DBWriter timer started in worker thread
-2025-11-07 16:33:45,321 [INFO] [services.scan_worker_adapter:80] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-2025-11-07 16:33:45,323 [INFO] [services.photo_scan_service:165] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
-2025-11-07 16:33:45,326 [INFO] [services.photo_scan_service:172] Discovered 15 candidate image files
-2025-11-07 16:33:45,554 [INFO] [PhotoRepository:209] Bulk upserted 15 photos
-2025-11-07 16:33:45,563 [INFO] [services.photo_scan_service:246] Scan complete: 15 indexed, 0 skipped, 0 failed in 0.2s
-2025-11-07 16:33:45,567 [INFO] [services.scan_worker_adapter:112] Scan completed: 15 photos, 1 folders in 0.2s
-2025-11-07 16:33:45,582 [INFO] [main_window_qt:294] Building date branches...
-2025-11-07 16:33:45,686 [INFO] [main_window_qt:310] Building date branches for project_id=1
-2025-11-07 16:33:45,697 [INFO] [main_window_qt:312] Created 8 date branch entries for project 1
-2025-11-07 16:33:45,699 [INFO] [main_window_qt:317] Backfilling created_date fields...
-2025-11-07 16:33:45,706 [INFO] [main_window_qt:320] Backfilled 15 rows with created_date
-2025-11-07 16:33:45,713 [INFO] [main_window_qt:349] Reloading sidebar after date branches built...
+ C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_21.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main> python main_qt.py
+[Startup] pillow_heif available — HEIC/HEIF support enabled.
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-09 15:14:05,860 [INFO] ================================================================================
+2025-11-09 15:14:05,861 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-09 15:14:05,861 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_21.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main\app_log.txt
+2025-11-09 15:14:05,862 [INFO] ================================================================================
+2025-11-09 15:14:05,900 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_21.01.01-Photo-App\\MemoryMate-PhotoFlow-main-05\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-09 15:14'}
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-09 15:14:06,149 [INFO] SearchService initialized
+[15:14:06.521] [Tabs] __init__ started
+[15:14:06.522] [Tabs] _build_tabs → building tab widgets
+[15:14:06.522] [Tabs] _on_tab_changed(idx=0)
+[15:14:06.522] [Tabs] _start_timeout idx=0 type=branches
+[15:14:06.522] [Tabs] _populate_tab(branches, idx=0, force=False)
+[15:14:06.522] [Tabs]   populated=False, loading=False
+[15:14:06.522] [Tabs]   Starting load for branches
+[15:14:06.522] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[15:14:06.523] [Tabs] _clear_tab idx=0
+[15:14:06.524] [Tabs] _on_tab_changed → tab_type=branches
+[15:14:06.525] [Tabs] _build_tabs → added 6 tabs
+[15:14:06.525] [Tabs] __init__ completed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[15:14:06.534] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] _build_tree_model() completed
+[Startup] Database schema initialized successfully
+[15:14:06.704] [Tabs] _finish_branches (stale gen=1) — ignoring
+[15:14:06.704] [Tabs] _on_tab_changed(idx=0)
+[15:14:06.704] [Tabs] _start_timeout idx=0 type=branches
+[15:14:06.704] [Tabs] _populate_tab(branches, idx=0, force=False)
+[15:14:06.704] [Tabs]   populated=False, loading=False
+[15:14:06.704] [Tabs]   Starting load for branches
+[15:14:06.704] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[15:14:06.704] [Tabs] _clear_tab idx=0
+[15:14:06.706] [Tabs] _on_tab_changed → tab_type=branches
+[15:14:06.728] [Tabs] _clear_tab idx=0
+[Schema] Database schema initialized successfully
+2025-11-09 15:14:44,281 [INFO] DBWriter timer started in worker thread
+[ScanController] Using project_id: 1
+[ScanController] Creating ScanWorker for folder: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
+[ScanController] ScanWorker imported successfully
+[ScanController] QThread created
+[ScanController] ScanWorker instance created with project_id=1
+[ScanController] Worker moved to thread
+[ScanController] Signals connected
+[ScanController] Starting scan thread...
+[ScanController] thread.start() called
+[ScanWorkerAdapter] run() method called!
+[ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos, incremental=True
+2025-11-09 15:14:44,285 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
+[ScanWorkerAdapter] Starting scan...
+2025-11-09 15:14:44,288 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos (incremental=True)
+[ScanController] QThread STARTED!
+2025-11-09 15:14:44,304 [INFO] Discovered 298 candidate image files
+2025-11-09 15:14:44,378 [ERROR] Database connection error: FOREIGN KEY constraint failed
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_21.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main\repository\base_repository.py", line 96, in get_connection
+    yield conn
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_21.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main\repository\base_repository.py", line 331, in connection
+    yield conn
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_21.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main\repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+2025-11-09 15:14:44,380 [ERROR] Failed to create folder hierarchy for C:\Users\ASUS\OneDrive\Documents\Python\Test-Photos\inbox\22.jfif: FOREIGN KEY constraint failed
+2025-11-09 15:14:44,382 [ERROR] Database connection error: FOREIGN KEY constraint failed
+Traceback (most recent call last):
+
+
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+2025-11-09 15:14:45,599 [ERROR] Failed to create folder hierarchy for C:\Users\ASUS\OneDrive\Documents\Python\Test-Photos\Test-Photos - Copy\refs\5\IMG_E3106.JPG: FOREIGN KEY constraint failed
+2025-11-09 15:14:45,610 [INFO] Created project: Default Project (id=1)
+2025-11-09 15:14:45,611 [INFO] Created default project (id=1)
+2025-11-09 15:14:45,617 [INFO] Scan complete: 0 indexed, 0 skipped, 298 failed in 1.3s
+2025-11-09 15:14:45,618 [INFO] Scan completed: 0 photos, 0 folders in 1.3s
+[ScanController] scan finished: 0 folders, 0 photos
+[ScanController] cleanup after scan
+2025-11-09 15:14:45,675 [INFO] Building date branches...
+2025-11-09 15:14:45,676 [WARNING] Grid project_id is None, using default project
+2025-11-09 15:14:45,678 [INFO] Building date branches for project_id=1
+[build_date_branches] Using project_id=1
+[build_date_branches] Populating 'all' branch with 0 photos for project 1
+[build_date_branches] Inserted 0/0 photos into 'all' branch
+[build_date_branches] Found 0 unique dates
+[build_date_branches] Total entries processed: 0
+[build_date_branches] project_images table has 0 rows for project 1
+2025-11-09 15:14:45,689 [INFO] Created 0 date branch entries for project 1
+2025-11-09 15:14:45,690 [INFO] Backfilling created_date fields...
+2025-11-09 15:14:45,692 [INFO] Sidebar project_id was None, updating to default project
+[15:14:45.693] [Tabs] refresh_all(force=True) called
+[15:14:45.694] [Tabs] refresh_all: key=branches, idx=0, force=True
+[15:14:45.694] [Tabs] _populate_tab(branches, idx=0, force=True)
+[15:14:45.694] [Tabs]   populated=True, loading=False
+[15:14:45.694] [Tabs]   Force refresh: removing branches from populated set
+[15:14:45.694] [Tabs]   Starting load for branches
+[15:14:45.694] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[15:14:45.694] [Tabs] _clear_tab idx=0
+[15:14:45.696] [Tabs] refresh_all: key=folders, idx=1, force=True
+[15:14:45.696] [Tabs] _populate_tab(folders, idx=1, force=True)
+[15:14:45.696] [Tabs]   populated=False, loading=False
+[15:14:45.696] [Tabs]   Starting load for folders
+[15:14:45.696] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[15:14:45.696] [Tabs] _clear_tab idx=1
+[15:14:45.697] [Tabs] refresh_all: key=dates, idx=2, force=True
+[15:14:45.697] [Tabs] _populate_tab(dates, idx=2, force=True)
+[15:14:45.697] [Tabs]   populated=False, loading=False
+[15:14:45.697] [Tabs]   Starting load for dates
+[15:14:45.697] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[15:14:45.698] [Tabs] _clear_tab idx=2
+[15:14:45.698] [Tabs] _load_folders → got 0 rows for project_id=1
+[15:14:45.699] [Tabs] refresh_all: key=tags, idx=3, force=True
+[15:14:45.699] [Tabs] _populate_tab(tags, idx=3, force=True)
+[15:14:45.699] [Tabs]   populated=False, loading=False
+[15:14:45.699] [Tabs]   Starting load for tags
+[15:14:45.699] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[15:14:45.699] [Tabs] _clear_tab idx=3
+[15:14:45.700] [Tabs] refresh_all: key=quick, idx=5, force=True
+[15:14:45.701] [Tabs] _populate_tab(quick, idx=5, force=True)
+[15:14:45.701] [Tabs]   populated=False, loading=False
+[15:14:45.701] [Tabs]   Starting load for quick
+[15:14:45.702] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[15:14:45.702] [Tabs] _clear_tab idx=5
+[15:14:45.707] [Tabs] _load_dates → got hierarchy data for project_id=1
+[15:14:45.708] [Tabs] refresh_all(force=True) completed
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[Sidebar] Processing pending events before model rebuild
+[15:14:45.709] [Tabs] _load_tags → got 0 rows for project_id=1
+[15:14:45.709] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[15:14:45.711] [Tabs] _load_quick → got 6 rows
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=None, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[15:14:45.727] [Tabs] _clear_tab idx=1
+[15:14:45.730] [Tabs] _clear_tab idx=2
+[15:14:45.735] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[15:14:45.735] [Tabs] _clear_tab idx=3
+[15:14:45.736] [Tabs] _clear_tab idx=5
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+2025-11-09 15:14:45,764 [INFO] Grid project_id was None, updating to default project
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+2025-11-09 15:14:46,253 [INFO] Reloading sidebar after date branches built...
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)

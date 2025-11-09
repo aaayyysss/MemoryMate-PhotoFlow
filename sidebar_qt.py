@@ -132,7 +132,6 @@ class SidebarTabs(QWidget):
     selectFolder = Signal(int)     # folder_id
     selectDate   = Signal(str)     # e.g. "2025-10" or "2025"
     selectTag    = Signal(str)     # tag name
-    selectVideos = Signal()        # 🎬 NEW: show all videos
 
     # Signals for async worker completion
     # ▼ add with your other Signals
@@ -142,7 +141,6 @@ class SidebarTabs(QWidget):
     _finishTagsSig     = Signal(int, list, float, int)
     _finishPeopleSig   = Signal(int, list, float, int)  # 👥 NEW
     _finishQuickSig    = Signal(int, list, float, int)  # Quick dates
-    _finishVideosSig   = Signal(int, list, float, int)  # 🎬 NEW: videos
 
     
     def __init__(self, project_id: int | None, parent=None):
@@ -157,9 +155,9 @@ class SidebarTabs(QWidget):
         self._tab_timers: dict[int, QTimer] = {}
         self._tab_status_labels: dict[int, QLabel] = {}
         self._count_targets: list[tuple] = []               # optional future use
-        self._tab_indexes: dict[str, int] = {}              # "branches"/"folders"/"dates"/"tags"/"quick"/"videos" -> tab index
+        self._tab_indexes: dict[str, int] = {}              # "branches"/"folders"/"dates"/"tags"/"quick" -> tab index
         # ▼ add near your state vars
-        self._tab_gen: dict[str, int] = {"branches":0, "folders":0, "dates":0, "tags":0, "quick":0, "videos":0}
+        self._tab_gen: dict[str, int] = {"branches":0, "folders":0, "dates":0, "tags":0, "quick":0}
         # Guard against concurrent refresh_all calls
         self._refreshing_all = False
 
@@ -177,7 +175,6 @@ class SidebarTabs(QWidget):
         self._finishTagsSig.connect(self._finish_tags, Qt.QueuedConnection)
         self._finishPeopleSig.connect(self._finish_people, Qt.QueuedConnection)
         self._finishQuickSig.connect(self._finish_quick, Qt.QueuedConnection)
-        self._finishVideosSig.connect(self._finish_videos, Qt.QueuedConnection)  # 🎬 NEW
 
         # initial build – do not populate yet
         self._build_tabs()
@@ -213,7 +210,7 @@ class SidebarTabs(QWidget):
 
         try:
             self._refreshing_all = True
-            for key in ("branches", "folders", "dates", "tags", "quick", "videos"):
+            for key in ("branches", "folders", "dates", "tags", "quick"):
                 idx = self._tab_indexes.get(key)
                 self._dbg(f"refresh_all: key={key}, idx={idx}, force={force}")
                 if idx is not None:
@@ -263,7 +260,6 @@ class SidebarTabs(QWidget):
             ("dates",    "By Date"),
             ("tags",     "Tags"),
             ("people",   "People"),          # 👥 NEW
-            ("videos",   "Videos"),          # 🎬 NEW
             ("quick",    "Quick Dates"),
         ]:
 
@@ -454,9 +450,7 @@ class SidebarTabs(QWidget):
         elif tab_type == "people":
             self._show_loading(idx, "Loading People…")
             self._load_people(idx, gen)
-        elif tab_type == "videos":
-            self._show_loading(idx, "Loading Videos…")
-            self._load_videos(idx, gen)
+
         elif tab_type == "quick":
             self._show_loading(idx, "Loading Quick Dates…")
             self._load_quick(idx, gen)
@@ -1085,69 +1079,6 @@ class SidebarTabs(QWidget):
         if st:
             st.setText(f"{len(rows)} cluster(s) • {time.time()-started:.2f}s")
 
-    # ---------- VIDEOS (🎬 Phase 4) ----------
-    def _load_videos(self, idx: int, gen: int):
-        """Load videos for current project"""
-        started = time.time()
-        def work():
-            try:
-                rows = []
-                if self.project_id:
-                    # Get videos from video_metadata table via VideoService
-                    from services.video_service import VideoService
-                    video_service = VideoService()
-                    videos = video_service.get_videos_by_project(self.project_id)
-                    # Transform to (path, count) tuples for consistency
-                    rows = [(v.get('path', ''), 1) for v in videos]
-                self._dbg(f"_load_videos → got {len(rows)} videos")
-            except Exception:
-                traceback.print_exc()
-                rows = []
-            self._finishVideosSig.emit(idx, rows, started, gen)
-        threading.Thread(target=work, daemon=True).start()
-
-    def _finish_videos(self, idx: int, rows: list, started: float, gen: int):
-        """Display videos tab"""
-        if self._is_stale("videos", gen):
-            self._dbg(f"_finish_videos (stale gen={gen}) — ignoring")
-            return
-        self._cancel_timeout(idx)
-        self._clear_tab(idx)
-
-        tab = self.tab_widget.widget(idx)
-        layout = tab.layout()
-
-        # === Header ===
-        layout.addWidget(QLabel("<b>🎬 Videos</b>"))
-
-        if not rows:
-            self._set_tab_empty(idx, "No videos found")
-            self._tab_populated.add("videos")
-            self._tab_loading.discard("videos")
-            return
-
-        # Create simple list of video paths
-        list_widget = QListWidget()
-        list_widget.setSelectionMode(QListWidget.SingleSelection)
-
-        for video_path, _ in rows:
-            import os
-            filename = os.path.basename(video_path)
-            item = QListWidgetItem(f"🎬 {filename}")
-            item.setData(Qt.UserRole, video_path)
-            list_widget.addItem(item)
-
-        # Double-click to select videos view
-        list_widget.itemDoubleClicked.connect(lambda item: self.selectVideos.emit())
-
-        layout.addWidget(list_widget, 1)
-
-        self._tab_populated.add("videos")
-        self._tab_loading.discard("videos")
-        st = self._tab_status_labels.get(idx)
-        if st:
-            st.setText(f"{len(rows)} video(s) • {time.time()-started:.2f}s")
-
 # =====================================================================
 # 2️ SidebarQt — main sidebar container with toggle
 # =====================================================================
@@ -1415,103 +1346,8 @@ class SidebarQt(QWidget):
                     print(f"[Sidebar] Unable to display thumbnails for people cluster {value}")
             except Exception as e:
                 print(f"[Sidebar] Failed to open people cluster {value}: {e}")
-
-        elif mode == "videos_search" and value == "search":
-            # Search videos
-            try:
-                from PySide6.QtWidgets import QInputDialog
-                from services.video_service import VideoService
-
-                # Prompt for search query
-                query, ok = QInputDialog.getText(
-                    self,
-                    "Search Videos",
-                    "Enter search term (searches filenames and tags):",
-                    text=""
-                )
-
-                if ok and query:
-                    video_service = VideoService()
-                    videos = video_service.get_videos_by_project(self.project_id)
-
-                    # Search videos
-                    filtered = video_service.search_videos(videos, query)
-                    print(f"[Sidebar] Found {len(filtered)} videos matching '{query}'")
-
-                    # Display results
-                    if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                        paths = [v['path'] for v in filtered]
-                        mw.grid.display_thumbnails(paths)
-
-                        # Show result count in status
-                        if hasattr(mw, "statusBar"):
-                            mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
-                    else:
-                        print(f"[Sidebar] Unable to display search results")
-            except Exception as e:
-                print(f"[Sidebar] Failed to search videos: {e}")
-
-        elif mode == "videos_duration" and value:
-            # Filter videos by duration
-            try:
-                from services.video_service import VideoService
-                video_service = VideoService()
-                videos = video_service.get_videos_by_project(self.project_id)
-
-                # Apply duration filter
-                if value == "short":
-                    filtered = video_service.filter_by_duration(videos, max_seconds=30)
-                    print(f"[Sidebar] Showing {len(filtered)} short videos (< 30s)")
-                elif value == "medium":
-                    filtered = video_service.filter_by_duration(videos, min_seconds=30, max_seconds=300)
-                    print(f"[Sidebar] Showing {len(filtered)} medium videos (30s - 5min)")
-                elif value == "long":
-                    filtered = video_service.filter_by_duration(videos, min_seconds=300)
-                    print(f"[Sidebar] Showing {len(filtered)} long videos (> 5min)")
-                else:
-                    filtered = videos
-
-                # Display filtered videos
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    paths = [v['path'] for v in filtered]
-                    mw.grid.display_thumbnails(paths)
-                else:
-                    print(f"[Sidebar] Unable to display filtered videos")
-            except Exception as e:
-                print(f"[Sidebar] Failed to filter videos by duration: {e}")
-
-        elif mode == "videos_resolution" and value:
-            # Filter videos by resolution
-            try:
-                from services.video_service import VideoService
-                video_service = VideoService()
-                videos = video_service.get_videos_by_project(self.project_id)
-
-                # Apply resolution filter
-                filtered = video_service.filter_by_resolution(videos, quality=value)
-                print(f"[Sidebar] Showing {len(filtered)} {value.upper()} videos")
-
-                # Display filtered videos
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    paths = [v['path'] for v in filtered]
-                    mw.grid.display_thumbnails(paths)
-                else:
-                    print(f"[Sidebar] Unable to display filtered videos")
-            except Exception as e:
-                print(f"[Sidebar] Failed to filter videos by resolution: {e}")
-
-        elif mode == "videos" and value == "all":
-            # Load all videos for the project
-            try:
-                if hasattr(mw, "grid") and hasattr(mw.grid, "set_videos"):
-                    mw.grid.set_videos()
-                    print(f"[Sidebar] Displaying all videos for project {self.project_id}")
-                else:
-                    print(f"[Sidebar] Unable to display videos - grid.set_videos() not available")
-            except Exception as e:
-                print(f"[Sidebar] Failed to load videos: {e}")
-
-
+                        
+                
         elif mode == "date" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("date", value)
@@ -1537,322 +1373,328 @@ class SidebarQt(QWidget):
         # Build tree synchronously for folders (counts populated right away),
         # and register branch targets for async fill to keep responsiveness.
 
-        # CRITICAL FIX: Cancel any pending count workers before rebuilding
-        self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+        # CRITICAL: Prevent concurrent rebuilds that cause Qt crashes during rapid project switching
+        # Similar to grid reload() guard pattern
+        if getattr(self, '_rebuilding_tree', False):
+            print("[Sidebar] _build_tree_model() blocked - already rebuilding (prevents concurrent rebuild crash)")
+            return
 
-        # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
-        # This ensures:
-        # 1. Old widgets from tabs are fully cleaned up
-        # 2. Async count workers have checked their generation and aborted
-        # 3. No pending model item updates are in the event queue
-        # Without this, workers can access model items during clear() causing crashes
-        if self._initialized:
-            from PySide6.QtCore import QCoreApplication
-            print("[Sidebar] Processing pending events before model rebuild")
-            QCoreApplication.processEvents()
-            # Process events twice to catch worker callbacks scheduled during first pass
-            QCoreApplication.processEvents()
-            print("[Sidebar] Pending events processed")
-
-        # CRITICAL FIX: Instead of clearing existing model (which can crash due to Qt internal state),
-        # create a brand new model every time. This completely avoids Qt state corruption.
-        print("[Sidebar] Detaching old model from tree view")
-        self.tree.setModel(None)
-
-        # Clear selection to release any Qt internal references
-        if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
-            try:
-                self.tree.selectionModel().clear()
-            except Exception:
-                pass
-
-        # Create a completely fresh model instead of clearing the old one
-        # This is safer than model.clear() which can cause Qt C++ segfaults
-        print("[Sidebar] Creating fresh model (avoiding Qt segfault)")
-        old_model = self.model
-        self.model = QStandardItemModel(self.tree)
-        self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
-
-        # Schedule old model for deletion (let Qt clean it up safely)
-        if old_model is not None:
-            try:
-                old_model.deleteLater()
-            except Exception as e:
-                print(f"[Sidebar] Warning: Could not schedule old model for deletion: {e}")
-
-        # Attach the fresh model to the tree
-        print("[Sidebar] Attaching fresh model to tree view")
-        self.tree.setModel(self.model)
-
-        self._count_targets = []
         try:
-            # Get total photo count for displaying on top-level sections
-            total_photos = 0
-            if self.project_id:
+            self._rebuilding_tree = True
+
+            # CRITICAL FIX: Cancel any pending count workers before rebuilding
+            self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+
+            # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
+            # This ensures:
+            # 1. Old widgets from tabs are fully cleaned up
+            # 2. Async count workers have checked their generation and aborted
+            # 3. No pending model item updates are in the event queue
+            # Without this, workers can access model items during clear() causing crashes
+            if self._initialized:
+                from PySide6.QtCore import QCoreApplication
+                print("[Sidebar] Processing pending events before model clear")
+                QCoreApplication.processEvents()
+                # Process events twice to catch worker callbacks scheduled during first pass
+                QCoreApplication.processEvents()
+                print("[Sidebar] Pending events processed")
+
+            # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
+            # Qt can crash if the view has active selections/iterators when model is cleared
+            print("[Sidebar] Detaching old model from tree view")
+            self.tree.setModel(None)
+
+            # Clear selection to release any Qt internal references
+            if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
                 try:
-                    # Get count from "all" branch
-                    all_photos = self.db.get_project_images(self.project_id, branch_key='all')
-                    total_photos = len(all_photos) if all_photos else 0
+                    self.tree.selectionModel().clear()
+                except Exception:
+                    pass
+
+            # CRITICAL FIX: Create a completely fresh model instead of clearing the old one
+            # This is safer than model.clear() which can cause Qt C++ segfaults
+            print("[Sidebar] Creating fresh model (avoiding Qt segfault)")
+            old_model = self.model
+            self.model = QStandardItemModel(self.tree)
+            self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
+            # Schedule old model for deletion (let Qt clean it up safely)
+            if old_model is not None:
+                try:
+                    old_model.deleteLater()
                 except Exception as e:
-                    print(f"[Sidebar] Could not get total photo count: {e}")
-                    total_photos = 0
+                    print(f"[Sidebar] Warning: Could not schedule old model for deletion: {e}")
 
-            # Helper to create styled count item
-            def _make_count_item(count_val):
-                item = QStandardItem(str(count_val) if count_val else "")
-                item.setEditable(False)
-                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                item.setForeground(QColor("#BBBBBB"))
-                return item
+            # Attach the fresh model to the tree view
+            print("[Sidebar] Attaching fresh model to tree view")
+            self.tree.setModel(self.model)
 
-            branch_root = QStandardItem("🌿 Branches")
-            branch_root.setEditable(False)
-            branch_count_item = _make_count_item(total_photos)
-            self.model.appendRow([branch_root, branch_count_item])
-            branches = list_branches(self.project_id) if self.project_id else []
-            for b in branches:
-                name_item = QStandardItem(b["display_name"])
-                count_item = QStandardItem("")
-                name_item.setEditable(False)
-                count_item.setEditable(False)
-                name_item.setData("branch", Qt.UserRole)
-                name_item.setData(b["branch_key"], Qt.UserRole + 1)
-                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                count_item.setForeground(QColor("#BBBBBB"))
-                branch_root.appendRow([name_item, count_item])
-                # register branch for async counts
-                self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
-
-            quick_root = QStandardItem("📅 Quick Dates")
-            quick_root.setEditable(False)
-            quick_count_item = _make_count_item(total_photos)
-            self.model.appendRow([quick_root, quick_count_item])
+            self._count_targets = []
             try:
-                quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
-            except Exception:
-                quick_rows = []
-            for row in quick_rows:
-                name_item = QStandardItem(row["label"])
-                count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
-                name_item.setEditable(False)
-                count_item.setEditable(False)
-                name_item.setData("branch", Qt.UserRole)
-                name_item.setData(row["key"], Qt.UserRole + 1)
-                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                count_item.setForeground(QColor("#BBBBBB"))
-                quick_root.appendRow([name_item, count_item])
+                # Get total photo count for displaying on top-level sections
+                total_photos = 0
+                if self.project_id:
+                    try:
+                        # Get count from "all" branch
+                        all_photos = self.db.get_project_images(self.project_id, branch_key='all')
+                        total_photos = len(all_photos) if all_photos else 0
+                    except Exception as e:
+                        print(f"[Sidebar] Could not get total photo count: {e}")
+                        total_photos = 0
 
-            # IMPORTANT FIX: use synchronous folder population as in the previous working version,
-            # so folder counts are calculated and displayed immediately.
-            folder_root = QStandardItem("📁 Folders")
-            folder_root.setEditable(False)
-            folder_count_item = _make_count_item(total_photos)
-            self.model.appendRow([folder_root, folder_count_item])
-            # synchronous (restores the previous working behavior)
-            self._add_folder_items(folder_root, None)
+                # Helper to create styled count item
+                def _make_count_item(count_val):
+                    item = QStandardItem(str(count_val) if count_val else "")
+                    item.setEditable(False)
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    item.setForeground(QColor("#BBBBBB"))
+                    return item
 
-            self._build_by_date_section()
-            self._build_tag_section()
-            
-            # >>> NEW: 👥 People / Face Albums section
-            try:
-                clusters = self.db.get_face_clusters(self.project_id)
-            except Exception as e:
-                print("[Sidebar] get_face_clusters failed:", e)
-                clusters = []
-
-            if clusters:
-                # Display total number of people/clusters at top level
-                total_people = len(clusters)
-
-                root_name_item = QStandardItem("👥 People")
-                root_cnt_item = _make_count_item(total_people)
-                root_name_item.setEditable(False)
-                root_cnt_item.setEditable(False)
-                self.model.appendRow([root_name_item, root_cnt_item])
-
-                for row in clusters:
-                    name = row.get("display_name") or row.get("branch_key")
-                    count = row.get("member_count", 0)
-                    rep = row.get("rep_path", "")
-                    label = f"{name} ({count})"
-
-                    name_item = QStandardItem(label)
+                branch_root = QStandardItem("🌿 Branches")
+                branch_root.setEditable(False)
+                branch_count_item = _make_count_item(total_photos)
+                self.model.appendRow([branch_root, branch_count_item])
+                branches = list_branches(self.project_id) if self.project_id else []
+                for b in branches:
+                    name_item = QStandardItem(b["display_name"])
+                    count_item = QStandardItem("")
                     name_item.setEditable(False)
-                    name_item.setData("people", Qt.UserRole)
-                    name_item.setData(row["branch_key"], Qt.UserRole + 1)
-                    name_item.setToolTip(rep)
-
-                    count_item = QStandardItem(str(count))
                     count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(b["branch_key"], Qt.UserRole + 1)
                     count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                    count_item.setForeground(QColor("#888888"))
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    branch_root.appendRow([name_item, count_item])
+                    # register branch for async counts
+                    self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
 
-                    root_name_item.appendRow([name_item, count_item])
+                quick_root = QStandardItem("📅 Quick Dates")
+                quick_root.setEditable(False)
+                quick_count_item = _make_count_item(total_photos)
+                self.model.appendRow([quick_root, quick_count_item])
+                try:
+                    quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
+                except Exception:
+                    quick_rows = []
+                for row in quick_rows:
+                    name_item = QStandardItem(row["label"])
+                    count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
+                    name_item.setEditable(False)
+                    count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(row["key"], Qt.UserRole + 1)
+                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    quick_root.appendRow([name_item, count_item])
 
-                print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
-            # <<< NEW
+                # IMPORTANT FIX: use synchronous folder population as in the previous working version,
+                # so folder counts are calculated and displayed immediately.
+                folder_root = QStandardItem("📁 Folders")
+                folder_root.setEditable(False)
+                folder_count_item = _make_count_item(total_photos)
+                self.model.appendRow([folder_root, folder_count_item])
+                # synchronous (restores the previous working behavior)
+                self._add_folder_items(folder_root, None)
 
-            # >>> NEW: 🎬 Videos section
-            try:
-                from services.video_service import VideoService
-                video_service = VideoService()
-                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-                total_videos = len(videos)
+                self._build_by_date_section()
+                self._build_tag_section()
+
+                # >>> NEW: 🎬 Videos section
+                try:
+                    from services.video_service import VideoService
+                    video_service = VideoService()
+                    videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                    total_videos = len(videos)
+                except Exception as e:
+                    print("[Sidebar] Failed to load videos:", e)
+                    total_videos = 0
+                    videos = []
+
+                if videos:
+                    root_name_item = QStandardItem("🎬 Videos")
+                    root_cnt_item = _make_count_item(total_videos)
+                    root_name_item.setEditable(False)
+                    root_cnt_item.setEditable(False)
+                    self.model.appendRow([root_name_item, root_cnt_item])
+
+                    # Add "All Videos" option
+                    all_videos_item = QStandardItem("All Videos")
+                    all_videos_item.setEditable(False)
+                    all_videos_item.setData("videos", Qt.UserRole)
+                    all_videos_item.setData("all", Qt.UserRole + 1)
+                    all_count = QStandardItem(str(total_videos))
+                    all_count.setEditable(False)
+                    all_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    all_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([all_videos_item, all_count])
+
+                    # 🎯 Filter by Duration
+                    duration_parent = QStandardItem("⏱️ By Duration")
+                    duration_parent.setEditable(False)
+                    duration_count = QStandardItem("")
+                    duration_count.setEditable(False)
+                    root_name_item.appendRow([duration_parent, duration_count])
+
+                    # Count videos by duration
+                    short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
+                    medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
+                    long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
+
+                    # Short videos (< 30s)
+                    short_item = QStandardItem("Short (< 30s)")
+                    short_item.setEditable(False)
+                    short_item.setData("videos_duration", Qt.UserRole)
+                    short_item.setData("short", Qt.UserRole + 1)
+                    short_count = QStandardItem(str(len(short_videos)))
+                    short_count.setEditable(False)
+                    short_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    short_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([short_item, short_count])
+
+                    # Medium videos (30s - 5min)
+                    medium_item = QStandardItem("Medium (30s - 5min)")
+                    medium_item.setEditable(False)
+                    medium_item.setData("videos_duration", Qt.UserRole)
+                    medium_item.setData("medium", Qt.UserRole + 1)
+                    medium_count = QStandardItem(str(len(medium_videos)))
+                    medium_count.setEditable(False)
+                    medium_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    medium_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([medium_item, medium_count])
+
+                    # Long videos (> 5min)
+                    long_item = QStandardItem("Long (> 5min)")
+                    long_item.setEditable(False)
+                    long_item.setData("videos_duration", Qt.UserRole)
+                    long_item.setData("long", Qt.UserRole + 1)
+                    long_count = QStandardItem(str(len(long_videos)))
+                    long_count.setEditable(False)
+                    long_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    long_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([long_item, long_count])
+
+                    # 📺 Filter by Resolution
+                    res_parent = QStandardItem("📺 By Resolution")
+                    res_parent.setEditable(False)
+                    res_count = QStandardItem("")
+                    res_count.setEditable(False)
+                    root_name_item.appendRow([res_parent, res_count])
+
+                    # Count videos by resolution
+                    sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
+                    hd_videos = [v for v in videos if v.get('height') and 720 <= v['height'] < 1080]
+                    fhd_videos = [v for v in videos if v.get('height') and 1080 <= v['height'] < 2160]
+                    uhd_videos = [v for v in videos if v.get('height') and v['height'] >= 2160]
+
+                    # SD videos (< 720p)
+                    sd_item = QStandardItem("SD (< 720p)")
+                    sd_item.setEditable(False)
+                    sd_item.setData("videos_resolution", Qt.UserRole)
+                    sd_item.setData("sd", Qt.UserRole + 1)
+                    sd_cnt = QStandardItem(str(len(sd_videos)))
+                    sd_cnt.setEditable(False)
+                    sd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    sd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([sd_item, sd_cnt])
+
+                    # HD videos (720p)
+                    hd_item = QStandardItem("HD (720p)")
+                    hd_item.setEditable(False)
+                    hd_item.setData("videos_resolution", Qt.UserRole)
+                    hd_item.setData("hd", Qt.UserRole + 1)
+                    hd_cnt = QStandardItem(str(len(hd_videos)))
+                    hd_cnt.setEditable(False)
+                    hd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    hd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([hd_item, hd_cnt])
+
+                    # Full HD videos (1080p)
+                    fhd_item = QStandardItem("Full HD (1080p)")
+                    fhd_item.setEditable(False)
+                    fhd_item.setData("videos_resolution", Qt.UserRole)
+                    fhd_item.setData("fhd", Qt.UserRole + 1)
+                    fhd_cnt = QStandardItem(str(len(fhd_videos)))
+                    fhd_cnt.setEditable(False)
+                    fhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    fhd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([fhd_item, fhd_cnt])
+
+                    # 4K videos (2160p+)
+                    uhd_item = QStandardItem("4K (2160p+)")
+                    uhd_item.setEditable(False)
+                    uhd_item.setData("videos_resolution", Qt.UserRole)
+                    uhd_item.setData("4k", Qt.UserRole + 1)
+                    uhd_cnt = QStandardItem(str(len(uhd_videos)))
+                    uhd_cnt.setEditable(False)
+                    uhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    uhd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([uhd_item, uhd_cnt])
+
+                    # 🔍 Search Videos
+                    search_item = QStandardItem("🔍 Search Videos...")
+                    search_item.setEditable(False)
+                    search_item.setData("videos_search", Qt.UserRole)
+                    search_item.setData("search", Qt.UserRole + 1)
+                    search_count = QStandardItem("")
+                    search_count.setEditable(False)
+                    root_name_item.appendRow([search_item, search_count])
+
+                    print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos and filters.")
+                # <<< NEW
+
+                # >>> NEW: 👥 People / Face Albums section
+                try:
+                    clusters = self.db.get_face_clusters(self.project_id)
+                except Exception as e:
+                    print("[Sidebar] get_face_clusters failed:", e)
+                    clusters = []
+
+                if clusters:
+                    root_name_item = QStandardItem("👥 People")
+                    root_cnt_item = QStandardItem("")
+                    root_name_item.setEditable(False)
+                    root_cnt_item.setEditable(False)
+                    self.model.appendRow([root_name_item, root_cnt_item])
+
+                    for row in clusters:
+                        name = row.get("display_name") or row.get("branch_key")
+                        count = row.get("member_count", 0)
+                        rep = row.get("rep_path", "")
+                        label = f"{name} ({count})"
+
+                        name_item = QStandardItem(label)
+                        name_item.setEditable(False)
+                        name_item.setData("people", Qt.UserRole)
+                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
+                        name_item.setToolTip(rep)
+
+                        count_item = QStandardItem(str(count))
+                        count_item.setEditable(False)
+                        count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        count_item.setForeground(QColor("#888888"))
+
+                        root_name_item.appendRow([name_item, count_item])
+
+                    print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
+                # <<< NEW
+
+                for r in range(self.model.rowCount()):
+                    idx = self.model.index(r, 0)
+                    self.tree.expand(idx)
+
+                # Force column width recalculation after building tree
+                QTimer.singleShot(0, self._recalculate_columns)
             except Exception as e:
-                print("[Sidebar] Failed to load videos:", e)
-                total_videos = 0
-                videos = []
+                QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
 
-            if videos:
-                root_name_item = QStandardItem("🎬 Videos")
-                root_cnt_item = _make_count_item(total_videos)
-                root_name_item.setEditable(False)
-                root_cnt_item.setEditable(False)
-                self.model.appendRow([root_name_item, root_cnt_item])
+            # populate branch counts asynchronously while folder counts are already set
+            if self._count_targets:
+                print(f"[Sidebar] starting async count population for {len(self._count_targets)} branch targets")
+                self._async_populate_counts()
 
-                # Add "All Videos" option
-                all_videos_item = QStandardItem("All Videos")
-                all_videos_item.setEditable(False)
-                all_videos_item.setData("videos", Qt.UserRole)
-                all_videos_item.setData("all", Qt.UserRole + 1)
-                all_count = QStandardItem(str(total_videos))
-                all_count.setEditable(False)
-                all_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                all_count.setForeground(QColor("#888888"))
-                root_name_item.appendRow([all_videos_item, all_count])
-
-                # 🎯 Filter by Duration
-                duration_parent = QStandardItem("⏱️ By Duration")
-                duration_parent.setEditable(False)
-                duration_count = QStandardItem("")
-                duration_count.setEditable(False)
-                root_name_item.appendRow([duration_parent, duration_count])
-
-                # Count videos by duration
-                short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
-                medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
-                long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
-
-                # Short videos (< 30s)
-                short_item = QStandardItem("Short (< 30s)")
-                short_item.setEditable(False)
-                short_item.setData("videos_duration", Qt.UserRole)
-                short_item.setData("short", Qt.UserRole + 1)
-                short_count = QStandardItem(str(len(short_videos)))
-                short_count.setEditable(False)
-                short_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                short_count.setForeground(QColor("#888888"))
-                duration_parent.appendRow([short_item, short_count])
-
-                # Medium videos (30s - 5min)
-                medium_item = QStandardItem("Medium (30s - 5min)")
-                medium_item.setEditable(False)
-                medium_item.setData("videos_duration", Qt.UserRole)
-                medium_item.setData("medium", Qt.UserRole + 1)
-                medium_count = QStandardItem(str(len(medium_videos)))
-                medium_count.setEditable(False)
-                medium_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                medium_count.setForeground(QColor("#888888"))
-                duration_parent.appendRow([medium_item, medium_count])
-
-                # Long videos (> 5min)
-                long_item = QStandardItem("Long (> 5min)")
-                long_item.setEditable(False)
-                long_item.setData("videos_duration", Qt.UserRole)
-                long_item.setData("long", Qt.UserRole + 1)
-                long_count = QStandardItem(str(len(long_videos)))
-                long_count.setEditable(False)
-                long_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                long_count.setForeground(QColor("#888888"))
-                duration_parent.appendRow([long_item, long_count])
-
-                # 📺 Filter by Resolution
-                res_parent = QStandardItem("📺 By Resolution")
-                res_parent.setEditable(False)
-                res_count = QStandardItem("")
-                res_count.setEditable(False)
-                root_name_item.appendRow([res_parent, res_count])
-
-                # Count videos by resolution
-                sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
-                hd_videos = [v for v in videos if v.get('height') and 720 <= v['height'] < 1080]
-                fhd_videos = [v for v in videos if v.get('height') and 1080 <= v['height'] < 2160]
-                uhd_videos = [v for v in videos if v.get('height') and v['height'] >= 2160]
-
-                # SD videos (< 720p)
-                sd_item = QStandardItem("SD (< 720p)")
-                sd_item.setEditable(False)
-                sd_item.setData("videos_resolution", Qt.UserRole)
-                sd_item.setData("sd", Qt.UserRole + 1)
-                sd_cnt = QStandardItem(str(len(sd_videos)))
-                sd_cnt.setEditable(False)
-                sd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                sd_cnt.setForeground(QColor("#888888"))
-                res_parent.appendRow([sd_item, sd_cnt])
-
-                # HD videos (720p)
-                hd_item = QStandardItem("HD (720p)")
-                hd_item.setEditable(False)
-                hd_item.setData("videos_resolution", Qt.UserRole)
-                hd_item.setData("hd", Qt.UserRole + 1)
-                hd_cnt = QStandardItem(str(len(hd_videos)))
-                hd_cnt.setEditable(False)
-                hd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                hd_cnt.setForeground(QColor("#888888"))
-                res_parent.appendRow([hd_item, hd_cnt])
-
-                # Full HD videos (1080p)
-                fhd_item = QStandardItem("Full HD (1080p)")
-                fhd_item.setEditable(False)
-                fhd_item.setData("videos_resolution", Qt.UserRole)
-                fhd_item.setData("fhd", Qt.UserRole + 1)
-                fhd_cnt = QStandardItem(str(len(fhd_videos)))
-                fhd_cnt.setEditable(False)
-                fhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                fhd_cnt.setForeground(QColor("#888888"))
-                res_parent.appendRow([fhd_item, fhd_cnt])
-
-                # 4K videos (2160p+)
-                uhd_item = QStandardItem("4K (2160p+)")
-                uhd_item.setEditable(False)
-                uhd_item.setData("videos_resolution", Qt.UserRole)
-                uhd_item.setData("4k", Qt.UserRole + 1)
-                uhd_cnt = QStandardItem(str(len(uhd_videos)))
-                uhd_cnt.setEditable(False)
-                uhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                uhd_cnt.setForeground(QColor("#888888"))
-                res_parent.appendRow([uhd_item, uhd_cnt])
-
-                # 🔍 Search Videos
-                search_item = QStandardItem("🔍 Search Videos...")
-                search_item.setEditable(False)
-                search_item.setData("videos_search", Qt.UserRole)
-                search_item.setData("search", Qt.UserRole + 1)
-                search_count = QStandardItem("")
-                search_count.setEditable(False)
-                root_name_item.appendRow([search_item, search_count])
-
-                print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos and filters.")
-            # <<< NEW
-
-            for r in range(self.model.rowCount()):
-                idx = self.model.index(r, 0)
-                self.tree.expand(idx)
-            
-
-            for r in range(self.model.rowCount()):
-                idx = self.model.index(r, 0)
-                self.tree.expand(idx)
-            # Force column width recalculation after building tree
-            QTimer.singleShot(0, self._recalculate_columns)
-        except Exception as e:
-            QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
-
-        # populate branch counts asynchronously while folder counts are already set
-        if self._count_targets:
-            print(f"[Sidebar] starting async count population for {len(self._count_targets)} branch targets")
-            self._async_populate_counts()
+        finally:
+            # Always reset flag even if exception occurs
+            self._rebuilding_tree = False
 
     def _add_folder_items_async(self, parent_item, parent_id=None):
         # kept for folder-tab lazy usage if desired, but not used for tree-mode counts
@@ -1937,9 +1779,6 @@ class SidebarQt(QWidget):
         self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
         current_gen = self._list_worker_gen
 
-        # CRITICAL FIX: Store reference to current model to detect recreation
-        current_model_id = id(self.model)
-
         # CRITICAL FIX: Extract only data (typ, key), NOT Qt objects, before passing to worker
         data_only = [(typ, key) for typ, key, name_item, count_item in targets]
 
@@ -1979,12 +1818,12 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar][counts worker gen={current_gen}] finished scanning targets, scheduling UI update")
             except Exception:
                 traceback.print_exc()
-            # Schedule UI update in main thread with generation check AND model ID check
-            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results, current_gen, current_model_id))
+            # Schedule UI update in main thread with generation check
+            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results, current_gen))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _apply_counts_defensive(self, results, gen=None, model_id=None):
+    def _apply_counts_defensive(self, results, gen=None):
         """
         Apply counts to UI by finding QStandardItems in model by key.
         This method runs in the MAIN THREAD (called via QTimer.singleShot).
@@ -1992,16 +1831,10 @@ class SidebarQt(QWidget):
         Args:
             results: List of (typ, key, cnt) tuples from worker thread
             gen: Generation number to check if results are stale
-            model_id: ID of model when worker started (to detect model recreation)
         """
         # Check if this worker is stale
         if gen is not None and gen != self._list_worker_gen:
             print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
-            return
-
-        # CRITICAL FIX: Check if model has been recreated since worker started
-        if model_id is not None and id(self.model) != model_id:
-            print(f"[Sidebar][counts] Model was recreated (old_id={model_id}, new_id={id(self.model)}), skipping update")
             return
 
         # CRITICAL SAFETY: Check if model is detached (being rebuilt)
@@ -2120,21 +1953,10 @@ class SidebarQt(QWidget):
         if not hier or not isinstance(hier, dict):
             return
 
-        # Get total photo count for top-level
-        total_photos = 0
-        if self.project_id:
-            try:
-                all_photos = self.db.get_project_images(self.project_id, branch_key='all')
-                total_photos = len(all_photos) if all_photos else 0
-            except Exception:
-                total_photos = 0
-
         root_name_item = QStandardItem("📅 By Date")
-        root_cnt_item = QStandardItem(str(total_photos) if total_photos else "")
+        root_cnt_item = QStandardItem("")
         for it in (root_name_item, root_cnt_item):
             it.setEditable(False)
-        root_cnt_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        root_cnt_item.setForeground(QColor("#BBBBBB"))
         self.model.appendRow([root_name_item, root_cnt_item])
 
         def _cnt_item(num):
@@ -2204,15 +2026,10 @@ class SidebarQt(QWidget):
         if not tag_rows:
             return
 
-        # Display total number of tags at top level
-        total_tags = len(tag_rows)
-
         root_name_item = QStandardItem("🏷️ Tags")
-        root_count_item = QStandardItem(str(total_tags) if total_tags else "")
+        root_count_item = QStandardItem("")
         root_name_item.setEditable(False)
         root_count_item.setEditable(False)
-        root_count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        root_count_item.setForeground(QColor("#BBBBBB"))
         self.model.appendRow([root_name_item, root_count_item])
 
         for tag_name, count in tag_rows:

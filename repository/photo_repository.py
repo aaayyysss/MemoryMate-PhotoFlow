@@ -51,19 +51,29 @@ class PhotoRepository(BaseRepository):
 
         On Windows, converts backslashes to forward slashes and normalizes case.
         This prevents duplicates like 'C:\\path\\photo.jpg' vs 'C:/path/photo.jpg'
+        and 'C:/Path/Photo.jpg' vs 'c:/path/photo.jpg'
 
         Args:
             path: File path to normalize
 
         Returns:
-            Normalized path string
+            Normalized path string (lowercase on Windows)
         """
         import os
+        import platform
+
         # Normalize path components (resolve .., ., etc)
         normalized = os.path.normpath(path)
         # Convert backslashes to forward slashes for consistent storage
         # SQLite stores paths as strings, so C:\path != C:/path
         normalized = normalized.replace('\\', '/')
+
+        # CRITICAL FIX: Lowercase on Windows to handle case-insensitive filesystem
+        # SQLite UNIQUE constraints are case-sensitive by default, so without this
+        # C:/Path/Photo.jpg and c:/path/photo.jpg are treated as different rows
+        if platform.system() == 'Windows':
+            normalized = normalized.lower()
+
         return normalized
 
     def get_by_folder(self, folder_id: int, project_id: int, limit: Optional[int] = None) -> List[Dict[str, Any]]:

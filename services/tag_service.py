@@ -367,7 +367,8 @@ class TagService:
             # Without this, the photo exists in photo_metadata but not in project_images,
             # causing count mismatches (e.g., 299 in metadata vs 298 in all branch)
             try:
-                db = self._photo_repo._db_connection
+                from reference_db import ReferenceDB
+                db = ReferenceDB()
                 db.add_project_image(project_id=project_id, image_path=path, branch_key='all', label=None)
                 self.logger.debug(f"Added photo to project_images (all branch): {path}")
             except Exception as e:

@@ -734,24 +734,39 @@ class ReferenceDB:
     def get_project_images(self, project_id: int, branch_key: str = None):
         """
         Return image paths for a given project.
-        - If branch_key is 'all' or None → return all images.
-        - If branch_key starts with 'face_' → filter by that branch.
+        - If branch_key is None → return all UNIQUE images (DISTINCT paths).
+        - If branch_key is 'all' or '__ALL__' → filter by branch_key='all' specifically.
+        - If branch_key starts with 'face_' or 'date:' → filter by that branch.
         - If branch_key does NOT match any branch → try matching by label (for face branches like 'Person A').
+
+        CRITICAL FIX: 'all' is now treated as a specific branch, not "return everything".
+        This prevents count inflation (e.g., showing 554 instead of 298).
         """
         with self._connect() as conn:
             cur = conn.cursor()
 
-            # 🟢 Case 1: all images (default view)
-            if branch_key is None or branch_key == "all" or branch_key == "__ALL__":
+            # 🟢 Case 1: No branch specified - return all UNIQUE images
+            if branch_key is None:
                 cur.execute(
-                    "SELECT image_path FROM project_images WHERE project_id = ?",
+                    "SELECT DISTINCT image_path FROM project_images WHERE project_id = ?",
                     (project_id,)
                 )
                 rows = cur.fetchall()
                 paths = [row[0] for row in rows]
                 return paths
 
-            # 🟠 Case 2: exact branch_key match (date-based or face_x)
+            # 🟢 Case 2: 'all' branch - filter specifically for branch_key='all'
+            # CRITICAL: This is the fix for count inflation bug
+            if branch_key == "all" or branch_key == "__ALL__":
+                cur.execute(
+                    "SELECT image_path FROM project_images WHERE project_id = ? AND branch_key = ?",
+                    (project_id, 'all')
+                )
+                rows = cur.fetchall()
+                paths = [row[0] for row in rows]
+                return paths
+
+            # 🟠 Case 3: exact branch_key match (date-based or face_x)
             cur.execute(
                 "SELECT image_path FROM project_images WHERE project_id = ? AND branch_key = ?",
                 (project_id, branch_key)
@@ -761,7 +776,7 @@ class ReferenceDB:
                 paths = [row[0] for row in rows]
                 return paths
 
-            # 🔎 Case 3: fallback — maybe user clicked "Person A" which is a label, not a branch_key
+            # 🔎 Case 4: fallback — maybe user clicked "Person A" which is a label, not a branch_key
             cur.execute(
                 "SELECT image_path FROM project_images WHERE project_id = ? AND label = ?",
                 (project_id, branch_key)

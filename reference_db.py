@@ -2354,7 +2354,9 @@ class ReferenceDB:
                     )
                     if cur.rowcount > 0:
                         inserted += 1
-                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images")
+                # Note: inserted=0 is normal for incremental scans (photos already linked)
+                status = "new" if inserted > 0 else "already linked"
+                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images ({status})")
                 n_total += len(paths)
 
             conn.commit()

@@ -1415,8 +1415,19 @@ class SidebarQt(QWidget):
                     print(f"[Sidebar] Unable to display thumbnails for people cluster {value}")
             except Exception as e:
                 print(f"[Sidebar] Failed to open people cluster {value}: {e}")
-                        
-                
+
+        elif mode == "videos" and value == "all":
+            # Load all videos for the project
+            try:
+                if hasattr(mw, "grid") and hasattr(mw.grid, "set_videos"):
+                    mw.grid.set_videos()
+                    print(f"[Sidebar] Displaying all videos for project {self.project_id}")
+                else:
+                    print(f"[Sidebar] Unable to display videos - grid.set_videos() not available")
+            except Exception as e:
+                print(f"[Sidebar] Failed to load videos: {e}")
+
+
         elif mode == "date" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("date", value)
@@ -1596,6 +1607,40 @@ class SidebarQt(QWidget):
                     root_name_item.appendRow([name_item, count_item])
 
                 print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
+            # <<< NEW
+
+            # >>> NEW: 🎬 Videos section
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                total_videos = len(videos)
+            except Exception as e:
+                print("[Sidebar] Failed to load videos:", e)
+                total_videos = 0
+                videos = []
+
+            if videos:
+                root_name_item = QStandardItem("🎬 Videos")
+                root_cnt_item = _make_count_item(total_videos)
+                root_name_item.setEditable(False)
+                root_cnt_item.setEditable(False)
+                self.model.appendRow([root_name_item, root_cnt_item])
+
+                # Add "All Videos" option
+                name_item = QStandardItem("All Videos")
+                name_item.setEditable(False)
+                name_item.setData("videos", Qt.UserRole)
+                name_item.setData("all", Qt.UserRole + 1)
+
+                count_item = QStandardItem(str(total_videos))
+                count_item.setEditable(False)
+                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                count_item.setForeground(QColor("#888888"))
+
+                root_name_item.appendRow([name_item, count_item])
+
+                print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos.")
             # <<< NEW
 
             for r in range(self.model.rowCount()):

@@ -1355,6 +1355,96 @@ class SidebarQt(QWidget):
             if hasattr(mw, "_apply_tag_filter"):
                 mw._apply_tag_filter(value)
 
+        # Video handlers
+        elif mode == "videos" and value == "all":
+            # Show all videos for current project
+            print(f"[Sidebar] Displaying all videos for project {self.project_id}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                paths = [v['path'] for v in videos]
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    mw.grid.display_thumbnails(paths)
+                    mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
+                else:
+                    print(f"[Sidebar] Unable to display videos")
+            except Exception as e:
+                print(f"[Sidebar] Failed to load all videos: {e}")
+
+        elif mode == "videos_duration" and value:
+            # Filter videos by duration
+            print(f"[Sidebar] Filtering videos by duration: {value}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+
+                if value == "short":
+                    filtered = video_service.filter_by_duration(videos, max_seconds=30)
+                    label = "short (< 30s)"
+                elif value == "medium":
+                    filtered = video_service.filter_by_duration(videos, min_seconds=30, max_seconds=300)
+                    label = "medium (30s - 5min)"
+                elif value == "long":
+                    filtered = video_service.filter_by_duration(videos, min_seconds=300)
+                    label = "long (> 5min)"
+                else:
+                    filtered = videos
+                    label = value
+
+                paths = [v['path'] for v in filtered]
+                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    mw.grid.display_thumbnails(paths)
+                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by duration: {e}")
+
+        elif mode == "videos_resolution" and value:
+            # Filter videos by resolution
+            print(f"[Sidebar] Filtering videos by resolution: {value}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                filtered = video_service.filter_by_resolution(videos, quality=value)
+                paths = [v['path'] for v in filtered]
+
+                quality_labels = {'sd': 'SD (< 720p)', 'hd': 'HD (720p)', 'fhd': 'Full HD (1080p)', '4k': '4K (2160p+)'}
+                label = quality_labels.get(value, value)
+
+                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    mw.grid.display_thumbnails(paths)
+                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by resolution: {e}")
+
+        elif mode == "videos_search" and value == "search":
+            # Search videos
+            from PySide6.QtWidgets import QInputDialog
+            query, ok = QInputDialog.getText(self, "Search Videos", "Enter search term (filename or tags):")
+            if ok and query:
+                print(f"[Sidebar] Searching videos for: {query}")
+                try:
+                    from services.video_service import VideoService
+                    video_service = VideoService()
+                    videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                    filtered = video_service.search_videos(videos, query)
+                    paths = [v['path'] for v in filtered]
+                    if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                        mw.grid.display_thumbnails(paths)
+                        mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
+                    else:
+                        print(f"[Sidebar] Unable to display search results")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to search videos: {e}")
+
         def _reflow():
             try:
                 g = mw.grid

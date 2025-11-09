@@ -1416,6 +1416,90 @@ class SidebarQt(QWidget):
             except Exception as e:
                 print(f"[Sidebar] Failed to open people cluster {value}: {e}")
 
+        elif mode == "videos_search" and value == "search":
+            # Search videos
+            try:
+                from PySide6.QtWidgets import QInputDialog
+                from services.video_service import VideoService
+
+                # Prompt for search query
+                query, ok = QInputDialog.getText(
+                    self,
+                    "Search Videos",
+                    "Enter search term (searches filenames and tags):",
+                    text=""
+                )
+
+                if ok and query:
+                    video_service = VideoService()
+                    videos = video_service.get_videos_by_project(self.project_id)
+
+                    # Search videos
+                    filtered = video_service.search_videos(videos, query)
+                    print(f"[Sidebar] Found {len(filtered)} videos matching '{query}'")
+
+                    # Display results
+                    if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                        paths = [v['path'] for v in filtered]
+                        mw.grid.display_thumbnails(paths)
+
+                        # Show result count in status
+                        if hasattr(mw, "statusBar"):
+                            mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
+                    else:
+                        print(f"[Sidebar] Unable to display search results")
+            except Exception as e:
+                print(f"[Sidebar] Failed to search videos: {e}")
+
+        elif mode == "videos_duration" and value:
+            # Filter videos by duration
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id)
+
+                # Apply duration filter
+                if value == "short":
+                    filtered = video_service.filter_by_duration(videos, max_seconds=30)
+                    print(f"[Sidebar] Showing {len(filtered)} short videos (< 30s)")
+                elif value == "medium":
+                    filtered = video_service.filter_by_duration(videos, min_seconds=30, max_seconds=300)
+                    print(f"[Sidebar] Showing {len(filtered)} medium videos (30s - 5min)")
+                elif value == "long":
+                    filtered = video_service.filter_by_duration(videos, min_seconds=300)
+                    print(f"[Sidebar] Showing {len(filtered)} long videos (> 5min)")
+                else:
+                    filtered = videos
+
+                # Display filtered videos
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    paths = [v['path'] for v in filtered]
+                    mw.grid.display_thumbnails(paths)
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by duration: {e}")
+
+        elif mode == "videos_resolution" and value:
+            # Filter videos by resolution
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id)
+
+                # Apply resolution filter
+                filtered = video_service.filter_by_resolution(videos, quality=value)
+                print(f"[Sidebar] Showing {len(filtered)} {value.upper()} videos")
+
+                # Display filtered videos
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    paths = [v['path'] for v in filtered]
+                    mw.grid.display_thumbnails(paths)
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by resolution: {e}")
+
         elif mode == "videos" and value == "all":
             # Load all videos for the project
             try:
@@ -1628,19 +1712,128 @@ class SidebarQt(QWidget):
                 self.model.appendRow([root_name_item, root_cnt_item])
 
                 # Add "All Videos" option
-                name_item = QStandardItem("All Videos")
-                name_item.setEditable(False)
-                name_item.setData("videos", Qt.UserRole)
-                name_item.setData("all", Qt.UserRole + 1)
+                all_videos_item = QStandardItem("All Videos")
+                all_videos_item.setEditable(False)
+                all_videos_item.setData("videos", Qt.UserRole)
+                all_videos_item.setData("all", Qt.UserRole + 1)
+                all_count = QStandardItem(str(total_videos))
+                all_count.setEditable(False)
+                all_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                all_count.setForeground(QColor("#888888"))
+                root_name_item.appendRow([all_videos_item, all_count])
 
-                count_item = QStandardItem(str(total_videos))
-                count_item.setEditable(False)
-                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                count_item.setForeground(QColor("#888888"))
+                # 🎯 Filter by Duration
+                duration_parent = QStandardItem("⏱️ By Duration")
+                duration_parent.setEditable(False)
+                duration_count = QStandardItem("")
+                duration_count.setEditable(False)
+                root_name_item.appendRow([duration_parent, duration_count])
 
-                root_name_item.appendRow([name_item, count_item])
+                # Count videos by duration
+                short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
+                medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
+                long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
 
-                print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos.")
+                # Short videos (< 30s)
+                short_item = QStandardItem("Short (< 30s)")
+                short_item.setEditable(False)
+                short_item.setData("videos_duration", Qt.UserRole)
+                short_item.setData("short", Qt.UserRole + 1)
+                short_count = QStandardItem(str(len(short_videos)))
+                short_count.setEditable(False)
+                short_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                short_count.setForeground(QColor("#888888"))
+                duration_parent.appendRow([short_item, short_count])
+
+                # Medium videos (30s - 5min)
+                medium_item = QStandardItem("Medium (30s - 5min)")
+                medium_item.setEditable(False)
+                medium_item.setData("videos_duration", Qt.UserRole)
+                medium_item.setData("medium", Qt.UserRole + 1)
+                medium_count = QStandardItem(str(len(medium_videos)))
+                medium_count.setEditable(False)
+                medium_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                medium_count.setForeground(QColor("#888888"))
+                duration_parent.appendRow([medium_item, medium_count])
+
+                # Long videos (> 5min)
+                long_item = QStandardItem("Long (> 5min)")
+                long_item.setEditable(False)
+                long_item.setData("videos_duration", Qt.UserRole)
+                long_item.setData("long", Qt.UserRole + 1)
+                long_count = QStandardItem(str(len(long_videos)))
+                long_count.setEditable(False)
+                long_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                long_count.setForeground(QColor("#888888"))
+                duration_parent.appendRow([long_item, long_count])
+
+                # 📺 Filter by Resolution
+                res_parent = QStandardItem("📺 By Resolution")
+                res_parent.setEditable(False)
+                res_count = QStandardItem("")
+                res_count.setEditable(False)
+                root_name_item.appendRow([res_parent, res_count])
+
+                # Count videos by resolution
+                sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
+                hd_videos = [v for v in videos if v.get('height') and 720 <= v['height'] < 1080]
+                fhd_videos = [v for v in videos if v.get('height') and 1080 <= v['height'] < 2160]
+                uhd_videos = [v for v in videos if v.get('height') and v['height'] >= 2160]
+
+                # SD videos (< 720p)
+                sd_item = QStandardItem("SD (< 720p)")
+                sd_item.setEditable(False)
+                sd_item.setData("videos_resolution", Qt.UserRole)
+                sd_item.setData("sd", Qt.UserRole + 1)
+                sd_cnt = QStandardItem(str(len(sd_videos)))
+                sd_cnt.setEditable(False)
+                sd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                sd_cnt.setForeground(QColor("#888888"))
+                res_parent.appendRow([sd_item, sd_cnt])
+
+                # HD videos (720p)
+                hd_item = QStandardItem("HD (720p)")
+                hd_item.setEditable(False)
+                hd_item.setData("videos_resolution", Qt.UserRole)
+                hd_item.setData("hd", Qt.UserRole + 1)
+                hd_cnt = QStandardItem(str(len(hd_videos)))
+                hd_cnt.setEditable(False)
+                hd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                hd_cnt.setForeground(QColor("#888888"))
+                res_parent.appendRow([hd_item, hd_cnt])
+
+                # Full HD videos (1080p)
+                fhd_item = QStandardItem("Full HD (1080p)")
+                fhd_item.setEditable(False)
+                fhd_item.setData("videos_resolution", Qt.UserRole)
+                fhd_item.setData("fhd", Qt.UserRole + 1)
+                fhd_cnt = QStandardItem(str(len(fhd_videos)))
+                fhd_cnt.setEditable(False)
+                fhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                fhd_cnt.setForeground(QColor("#888888"))
+                res_parent.appendRow([fhd_item, fhd_cnt])
+
+                # 4K videos (2160p+)
+                uhd_item = QStandardItem("4K (2160p+)")
+                uhd_item.setEditable(False)
+                uhd_item.setData("videos_resolution", Qt.UserRole)
+                uhd_item.setData("4k", Qt.UserRole + 1)
+                uhd_cnt = QStandardItem(str(len(uhd_videos)))
+                uhd_cnt.setEditable(False)
+                uhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                uhd_cnt.setForeground(QColor("#888888"))
+                res_parent.appendRow([uhd_item, uhd_cnt])
+
+                # 🔍 Search Videos
+                search_item = QStandardItem("🔍 Search Videos...")
+                search_item.setEditable(False)
+                search_item.setData("videos_search", Qt.UserRole)
+                search_item.setData("search", Qt.UserRole + 1)
+                search_count = QStandardItem("")
+                search_count.setEditable(False)
+                root_name_item.appendRow([search_item, search_count])
+
+                print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos and filters.")
             # <<< NEW
 
             for r in range(self.model.rowCount()):

@@ -179,13 +179,13 @@ def list_branches(project_id: int):
 
 def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixmap:
     """
-    Get thumbnail for an image file.
+    Get thumbnail for an image or video file.
 
-    Now uses ThumbnailService with unified L1 (memory) + L2 (database) caching.
-    The use_disk_cache parameter is kept for backward compatibility but ignored.
+    For images: Uses ThumbnailService with unified L1 (memory) + L2 (database) caching.
+    For videos: Loads pre-generated thumbnail from .thumb_cache directory.
 
     Args:
-        path: Image file path
+        path: Image or video file path
         height: Target thumbnail height in pixels
         use_disk_cache: Legacy parameter (ignored, caching always enabled)
 
@@ -195,6 +195,39 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
     if not path:
         return QPixmap()
 
+    # 🎬 Check if this is a video file
+    from thumbnail_grid_qt import is_video_file
+    if is_video_file(path):
+        # For videos, load pre-generated thumbnail from .thumb_cache
+        from pathlib import Path
+        video_name = Path(path).stem
+        video_ext = Path(path).suffix.replace('.', '_')
+        thumb_path = Path(".thumb_cache") / f"{video_name}{video_ext}_thumb.jpg"
+
+        if thumb_path.exists():
+            # Load video thumbnail
+            pixmap = QPixmap(str(thumb_path))
+            if not pixmap.isNull():
+                # Scale to requested height maintaining aspect ratio
+                if pixmap.height() != height:
+                    pixmap = pixmap.scaledToHeight(height, Qt.SmoothTransformation)
+                return pixmap
+
+        # No thumbnail exists - return placeholder with video icon
+        placeholder = QPixmap(int(height * 4/3), height)
+        placeholder.fill(QColor(40, 40, 40))
+
+        from PySide6.QtGui import QPainter, QFont, QColor
+        painter = QPainter(placeholder)
+        painter.setPen(QColor(180, 180, 180))
+        font = QFont("Arial", int(height / 4))
+        painter.setFont(font)
+        painter.drawText(placeholder.rect(), Qt.AlignCenter, "🎬")
+        painter.end()
+
+        return placeholder
+
+    # For images, use ThumbnailService
     if not _enable_thumbnail_cache:
         # Caching disabled - generate directly without caching
         # This is rare but supported for debugging

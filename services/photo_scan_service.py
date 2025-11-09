@@ -685,13 +685,34 @@ class PhotoScanService:
 
             # Launch metadata extraction worker
             metadata_worker = VideoMetadataWorker(project_id=project_id)
+
+            # Connect progress signals for UI feedback
+            metadata_worker.signals.progress.connect(
+                lambda curr, total, path: logger.info(f"[Metadata] Processing {curr}/{total}: {path}")
+            )
+            metadata_worker.signals.finished.connect(
+                lambda success, failed: logger.info(f"[Metadata] Complete: {success} successful, {failed} failed")
+            )
+
             QThreadPool.globalInstance().start(metadata_worker)
             logger.info("✓ Video metadata extraction worker started")
 
             # Launch thumbnail generation worker
             thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+
+            # Connect progress signals for UI feedback
+            thumbnail_worker.signals.progress.connect(
+                lambda curr, total, path: logger.info(f"[Thumbnails] Generating {curr}/{total}: {path}")
+            )
+            thumbnail_worker.signals.finished.connect(
+                lambda success, failed: logger.info(f"[Thumbnails] Complete: {success} successful, {failed} failed")
+            )
+
             QThreadPool.globalInstance().start(thumbnail_worker)
             logger.info("✓ Video thumbnail generation worker started")
+
+            # Store worker count for status
+            logger.info(f"🎬 Processing {self._stats['videos_indexed']} videos in background (check logs for progress)")
 
         except ImportError as e:
             logger.warning(f"Video workers not available: {e}")

@@ -254,10 +254,36 @@ class ThumbWorker(QRunnable):
             print(f"[ThumbWorker] Error for {self.path}: {e}")
 
 
+def is_video_file(path: str) -> bool:
+    """Check if file is a video based on extension."""
+    if not path:
+        return False
+    ext = os.path.splitext(path)[1].lower()
+    video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                  '.asf', '.avi', '.mkv', '.webm', '.flv', '.f4v', '.3gp',
+                  '.3g2', '.ogv', '.ts', '.mts', '.m2ts'}
+    return ext in video_exts
+
+
+def format_duration(seconds: float) -> str:
+    """Format duration in seconds to MM:SS or H:MM:SS format."""
+    if seconds is None or seconds < 0:
+        return "0:00"
+
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+    else:
+        return f"{minutes}:{secs:02d}"
+
+
 class CenteredThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+
 
 
     def paint(self, painter: QPainter, option, index):
@@ -321,9 +347,45 @@ class CenteredThumbnailDelegate(QStyledItemDelegate):
                 x = rect.x() + (rect.width() - scaled.width()) // 2
                 y = rect.y() + (rect.height() - scaled.height()) // 2
                 painter.drawPixmap(QRect(x, y, scaled.width(), scaled.height()), scaled)
-                
 
-                                
+                # 🎬 Video duration badge (Phase 4.3)
+                file_path = index.data(Qt.UserRole)
+                if file_path and is_video_file(file_path):
+                    # Get duration from video metadata (stored in UserRole + 3)
+                    duration_seconds = index.data(Qt.UserRole + 3)
+
+                    # Draw semi-transparent background for badge
+                    painter.save()
+                    badge_width = 50
+                    badge_height = 20
+                    badge_rect = QRect(
+                        x + scaled.width() - badge_width - 4,
+                        y + scaled.height() - badge_height - 4,
+                        badge_width,
+                        badge_height
+                    )
+
+                    # Draw rounded background
+                    painter.setPen(Qt.NoPen)
+                    painter.setBrush(QColor(0, 0, 0, 180))
+                    painter.drawRoundedRect(badge_rect, 3, 3)
+
+                    # Draw duration text or play icon
+                    painter.setPen(QPen(Qt.white))
+                    font = QFont()
+                    font.setPointSize(9)
+                    font.setBold(True)
+                    painter.setFont(font)
+
+                    if duration_seconds and duration_seconds > 0:
+                        duration_text = format_duration(duration_seconds)
+                    else:
+                        duration_text = "🎬"  # Show play icon if no duration
+
+                    painter.drawText(badge_rect, Qt.AlignCenter, duration_text)
+                    painter.restore()
+
+
         # 🟢 Focus glow
         if option.state & QStyle.State_HasFocus:
             painter.save()
@@ -1510,6 +1572,18 @@ class ThumbnailGridQt(QWidget):
         self.date_key = date_key
         self.reload()
 
+    def set_videos(self):
+        """
+        Called when Videos tab is selected - show all videos for current project.
+        🎬 Phase 4.3: Video support
+        """
+        self.navigation_mode = "videos"
+        self.navigation_key = None
+        self.active_tag_filter = None
+
+        self.load_mode = "videos"
+        self.reload()
+
     def load_paths(self, paths: list[str]):
         """
         Load arbitrary list of photo paths (e.g., from search results).
@@ -1757,6 +1831,17 @@ class ThumbnailGridQt(QWidget):
                     else:
                         # fallback for quick keys (e.g. date:this-week)
                         paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
+                elif mode == "videos":
+                    # 🎬 Phase 4.3: Load all videos for project
+                    try:
+                        from services.video_service import VideoService
+                        video_service = VideoService()
+                        videos = video_service.get_videos_by_project(self.project_id)
+                        paths = [v['path'] for v in videos]
+                        print(f"[GRID] Loaded {len(paths)} videos for project {self.project_id}")
+                    except Exception as e:
+                        print(f"[GRID] Failed to load videos: {e}")
+                        paths = []
                 else:
                     paths = []
 
@@ -1771,13 +1856,15 @@ class ThumbnailGridQt(QWidget):
                 "folder": "Folder",
                 "branch": "Branch",
                 "date": "Date",
-                "tag": "Tag"
+                "tag": "Tag",
+                "videos": "Videos"
             }.get(mode or "unknown", "Unknown")
 
             tag_label = f" [Tag: {tag}]" if tag else ""
+            media_label = "video(s)" if mode == "videos" else "photo(s)"
             status_msg = (
                 f"{context_label}: {key or '—'} → "
-                f"{final_count} photo(s) shown"
+                f"{final_count} {media_label} shown"
                 f"{' (filtered)' if tag else ''}"
             )
 
@@ -1846,6 +1933,17 @@ class ThumbnailGridQt(QWidget):
             item.setData(tag_map.get(p, []), Qt.UserRole + 2)
             item.setData(default_aspect, Qt.UserRole + 1)
             item.setData(False, Qt.UserRole + 5)   # not scheduled yet
+
+            # 🎬 Phase 4.3: Store video duration if this is a video file
+            if is_video_file(p):
+                try:
+                    # Try to get duration from video_metadata table
+                    video_meta = self.db.get_video_by_path(p, self.project_id)
+                    if video_meta and 'duration_seconds' in video_meta:
+                        item.setData(video_meta['duration_seconds'], Qt.UserRole + 3)
+                except Exception:
+                    # If no metadata available, set None (will show play icon instead)
+                    item.setData(None, Qt.UserRole + 3)
 
             # 🖼 initial placeholder size & icon
             item.setSizeHint(placeholder_size)

@@ -1484,6 +1484,34 @@ class ReferenceDB:
             cols = [d[0] for d in cur.description]
             return dict(zip(cols, row))
 
+    # --- 🎬 Video Methods (Phase 4.3) ---
+
+    def get_video_by_path(self, path: str, project_id: int):
+        """
+        Get video metadata by file path.
+
+        Args:
+            path: Video file path
+            project_id: Project ID
+
+        Returns:
+            Video metadata dict or None
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, path, folder_id, project_id, size_kb, modified,
+                       duration_seconds, width, height, fps, codec, bitrate,
+                       date_taken, created_ts, created_date, created_year,
+                       metadata_status, thumbnail_status
+                FROM video_metadata
+                WHERE path = ? AND project_id = ?
+            """, (path, project_id))
+            row = cur.fetchone()
+            if not row:
+                return None
+            cols = [d[0] for d in cur.description]
+            return dict(zip(cols, row))
 
     def upsert_photo_metadata_1st(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
         """

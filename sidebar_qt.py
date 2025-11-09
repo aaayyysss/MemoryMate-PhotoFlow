@@ -1425,6 +1425,91 @@ class SidebarQt(QWidget):
             except Exception as e:
                 print(f"[Sidebar] Failed to filter videos by resolution: {e}")
 
+        elif mode == "videos_codec" and value:
+            # Filter videos by codec (Option 7)
+            print(f"[Sidebar] Filtering videos by codec: {value}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+
+                # Map codec keys to codec names
+                codec_map = {
+                    'h264': ['h264', 'avc'],
+                    'hevc': ['hevc', 'h265'],
+                    'vp9': ['vp9'],
+                    'av1': ['av1'],
+                    'mpeg4': ['mpeg4', 'xvid', 'divx']
+                }
+
+                codecs_to_filter = codec_map.get(value, [value])
+                filtered = video_service.filter_by_codec(videos, codecs=codecs_to_filter)
+                paths = [v['path'] for v in filtered]
+
+                codec_labels = {
+                    'h264': 'H.264 / AVC',
+                    'hevc': 'H.265 / HEVC',
+                    'vp9': 'VP9',
+                    'av1': 'AV1',
+                    'mpeg4': 'MPEG-4'
+                }
+                label = codec_labels.get(value, value.upper())
+
+                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
+                    mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by codec: {e}")
+
+        elif mode == "videos_size" and value:
+            # Filter videos by file size (Option 7)
+            print(f"[Sidebar] Filtering videos by file size: {value}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                filtered = video_service.filter_by_file_size(videos, size_range=value)
+                paths = [v['path'] for v in filtered]
+
+                size_labels = {
+                    'small': 'Small (< 100MB)',
+                    'medium': 'Medium (100MB - 1GB)',
+                    'large': 'Large (1GB - 5GB)',
+                    'xlarge': 'XLarge (> 5GB)'
+                }
+                label = size_labels.get(value, value)
+
+                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
+                    mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by file size: {e}")
+
+        elif mode == "videos_year" and value:
+            # Filter videos by year (Option 7)
+            print(f"[Sidebar] Filtering videos by year: {value}")
+            try:
+                from services.video_service import VideoService
+                video_service = VideoService()
+                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                filtered = video_service.filter_by_date(videos, year=int(value))
+                paths = [v['path'] for v in filtered]
+
+                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
+                if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.load_custom_paths(paths)
+                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
+                else:
+                    print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
+            except Exception as e:
+                print(f"[Sidebar] Failed to filter videos by year: {e}")
+
         elif mode == "videos_search" and value == "search":
             # Search videos
             from PySide6.QtWidgets import QInputDialog
@@ -1719,6 +1804,164 @@ class SidebarQt(QWidget):
                     uhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     uhd_cnt.setForeground(QColor("#888888"))
                     res_parent.appendRow([uhd_item, uhd_cnt])
+
+                    # 🎞️ Filter by Codec (Option 7)
+                    codec_parent = QStandardItem("🎞️ By Codec")
+                    codec_parent.setEditable(False)
+                    codec_count = QStandardItem("")
+                    codec_count.setEditable(False)
+                    root_name_item.appendRow([codec_parent, codec_count])
+
+                    # Count videos by codec
+                    h264_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['h264', 'avc']]
+                    hevc_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['hevc', 'h265']]
+                    vp9_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'vp9']
+                    av1_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'av1']
+                    mpeg4_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['mpeg4', 'xvid', 'divx']]
+
+                    # H.264
+                    h264_item = QStandardItem("H.264 / AVC")
+                    h264_item.setEditable(False)
+                    h264_item.setData("videos_codec", Qt.UserRole)
+                    h264_item.setData("h264", Qt.UserRole + 1)
+                    h264_cnt = QStandardItem(str(len(h264_videos)))
+                    h264_cnt.setEditable(False)
+                    h264_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    h264_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([h264_item, h264_cnt])
+
+                    # H.265 / HEVC
+                    hevc_item = QStandardItem("H.265 / HEVC")
+                    hevc_item.setEditable(False)
+                    hevc_item.setData("videos_codec", Qt.UserRole)
+                    hevc_item.setData("hevc", Qt.UserRole + 1)
+                    hevc_cnt = QStandardItem(str(len(hevc_videos)))
+                    hevc_cnt.setEditable(False)
+                    hevc_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    hevc_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([hevc_item, hevc_cnt])
+
+                    # VP9
+                    vp9_item = QStandardItem("VP9")
+                    vp9_item.setEditable(False)
+                    vp9_item.setData("videos_codec", Qt.UserRole)
+                    vp9_item.setData("vp9", Qt.UserRole + 1)
+                    vp9_cnt = QStandardItem(str(len(vp9_videos)))
+                    vp9_cnt.setEditable(False)
+                    vp9_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    vp9_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([vp9_item, vp9_cnt])
+
+                    # AV1
+                    av1_item = QStandardItem("AV1")
+                    av1_item.setEditable(False)
+                    av1_item.setData("videos_codec", Qt.UserRole)
+                    av1_item.setData("av1", Qt.UserRole + 1)
+                    av1_cnt = QStandardItem(str(len(av1_videos)))
+                    av1_cnt.setEditable(False)
+                    av1_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    av1_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([av1_item, av1_cnt])
+
+                    # MPEG-4
+                    mpeg4_item = QStandardItem("MPEG-4")
+                    mpeg4_item.setEditable(False)
+                    mpeg4_item.setData("videos_codec", Qt.UserRole)
+                    mpeg4_item.setData("mpeg4", Qt.UserRole + 1)
+                    mpeg4_cnt = QStandardItem(str(len(mpeg4_videos)))
+                    mpeg4_cnt.setEditable(False)
+                    mpeg4_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    mpeg4_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([mpeg4_item, mpeg4_cnt])
+
+                    # 📦 Filter by File Size (Option 7)
+                    size_parent = QStandardItem("📦 By File Size")
+                    size_parent.setEditable(False)
+                    size_count = QStandardItem("")
+                    size_count.setEditable(False)
+                    root_name_item.appendRow([size_parent, size_count])
+
+                    # Count videos by file size
+                    small_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 < 100]
+                    medium_size_videos = [v for v in videos if v.get('size_kb') and 100 <= v['size_kb'] / 1024 < 1024]
+                    large_videos = [v for v in videos if v.get('size_kb') and 1024 <= v['size_kb'] / 1024 < 5120]
+                    xlarge_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 >= 5120]
+
+                    # Small (< 100MB)
+                    small_size_item = QStandardItem("Small (< 100MB)")
+                    small_size_item.setEditable(False)
+                    small_size_item.setData("videos_size", Qt.UserRole)
+                    small_size_item.setData("small", Qt.UserRole + 1)
+                    small_size_cnt = QStandardItem(str(len(small_videos)))
+                    small_size_cnt.setEditable(False)
+                    small_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    small_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([small_size_item, small_size_cnt])
+
+                    # Medium (100MB - 1GB)
+                    medium_size_item = QStandardItem("Medium (100MB - 1GB)")
+                    medium_size_item.setEditable(False)
+                    medium_size_item.setData("videos_size", Qt.UserRole)
+                    medium_size_item.setData("medium", Qt.UserRole + 1)
+                    medium_size_cnt = QStandardItem(str(len(medium_size_videos)))
+                    medium_size_cnt.setEditable(False)
+                    medium_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    medium_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([medium_size_item, medium_size_cnt])
+
+                    # Large (1GB - 5GB)
+                    large_size_item = QStandardItem("Large (1GB - 5GB)")
+                    large_size_item.setEditable(False)
+                    large_size_item.setData("videos_size", Qt.UserRole)
+                    large_size_item.setData("large", Qt.UserRole + 1)
+                    large_size_cnt = QStandardItem(str(len(large_videos)))
+                    large_size_cnt.setEditable(False)
+                    large_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    large_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([large_size_item, large_size_cnt])
+
+                    # XLarge (> 5GB)
+                    xlarge_size_item = QStandardItem("XLarge (> 5GB)")
+                    xlarge_size_item.setEditable(False)
+                    xlarge_size_item.setData("videos_size", Qt.UserRole)
+                    xlarge_size_item.setData("xlarge", Qt.UserRole + 1)
+                    xlarge_size_cnt = QStandardItem(str(len(xlarge_videos)))
+                    xlarge_size_cnt.setEditable(False)
+                    xlarge_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    xlarge_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([xlarge_size_item, xlarge_size_cnt])
+
+                    # 📅 Filter by Date (Option 7)
+                    from datetime import datetime
+                    date_parent = QStandardItem("📅 By Date")
+                    date_parent.setEditable(False)
+                    date_count = QStandardItem("")
+                    date_count.setEditable(False)
+                    root_name_item.appendRow([date_parent, date_count])
+
+                    # Count videos by year (last 5 years)
+                    current_year = datetime.now().year
+                    for year in range(current_year, current_year - 5, -1):
+                        year_videos = []
+                        for v in videos:
+                            date_str = v.get('date_taken') or v.get('modified')
+                            if date_str:
+                                try:
+                                    video_year = int(date_str.split('-')[0])
+                                    if video_year == year:
+                                        year_videos.append(v)
+                                except (ValueError, IndexError):
+                                    pass
+
+                        year_item = QStandardItem(str(year))
+                        year_item.setEditable(False)
+                        year_item.setData("videos_year", Qt.UserRole)
+                        year_item.setData(year, Qt.UserRole + 1)
+                        year_cnt = QStandardItem(str(len(year_videos)))
+                        year_cnt.setEditable(False)
+                        year_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        year_cnt.setForeground(QColor("#888888"))
+                        date_parent.appendRow([year_item, year_cnt])
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

@@ -1384,15 +1384,15 @@ class SidebarQt(QWidget):
         # Without this, workers can access model items during clear() causing crashes
         if self._initialized:
             from PySide6.QtCore import QCoreApplication
-            print("[Sidebar] Processing pending events before model clear")
+            print("[Sidebar] Processing pending events before model rebuild")
             QCoreApplication.processEvents()
             # Process events twice to catch worker callbacks scheduled during first pass
             QCoreApplication.processEvents()
             print("[Sidebar] Pending events processed")
 
-        # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
-        # Qt can crash if the view has active selections/iterators when model is cleared
-        print("[Sidebar] Detaching model from tree view")
+        # CRITICAL FIX: Instead of clearing existing model (which can crash due to Qt internal state),
+        # create a brand new model every time. This completely avoids Qt state corruption.
+        print("[Sidebar] Detaching old model from tree view")
         self.tree.setModel(None)
 
         # Clear selection to release any Qt internal references
@@ -1402,64 +1402,49 @@ class SidebarQt(QWidget):
             except Exception:
                 pass
 
-        # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
-        # removeRows() doesn't properly clean up complex tree structures with UserRole data
-        # ADDITIONAL FIX: Wrap model.clear() in try/except to handle Qt crashes during rapid switching
-        print("[Sidebar] Clearing model")
-        try:
-            # Add one final processEvents() right before clear to catch any last-minute callbacks
-            # This is critical for Windows where Qt can have delayed internal state updates
-            # IMPORTANT: Only do this AFTER initialization to avoid processing events too early
-            if self._initialized:
-                from PySide6.QtCore import QCoreApplication
-                QCoreApplication.processEvents()
+        # Create a completely fresh model instead of clearing the old one
+        # This is safer than model.clear() which can cause Qt C++ segfaults
+        print("[Sidebar] Creating fresh model (avoiding Qt segfault)")
+        old_model = self.model
+        self.model = QStandardItemModel(self.tree)
+        self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
 
-            self.model.clear()
-            self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
-        except Exception as e:
-            # If model.clear() crashes (Qt internal error), create a new model instead
-            print(f"[Sidebar] ERROR during model.clear(): {e}")
-            print("[Sidebar] Creating new model as fallback")
-            import traceback
-            traceback.print_exc()
-
+        # Schedule old model for deletion (let Qt clean it up safely)
+        if old_model is not None:
             try:
-                # Disconnect old model signals to prevent crashes
-                try:
-                    self.tree.setModel(None)
-                except:
-                    pass
+                old_model.deleteLater()
+            except Exception as e:
+                print(f"[Sidebar] Warning: Could not schedule old model for deletion: {e}")
 
-                # Create a brand new model
-                old_model = self.model
-                self.model = QStandardItemModel(self.tree)
-                self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
-                self.tree.setModel(self.model)
-
-                # Try to delete old model (let Qt clean it up)
-                try:
-                    old_model.deleteLater()
-                except:
-                    pass
-
-                print("[Sidebar] New model created successfully")
-            except Exception as inner_e:
-                print(f"[Sidebar] CRITICAL: Failed to create new model: {inner_e}")
-                import traceback
-                traceback.print_exc()
-                # Last resort: just continue with whatever model state we have
-                # Better to have a broken sidebar than crash the entire app
-                return
-        else:
-            # Normal path: model was cleared successfully, reattach it
-            print("[Sidebar] Reattaching model to tree view")
-            self.tree.setModel(self.model)
+        # Attach the fresh model to the tree
+        print("[Sidebar] Attaching fresh model to tree view")
+        self.tree.setModel(self.model)
 
         self._count_targets = []
         try:
+            # Get total photo count for displaying on top-level sections
+            total_photos = 0
+            if self.project_id:
+                try:
+                    # Get count from "all" branch
+                    all_photos = self.db.get_project_images(self.project_id, branch_key='all')
+                    total_photos = len(all_photos) if all_photos else 0
+                except Exception as e:
+                    print(f"[Sidebar] Could not get total photo count: {e}")
+                    total_photos = 0
+
+            # Helper to create styled count item
+            def _make_count_item(count_val):
+                item = QStandardItem(str(count_val) if count_val else "")
+                item.setEditable(False)
+                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item.setForeground(QColor("#BBBBBB"))
+                return item
+
             branch_root = QStandardItem("🌿 Branches")
             branch_root.setEditable(False)
-            self.model.appendRow([branch_root, QStandardItem("")])
+            branch_count_item = _make_count_item(total_photos)
+            self.model.appendRow([branch_root, branch_count_item])
             branches = list_branches(self.project_id) if self.project_id else []
             for b in branches:
                 name_item = QStandardItem(b["display_name"])
@@ -1476,7 +1461,8 @@ class SidebarQt(QWidget):
 
             quick_root = QStandardItem("📅 Quick Dates")
             quick_root.setEditable(False)
-            self.model.appendRow([quick_root, QStandardItem("")])
+            quick_count_item = _make_count_item(total_photos)
+            self.model.appendRow([quick_root, quick_count_item])
             try:
                 quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
             except Exception:
@@ -1496,7 +1482,8 @@ class SidebarQt(QWidget):
             # so folder counts are calculated and displayed immediately.
             folder_root = QStandardItem("📁 Folders")
             folder_root.setEditable(False)
-            self.model.appendRow([folder_root, QStandardItem("")])
+            folder_count_item = _make_count_item(total_photos)
+            self.model.appendRow([folder_root, folder_count_item])
             # synchronous (restores the previous working behavior)
             self._add_folder_items(folder_root, None)
 
@@ -1511,8 +1498,11 @@ class SidebarQt(QWidget):
                 clusters = []
 
             if clusters:
+                # Display total number of people/clusters at top level
+                total_people = len(clusters)
+
                 root_name_item = QStandardItem("👥 People")
-                root_cnt_item = QStandardItem("")
+                root_cnt_item = _make_count_item(total_people)
                 root_name_item.setEditable(False)
                 root_cnt_item.setEditable(False)
                 self.model.appendRow([root_name_item, root_cnt_item])
@@ -1814,10 +1804,21 @@ class SidebarQt(QWidget):
         if not hier or not isinstance(hier, dict):
             return
 
+        # Get total photo count for top-level
+        total_photos = 0
+        if self.project_id:
+            try:
+                all_photos = self.db.get_project_images(self.project_id, branch_key='all')
+                total_photos = len(all_photos) if all_photos else 0
+            except Exception:
+                total_photos = 0
+
         root_name_item = QStandardItem("📅 By Date")
-        root_cnt_item = QStandardItem("")
+        root_cnt_item = QStandardItem(str(total_photos) if total_photos else "")
         for it in (root_name_item, root_cnt_item):
             it.setEditable(False)
+        root_cnt_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        root_cnt_item.setForeground(QColor("#BBBBBB"))
         self.model.appendRow([root_name_item, root_cnt_item])
 
         def _cnt_item(num):
@@ -1887,10 +1888,15 @@ class SidebarQt(QWidget):
         if not tag_rows:
             return
 
+        # Display total number of tags at top level
+        total_tags = len(tag_rows)
+
         root_name_item = QStandardItem("🏷️ Tags")
-        root_count_item = QStandardItem("")
+        root_count_item = QStandardItem(str(total_tags) if total_tags else "")
         root_name_item.setEditable(False)
         root_count_item.setEditable(False)
+        root_count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        root_count_item.setForeground(QColor("#BBBBBB"))
         self.model.appendRow([root_name_item, root_count_item])
 
         for tag_name, count in tag_rows:

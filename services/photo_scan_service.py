@@ -58,7 +58,7 @@ class PhotoScanService:
 
     # Supported image extensions
     # Common formats
-    SUPPORTED_EXTENSIONS = {
+    IMAGE_EXTENSIONS = {
         # JPEG family
         '.jpg', '.jpeg', '.jpe', '.jfif',
         # PNG
@@ -86,6 +86,27 @@ class PhotoScanService:
         '.pef',  # Pentax RAW
         '.raf',  # Fujifilm RAW
     }
+
+    # Video file extensions (for future video support)
+    VIDEO_EXTENSIONS = {
+        # Common video formats
+        '.mp4', '.m4v', '.mov',
+        # MPEG family
+        '.mpeg', '.mpg', '.mpe',
+        # Windows Media
+        '.wmv', '.asf',
+        # AVI
+        '.avi',
+        # Matroska
+        '.mkv', '.webm',
+        # Flash
+        '.flv', '.f4v',
+        # Other
+        '.3gp', '.3g2', '.ogv', '.ts', '.mts', '.m2ts'
+    }
+
+    # Combined: all supported media files (photos + videos)
+    SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
 
     # Default ignore patterns
     DEFAULT_IGNORE_FOLDERS = {

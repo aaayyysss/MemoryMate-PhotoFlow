@@ -19,6 +19,8 @@ from reference_db import ReferenceDB
 from services import get_thumbnail_service
 
 DB_PATH = "photo_app.db"
+
+# Image file extensions
 SUPPORTED_EXT = {
     # JPEG family
     '.jpg', '.jpeg', '.jpe', '.jfif',
@@ -40,6 +42,27 @@ SUPPORTED_EXT = {
     '.cr2', '.cr3', '.nef', '.nrw', '.arw', '.srf', '.sr2',
     '.dng', '.orf', '.rw2', '.pef', '.raf'
 }
+
+# Video file extensions (for future video support)
+VIDEO_EXT = {
+    # Common video formats
+    '.mp4', '.m4v', '.mov',
+    # MPEG family
+    '.mpeg', '.mpg', '.mpe',
+    # Windows Media
+    '.wmv', '.asf',
+    # AVI
+    '.avi',
+    # Matroska
+    '.mkv', '.webm',
+    # Flash
+    '.flv', '.f4v',
+    # Other
+    '.3gp', '.3g2', '.ogv', '.ts', '.mts', '.m2ts'
+}
+
+# Combined: all supported media files (photos + videos)
+ALL_MEDIA_EXT = SUPPORTED_EXT | VIDEO_EXT
 
 _db = ReferenceDB()
 

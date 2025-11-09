@@ -626,22 +626,13 @@ class PhotoScanService:
                     folder_path = os.path.dirname(str(video_path))
                     folders_seen.add(folder_path)
 
-                    # Ensure folder exists
-                    self._ensure_folder_hierarchy(video_path, root_path, project_id)
+                    # Ensure folder exists and get folder_id (PROPER FIX)
+                    folder_id = self._ensure_folder_hierarchy(video_path.parent, root_path, project_id)
 
                     # Get file stats
                     stat = os.stat(video_path)
                     size_kb = stat.st_size / 1024
                     modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
-
-                    # Find folder_id
-                    folder_id = None
-                    try:
-                        folder_record = self.folder_repo.find_by_path(folder_path)
-                        if folder_record:
-                            folder_id = folder_record['id']
-                    except:
-                        pass
 
                     # Index video (status will be 'pending' for metadata/thumbnail extraction)
                     video_service.index_video(

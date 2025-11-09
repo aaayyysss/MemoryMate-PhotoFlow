@@ -2969,20 +2969,54 @@ class ReferenceDB:
 
         Args:
             project_id: Project ID to filter by
-            date_key: Date key (YYYY, YYYY-MM, or YYYY-MM-DD)
+            date_key: Date key (YYYY, YYYY-MM, YYYY-MM-DD, or special keys like 'this-year', 'this-month', 'today')
             tag_name: Tag name to filter by
 
         Returns:
             List of image paths that match the date AND have the tag
         """
-        # Determine date query based on date_key format
-        if len(date_key) == 4:  # Year
+        from datetime import datetime, timedelta
+
+        # Handle special date keys (this-year, this-month, today, etc.)
+        if date_key in ('this-year', 'this-month', 'this-week', 'today', 'last-30d'):
+            today = datetime.now().date()
+
+            if date_key == 'this-year':
+                # Photos from start of this year to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = today.replace(month=1, day=1).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'this-month':
+                # Photos from start of this month to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = today.replace(day=1).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'this-week':
+                # Photos from Monday to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = (today - timedelta(days=today.weekday())).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'today':
+                # Photos from today only
+                date_where = "pm.created_date = ?"
+                date_params = [today.isoformat()]
+            elif date_key == 'last-30d':
+                # Photos from last 30 days
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = (today - timedelta(days=29)).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+        # Handle concrete date formats
+        elif len(date_key) == 4:  # Year (YYYY)
             date_where = "pm.created_year = ?"
             date_params = [int(date_key)]
-        elif len(date_key) == 7:  # Year-Month
+        elif len(date_key) == 7:  # Year-Month (YYYY-MM)
             date_where = "pm.created_date LIKE ?"
             date_params = [f"{date_key}%"]
-        elif len(date_key) == 10:  # Year-Month-Day
+        elif len(date_key) == 10:  # Year-Month-Day (YYYY-MM-DD)
             date_where = "pm.created_date = ?"
             date_params = [date_key]
         else:

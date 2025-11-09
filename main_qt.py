@@ -106,9 +106,38 @@ if __name__ == "__main__":
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "Startup Error", "Failed to initialize the app.")
             sys.exit(1)
+
         # Launch main window after worker completes
         win = MainWindow()
         win.show()
+
+        # Check FFmpeg availability and notify user if needed
+        try:
+            from utils.ffmpeg_check import show_ffmpeg_status_once
+            ffmpeg_message = show_ffmpeg_status_once()
+            if ffmpeg_message and "⚠️" in ffmpeg_message:
+                # Only show warning if FFmpeg/FFprobe are missing
+                print(ffmpeg_message)
+                from PySide6.QtWidgets import QMessageBox
+                msg_box = QMessageBox(win)
+                msg_box.setIcon(QMessageBox.Warning)
+                msg_box.setWindowTitle("Video Support - FFmpeg Not Found")
+                msg_box.setText("FFmpeg and/or FFprobe are not installed on your system.")
+                msg_box.setInformativeText(
+                    "Video features will be limited:\n"
+                    "  • Videos can be indexed and played\n"
+                    "  • Video thumbnails won't be generated\n"
+                    "  • Duration/resolution won't be extracted\n\n"
+                    "See FFMPEG_INSTALL_GUIDE.md for installation instructions."
+                )
+                msg_box.setDetailedText(ffmpeg_message)
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.exec()
+            elif ffmpeg_message:
+                # FFmpeg is available, just log it
+                print(ffmpeg_message)
+        except Exception as e:
+            logger.warning(f"Failed to check FFmpeg availability: {e}")
 
     worker.finished.connect(on_finished)
     

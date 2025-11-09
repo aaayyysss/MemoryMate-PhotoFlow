@@ -798,7 +798,8 @@ class ThumbnailGridQt(QWidget):
 
             self.model.appendRow(item)
             thumb_h = int(self._thumb_base * self._zoom_factor)
-            worker = ThumbWorker(p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, self._placeholder_pixmap)
+            # ThumbWorker signature: real_path, norm_path, height, row, signal_obj, cache, reload_token, placeholder
+            worker = ThumbWorker(p, p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, self._placeholder_pixmap)
 
             self.thread_pool.start(worker)
 

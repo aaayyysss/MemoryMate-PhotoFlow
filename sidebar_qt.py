@@ -1630,6 +1630,9 @@ class SidebarQt(QWidget):
         self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
         current_gen = self._list_worker_gen
 
+        # CRITICAL FIX: Store reference to current model to detect recreation
+        current_model_id = id(self.model)
+
         # CRITICAL FIX: Extract only data (typ, key), NOT Qt objects, before passing to worker
         data_only = [(typ, key) for typ, key, name_item, count_item in targets]
 
@@ -1669,12 +1672,12 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar][counts worker gen={current_gen}] finished scanning targets, scheduling UI update")
             except Exception:
                 traceback.print_exc()
-            # Schedule UI update in main thread with generation check
-            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results, current_gen))
+            # Schedule UI update in main thread with generation check AND model ID check
+            QTimer.singleShot(0, lambda: self._apply_counts_defensive(results, current_gen, current_model_id))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _apply_counts_defensive(self, results, gen=None):
+    def _apply_counts_defensive(self, results, gen=None, model_id=None):
         """
         Apply counts to UI by finding QStandardItems in model by key.
         This method runs in the MAIN THREAD (called via QTimer.singleShot).
@@ -1682,10 +1685,16 @@ class SidebarQt(QWidget):
         Args:
             results: List of (typ, key, cnt) tuples from worker thread
             gen: Generation number to check if results are stale
+            model_id: ID of model when worker started (to detect model recreation)
         """
         # Check if this worker is stale
         if gen is not None and gen != self._list_worker_gen:
             print(f"[Sidebar][counts] Ignoring stale worker results (gen={gen}, current={self._list_worker_gen})")
+            return
+
+        # CRITICAL FIX: Check if model has been recreated since worker started
+        if model_id is not None and id(self.model) != model_id:
+            print(f"[Sidebar][counts] Model was recreated (old_id={model_id}, new_id={id(self.model)}), skipping update")
             return
 
         # CRITICAL SAFETY: Check if model is detached (being rebuilt)

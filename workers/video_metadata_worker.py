@@ -134,7 +134,7 @@ class VideoMetadataWorker(QRunnable):
                         video_id = video['id']
                         self.video_repo.update(
                             video_id=video_id,
-                            duration_seconds=metadata.get('duration'),
+                            duration_seconds=metadata.get('duration_seconds'),  # Fixed: was 'duration'
                             width=metadata.get('width'),
                             height=metadata.get('height'),
                             fps=metadata.get('fps'),
@@ -144,7 +144,7 @@ class VideoMetadataWorker(QRunnable):
                         )
 
                         success_count += 1
-                        logger.info(f"[VideoMetadataWorker] ✓ {video_path}: {metadata.get('duration', 0):.1f}s")
+                        logger.info(f"[VideoMetadataWorker] ✓ {video_path}: {metadata.get('duration_seconds', 0):.1f}s")
 
                     else:
                         # Metadata extraction failed

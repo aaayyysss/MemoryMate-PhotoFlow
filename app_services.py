@@ -5,6 +5,8 @@
 import os, io, shutil, hashlib, json
 import time
 import sqlite3
+import threading
+from queue import Queue
 
 
 from pathlib import Path
@@ -63,6 +65,53 @@ VIDEO_EXT = {
 
 # Combined: all supported media files (photos + videos)
 ALL_MEDIA_EXT = SUPPORTED_EXT | VIDEO_EXT
+
+
+def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
+    """
+    Extract image metadata (dimensions, EXIF date) with timeout protection.
+
+    Args:
+        file_path: Path to image file
+        timeout: Maximum time in seconds to wait for PIL operations
+
+    Returns:
+        tuple: (width, height, date_taken) or (None, None, None) on timeout/error
+    """
+    result_queue = Queue()
+
+    def _extract():
+        try:
+            with Image.open(file_path) as img:
+                width, height = img.size
+                date_taken = None
+                exif = img.getexif()
+                if exif:
+                    for k, v in exif.items():
+                        tag = ExifTags.TAGS.get(k, k)
+                        if tag == "DateTimeOriginal":
+                            date_taken = str(v)
+                            break
+                result_queue.put((width, height, date_taken))
+        except Exception as e:
+            result_queue.put((None, None, None))
+
+    # Run extraction in separate thread with timeout
+    thread = threading.Thread(target=_extract, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout)
+
+    if thread.is_alive():
+        # Timeout occurred - PIL is hanging
+        print(f"[SCAN] ⚠️ Timeout extracting metadata from {file_path}")
+        return None, None, None
+
+    # Get result from queue
+    try:
+        return result_queue.get_nowait()
+    except:
+        return None, None, None
+
 
 _db = ReferenceDB()
 
@@ -260,21 +309,12 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
                 # Skip unchanged
                 continue
 
-        # --- Step 3: Extract metadata ---
-        width = height = None
-        date_taken = None
-        try:
-            with Image.open(file_path) as img:
-                width, height = img.size
-                exif = img.getexif()
-                if exif:
-                    for k, v in exif.items():
-                        tag = ExifTags.TAGS.get(k, k)
-                        if tag == "DateTimeOriginal":
-                            date_taken = str(v)
-                            break
-        except Exception:
-            pass
+        # --- Step 3: Extract metadata with timeout protection ---
+        # Log every 10th file to track progress
+        if (idx + 1) % 10 == 0:
+            print(f"[SCAN] Processing {idx + 1}/{total_files}: {file_path.name}")
+
+        width, height, date_taken = _extract_image_metadata_with_timeout(file_path, timeout=2.0)
 
         # --- Step 4: Insert or update ---
         db.upsert_photo_metadata(

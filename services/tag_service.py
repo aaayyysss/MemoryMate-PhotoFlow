@@ -92,9 +92,9 @@ class TagService:
         else:
             photo_id = photo['id']
 
-        # Ensure tag exists
+        # Ensure tag exists for this project (Schema v3.1.0)
         try:
-            tag_id = self._tag_repo.ensure_exists(tag_name)
+            tag_id = self._tag_repo.ensure_exists(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to ensure tag exists '{tag_name}': {e}")
             return False
@@ -130,8 +130,8 @@ class TagService:
         if not photo:
             return False
 
-        # Get tag ID
-        tag = self._tag_repo.get_by_name(tag_name)
+        # Get tag ID for this project (Schema v3.1.0)
+        tag = self._tag_repo.get_by_name(tag_name, project_id)
         if not tag:
             return False
 
@@ -232,8 +232,8 @@ class TagService:
             return 0
 
         try:
-            # Ensure tag exists
-            tag_id = self._tag_repo.ensure_exists(tag_name)
+            # Ensure tag exists for this project (Schema v3.1.0)
+            tag_id = self._tag_repo.ensure_exists(tag_name, project_id)
 
             # Get photo IDs for all paths, creating photo_metadata entries if needed
             photo_ids = []
@@ -485,18 +485,19 @@ class TagService:
             self.logger.error(f"Failed to get all tags: {e}")
             return []
 
-    def ensure_tag_exists(self, tag_name: str) -> Optional[int]:
+    def ensure_tag_exists(self, tag_name: str, project_id: int) -> Optional[int]:
         """
-        Ensure a tag exists, creating it if necessary.
+        Ensure a tag exists within a project, creating it if necessary (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             Tag ID, or None if creation failed
 
         Example:
-            >>> service.ensure_tag_exists("new-tag")
+            >>> service.ensure_tag_exists("new-tag", project_id=1)
             42
         """
         tag_name = tag_name.strip()
@@ -504,68 +505,71 @@ class TagService:
             return None
 
         try:
-            return self._tag_repo.ensure_exists(tag_name)
+            return self._tag_repo.ensure_exists(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to ensure tag exists '{tag_name}': {e}")
             return None
 
-    def rename_tag(self, old_name: str, new_name: str) -> bool:
+    def rename_tag(self, old_name: str, new_name: str, project_id: int) -> bool:
         """
-        Rename a tag (or merge if new name exists).
+        Rename a tag within a project (or merge if new name exists) (Schema v3.1.0).
 
         Args:
             old_name: Current tag name
             new_name: New tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             True if renamed/merged, False if failed
 
         Example:
-            >>> service.rename_tag("favourites", "favorite")
+            >>> service.rename_tag("favourites", "favorite", project_id=1)
             True
         """
         try:
-            return self._tag_repo.rename(old_name, new_name)
+            return self._tag_repo.rename(old_name, new_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to rename tag '{old_name}' to '{new_name}': {e}")
             return False
 
-    def delete_tag(self, tag_name: str) -> bool:
+    def delete_tag(self, tag_name: str, project_id: int) -> bool:
         """
-        Delete a tag and remove it from all photos.
+        Delete a tag from a project and remove it from all photos (Schema v3.1.0).
 
         Args:
             tag_name: Tag name to delete
+            project_id: Project ID for tag isolation
 
         Returns:
             True if deleted, False if not found
 
         Example:
-            >>> service.delete_tag("old-tag")
+            >>> service.delete_tag("old-tag", project_id=1)
             True
         """
         try:
-            return self._tag_repo.delete_by_name(tag_name)
+            return self._tag_repo.delete_by_name(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to delete tag '{tag_name}': {e}")
             return False
 
-    def get_photo_count(self, tag_name: str) -> int:
+    def get_photo_count(self, tag_name: str, project_id: int) -> int:
         """
-        Get number of photos with this tag.
+        Get number of photos with this tag within a project (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             Number of photos, or 0 if tag not found
 
         Example:
-            >>> service.get_photo_count("favorite")
+            >>> service.get_photo_count("favorite", project_id=1)
             12
         """
         try:
-            tag = self._tag_repo.get_by_name(tag_name)
+            tag = self._tag_repo.get_by_name(tag_name, project_id)
             if not tag:
                 return 0
             return self._tag_repo.get_photo_count(tag['id'])

@@ -49,6 +49,7 @@ htmlcov/
 *.db
 *.db-shm
 *.db-wal
+*.db.backup_*
 reference_data.db
 thumbnails_cache.db
 photo_app.db

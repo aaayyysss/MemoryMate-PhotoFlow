@@ -1150,8 +1150,8 @@ class ThumbnailGridQt(QWidget):
             if ok and name.strip():
                 tname = name.strip()
                 tag_service = get_tag_service()
-                # Ensure tag exists and assign to photos
-                tag_service.ensure_tag_exists(tname)
+                # Ensure tag exists and assign to photos (Schema v3.1.0)
+                tag_service.ensure_tag_exists(tname, self.project_id)
                 count = tag_service.assign_tags_bulk(paths, tname, self.project_id)
                 print(f"[Tag] Created and assigned '{tname}' → {count} photo(s)")
                 self._refresh_tags_for_paths(paths)

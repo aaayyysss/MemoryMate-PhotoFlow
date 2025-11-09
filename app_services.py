@@ -33,7 +33,7 @@ SUPPORTED_EXT = {
     # TIFF
     '.tif', '.tiff',
     # HEIF/HEIC (Apple/modern)
-    '.heic', '.heif',
+    '.heic', '.heif',  # ✅ iPhone photos, Live Photos (still image part)
     # BMP
     '.bmp', '.dib',
     # GIF
@@ -41,14 +41,23 @@ SUPPORTED_EXT = {
     # Modern formats
     '.avif', '.jxl',
     # RAW formats
-    '.cr2', '.cr3', '.nef', '.nrw', '.arw', '.srf', '.sr2',
-    '.dng', '.orf', '.rw2', '.pef', '.raf'
+    '.cr2', '.cr3',  # Canon
+    '.nef', '.nrw',  # Nikon
+    '.arw', '.srf', '.sr2',  # Sony
+    '.dng',  # Adobe Digital Negative (includes Apple ProRAW)
+    '.orf',  # Olympus
+    '.rw2',  # Panasonic
+    '.pef',  # Pentax
+    '.raf'   # Fujifilm
 }
 
-# Video file extensions (for future video support)
+# Video file extensions
 VIDEO_EXT = {
+    # Apple/iPhone formats
+    '.mov',   # ✅ QuickTime, Live Photos (video part), Cinematic mode, ProRes
+    '.m4v',   # ✅ iTunes video, iPhone recordings
     # Common video formats
-    '.mp4', '.m4v', '.mov',
+    '.mp4',   # MPEG-4
     # MPEG family
     '.mpeg', '.mpg', '.mpe',
     # Windows Media
@@ -59,8 +68,10 @@ VIDEO_EXT = {
     '.mkv', '.webm',
     # Flash
     '.flv', '.f4v',
-    # Other
-    '.3gp', '.3g2', '.ogv', '.ts', '.mts', '.m2ts'
+    # Mobile/Other
+    '.3gp', '.3g2',  # Mobile phones
+    '.ogv',  # Ogg Video
+    '.ts', '.mts', '.m2ts'  # MPEG transport stream
 }
 
 # Combined: all supported media files (photos + videos)

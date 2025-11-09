@@ -166,6 +166,55 @@ class VideoService:
             self.logger.error(f"Failed to delete video {video_id}: {e}")
             return False
 
+    def index_video(self, path: str, project_id: int, folder_id: int = None,
+                   size_kb: float = None, modified: str = None) -> Optional[int]:
+        """
+        Index a video file during scanning.
+
+        Creates a video metadata entry with 'pending' status for background processing.
+        This method is called by PhotoScanService during repository scans.
+
+        Args:
+            path: Video file path
+            project_id: Project ID
+            folder_id: Folder ID (optional)
+            size_kb: File size in KB (optional)
+            modified: Modified timestamp (optional)
+
+        Returns:
+            Video ID, or None if indexing failed
+
+        Example:
+            >>> service.index_video("/videos/clip.mp4", project_id=1, folder_id=5,
+            ...                     size_kb=102400, modified="2025-01-01 12:00:00")
+            123
+        """
+        try:
+            # Check if video already exists
+            existing = self.get_video_by_path(path, project_id)
+            if existing:
+                self.logger.debug(f"Video already indexed: {path}")
+                return existing.get('id')
+
+            # Create new video entry with pending status
+            video_id = self._video_repo.create(
+                path=path,
+                folder_id=folder_id,
+                project_id=project_id,
+                size_kb=size_kb,
+                modified=modified,
+                metadata_status='pending',
+                thumbnail_status='pending'
+            )
+
+            if video_id:
+                self.logger.info(f"Indexed video {path} (id={video_id}, status=pending)")
+            return video_id
+
+        except Exception as e:
+            self.logger.error(f"Failed to index video {path}: {e}")
+            return None
+
     # ========================================================================
     # BULK OPERATIONS
     # ========================================================================

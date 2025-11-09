@@ -156,6 +156,10 @@ class PhotoScanService:
             'folders_found': 0
         }
 
+        # Video workers (initialized when videos are processed)
+        self.video_metadata_worker = None
+        self.video_thumbnail_worker = None
+
     def scan_repository(self,
                        root_folder: str,
                        project_id: int,
@@ -283,7 +287,7 @@ class PhotoScanService:
 
             # Step 6: Launch background workers for video processing
             if self._stats['videos_indexed'] > 0:
-                self._launch_video_workers(project_id)
+                self.video_metadata_worker, self.video_thumbnail_worker = self._launch_video_workers(project_id)
 
             # Finalize
             duration = time.time() - start_time
@@ -676,6 +680,9 @@ class PhotoScanService:
 
         Args:
             project_id: Project ID for which to process videos
+
+        Returns:
+            Tuple of (metadata_worker, thumbnail_worker) or (None, None) if failed
         """
         try:
             from PySide6.QtCore import QThreadPool
@@ -715,7 +722,12 @@ class PhotoScanService:
             # Store worker count for status
             logger.info(f"🎬 Processing {self._stats['videos_indexed']} videos in background (check logs for progress)")
 
+            # Return workers so callers can connect to their signals
+            return metadata_worker, thumbnail_worker
+
         except ImportError as e:
             logger.warning(f"Video workers not available: {e}")
+            return None, None
         except Exception as e:
             logger.error(f"Error launching video workers: {e}", exc_info=True)
+            return None, None

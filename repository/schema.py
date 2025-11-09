@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "3.1.0"
+SCHEMA_VERSION = "3.2.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -38,6 +38,9 @@ VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES ('3.1.0', 'Added project_id to tags table for proper tag isolation between projects');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.2.0', 'Added complete video infrastructure (video_metadata, project_videos, video_tags)');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -201,6 +204,66 @@ CREATE TABLE IF NOT EXISTS photo_tags (
 );
 
 -- ============================================================================
+-- VIDEO TABLES (Schema v3.2.0: Complete video infrastructure)
+-- ============================================================================
+
+-- Video metadata (mirrors photo_metadata structure for videos)
+CREATE TABLE IF NOT EXISTS video_metadata (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    folder_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
+
+    -- File metadata
+    size_kb REAL,
+    modified TEXT,
+
+    -- Video-specific metadata
+    duration_seconds REAL,
+    width INTEGER,
+    height INTEGER,
+    fps REAL,
+    codec TEXT,
+    bitrate INTEGER,
+
+    -- Timestamps (for date-based browsing)
+    date_taken TEXT,
+    created_ts INTEGER,
+    created_date TEXT,
+    created_year INTEGER,
+    updated_at TEXT,
+
+    -- Processing status
+    metadata_status TEXT DEFAULT 'pending',
+    metadata_fail_count INTEGER DEFAULT 0,
+    thumbnail_status TEXT DEFAULT 'pending',
+
+    FOREIGN KEY (folder_id) REFERENCES photo_folders(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
+);
+
+-- Project videos (mirrors project_images for videos)
+CREATE TABLE IF NOT EXISTS project_videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    branch_key TEXT,
+    video_path TEXT NOT NULL,
+    label TEXT,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(project_id, branch_key, video_path)
+);
+
+-- Video tags (many-to-many: videos to tags)
+CREATE TABLE IF NOT EXISTS video_tags (
+    video_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    PRIMARY KEY (video_id, tag_id),
+    FOREIGN KEY (video_id) REFERENCES video_metadata(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- ============================================================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
 
@@ -248,6 +311,20 @@ CREATE INDEX IF NOT EXISTS idx_tags_project ON tags(project_id);
 CREATE INDEX IF NOT EXISTS idx_tags_project_name ON tags(project_id, name);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id);
+
+-- Video indexes (v3.2.0: Video infrastructure)
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project ON video_metadata(project_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_folder ON video_metadata(folder_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_date ON video_metadata(date_taken);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_year ON video_metadata(created_year);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_status ON video_metadata(metadata_status);
+
+CREATE INDEX IF NOT EXISTS idx_project_videos_project ON project_videos(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_videos_branch ON project_videos(project_id, branch_key);
+CREATE INDEX IF NOT EXISTS idx_project_videos_path ON project_videos(video_path);
+
+CREATE INDEX IF NOT EXISTS idx_video_tags_video ON video_tags(video_id);
+CREATE INDEX IF NOT EXISTS idx_video_tags_tag ON video_tags(tag_id);
 """
 
 
@@ -293,6 +370,10 @@ def get_expected_tables() -> list[str]:
         "photo_metadata",
         "tags",
         "photo_tags",
+        # Video tables (v3.2.0)
+        "video_metadata",
+        "project_videos",
+        "video_tags",
     ]
 
 
@@ -327,8 +408,21 @@ def get_expected_indexes() -> list[str]:
         "idx_photo_created_date",
         "idx_photo_created_ts",
         "idx_tags_name",
+        "idx_tags_project",
+        "idx_tags_project_name",
         "idx_photo_tags_photo",
         "idx_photo_tags_tag",
+        # Video indexes (v3.2.0)
+        "idx_video_metadata_project",
+        "idx_video_metadata_folder",
+        "idx_video_metadata_date",
+        "idx_video_metadata_year",
+        "idx_video_metadata_status",
+        "idx_project_videos_project",
+        "idx_project_videos_branch",
+        "idx_project_videos_path",
+        "idx_video_tags_video",
+        "idx_video_tags_tag",
     ]
 
 

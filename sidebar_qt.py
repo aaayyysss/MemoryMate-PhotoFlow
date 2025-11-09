@@ -1373,146 +1373,159 @@ class SidebarQt(QWidget):
         # Build tree synchronously for folders (counts populated right away),
         # and register branch targets for async fill to keep responsiveness.
 
-        # CRITICAL FIX: Cancel any pending count workers before rebuilding
-        self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+        # CRITICAL: Prevent concurrent rebuilds that cause Qt crashes during rapid project switching
+        # Similar to grid reload() guard pattern
+        if getattr(self, '_rebuilding_tree', False):
+            print("[Sidebar] _build_tree_model() blocked - already rebuilding (prevents concurrent rebuild crash)")
+            return
 
-        # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
-        # This ensures:
-        # 1. Old widgets from tabs are fully cleaned up
-        # 2. Async count workers have checked their generation and aborted
-        # 3. No pending model item updates are in the event queue
-        # Without this, workers can access model items during clear() causing crashes
-        if self._initialized:
-            from PySide6.QtCore import QCoreApplication
-            print("[Sidebar] Processing pending events before model clear")
-            QCoreApplication.processEvents()
-            # Process events twice to catch worker callbacks scheduled during first pass
-            QCoreApplication.processEvents()
-            print("[Sidebar] Pending events processed")
-
-        # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
-        # Qt can crash if the view has active selections/iterators when model is cleared
-        print("[Sidebar] Detaching model from tree view")
-        self.tree.setModel(None)
-
-        # Clear selection to release any Qt internal references
-        if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
-            try:
-                self.tree.selectionModel().clear()
-            except Exception:
-                pass
-
-        # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
-        # removeRows() doesn't properly clean up complex tree structures with UserRole data
-        print("[Sidebar] Clearing model")
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
-
-        # Reattach model after clearing
-        print("[Sidebar] Reattaching model to tree view")
-        self.tree.setModel(self.model)
-
-        self._count_targets = []
         try:
-            branch_root = QStandardItem("🌿 Branches")
-            branch_root.setEditable(False)
-            self.model.appendRow([branch_root, QStandardItem("")])
-            branches = list_branches(self.project_id) if self.project_id else []
-            for b in branches:
-                name_item = QStandardItem(b["display_name"])
-                count_item = QStandardItem("")
-                name_item.setEditable(False)
-                count_item.setEditable(False)
-                name_item.setData("branch", Qt.UserRole)
-                name_item.setData(b["branch_key"], Qt.UserRole + 1)
-                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                count_item.setForeground(QColor("#BBBBBB"))
-                branch_root.appendRow([name_item, count_item])
-                # register branch for async counts
-                self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
+            self._rebuilding_tree = True
 
-            quick_root = QStandardItem("📅 Quick Dates")
-            quick_root.setEditable(False)
-            self.model.appendRow([quick_root, QStandardItem("")])
+            # CRITICAL FIX: Cancel any pending count workers before rebuilding
+            self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+
+            # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
+            # This ensures:
+            # 1. Old widgets from tabs are fully cleaned up
+            # 2. Async count workers have checked their generation and aborted
+            # 3. No pending model item updates are in the event queue
+            # Without this, workers can access model items during clear() causing crashes
+            if self._initialized:
+                from PySide6.QtCore import QCoreApplication
+                print("[Sidebar] Processing pending events before model clear")
+                QCoreApplication.processEvents()
+                # Process events twice to catch worker callbacks scheduled during first pass
+                QCoreApplication.processEvents()
+                print("[Sidebar] Pending events processed")
+
+            # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
+            # Qt can crash if the view has active selections/iterators when model is cleared
+            print("[Sidebar] Detaching model from tree view")
+            self.tree.setModel(None)
+
+            # Clear selection to release any Qt internal references
+            if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+                try:
+                    self.tree.selectionModel().clear()
+                except Exception:
+                    pass
+
+            # CRITICAL FIX: Properly clear model using clear() instead of removeRows()
+            # removeRows() doesn't properly clean up complex tree structures with UserRole data
+            print("[Sidebar] Clearing model")
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
+            # Reattach model after clearing
+            print("[Sidebar] Reattaching model to tree view")
+            self.tree.setModel(self.model)
+
+            self._count_targets = []
             try:
-                quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
-            except Exception:
-                quick_rows = []
-            for row in quick_rows:
-                name_item = QStandardItem(row["label"])
-                count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
-                name_item.setEditable(False)
-                count_item.setEditable(False)
-                name_item.setData("branch", Qt.UserRole)
-                name_item.setData(row["key"], Qt.UserRole + 1)
-                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                count_item.setForeground(QColor("#BBBBBB"))
-                quick_root.appendRow([name_item, count_item])
-
-            # IMPORTANT FIX: use synchronous folder population as in the previous working version,
-            # so folder counts are calculated and displayed immediately.
-            folder_root = QStandardItem("📁 Folders")
-            folder_root.setEditable(False)
-            self.model.appendRow([folder_root, QStandardItem("")])
-            # synchronous (restores the previous working behavior)
-            self._add_folder_items(folder_root, None)
-
-            self._build_by_date_section()
-            self._build_tag_section()
-            
-            # >>> NEW: 👥 People / Face Albums section
-            try:
-                clusters = self.db.get_face_clusters(self.project_id)
-            except Exception as e:
-                print("[Sidebar] get_face_clusters failed:", e)
-                clusters = []
-
-            if clusters:
-                root_name_item = QStandardItem("👥 People")
-                root_cnt_item = QStandardItem("")
-                root_name_item.setEditable(False)
-                root_cnt_item.setEditable(False)
-                self.model.appendRow([root_name_item, root_cnt_item])
-
-                for row in clusters:
-                    name = row.get("display_name") or row.get("branch_key")
-                    count = row.get("member_count", 0)
-                    rep = row.get("rep_path", "")
-                    label = f"{name} ({count})"
-
-                    name_item = QStandardItem(label)
+                branch_root = QStandardItem("🌿 Branches")
+                branch_root.setEditable(False)
+                self.model.appendRow([branch_root, QStandardItem("")])
+                branches = list_branches(self.project_id) if self.project_id else []
+                for b in branches:
+                    name_item = QStandardItem(b["display_name"])
+                    count_item = QStandardItem("")
                     name_item.setEditable(False)
-                    name_item.setData("people", Qt.UserRole)
-                    name_item.setData(row["branch_key"], Qt.UserRole + 1)
-                    name_item.setToolTip(rep)
-
-                    count_item = QStandardItem(str(count))
                     count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(b["branch_key"], Qt.UserRole + 1)
                     count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                    count_item.setForeground(QColor("#888888"))
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    branch_root.appendRow([name_item, count_item])
+                    # register branch for async counts
+                    self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
 
-                    root_name_item.appendRow([name_item, count_item])
+                quick_root = QStandardItem("📅 Quick Dates")
+                quick_root.setEditable(False)
+                self.model.appendRow([quick_root, QStandardItem("")])
+                try:
+                    quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
+                except Exception:
+                    quick_rows = []
+                for row in quick_rows:
+                    name_item = QStandardItem(row["label"])
+                    count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
+                    name_item.setEditable(False)
+                    count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(row["key"], Qt.UserRole + 1)
+                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    quick_root.appendRow([name_item, count_item])
 
-                print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
-            # <<< NEW
+                # IMPORTANT FIX: use synchronous folder population as in the previous working version,
+                # so folder counts are calculated and displayed immediately.
+                folder_root = QStandardItem("📁 Folders")
+                folder_root.setEditable(False)
+                self.model.appendRow([folder_root, QStandardItem("")])
+                # synchronous (restores the previous working behavior)
+                self._add_folder_items(folder_root, None)
 
-            for r in range(self.model.rowCount()):
-                idx = self.model.index(r, 0)
-                self.tree.expand(idx)
-            
+                self._build_by_date_section()
+                self._build_tag_section()
 
-            for r in range(self.model.rowCount()):
-                idx = self.model.index(r, 0)
-                self.tree.expand(idx)
-            # Force column width recalculation after building tree
-            QTimer.singleShot(0, self._recalculate_columns)
-        except Exception as e:
-            QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
+                # >>> NEW: 👥 People / Face Albums section
+                try:
+                    clusters = self.db.get_face_clusters(self.project_id)
+                except Exception as e:
+                    print("[Sidebar] get_face_clusters failed:", e)
+                    clusters = []
 
-        # populate branch counts asynchronously while folder counts are already set
-        if self._count_targets:
-            print(f"[Sidebar] starting async count population for {len(self._count_targets)} branch targets")
-            self._async_populate_counts()
+                if clusters:
+                    root_name_item = QStandardItem("👥 People")
+                    root_cnt_item = QStandardItem("")
+                    root_name_item.setEditable(False)
+                    root_cnt_item.setEditable(False)
+                    self.model.appendRow([root_name_item, root_cnt_item])
+
+                    for row in clusters:
+                        name = row.get("display_name") or row.get("branch_key")
+                        count = row.get("member_count", 0)
+                        rep = row.get("rep_path", "")
+                        label = f"{name} ({count})"
+
+                        name_item = QStandardItem(label)
+                        name_item.setEditable(False)
+                        name_item.setData("people", Qt.UserRole)
+                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
+                        name_item.setToolTip(rep)
+
+                        count_item = QStandardItem(str(count))
+                        count_item.setEditable(False)
+                        count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        count_item.setForeground(QColor("#888888"))
+
+                        root_name_item.appendRow([name_item, count_item])
+
+                    print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
+                # <<< NEW
+
+                for r in range(self.model.rowCount()):
+                    idx = self.model.index(r, 0)
+                    self.tree.expand(idx)
+
+
+                for r in range(self.model.rowCount()):
+                    idx = self.model.index(r, 0)
+                    self.tree.expand(idx)
+                # Force column width recalculation after building tree
+                QTimer.singleShot(0, self._recalculate_columns)
+            except Exception as e:
+                QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
+
+            # populate branch counts asynchronously while folder counts are already set
+            if self._count_targets:
+                print(f"[Sidebar] starting async count population for {len(self._count_targets)} branch targets")
+                self._async_populate_counts()
+
+        finally:
+            # Always reset flag even if exception occurs
+            self._rebuilding_tree = False
 
     def _add_folder_items_async(self, parent_item, parent_id=None):
         # kept for folder-tab lazy usage if desired, but not used for tree-mode counts

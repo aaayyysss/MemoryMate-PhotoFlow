@@ -1819,6 +1819,14 @@ class ThumbnailGridQt(QWidget):
             ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
             mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
 
+            # CRITICAL FIX: Update load_mode to match context mode
+            # This ensures grid state stays synchronized when switching between photo/video navigation
+            if mode in ("folder", "branch", "date", "videos", "tag"):
+                self.load_mode = mode
+            elif mode is None and tag:
+                # Tag filter without specific navigation context
+                self.load_mode = "tag"
+
             # --- 1️+2️: Determine base photo paths by navigation mode AND tag filter ---
             # CRITICAL FIX: Use efficient database queries instead of in-memory intersection
             # OLD (SLOW): Load all 2856 photos → filter in memory → UI freeze

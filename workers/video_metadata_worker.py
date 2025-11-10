@@ -140,6 +140,7 @@ class VideoMetadataWorker(QRunnable):
                             fps=metadata.get('fps'),
                             codec=metadata.get('codec'),
                             bitrate=metadata.get('bitrate'),
+                            date_taken=metadata.get('date_taken'),  # CRITICAL FIX: Save date_taken for date filtering
                             metadata_status='ok'
                         )
 

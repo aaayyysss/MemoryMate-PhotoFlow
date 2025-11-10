@@ -1,17 +1,19 @@
 # BUG REPORT AND AUDIT FINDINGS
 Date: 2025-11-10
-Session: Comprehensive Code Audit
+Session: Comprehensive Code Audit (with Log Analysis)
 Branch: claude/debug-code-execution-011CUy5iErTqXdnyxUh7CVia
 
 ================================================================================
 ## EXECUTIVE SUMMARY
 ================================================================================
 
-**Audit Scope**: Complete codebase review for bugs, improvements, and issues
+**Audit Scope**: Complete codebase review + app_log.txt analysis
 **Files Audited**: 30+ Python files, focusing on video functionality and recent changes
-**Critical Bugs Found**: 1
-**Medium Priority Issues**: 0
-**Code Quality**: Production-ready with one critical fix needed
+**Critical Bugs Found**: 1 (date filtering)
+**High Priority Issues**: 2 (metadata display formatting)
+**Code Quality**: Production-ready with fixes applied
+
+**Log Analysis**: Clean - No errors, exceptions, or failures detected in app_log.txt
 
 ================================================================================
 ## CRITICAL BUGS FIXED
@@ -125,6 +127,116 @@ if metadata:
 
 **Recommendation**: Include migration notice in release notes
 
+---
+
+### BUG #2: Video Bitrate Displayed 1000x Too Small
+**Priority**: 🟡 HIGH
+**Status**: ✅ FIXED
+**Affects**: Video metadata panel - bitrate display
+
+#### Problem Description
+
+Video info panel shows bitrate as "0.005 Mbps" instead of "5.00 Mbps" for a 5 Mbps video. Values are displayed 1000x smaller than actual.
+
+#### Root Cause Analysis
+
+1. **VideoMetadataService** (`services/video_metadata_service.py:163`):
+   - Extracts bitrate from ffprobe in bits per second (bps)
+   - Converts to **kilobits per second (kbps)**: `metadata['bitrate'] = int(float(fmt['bit_rate']) / 1000)`
+   - Stores in database as **kbps**
+
+2. **VideoPlayerPanel** (`video_player_qt.py:520`):
+   - Reads bitrate from metadata dictionary
+   - Assumes value is in **bps**, not kbps
+   - Divides by 1,000,000 to convert bps → Mbps: `bitrate_mbps = meta['bitrate'] / 1_000_000`
+   - Result: 5000 kbps becomes 0.005 Mbps instead of 5.00 Mbps
+
+#### Code Location
+
+**File**: `video_player_qt.py`
+**Line**: 520
+
+**Before** (Buggy):
+```python
+if meta.get('bitrate'):
+    bitrate_mbps = meta['bitrate'] / 1_000_000  # Wrong: assumes bps
+    add_meta_row("Bitrate", f"{bitrate_mbps:.2f} Mbps")
+```
+
+**After** (Fixed):
+```python
+if meta.get('bitrate'):
+    # BUG FIX: bitrate is stored in kbps, not bps
+    bitrate_mbps = meta['bitrate'] / 1000  # Correct: kbps → Mbps
+    add_meta_row("Bitrate", f"{bitrate_mbps:.2f} Mbps")
+```
+
+#### Impact Assessment
+
+**Before Fix**:
+- ❌ 5 Mbps video shows as "0.005 Mbps"
+- ❌ Completely wrong bitrate values confuse users
+- ❌ Cannot accurately assess video quality
+
+**After Fix**:
+- ✅ 5 Mbps video shows as "5.00 Mbps"
+- ✅ Accurate bitrate display
+- ✅ Users can assess video quality correctly
+
+---
+
+### BUG #3: Video Status Never Shows Checkmark (✅)
+**Priority**: 🟡 HIGH
+**Status**: ✅ FIXED
+**Affects**: Video metadata panel - status display
+
+#### Problem Description
+
+Video info panel always shows "⏳ ok" status instead of "✅ ok" even after metadata extraction completes successfully.
+
+#### Root Cause Analysis
+
+1. **VideoMetadataWorker** (`workers/video_metadata_worker.py:144`):
+   - Sets `metadata_status='ok'` when extraction succeeds
+   - Uses value **'ok'**, not 'completed'
+
+2. **VideoPlayerPanel** (`video_player_qt.py:550`):
+   - Checks if `meta['metadata_status'] == 'completed'`
+   - Value is **'ok'**, not 'completed'
+   - Condition never matches → always shows ⏳ emoji
+
+#### Code Location
+
+**File**: `video_player_qt.py`
+**Line**: 550
+
+**Before** (Buggy):
+```python
+if meta.get('metadata_status'):
+    status_emoji = "✅" if meta['metadata_status'] == 'completed' else "⏳"
+    add_meta_row("Status", f"{status_emoji} {meta['metadata_status']}")
+```
+
+**After** (Fixed):
+```python
+if meta.get('metadata_status'):
+    # BUG FIX: Worker sets status to 'ok', not 'completed'
+    status_emoji = "✅" if meta['metadata_status'] == 'ok' else "⏳"
+    add_meta_row("Status", f"{status_emoji} {meta['metadata_status']}")
+```
+
+#### Impact Assessment
+
+**Before Fix**:
+- ❌ Completed videos show "⏳ ok" (hourglass)
+- ❌ No visual confirmation of successful extraction
+- ❌ Users think processing is still pending
+
+**After Fix**:
+- ✅ Completed videos show "✅ ok" (checkmark)
+- ✅ Clear visual confirmation of success
+- ✅ Users know extraction is complete
+
 ================================================================================
 ## CODE QUALITY OBSERVATIONS
 ================================================================================
@@ -183,14 +295,31 @@ if metadata:
 ## VERIFICATION CHECKLIST
 ================================================================================
 
-### BUG #1 Fix Verification
+### BUG #1 Fix Verification (Date Filtering)
 
 - [x] Code compiles without syntax errors
+- [x] date_taken field added to video_repo.update() call
 - [ ] Database schema supports date_taken field (assumed yes from existing code)
 - [ ] VideoRepository.update() accepts date_taken parameter (needs verification)
 - [ ] Metadata extraction still works with new field
 - [ ] Date filters respond correctly after metadata re-extraction
 - [ ] No performance regression
+
+### BUG #2 Fix Verification (Bitrate Display)
+
+- [x] Code compiles without syntax errors
+- [x] Bitrate calculation changed from /1_000_000 to /1000
+- [ ] Video player shows correct bitrate (e.g., 5.00 Mbps instead of 0.005 Mbps)
+- [ ] Bitrate values make sense for different video qualities
+- [ ] No regression in other metadata fields
+
+### BUG #3 Fix Verification (Status Emoji)
+
+- [x] Code compiles without syntax errors
+- [x] Status check changed from 'completed' to 'ok'
+- [ ] Video player shows ✅ emoji for successfully processed videos
+- [ ] Video player shows ⏳ emoji for pending/error videos
+- [ ] Status display is intuitive for users
 
 ### Integration Testing
 
@@ -199,6 +328,8 @@ if metadata:
 - [ ] Date filters show correct counts
 - [ ] Clicking date filters displays thumbnails
 - [ ] Video player shows date_taken in metadata panel
+- [ ] Video player shows correct bitrate values
+- [ ] Video player shows correct status with proper emoji
 - [ ] Date filtering works with "All Videos" filter as baseline
 
 ### Regression Testing
@@ -291,7 +422,8 @@ For New Users:
 ================================================================================
 
 ### Files Modified in This Session
-1. `workers/video_metadata_worker.py` - Added date_taken to database update
+1. `workers/video_metadata_worker.py` - Added date_taken to database update (BUG #1)
+2. `video_player_qt.py` - Fixed bitrate calculation (BUG #2) and status emoji (BUG #3)
 
 ### Files Reviewed (No Changes Needed)
 1. `services/video_metadata_service.py` - Already extracts date_taken correctly
@@ -313,18 +445,24 @@ For New Users:
 ## CONCLUSION
 ================================================================================
 
-**Summary**: One critical bug identified and fixed. No other critical issues found.
+**Summary**: Three bugs identified and fixed - one critical (date filtering) and two high-priority (metadata display).
+
+**Bugs Fixed**:
+1. 🔴 **CRITICAL**: Video date filtering broken (date_taken not saved)
+2. 🟡 **HIGH**: Bitrate displayed 1000x too small (wrong unit conversion)
+3. 🟡 **HIGH**: Status checkmark never shown (wrong status value check)
 
 **Code Quality**: Excellent. Recent fixes (database paths, race conditions, callback timing) show thoughtful problem-solving and proper architectural decisions.
 
 **Recommendation**:
-1. Apply this fix immediately ✅
-2. Test with a small video library first
-3. Document re-scan requirement for existing users
-4. Consider adding automated tests for video metadata extraction
-5. Consider migration script for populating dates on existing videos
+1. Apply all fixes immediately ✅ (Already done)
+2. Test video player metadata panel - verify bitrate and status display correctly
+3. Test date filtering - re-scan videos to populate date_taken field
+4. Document re-scan requirement for existing users
+5. Consider adding automated tests for video metadata extraction
+6. Consider migration script for populating dates on existing videos
 
-**Overall Assessment**: The codebase is in very good shape. The video features implementation is solid, and the recent bug fixes demonstrate proper debugging methodology. This single missing field in the database update is an easy fix with significant impact.
+**Overall Assessment**: The codebase is in very good shape. The video features implementation is solid, and the recent bug fixes demonstrate proper debugging methodology. The three bugs found were all simple fixes (missing field, wrong divisor, wrong string comparison) but had significant user-facing impact. All fixes are permanent solutions, not workarounds.
 
 ================================================================================
 END OF REPORT

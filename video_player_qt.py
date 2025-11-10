@@ -37,6 +37,7 @@ class VideoPlayerPanel(QWidget):
         self.current_video_path = None
         self.current_video_id = None
         self.current_metadata = None
+        self.current_project_id = None  # BUG FIX #5: Store project_id explicitly
         self.is_seeking = False
         self.info_panel_visible = False
 
@@ -209,21 +210,37 @@ class VideoPlayerPanel(QWidget):
         # Update timer
         self.update_timer.timeout.connect(self._update_position)
 
-    def load_video(self, video_path: str, metadata: dict = None):
+    def load_video(self, video_path: str, metadata: dict = None, project_id: int = None):
         """
         Load and prepare video for playback.
 
         Args:
             video_path: Path to video file
             metadata: Optional video metadata dict (duration, resolution, etc.)
+            project_id: Optional project ID (for tagging support)
         """
         if not video_path or not Path(video_path).exists():
             print(f"[VideoPlayer] Video file not found: {video_path}")
             return
 
+        # BUG FIX #4: Stop and clear previous video before loading new one
+        # This prevents resource leaks when loading multiple videos
+        if self.player.playbackState() != QMediaPlayer.StoppedState:
+            self.player.stop()
+        self.update_timer.stop()
+
         self.current_video_path = video_path
         self.current_metadata = metadata
         self.current_video_id = metadata.get('id') if metadata else None
+
+        # BUG FIX #5: Store project_id explicitly for tagging operations
+        # Priority: explicit parameter > metadata > None (will cause error if needed)
+        if project_id is not None:
+            self.current_project_id = project_id
+        elif metadata and 'project_id' in metadata:
+            self.current_project_id = metadata['project_id']
+        else:
+            self.current_project_id = None
 
         # Load video
         video_url = QUrl.fromLocalFile(str(video_path))
@@ -326,8 +343,19 @@ class VideoPlayerPanel(QWidget):
 
     def _close_player(self):
         """Close the video player."""
+        # BUG FIX #4: Properly release all media resources
         self.player.stop()
         self.update_timer.stop()
+
+        # Clear media source to release file handles
+        self.player.setSource(QUrl())
+
+        # Reset state
+        self.current_video_path = None
+        self.current_video_id = None
+        self.current_metadata = None
+        self.current_project_id = None  # BUG FIX #5
+
         self.closed.emit()
 
     def _format_time(self, milliseconds):
@@ -373,8 +401,13 @@ class VideoPlayerPanel(QWidget):
 
     def closeEvent(self, event):
         """Clean up when widget is closed."""
+        # BUG FIX #4: Properly release all media resources on widget close
         self.player.stop()
         self.update_timer.stop()
+
+        # Clear media source to release file handles
+        self.player.setSource(QUrl())
+
         super().closeEvent(event)
     # ========================================================================
     # INFO PANEL METHODS
@@ -636,6 +669,12 @@ class VideoPlayerPanel(QWidget):
             QMessageBox.warning(self, "No Video", "No video loaded for tagging.")
             return
 
+        # BUG FIX #5: Check if project_id is available before tagging
+        if not self.current_project_id:
+            QMessageBox.warning(self, "Error", "Cannot add tags: Project ID not available.")
+            print("[VideoPlayer] ERROR: current_project_id is None - cannot add tags")
+            return
+
         tag_name = self.tag_input.text().strip()
         if not tag_name:
             return
@@ -644,8 +683,8 @@ class VideoPlayerPanel(QWidget):
             from services.video_service import VideoService
             from services.tag_service import TagService
 
-            # Get project_id from metadata
-            project_id = self.current_metadata.get('project_id', 1) if self.current_metadata else 1
+            # BUG FIX #5: Use explicitly stored project_id instead of hardcoded fallback
+            project_id = self.current_project_id
 
             # Get or create tag
             tag_service = TagService()

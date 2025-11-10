@@ -227,9 +227,25 @@ class ScanController:
             def on_video_metadata_finished(success, failed):
                 """Refresh sidebar video counts after metadata extraction completes."""
                 self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
-                self.logger.info("Refreshing sidebar to update video filter counts...")
+
+                # Check if auto-backfill is enabled
+                auto_backfill = self.main.settings.get("auto_run_backfill_after_scan", False)
+                if auto_backfill and success > 0:
+                    self.logger.info("Auto-running video metadata backfill...")
+                    # Run backfill in background to populate date fields
+                    from backfill_video_dates import backfill_video_dates
+                    try:
+                        stats = backfill_video_dates(
+                            project_id=current_project_id,
+                            dry_run=False,
+                            progress_callback=lambda c, t, m: self.logger.info(f"[Backfill] {c}/{t}: {m}")
+                        )
+                        self.logger.info(f"✓ Video backfill complete: {stats['updated']} videos updated")
+                    except Exception as e:
+                        self.logger.error(f"Video backfill failed: {e}", exc_info=True)
 
                 # Schedule sidebar refresh in main thread
+                self.logger.info("Refreshing sidebar to update video filter counts...")
                 from PySide6.QtCore import QTimer
                 def refresh_sidebar_videos():
                     try:
@@ -2554,9 +2570,10 @@ class MainWindow(QMainWindow):
         act_video_backfill = menu_backfill.addAction("🎬 Video Metadata Backfill...")
         act_video_backfill.setToolTip("Re-extract metadata (dates, duration, resolution) for all videos")
         menu_backfill.addSeparator()
-        act_meta_auto = menu_backfill.addAction("Auto-run after scan")
+        act_meta_auto = menu_backfill.addAction("Auto-run after scan (Photos & Videos)")
         act_meta_auto.setCheckable(True)
         act_meta_auto.setChecked(self.settings.get("auto_run_backfill_after_scan", False))
+        act_meta_auto.setToolTip("Automatically backfill metadata for both photos and videos after scanning")
 
         act_clear_cache = QAction("Clear Thumbnail Cache…", self)
         menu_tools.addAction(act_clear_cache)
@@ -3082,7 +3099,28 @@ class MainWindow(QMainWindow):
     def _on_video_backfill(self):
         """Open the video metadata backfill dialog."""
         try:
-            dialog = VideoBackfillDialog(self, project_id=self.project_id)
+            # Get project_id from grid or sidebar
+            project_id = None
+            if hasattr(self, 'grid') and hasattr(self.grid, 'project_id'):
+                project_id = self.grid.project_id
+            elif hasattr(self, 'sidebar') and hasattr(self.sidebar, 'project_id'):
+                project_id = self.sidebar.project_id
+
+            # Fallback to default project if not found
+            if project_id is None:
+                from app_services import get_default_project_id
+                project_id = get_default_project_id()
+
+            if project_id is None:
+                QMessageBox.warning(
+                    self,
+                    "No Project",
+                    "No project is currently active.\n"
+                    "Please create a project or scan a folder first."
+                )
+                return
+
+            dialog = VideoBackfillDialog(self, project_id=project_id)
             result = dialog.exec()
 
             # If backfill completed successfully, refresh sidebar to update video counts
@@ -3100,6 +3138,8 @@ class MainWindow(QMainWindow):
                 f"Failed to open video backfill dialog:\n{str(e)}"
             )
             print(f"✗ Video backfill error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _on_clear_thumbnail_cache(self):
         if QMessageBox.question(

@@ -1515,14 +1515,27 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by file size: {e}")
 
         elif mode == "videos_year" and value:
-            # Filter videos by year (Option 7)
+            # Filter videos by year (using date_taken with fallback to modified, matching count logic)
             _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by year: {value}")
             try:
                 from services.video_service import VideoService
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-                filtered = video_service.filter_by_date(videos, year=int(value))
+
+                # Filter by year using same logic as counting (date_taken OR modified)
+                year = int(value)
+                filtered = []
+                for v in videos:
+                    date_str = v.get('date_taken') or v.get('modified')
+                    if date_str:
+                        try:
+                            video_year = int(date_str.split('-')[0])
+                            if video_year == year:
+                                filtered.append(v)
+                        except (ValueError, IndexError):
+                            pass
+
                 paths = [v['path'] for v in filtered]
 
                 print(f"[Sidebar] Showing {len(filtered)} videos from {value}")

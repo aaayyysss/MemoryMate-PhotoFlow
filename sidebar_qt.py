@@ -1515,7 +1515,7 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by file size: {e}")
 
         elif mode == "videos_year" and value:
-            # Filter videos by year (using date_taken with fallback to modified, matching count logic)
+            # BUG FIX #6: Use VideoService.filter_by_date() instead of manual loop
             _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by year: {value}")
             try:
@@ -1523,18 +1523,9 @@ class SidebarQt(QWidget):
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
 
-                # Filter by year using same logic as counting (date_taken OR modified)
+                # Filter by year using VideoService method
                 year = int(value)
-                filtered = []
-                for v in videos:
-                    date_str = v.get('date_taken') or v.get('modified')
-                    if date_str:
-                        try:
-                            video_year = int(date_str.split('-')[0])
-                            if video_year == year:
-                                filtered.append(v)
-                        except (ValueError, IndexError):
-                            pass
+                filtered = video_service.filter_by_date(videos, year=year)
 
                 paths = [v['path'] for v in filtered]
 
@@ -1972,28 +1963,17 @@ class SidebarQt(QWidget):
                     size_parent.appendRow([xlarge_size_item, xlarge_size_cnt])
 
                     # 📅 Filter by Date (Option 7)
-                    from datetime import datetime
+                    # BUG FIX #6: Use database queries instead of in-memory filtering
+                    # CRITICAL FIX: Remove hardcoded 5-year limit to show ALL video years
                     date_parent = QStandardItem("📅 By Date")
                     date_parent.setEditable(False)
 
-                    # Count videos by year (last 5 years)
-                    current_year = datetime.now().year
-                    total_dated_videos = 0
-                    for year in range(current_year, current_year - 5, -1):
-                        year_videos = []
-                        for v in videos:
-                            date_str = v.get('date_taken') or v.get('modified')
-                            if date_str:
-                                try:
-                                    video_year = int(date_str.split('-')[0])
-                                    if video_year == year:
-                                        year_videos.append(v)
-                                except (ValueError, IndexError):
-                                    pass
+                    # Get video years with counts from database (ALL years, not just last 5)
+                    video_years = self.db.list_video_years_with_counts(self.project_id) or []
+                    total_dated_videos = sum(count for _, count in video_years)
 
-                        year_count = len(year_videos)
-                        total_dated_videos += year_count
-
+                    # Build year items from database query results
+                    for year, year_count in video_years:
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
                         year_item.setData("videos_year", Qt.UserRole)

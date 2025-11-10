@@ -517,7 +517,8 @@ class VideoPlayerPanel(QWidget):
             add_meta_row("Codec", meta['codec'])
 
         if meta.get('bitrate'):
-            bitrate_mbps = meta['bitrate'] / 1_000_000
+            # BUG FIX: bitrate is stored in kbps, not bps
+            bitrate_mbps = meta['bitrate'] / 1000
             add_meta_row("Bitrate", f"{bitrate_mbps:.2f} Mbps")
 
         # === File Information ===
@@ -547,7 +548,8 @@ class VideoPlayerPanel(QWidget):
 
         # === Status ===
         if meta.get('metadata_status'):
-            status_emoji = "✅" if meta['metadata_status'] == 'completed' else "⏳"
+            # BUG FIX: Worker sets status to 'ok', not 'completed'
+            status_emoji = "✅" if meta['metadata_status'] == 'ok' else "⏳"
             add_meta_row("Status", f"{status_emoji} {meta['metadata_status']}")
 
         # Refresh tags

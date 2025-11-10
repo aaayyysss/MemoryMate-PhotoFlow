@@ -3934,7 +3934,8 @@ class MainWindow(QMainWindow):
         self.video_player.show()
 
         # Load and play video
-        self.video_player.load_video(video_path, metadata)
+        # BUG FIX #5: Pass project_id explicitly to support tagging
+        self.video_player.load_video(video_path, metadata, project_id=project_id)
         print(f"[VideoPlayer] Opened: {video_path}")
 
     def _on_video_player_closed(self):

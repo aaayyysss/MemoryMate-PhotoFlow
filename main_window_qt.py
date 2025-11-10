@@ -54,7 +54,7 @@ from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
 
 # Add imports near top if not present:
 
-from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer
+from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer, QProcess
 
 from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QActionGroup, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
@@ -1199,14 +1199,27 @@ class PreferencesDialog(QDialog):
 
             print(f"🎬 FFprobe path configured: {ffprobe_path or '(using system PATH)'}")
 
-            # Prompt user to restart for FFmpeg config to take effect
-            QMessageBox.information(
+            # Offer to restart app immediately
+            reply = QMessageBox.question(
                 self,
                 "Restart Required - FFmpeg Configuration",
                 "FFmpeg/FFprobe configuration has been updated.\n\n"
-                "Please restart the application for the changes to take effect.\n"
-                "The FFmpeg availability check will run on next startup."
+                "The application needs to restart for the changes to take effect.\n"
+                "The FFmpeg availability check will run on next startup.\n\n"
+                "Would you like to restart now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes  # Default button
             )
+
+            if reply == QMessageBox.Yes:
+                # Accept the dialog first to save all settings
+                self.accept()
+
+                # Restart the application
+                print("🔄 Restarting application...")
+                QProcess.startDetached(sys.executable, sys.argv)
+                QGuiApplication.quit()
+                return  # Don't call self.accept() again
 
         self.accept()
 

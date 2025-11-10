@@ -116,20 +116,37 @@ if __name__ == "__main__":
             from utils.ffmpeg_check import show_ffmpeg_status_once
             ffmpeg_message = show_ffmpeg_status_once()
             if ffmpeg_message and "⚠️" in ffmpeg_message:
-                # Only show warning if FFmpeg/FFprobe are missing
+                # Only show warning if FFmpeg/FFprobe are missing or misconfigured
                 print(ffmpeg_message)
                 from PySide6.QtWidgets import QMessageBox
                 msg_box = QMessageBox(win)
                 msg_box.setIcon(QMessageBox.Warning)
-                msg_box.setWindowTitle("Video Support - FFmpeg Not Found")
-                msg_box.setText("FFmpeg and/or FFprobe are not installed on your system.")
-                msg_box.setInformativeText(
-                    "Video features will be limited:\n"
-                    "  • Videos can be indexed and played\n"
-                    "  • Video thumbnails won't be generated\n"
-                    "  • Duration/resolution won't be extracted\n\n"
-                    "See FFMPEG_INSTALL_GUIDE.md for installation instructions."
-                )
+
+                # Check if it's a configuration issue
+                if "configured at" in ffmpeg_message and "not working" in ffmpeg_message:
+                    msg_box.setWindowTitle("Video Support - FFprobe Configuration Issue")
+                    msg_box.setText("The configured FFprobe path is not working.")
+                    msg_box.setInformativeText(
+                        "Please verify the path in Preferences:\n"
+                        "  1. Press Ctrl+, to open Preferences\n"
+                        "  2. Go to '🎬 Video Settings'\n"
+                        "  3. Use 'Browse' to select ffprobe.exe (not ffmpeg.exe)\n"
+                        "  4. Click 'Test' to verify it works\n"
+                        "  5. Click OK and restart the app"
+                    )
+                else:
+                    msg_box.setWindowTitle("Video Support - FFmpeg Not Found")
+                    msg_box.setText("FFmpeg and/or FFprobe are not installed on your system.")
+                    msg_box.setInformativeText(
+                        "Video features will be limited:\n"
+                        "  • Videos can be indexed and played\n"
+                        "  • Video thumbnails won't be generated\n"
+                        "  • Duration/resolution won't be extracted\n\n"
+                        "Options:\n"
+                        "  1. Install FFmpeg system-wide (requires admin)\n"
+                        "  2. Configure custom path in Preferences (Ctrl+,)"
+                    )
+
                 msg_box.setDetailedText(ffmpeg_message)
                 msg_box.setStandardButtons(QMessageBox.Ok)
                 msg_box.exec()

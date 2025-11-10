@@ -1090,7 +1090,8 @@ class PreferencesDialog(QDialog):
                     QMessageBox.information(
                         self,
                         "FFprobe Test - Success",
-                        f"✓ FFprobe is working!\n\n{version_line}"
+                        f"✓ FFprobe is working!\n\n{version_line}\n\n"
+                        f"💡 Remember to click OK to save settings, then restart the app."
                     )
                 else:
                     QMessageBox.warning(
@@ -1181,9 +1182,31 @@ class PreferencesDialog(QDialog):
 
         # Save video settings
         ffprobe_path = self.txt_ffprobe_path.text().strip()
+        old_ffprobe_path = self.settings.get("ffprobe_path", "")
         self.settings.set("ffprobe_path", ffprobe_path)
-        if ffprobe_path:
-            print(f"🎬 FFprobe path configured: {ffprobe_path}")
+
+        # If FFprobe path changed, delete flag file so check runs on next startup
+        ffprobe_path_changed = (ffprobe_path != old_ffprobe_path)
+        if ffprobe_path_changed:
+            from pathlib import Path
+            flag_file = Path('.ffmpeg_check_done')
+            if flag_file.exists():
+                try:
+                    flag_file.unlink()
+                    print("🔄 FFmpeg check flag cleared - will re-check on next startup")
+                except Exception as e:
+                    print(f"⚠️ Failed to clear FFmpeg check flag: {e}")
+
+            print(f"🎬 FFprobe path configured: {ffprobe_path or '(using system PATH)'}")
+
+            # Prompt user to restart for FFmpeg config to take effect
+            QMessageBox.information(
+                self,
+                "Restart Required - FFmpeg Configuration",
+                "FFmpeg/FFprobe configuration has been updated.\n\n"
+                "Please restart the application for the changes to take effect.\n"
+                "The FFmpeg availability check will run on next startup."
+            )
 
         self.accept()
 

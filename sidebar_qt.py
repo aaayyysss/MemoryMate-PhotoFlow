@@ -1409,14 +1409,26 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by duration: {e}")
 
         elif mode == "videos_resolution" and value:
-            # Filter videos by resolution
+            # Filter videos by resolution (using resolution ranges, not minimum resolution)
             _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by resolution: {value}")
             try:
                 from services.video_service import VideoService
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-                filtered = video_service.filter_by_resolution(videos, quality=value)
+
+                # Filter by resolution range (must match counting logic)
+                if value == "sd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
+                elif value == "hd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
+                elif value == "fhd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
+                elif value == "4k":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
+                else:
+                    filtered = videos
+
                 paths = [v['path'] for v in filtered]
 
                 quality_labels = {'sd': 'SD (< 720p)', 'hd': 'HD (720p)', 'fhd': 'Full HD (1080p)', '4k': '4K (2160p+)'}
@@ -1770,11 +1782,11 @@ class SidebarQt(QWidget):
                     res_count.setEditable(False)
                     root_name_item.appendRow([res_parent, res_count])
 
-                    # Count videos by resolution
+                    # Count videos by resolution (require both width and height metadata)
                     sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
-                    hd_videos = [v for v in videos if v.get('height') and 720 <= v['height'] < 1080]
-                    fhd_videos = [v for v in videos if v.get('height') and 1080 <= v['height'] < 2160]
-                    uhd_videos = [v for v in videos if v.get('height') and v['height'] >= 2160]
+                    hd_videos = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
+                    fhd_videos = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
+                    uhd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
 
                     # SD videos (< 720p)
                     sd_item = QStandardItem("SD (< 720p)")

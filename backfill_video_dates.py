@@ -29,13 +29,14 @@ from logging_config import get_logger
 logger = get_logger(__name__)
 
 
-def backfill_video_dates(project_id: int = None, dry_run: bool = False) -> Dict[str, int]:
+def backfill_video_dates(project_id: int = None, dry_run: bool = False, progress_callback=None) -> Dict[str, int]:
     """
     Backfill date_taken, created_date, and created_year for existing videos.
 
     Args:
         project_id: Optional project ID to filter videos (None = all projects)
         dry_run: If True, show what would be updated without making changes
+        progress_callback: Optional callback(current, total, message) for progress updates
 
     Returns:
         Dict with statistics: {
@@ -82,6 +83,9 @@ def backfill_video_dates(project_id: int = None, dry_run: bool = False) -> Dict[
     logger.info(f"Found {stats['total']} total videos")
     logger.info("")
 
+    if progress_callback:
+        progress_callback(0, stats['total'], "Analyzing videos...")
+
     # Filter videos missing date_taken
     videos_to_update = []
     for video in videos:
@@ -94,15 +98,25 @@ def backfill_video_dates(project_id: int = None, dry_run: bool = False) -> Dict[
 
     if stats['missing_dates'] == 0:
         logger.info("✓ All videos already have dates!")
+        if progress_callback:
+            progress_callback(stats['total'], stats['total'], "✓ All videos already have dates!")
         return stats
 
     # Process each video
     logger.info("Processing videos...")
     logger.info("-" * 80)
 
+    if progress_callback:
+        progress_callback(0, stats['missing_dates'], f"Processing {stats['missing_dates']} videos...")
+
     for idx, video in enumerate(videos_to_update, 1):
         video_path = video['path']
         video_id = video['id']
+        filename = os.path.basename(video_path)
+
+        # Report progress
+        if progress_callback:
+            progress_callback(idx - 1, stats['missing_dates'], f"Processing: {filename}")
 
         # Check if file exists
         if not os.path.exists(video_path):
@@ -112,7 +126,7 @@ def backfill_video_dates(project_id: int = None, dry_run: bool = False) -> Dict[
 
         try:
             # Extract metadata
-            logger.info(f"[{idx}/{stats['missing_dates']}] Processing: {os.path.basename(video_path)}")
+            logger.info(f"[{idx}/{stats['missing_dates']}] Processing: {filename}")
             metadata = metadata_service.extract_metadata(video_path)
 
             if not metadata or 'date_taken' not in metadata:
@@ -176,6 +190,13 @@ def backfill_video_dates(project_id: int = None, dry_run: bool = False) -> Dict[
         logger.info("✓ Backfill complete!")
 
     logger.info("=" * 80)
+
+    # Report completion
+    if progress_callback:
+        if dry_run:
+            progress_callback(stats['missing_dates'], stats['missing_dates'], "✓ Dry run complete!")
+        else:
+            progress_callback(stats['missing_dates'], stats['missing_dates'], f"✓ Complete! Updated {stats['updated']} videos")
 
     return stats
 

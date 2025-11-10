@@ -114,6 +114,9 @@ from preview_panel_qt import LightboxDialog
 # --- Search UI imports ---
 from search_widget_qt import SearchBarWidget, AdvancedSearchDialog
 
+# --- Video backfill dialog ---
+from video_backfill_dialog import VideoBackfillDialog
+
 # --- Backfill / process management imports ---
 import subprocess, shlex, sys
 from pathlib import Path
@@ -2545,8 +2548,11 @@ class MainWindow(QMainWindow):
         # Metadata Backfill submenu
         menu_backfill = menu_tools.addMenu("Metadata Backfill")
 
-        act_meta_start = menu_backfill.addAction("Start Background Backfill")
-        act_meta_single = menu_backfill.addAction("Run Foreground Backfill")
+        act_meta_start = menu_backfill.addAction("Start Background Backfill (Photos)")
+        act_meta_single = menu_backfill.addAction("Run Foreground Backfill (Photos)")
+        menu_backfill.addSeparator()
+        act_video_backfill = menu_backfill.addAction("🎬 Video Metadata Backfill...")
+        act_video_backfill.setToolTip("Re-extract metadata (dates, duration, resolution) for all videos")
         menu_backfill.addSeparator()
         act_meta_auto = menu_backfill.addAction("Auto-run after scan")
         act_meta_auto.setCheckable(True)
@@ -2624,6 +2630,7 @@ class MainWindow(QMainWindow):
 
         act_meta_start.triggered.connect(lambda: self.backfill_panel._on_start_background())
         act_meta_single.triggered.connect(lambda: self.backfill_panel._on_run_foreground())
+        act_video_backfill.triggered.connect(self._on_video_backfill)
         act_meta_auto.toggled.connect(lambda v: self.settings.set("auto_run_backfill_after_scan", bool(v)))
 
         act_db_fresh.triggered.connect(self._db_fresh_start)
@@ -3071,6 +3078,28 @@ class MainWindow(QMainWindow):
             logging.getLogger(__name__).error(f"Advanced search failed: {e}")
             QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
 
+
+    def _on_video_backfill(self):
+        """Open the video metadata backfill dialog."""
+        try:
+            dialog = VideoBackfillDialog(self, project_id=self.project_id)
+            result = dialog.exec()
+
+            # If backfill completed successfully, refresh sidebar to update video counts
+            if result == QDialog.Accepted and dialog.stats:
+                if dialog.stats.get('updated', 0) > 0:
+                    print(f"✓ Video backfill completed: {dialog.stats['updated']} videos updated")
+                    # Refresh sidebar to show updated video date counts
+                    if hasattr(self, 'sidebar') and hasattr(self.sidebar, 'refresh_sidebar'):
+                        self.sidebar.refresh_sidebar()
+                        print("✓ Sidebar refreshed with new video metadata")
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Video Backfill Error",
+                f"Failed to open video backfill dialog:\n{str(e)}"
+            )
+            print(f"✗ Video backfill error: {e}")
 
     def _on_clear_thumbnail_cache(self):
         if QMessageBox.question(

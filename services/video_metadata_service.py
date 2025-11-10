@@ -28,33 +28,67 @@ class VideoMetadataService:
     - Creation date
     """
 
-    def __init__(self):
-        """Initialize VideoMetadataService."""
+    def __init__(self, ffprobe_path: str = None):
+        """
+        Initialize VideoMetadataService.
+
+        Args:
+            ffprobe_path: Optional custom path to ffprobe executable.
+                         If None, will check settings and fall back to PATH.
+        """
         self.logger = logger
+        self._ffprobe_path = self._get_ffprobe_path(ffprobe_path)
         self._ffprobe_available = self._check_ffprobe()
+
+    def _get_ffprobe_path(self, custom_path: str = None) -> str:
+        """
+        Get ffprobe path from settings or use default.
+
+        Args:
+            custom_path: Optional custom path provided at init
+
+        Returns:
+            Path to ffprobe executable ('ffprobe' if using system PATH)
+        """
+        if custom_path:
+            return custom_path
+
+        # Try to get from settings
+        try:
+            from settings_manager_qt import SettingsManager
+            settings = SettingsManager()
+            saved_path = settings.get_setting('ffprobe_path', '')
+            if saved_path and Path(saved_path).exists():
+                self.logger.info(f"Using ffprobe from settings: {saved_path}")
+                return saved_path
+        except Exception as e:
+            self.logger.debug(f"Could not load ffprobe path from settings: {e}")
+
+        # Default to PATH
+        return 'ffprobe'
 
     def _check_ffprobe(self) -> bool:
         """
-        Check if ffprobe is available on the system.
+        Check if ffprobe is available.
 
         Returns:
             True if ffprobe is available, False otherwise
         """
         try:
             result = subprocess.run(
-                ['ffprobe', '-version'],
+                [self._ffprobe_path, '-version'],
                 capture_output=True,
                 text=True,
                 timeout=5
             )
             available = result.returncode == 0
             if available:
-                self.logger.info("ffprobe detected - video metadata extraction enabled")
+                self.logger.info(f"ffprobe detected at '{self._ffprobe_path}' - video metadata extraction enabled")
             else:
-                self.logger.warning("ffprobe not available - video metadata extraction limited")
+                self.logger.warning(f"ffprobe at '{self._ffprobe_path}' not available - video metadata extraction limited")
             return available
         except (FileNotFoundError, subprocess.TimeoutExpired):
-            self.logger.warning("ffprobe not found - video metadata extraction limited")
+            self.logger.warning(f"ffprobe not found at '{self._ffprobe_path}' - video metadata extraction limited")
             return False
 
     def extract_metadata(self, video_path: str) -> Dict[str, Any]:
@@ -121,7 +155,7 @@ class VideoMetadataService:
         try:
             # Run ffprobe with JSON output
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'quiet',
                 '-print_format', 'json',
                 '-show_format',
@@ -164,17 +198,39 @@ class VideoMetadataService:
                     except (ValueError, TypeError):
                         pass
 
-                # Creation time
+                # Creation time - try multiple sources with fallbacks
+                date_str = None
+
+                # Strategy 1: Format-level creation_time tag
                 if 'tags' in fmt and 'creation_time' in fmt['tags']:
+                    date_str = fmt['tags']['creation_time']
+
+                # Strategy 2: Format-level date tag (some encoders use this)
+                elif 'tags' in fmt and 'date' in fmt['tags']:
+                    date_str = fmt['tags']['date']
+
+                # Strategy 3: Format-level DATE tag (uppercase variant)
+                elif 'tags' in fmt and 'DATE' in fmt['tags']:
+                    date_str = fmt['tags']['DATE']
+
+                if date_str:
                     try:
                         # Parse ISO format: 2022-08-18T14:30:45.000000Z
-                        creation_str = fmt['tags']['creation_time']
-                        # Remove microseconds and Z
-                        creation_str = creation_str.split('.')[0].replace('Z', '')
-                        dt = datetime.fromisoformat(creation_str)
+                        # Remove microseconds and Z/timezone info
+                        date_str = date_str.split('.')[0].replace('Z', '').replace('T', ' ').strip()
+
+                        # Try parsing as ISO datetime
+                        if 'T' in fmt['tags'].get('creation_time', '') or '-' in date_str:
+                            # ISO format or similar
+                            date_str = date_str.replace('T', ' ')
+                            dt = datetime.fromisoformat(date_str)
+                        else:
+                            # Try other common formats
+                            dt = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
                         metadata['date_taken'] = dt.strftime('%Y-%m-%d %H:%M:%S')
                     except Exception as e:
-                        self.logger.debug(f"Failed to parse creation_time: {e}")
+                        self.logger.debug(f"Failed to parse date from format tags: {e}")
 
             # Get video stream info
             if 'streams' in data:
@@ -205,6 +261,33 @@ class VideoMetadataService:
                     # Codec
                     if 'codec_name' in video_stream:
                         metadata['codec'] = video_stream['codec_name']
+
+                    # Strategy 4: Stream-level creation_time tag (if not found in format)
+                    if 'date_taken' not in metadata and 'tags' in video_stream:
+                        stream_date = None
+                        if 'creation_time' in video_stream['tags']:
+                            stream_date = video_stream['tags']['creation_time']
+                        elif 'DATE' in video_stream['tags']:
+                            stream_date = video_stream['tags']['DATE']
+                        elif 'date' in video_stream['tags']:
+                            stream_date = video_stream['tags']['date']
+
+                        if stream_date:
+                            try:
+                                stream_date = stream_date.split('.')[0].replace('Z', '').replace('T', ' ').strip()
+                                dt = datetime.fromisoformat(stream_date)
+                                metadata['date_taken'] = dt.strftime('%Y-%m-%d %H:%M:%S')
+                            except Exception as e:
+                                self.logger.debug(f"Failed to parse date from stream tags: {e}")
+
+            # Strategy 5: Ultimate fallback - use file modified time if no date found
+            if 'date_taken' not in metadata and 'modified' in metadata:
+                try:
+                    # modified is already in format 'YYYY-MM-DD HH:MM:SS', use it as date_taken
+                    metadata['date_taken'] = metadata['modified']
+                    self.logger.debug(f"Using file modified time as date_taken for {video_path}")
+                except Exception as e:
+                    self.logger.debug(f"Failed to use modified time as fallback: {e}")
 
             return metadata
 
@@ -250,7 +333,7 @@ class VideoMetadataService:
 
         try:
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'error',
                 '-show_entries', 'format=duration',
                 '-of', 'default=noprint_wrappers=1:nokey=1',
@@ -291,7 +374,7 @@ class VideoMetadataService:
 
         try:
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'error',
                 '-select_streams', 'v:0',
                 '-show_entries', 'stream=width,height',

@@ -1358,6 +1358,7 @@ class SidebarQt(QWidget):
         # Video handlers
         elif mode == "videos" and value == "all":
             # Show all videos for current project
+            _clear_tag_if_needed()
             print(f"[Sidebar] Displaying all videos for project {self.project_id}")
             try:
                 from services.video_service import VideoService
@@ -1365,7 +1366,9 @@ class SidebarQt(QWidget):
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    # Clear grid first to avoid showing stale content
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
                 else:
                     print(f"[Sidebar] Unable to display videos - grid.load_custom_paths not found")
@@ -1374,6 +1377,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_duration" and value:
             # Filter videos by duration
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by duration: {value}")
             try:
                 from services.video_service import VideoService
@@ -1396,7 +1400,8 @@ class SidebarQt(QWidget):
                 paths = [v['path'] for v in filtered]
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1404,13 +1409,26 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by duration: {e}")
 
         elif mode == "videos_resolution" and value:
-            # Filter videos by resolution
+            # Filter videos by resolution (using resolution ranges, not minimum resolution)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by resolution: {value}")
             try:
                 from services.video_service import VideoService
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-                filtered = video_service.filter_by_resolution(videos, quality=value)
+
+                # Filter by resolution range (must match counting logic)
+                if value == "sd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
+                elif value == "hd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
+                elif value == "fhd":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
+                elif value == "4k":
+                    filtered = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
+                else:
+                    filtered = videos
+
                 paths = [v['path'] for v in filtered]
 
                 quality_labels = {'sd': 'SD (< 720p)', 'hd': 'HD (720p)', 'fhd': 'Full HD (1080p)', '4k': '4K (2160p+)'}
@@ -1418,7 +1436,8 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1427,6 +1446,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_codec" and value:
             # Filter videos by codec (Option 7)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by codec: {value}")
             try:
                 from services.video_service import VideoService
@@ -1457,7 +1477,8 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1466,6 +1487,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_size" and value:
             # Filter videos by file size (Option 7)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by file size: {value}")
             try:
                 from services.video_service import VideoService
@@ -1484,7 +1506,8 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1492,18 +1515,33 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by file size: {e}")
 
         elif mode == "videos_year" and value:
-            # Filter videos by year (Option 7)
+            # Filter videos by year (using date_taken with fallback to modified, matching count logic)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by year: {value}")
             try:
                 from services.video_service import VideoService
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-                filtered = video_service.filter_by_date(videos, year=int(value))
+
+                # Filter by year using same logic as counting (date_taken OR modified)
+                year = int(value)
+                filtered = []
+                for v in videos:
+                    date_str = v.get('date_taken') or v.get('modified')
+                    if date_str:
+                        try:
+                            video_year = int(date_str.split('-')[0])
+                            if video_year == year:
+                                filtered.append(v)
+                        except (ValueError, IndexError):
+                            pass
+
                 paths = [v['path'] for v in filtered]
 
                 print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1512,6 +1550,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_search" and value == "search":
             # Search videos
+            _clear_tag_if_needed()
             from PySide6.QtWidgets import QInputDialog
             query, ok = QInputDialog.getText(self, "Search Videos", "Enter search term (filename or tags):")
             if ok and query:
@@ -1523,7 +1562,8 @@ class SidebarQt(QWidget):
                     filtered = video_service.search_videos(videos, query)
                     paths = [v['path'] for v in filtered]
                     if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                        mw.grid.load_custom_paths(paths)
+                        mw.grid.model.clear()
+                        mw.grid.load_custom_paths(paths, content_type="videos")
                         mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
                     else:
                         print(f"[Sidebar] Unable to display search results - grid.load_custom_paths not found")
@@ -1755,11 +1795,11 @@ class SidebarQt(QWidget):
                     res_count.setEditable(False)
                     root_name_item.appendRow([res_parent, res_count])
 
-                    # Count videos by resolution
+                    # Count videos by resolution (require both width and height metadata)
                     sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
-                    hd_videos = [v for v in videos if v.get('height') and 720 <= v['height'] < 1080]
-                    fhd_videos = [v for v in videos if v.get('height') and 1080 <= v['height'] < 2160]
-                    uhd_videos = [v for v in videos if v.get('height') and v['height'] >= 2160]
+                    hd_videos = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
+                    fhd_videos = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
+                    uhd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
 
                     # SD videos (< 720p)
                     sd_item = QStandardItem("SD (< 720p)")
@@ -1935,12 +1975,10 @@ class SidebarQt(QWidget):
                     from datetime import datetime
                     date_parent = QStandardItem("📅 By Date")
                     date_parent.setEditable(False)
-                    date_count = QStandardItem("")
-                    date_count.setEditable(False)
-                    root_name_item.appendRow([date_parent, date_count])
 
                     # Count videos by year (last 5 years)
                     current_year = datetime.now().year
+                    total_dated_videos = 0
                     for year in range(current_year, current_year - 5, -1):
                         year_videos = []
                         for v in videos:
@@ -1953,15 +1991,25 @@ class SidebarQt(QWidget):
                                 except (ValueError, IndexError):
                                     pass
 
+                        year_count = len(year_videos)
+                        total_dated_videos += year_count
+
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
                         year_item.setData("videos_year", Qt.UserRole)
                         year_item.setData(year, Qt.UserRole + 1)
-                        year_cnt = QStandardItem(str(len(year_videos)))
+                        year_cnt = QStandardItem(str(year_count))
                         year_cnt.setEditable(False)
                         year_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         year_cnt.setForeground(QColor("#888888"))
                         date_parent.appendRow([year_item, year_cnt])
+
+                    # Set total count on date parent
+                    date_count = QStandardItem(str(total_dated_videos))
+                    date_count.setEditable(False)
+                    date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    date_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([date_parent, date_count])
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

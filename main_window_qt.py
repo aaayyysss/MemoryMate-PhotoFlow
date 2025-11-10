@@ -1023,6 +1023,115 @@ class PreferencesDialog(QDialog):
 
         layout.addWidget(meta_group)
 
+        # --- Video Settings (FFmpeg/FFprobe Configuration) ---
+        video_group = QGroupBox("🎬 Video Settings")
+        video_layout = QVBoxLayout(video_group)
+        video_layout.setSpacing(8)
+
+        # FFprobe path configuration
+        ffprobe_row = QWidget()
+        ffprobe_layout = QHBoxLayout(ffprobe_row)
+        ffprobe_layout.setContentsMargins(0, 0, 0, 0)
+
+        ffprobe_label = QLabel("FFprobe Path:")
+        ffprobe_label.setToolTip(
+            "Path to ffprobe executable for video metadata extraction.\n"
+            "Leave empty to use system PATH.\n"
+            "Required for video thumbnails, duration, and date filtering."
+        )
+
+        self.txt_ffprobe_path = QLineEdit()
+        self.txt_ffprobe_path.setPlaceholderText("Leave empty to use system PATH")
+        current_ffprobe = settings.get("ffprobe_path", "")
+        self.txt_ffprobe_path.setText(current_ffprobe)
+
+        btn_browse_ffprobe = QPushButton("Browse...")
+        btn_browse_ffprobe.setMaximumWidth(80)
+
+        def browse_ffprobe():
+            from PySide6.QtWidgets import QFileDialog
+            import platform
+            if platform.system() == "Windows":
+                filter_str = "Executable Files (*.exe);;All Files (*.*)"
+            else:
+                filter_str = "All Files (*)"
+
+            path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select FFprobe Executable",
+                "",
+                filter_str
+            )
+            if path:
+                self.txt_ffprobe_path.setText(path)
+
+        btn_browse_ffprobe.clicked.connect(browse_ffprobe)
+
+        btn_test_ffprobe = QPushButton("Test")
+        btn_test_ffprobe.setMaximumWidth(60)
+
+        def test_ffprobe():
+            import subprocess
+            from pathlib import Path
+
+            path = self.txt_ffprobe_path.text().strip()
+            if not path:
+                path = "ffprobe"  # Test system PATH
+
+            try:
+                result = subprocess.run(
+                    [path, '-version'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    version_line = result.stdout.split('\n')[0] if result.stdout else 'Version info unavailable'
+                    QMessageBox.information(
+                        self,
+                        "FFprobe Test - Success",
+                        f"✓ FFprobe is working!\n\n{version_line}"
+                    )
+                else:
+                    QMessageBox.warning(
+                        self,
+                        "FFprobe Test - Failed",
+                        f"✗ FFprobe returned error code {result.returncode}\n\n{result.stderr}"
+                    )
+            except FileNotFoundError:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Not Found",
+                    f"✗ FFprobe not found at:\n{path}\n\n"
+                    "Please install FFmpeg or specify the correct path."
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Error",
+                    f"✗ Error testing ffprobe:\n{str(e)}"
+                )
+
+        btn_test_ffprobe.clicked.connect(test_ffprobe)
+
+        ffprobe_layout.addWidget(ffprobe_label)
+        ffprobe_layout.addWidget(self.txt_ffprobe_path, 1)
+        ffprobe_layout.addWidget(btn_browse_ffprobe)
+        ffprobe_layout.addWidget(btn_test_ffprobe)
+
+        video_layout.addWidget(ffprobe_row)
+
+        # Help text
+        help_label = QLabel(
+            "💡 <b>Note:</b> FFmpeg/FFprobe is required for video support.<br>"
+            "Without it, videos won't have thumbnails or date information."
+        )
+        help_label.setWordWrap(True)
+        help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
+        video_layout.addWidget(help_label)
+
+        layout.addWidget(video_group)
+
         # --- Buttons ---
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         layout.addWidget(buttons)
@@ -1070,6 +1179,11 @@ class PreferencesDialog(QDialog):
         ignore_list = [x.strip() for x in self.txt_ignore_folders.toPlainText().splitlines() if x.strip()]
         self.settings.set("ignore_folders", ignore_list)
 
+        # Save video settings
+        ffprobe_path = self.txt_ffprobe_path.text().strip()
+        self.settings.set("ffprobe_path", ffprobe_path)
+        if ffprobe_path:
+            print(f"🎬 FFprobe path configured: {ffprobe_path}")
 
         self.accept()
 

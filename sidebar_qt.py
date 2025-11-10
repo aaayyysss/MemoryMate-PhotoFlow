@@ -1358,6 +1358,7 @@ class SidebarQt(QWidget):
         # Video handlers
         elif mode == "videos" and value == "all":
             # Show all videos for current project
+            _clear_tag_if_needed()
             print(f"[Sidebar] Displaying all videos for project {self.project_id}")
             try:
                 from services.video_service import VideoService
@@ -1365,6 +1366,8 @@ class SidebarQt(QWidget):
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    # Clear grid first to avoid showing stale content
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
                 else:
@@ -1374,6 +1377,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_duration" and value:
             # Filter videos by duration
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by duration: {value}")
             try:
                 from services.video_service import VideoService
@@ -1396,6 +1400,7 @@ class SidebarQt(QWidget):
                 paths = [v['path'] for v in filtered]
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
@@ -1405,6 +1410,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_resolution" and value:
             # Filter videos by resolution
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by resolution: {value}")
             try:
                 from services.video_service import VideoService
@@ -1418,6 +1424,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
@@ -1427,6 +1434,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_codec" and value:
             # Filter videos by codec (Option 7)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by codec: {value}")
             try:
                 from services.video_service import VideoService
@@ -1457,6 +1465,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
                 else:
@@ -1466,6 +1475,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_size" and value:
             # Filter videos by file size (Option 7)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by file size: {value}")
             try:
                 from services.video_service import VideoService
@@ -1484,6 +1494,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
                 else:
@@ -1493,6 +1504,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_year" and value:
             # Filter videos by year (Option 7)
+            _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by year: {value}")
             try:
                 from services.video_service import VideoService
@@ -1503,6 +1515,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                    mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
                 else:
@@ -1512,6 +1525,7 @@ class SidebarQt(QWidget):
 
         elif mode == "videos_search" and value == "search":
             # Search videos
+            _clear_tag_if_needed()
             from PySide6.QtWidgets import QInputDialog
             query, ok = QInputDialog.getText(self, "Search Videos", "Enter search term (filename or tags):")
             if ok and query:
@@ -1523,6 +1537,7 @@ class SidebarQt(QWidget):
                     filtered = video_service.search_videos(videos, query)
                     paths = [v['path'] for v in filtered]
                     if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
+                        mw.grid.model.clear()
                         mw.grid.load_custom_paths(paths, content_type="videos")
                         mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
                     else:

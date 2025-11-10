@@ -1365,7 +1365,7 @@ class SidebarQt(QWidget):
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
                 else:
                     print(f"[Sidebar] Unable to display videos - grid.load_custom_paths not found")
@@ -1396,7 +1396,7 @@ class SidebarQt(QWidget):
                 paths = [v['path'] for v in filtered]
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1418,7 +1418,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1457,7 +1457,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1484,7 +1484,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1503,7 +1503,7 @@ class SidebarQt(QWidget):
 
                 print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                    mw.grid.load_custom_paths(paths)
+                    mw.grid.load_custom_paths(paths, content_type="videos")
                     mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
@@ -1523,7 +1523,7 @@ class SidebarQt(QWidget):
                     filtered = video_service.search_videos(videos, query)
                     paths = [v['path'] for v in filtered]
                     if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
-                        mw.grid.load_custom_paths(paths)
+                        mw.grid.load_custom_paths(paths, content_type="videos")
                         mw.statusBar().showMessage(f"🔍 Found {len(filtered)} videos matching '{query}'")
                     else:
                         print(f"[Sidebar] Unable to display search results - grid.load_custom_paths not found")
@@ -1935,12 +1935,10 @@ class SidebarQt(QWidget):
                     from datetime import datetime
                     date_parent = QStandardItem("📅 By Date")
                     date_parent.setEditable(False)
-                    date_count = QStandardItem("")
-                    date_count.setEditable(False)
-                    root_name_item.appendRow([date_parent, date_count])
 
                     # Count videos by year (last 5 years)
                     current_year = datetime.now().year
+                    total_dated_videos = 0
                     for year in range(current_year, current_year - 5, -1):
                         year_videos = []
                         for v in videos:
@@ -1953,15 +1951,25 @@ class SidebarQt(QWidget):
                                 except (ValueError, IndexError):
                                     pass
 
+                        year_count = len(year_videos)
+                        total_dated_videos += year_count
+
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
                         year_item.setData("videos_year", Qt.UserRole)
                         year_item.setData(year, Qt.UserRole + 1)
-                        year_cnt = QStandardItem(str(len(year_videos)))
+                        year_cnt = QStandardItem(str(year_count))
                         year_cnt.setEditable(False)
                         year_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         year_cnt.setForeground(QColor("#888888"))
                         date_parent.appendRow([year_item, year_cnt])
+
+                    # Set total count on date parent
+                    date_count = QStandardItem(str(total_dated_videos))
+                    date_count.setEditable(False)
+                    date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    date_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([date_parent, date_count])
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

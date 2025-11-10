@@ -66,7 +66,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QComboBox as QSortComboBox,
     QProgressDialog, QProgressBar, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
-    QSlider, QFormLayout, QTextEdit, QButtonGroup
+    QSlider, QFormLayout, QTextEdit, QButtonGroup, QLineEdit
 )
 
 

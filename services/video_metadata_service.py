@@ -28,33 +28,67 @@ class VideoMetadataService:
     - Creation date
     """
 
-    def __init__(self):
-        """Initialize VideoMetadataService."""
+    def __init__(self, ffprobe_path: str = None):
+        """
+        Initialize VideoMetadataService.
+
+        Args:
+            ffprobe_path: Optional custom path to ffprobe executable.
+                         If None, will check settings and fall back to PATH.
+        """
         self.logger = logger
+        self._ffprobe_path = self._get_ffprobe_path(ffprobe_path)
         self._ffprobe_available = self._check_ffprobe()
+
+    def _get_ffprobe_path(self, custom_path: str = None) -> str:
+        """
+        Get ffprobe path from settings or use default.
+
+        Args:
+            custom_path: Optional custom path provided at init
+
+        Returns:
+            Path to ffprobe executable ('ffprobe' if using system PATH)
+        """
+        if custom_path:
+            return custom_path
+
+        # Try to get from settings
+        try:
+            from settings_manager_qt import SettingsManager
+            settings = SettingsManager()
+            saved_path = settings.get_setting('ffprobe_path', '')
+            if saved_path and Path(saved_path).exists():
+                self.logger.info(f"Using ffprobe from settings: {saved_path}")
+                return saved_path
+        except Exception as e:
+            self.logger.debug(f"Could not load ffprobe path from settings: {e}")
+
+        # Default to PATH
+        return 'ffprobe'
 
     def _check_ffprobe(self) -> bool:
         """
-        Check if ffprobe is available on the system.
+        Check if ffprobe is available.
 
         Returns:
             True if ffprobe is available, False otherwise
         """
         try:
             result = subprocess.run(
-                ['ffprobe', '-version'],
+                [self._ffprobe_path, '-version'],
                 capture_output=True,
                 text=True,
                 timeout=5
             )
             available = result.returncode == 0
             if available:
-                self.logger.info("ffprobe detected - video metadata extraction enabled")
+                self.logger.info(f"ffprobe detected at '{self._ffprobe_path}' - video metadata extraction enabled")
             else:
-                self.logger.warning("ffprobe not available - video metadata extraction limited")
+                self.logger.warning(f"ffprobe at '{self._ffprobe_path}' not available - video metadata extraction limited")
             return available
         except (FileNotFoundError, subprocess.TimeoutExpired):
-            self.logger.warning("ffprobe not found - video metadata extraction limited")
+            self.logger.warning(f"ffprobe not found at '{self._ffprobe_path}' - video metadata extraction limited")
             return False
 
     def extract_metadata(self, video_path: str) -> Dict[str, Any]:
@@ -121,7 +155,7 @@ class VideoMetadataService:
         try:
             # Run ffprobe with JSON output
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'quiet',
                 '-print_format', 'json',
                 '-show_format',
@@ -299,7 +333,7 @@ class VideoMetadataService:
 
         try:
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'error',
                 '-show_entries', 'format=duration',
                 '-of', 'default=noprint_wrappers=1:nokey=1',
@@ -340,7 +374,7 @@ class VideoMetadataService:
 
         try:
             cmd = [
-                'ffprobe',
+                self._ffprobe_path,
                 '-v', 'error',
                 '-select_streams', 'v:0',
                 '-show_entries', 'stream=width,height',

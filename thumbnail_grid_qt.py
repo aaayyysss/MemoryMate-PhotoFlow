@@ -761,12 +761,32 @@ class ThumbnailGridQt(QWidget):
         return None
 
 
-    def load_custom_paths(self, paths):
-        """Directly load an arbitrary list of image paths (used by tag filters)."""
+    def load_custom_paths(self, paths, content_type="auto"):
+        """
+        Directly load an arbitrary list of image/video paths (used by tag filters and video filters).
+
+        Args:
+            paths: List of file paths to display
+            content_type: "auto" (detect from paths), "photos", or "videos"
+        """
         import os
 
-        # ✅ Force the grid into tag mode so status/log reflects it and doesn't revert to date/folder/branch
-        self.load_mode = "tag"
+        # Auto-detect content type if not specified
+        if content_type == "auto" and paths:
+            # Check first few paths to determine content type
+            sample_size = min(10, len(paths))
+            video_count = sum(1 for p in paths[:sample_size] if is_video_file(p))
+            if video_count > sample_size / 2:
+                content_type = "videos"
+            else:
+                content_type = "photos"
+
+        # Set appropriate mode based on content type
+        if content_type == "videos":
+            self.load_mode = "videos"
+        else:
+            self.load_mode = "tag"
+
         self.branch_key = None
         self.current_folder_id = None
         self.date_key = None
@@ -779,8 +799,13 @@ class ThumbnailGridQt(QWidget):
         # ✅ normalize paths to match how they're stored in DB
         self._paths = [norm(p) for p in (paths or [])]
 
-        # tag map (for overlays)
-        tag_map = self.db.get_tags_for_paths(self._paths)
+        # tag map (for overlays) - only for photos
+        tag_map = {}
+        if content_type != "videos":
+            try:
+                tag_map = self.db.get_tags_for_paths(self._paths)
+            except Exception as e:
+                print(f"[GRID] Warning: Could not fetch tags: {e}")
 
         # Use current reload token snapshot so workers can be tied to this load
         token = self._reload_token
@@ -806,7 +831,9 @@ class ThumbnailGridQt(QWidget):
         self._apply_zoom_geometry()
         self.list_view.doItemsLayout()
         self.list_view.viewport().update()
-        print(f"[GRID] Loaded {len(self._paths)} thumbnails in tag-mode.")
+
+        mode_label = "videos" if content_type == "videos" else "tag"
+        print(f"[GRID] Loaded {len(self._paths)} thumbnails in {mode_label}-mode.")
 
 
     def shutdown_threads(self):

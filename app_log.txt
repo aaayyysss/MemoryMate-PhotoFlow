@@ -1,412 +1,37 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\MemoryMate-PhotoFlow-main>cd C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main>python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_23.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\MemoryMate-PhotoFlow-main> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-10 13:06:29,714 [INFO] ================================================================================
-2025-11-10 13:06:29,714 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-10 13:06:29,714 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-10 13:06:29,714 [INFO] ================================================================================
-2025-11-10 13:06:29,790 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.22.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-10 13:06'}
+2025-11-10 22:45:52,645 [INFO] ================================================================================
+2025-11-10 22:45:52,645 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-10 22:45:52,646 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_23.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\MemoryMate-PhotoFlow-main\app_log.txt
+2025-11-10 22:45:52,646 [INFO] ================================================================================
+2025-11-10 22:45:52,680 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_23.01.01-Photo-App\\MemoryMate-PhotoFlow-main-03\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-10 22:44'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-10 13:06:30,106 [INFO] SearchService initialized
-[13:06:34.370] [Tabs] __init__ started
-[13:06:34.373] [Tabs] _build_tabs → building tab widgets
-[13:06:34.377] [Tabs] _on_tab_changed(idx=0)
-[13:06:34.378] [Tabs] _start_timeout idx=0 type=branches
-[13:06:34.379] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:06:34.379] [Tabs]   populated=False, loading=False
-[13:06:34.380] [Tabs]   Starting load for branches
-[13:06:34.380] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:06:34.380] [Tabs] _clear_tab idx=0
-[13:06:34.387] [Tabs] _on_tab_changed → tab_type=branches
-[13:06:34.389] [Tabs] _build_tabs → added 6 tabs
-[13:06:34.389] [Tabs] __init__ completed
+2025-11-10 22:45:52,916 [INFO] SearchService initialized
+[22:45:53.327] [Tabs] __init__ started
+[22:45:53.329] [Tabs] _build_tabs → building tab widgets
+[22:45:53.329] [Tabs] _on_tab_changed(idx=0)
+[22:45:53.329] [Tabs] _start_timeout idx=0 type=branches
+[22:45:53.329] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:45:53.330] [Tabs]   populated=False, loading=False
+[22:45:53.330] [Tabs]   Starting load for branches
+[22:45:53.330] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:45:53.330] [Tabs] _clear_tab idx=0
+[22:45:53.331] [Tabs] _on_tab_changed → tab_type=branches
+[22:45:53.332] [Tabs] _build_tabs → added 6 tabs
+[22:45:53.332] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[13:06:34.503] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] _build_tree_model() completed
-[Startup] Database schema initialized successfully
-
-======================================================================
-⚠️  FFmpeg and FFprobe Not Found
-======================================================================
-
-⚠️ Limited Video Support:
-  ✅ Videos can be indexed and played
-  ❌ Video thumbnails won't be generated
-  ❌ Duration/resolution won't be extracted
-  ❌ Video filtering will be limited
-
-
-📦 Installation (Windows):
-  Option 1: choco install ffmpeg
-  Option 2: Download from https://www.gyan.dev/ffmpeg/builds/
-           Extract to C:\ffmpeg and add C:\ffmpeg\bin to PATH
-
-
-📖 For detailed instructions, see: FFMPEG_INSTALL_GUIDE.md
-   (located in the application directory)
-
-After installation:
-  1. Restart this application
-  2. Re-scan folders containing videos
-  3. Video features will be fully enabled
-
-======================================================================
-
-[13:06:36.699] [Tabs] _finish_branches (stale gen=1) — ignoring
-[13:06:36.699] [Tabs] _on_tab_changed(idx=0)
-[13:06:36.699] [Tabs] _start_timeout idx=0 type=branches
-[13:06:36.700] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:06:36.700] [Tabs]   populated=False, loading=False
-[13:06:36.700] [Tabs]   Starting load for branches
-[13:06:36.700] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:06:36.700] [Tabs] _clear_tab idx=0
-[13:06:36.702] [Tabs] _on_tab_changed → tab_type=branches
-[13:06:36.791] [Tabs] _clear_tab idx=0
-🎬 FFprobe path configured: C:/ffmpeg/bin/ffprobe.exe
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main>python main_qt.py
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-10 13:08:02,090 [INFO] ================================================================================
-2025-11-10 13:08:02,090 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-10 13:08:02,090 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-10 13:08:02,090 [INFO] ================================================================================
-2025-11-10 13:08:02,164 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.22.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-10 13:07'}
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-10 13:08:02,493 [INFO] SearchService initialized
-[13:08:02.749] [Tabs] __init__ started
-[13:08:02.756] [Tabs] _build_tabs → building tab widgets
-[13:08:02.757] [Tabs] _on_tab_changed(idx=0)
-[13:08:02.757] [Tabs] _start_timeout idx=0 type=branches
-[13:08:02.757] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:08:02.757] [Tabs]   populated=False, loading=False
-[13:08:02.757] [Tabs]   Starting load for branches
-[13:08:02.759] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:08:02.759] [Tabs] _clear_tab idx=0
-[13:08:02.760] [Tabs] _on_tab_changed → tab_type=branches
-[13:08:02.761] [Tabs] _build_tabs → added 6 tabs
-[13:08:02.761] [Tabs] __init__ completed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[13:08:02.775] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] _build_tree_model() completed
-[Startup] Database schema initialized successfully
-✅ FFprobe detected (custom path: C:/ffmpeg/bin/ffprobe.exe)
-⚠️ FFmpeg not found in PATH (optional - needed for thumbnails)
-[13:08:04.667] [Tabs] _finish_branches (stale gen=1) — ignoring
-[13:08:04.682] [Tabs] _on_tab_changed(idx=0)
-[13:08:04.682] [Tabs] _start_timeout idx=0 type=branches
-[13:08:04.682] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:08:04.682] [Tabs]   populated=False, loading=False
-[13:08:04.683] [Tabs]   Starting load for branches
-[13:08:04.683] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:08:04.683] [Tabs] _clear_tab idx=0
-[13:08:04.702] [Tabs] _on_tab_changed → tab_type=branches
-[13:08:04.765] [Tabs] _clear_tab idx=0
-[MainWindow] Set grid.project_id = 1
-[13:08:47.130] [Tabs] refresh_all(force=True) called
-[13:08:47.130] [Tabs] refresh_all: key=branches, idx=0, force=True
-[13:08:47.130] [Tabs] _populate_tab(branches, idx=0, force=True)
-[13:08:47.130] [Tabs]   populated=True, loading=False
-[13:08:47.130] [Tabs]   Force refresh: removing branches from populated set
-[13:08:47.130] [Tabs]   Starting load for branches
-[13:08:47.130] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:08:47.131] [Tabs] _clear_tab idx=0
-[13:08:47.132] [Tabs] refresh_all: key=folders, idx=1, force=True
-[13:08:47.132] [Tabs] _populate_tab(folders, idx=1, force=True)
-[13:08:47.132] [Tabs]   populated=False, loading=False
-[13:08:47.132] [Tabs]   Starting load for folders
-[13:08:47.132] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[13:08:47.132] [Tabs] _clear_tab idx=1
-[13:08:47.133] [Tabs] refresh_all: key=dates, idx=2, force=True
-[13:08:47.133] [Tabs] _populate_tab(dates, idx=2, force=True)
-[13:08:47.133] [Tabs]   populated=False, loading=False
-[13:08:47.133] [Tabs]   Starting load for dates
-[13:08:47.133] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[13:08:47.133] [Tabs] _clear_tab idx=2
-[13:08:47.136] [Tabs] _load_folders → got 0 rows for project_id=1
-[13:08:47.137] [Tabs] refresh_all: key=tags, idx=3, force=True
-[13:08:47.137] [Tabs] _populate_tab(tags, idx=3, force=True)
-[13:08:47.137] [Tabs]   populated=False, loading=False
-[13:08:47.137] [Tabs]   Starting load for tags
-[13:08:47.138] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[13:08:47.138] [Tabs] _clear_tab idx=3
-[13:08:47.139] [Tabs] refresh_all: key=quick, idx=5, force=True
-[13:08:47.139] [Tabs] _populate_tab(quick, idx=5, force=True)
-[13:08:47.139] [Tabs]   populated=False, loading=False
-[13:08:47.139] [Tabs]   Starting load for quick
-[13:08:47.139] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[13:08:47.140] [Tabs] _clear_tab idx=5
-[13:08:47.140] [Tabs] _load_tags → got 0 rows for project_id=1
-[13:08:47.140] [Tabs] refresh_all(force=True) completed
-[13:08:47.140] [Tabs] _load_dates → got hierarchy data for project_id=1
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[Sidebar] Processing pending events before model clear
-[13:08:47.140] [Tabs] _clear_tab idx=1
-[13:08:47.172] [Tabs] _load_quick → got 6 rows
-[13:08:47.174] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[13:08:47.174] [Tabs] _clear_tab idx=3
-[13:08:47.175] [Tabs] _clear_tab idx=2
-[13:08:47.187] [Tabs] _clear_tab idx=5
-[13:08:47.198] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[MainWindow] Switched to project ID: 1
-[Breadcrumb] Switched to project ID: 1
-[MainWindow] Refreshed project list: 1 projects
-[Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Desktop
-[ScanController] ScanWorker imported successfully
-[ScanController] QThread created
-[ScanController] ScanWorker instance created with project_id=1
-[ScanController] Worker moved to thread
-[ScanController] Signals connected
-[ScanController] Starting scan thread...
-[ScanController] thread.start() called
-2025-11-10 13:11:49,638 [INFO] DBWriter timer started in worker thread
-[ScanWorkerAdapter] run() method called!
-[ScanWorkerAdapter] folder=C:/Users/suleimaa/Desktop, incremental=True
-2025-11-10 13:11:49,639 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
-[ScanWorkerAdapter] Starting scan...
-2025-11-10 13:11:49,640 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
-[ScanController] QThread STARTED!
-2025-11-10 13:11:49,689 [INFO] Discovered 166 candidate image files and 3 video files
-2025-11-10 13:11:52,751 [INFO] Bulk upserted 166 photos for project 1
-2025-11-10 13:11:52,771 [INFO] Processing 3 videos...
-2025-11-10 13:11:52,782 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4 (id=1, status=pending)
-2025-11-10 13:11:52,793 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4 (id=2, status=pending)
-2025-11-10 13:11:52,895 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4 (id=3, status=pending)
-2025-11-10 13:11:52,905 [INFO] Indexed 3 videos (metadata extraction pending)
-2025-11-10 13:11:52,916 [INFO] Launching background workers for 3 videos...
-2025-11-10 13:11:52,916 [INFO] Using ffprobe from settings: C:/ffmpeg/bin/ffprobe.exe
-2025-11-10 13:11:54,033 [INFO] ffprobe detected at 'C:/ffmpeg/bin/ffprobe.exe' - video metadata extraction enabled
-2025-11-10 13:11:54,033 [INFO] Connected metadata finished callback for sidebar refresh
-2025-11-10 13:11:54,033 [INFO] ✓ Video metadata extraction worker started
-2025-11-10 13:11:54,033 [WARNING] ffmpeg not found - video thumbnail generation disabled
-2025-11-10 13:11:54,033 [INFO] ✓ Video thumbnail generation worker started
-2025-11-10 13:11:54,033 [INFO] 🎬 Processing 3 videos in background (check logs for progress)
-2025-11-10 13:11:54,033 [INFO] Scan complete: 166 photos indexed, 3 videos indexed, 0 skipped, 0 failed in 4.4s
-2025-11-10 13:11:54,033 [INFO] Scan completed: 166 photos, 3 videos, 45 folders in 4.4s
-2025-11-10 13:11:54,033 [INFO] [VideoMetadataWorker] Starting for project_id=1
-2025-11-10 13:11:54,033 [INFO] [VideoThumbnailWorker] Starting for project_id=1
-[ScanController] scan finished: 45 folders, 166 photos, 3 videos
-[ScanController] cleanup after scan
-2025-11-10 13:11:54,048 [INFO] [VideoThumbnailWorker] Found 3 videos to process
-2025-11-10 13:11:54,049 [INFO] [VideoMetadataWorker] Found 3 videos to process
-2025-11-10 13:11:54,059 [WARNING] Cannot generate thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4 (ffmpeg not available)
-2025-11-10 13:11:54,067 [ERROR] [VideoThumbnailWorker] ✗ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4: Failed to generate thumbnail
-2025-11-10 13:11:54,068 [WARNING] Cannot generate thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4 (ffmpeg not available)
-2025-11-10 13:11:54,074 [ERROR] [VideoThumbnailWorker] ✗ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4: Failed to generate thumbnail
-2025-11-10 13:11:54,077 [WARNING] Cannot generate thumbnail for c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4 (ffmpeg not available)
-2025-11-10 13:11:54,082 [ERROR] [VideoThumbnailWorker] ✗ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4: Failed to generate thumbnail
-2025-11-10 13:11:54,082 [INFO] [VideoThumbnailWorker] Finished: 0 success, 3 failed
-2025-11-10 13:11:54,114 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4: 76.0s
-2025-11-10 13:11:54,180 [INFO] Building date branches...
-2025-11-10 13:11:54,180 [INFO] Building date branches for project_id=1
-[build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 166 photos for project 1
-2025-11-10 13:11:54,180 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4: 75.9s
-[build_date_branches] Inserted 166/166 photos into 'all' branch
-[build_date_branches] Found 11 unique dates
-[build_date_branches] Date 2024-08-11: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar1.jpeg
-[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-10-07: found 7 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/mietwohnung/1-wohnzimmer.jpeg
-[build_date_branches] Date 2024-10-07: inserted 7/7 into project_images (new)
-[build_date_branches] Date 2024-11-18: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar2.jpeg
-[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-29: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya1.jpeg
-[build_date_branches] Date 2024-11-29: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-12-02: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya2.jpeg
-[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-12-16: found 2 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/1.jpeg
-[build_date_branches] Date 2024-12-16: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2025-03-07: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/6.jpg
-[build_date_branches] Date 2025-03-07: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-04: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya5.jpeg
-[build_date_branches] Date 2025-07-04: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-06: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya6.jpeg
-[build_date_branches] Date 2025-07-06: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-30: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6850.jpeg
-[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-08-09: found 2 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6934.jpeg
-[build_date_branches] Date 2025-08-09: inserted 2/2 into project_images (new)
-[build_date_branches] Total entries processed: 19
-[build_date_branches] project_images table has 185 rows for project 1
-2025-11-10 13:11:54,197 [INFO] Created 19 date branch entries for project 1
-2025-11-10 13:11:54,197 [INFO] Backfilling created_date fields...
-2025-11-10 13:11:54,220 [INFO] Backfilled 166 rows with created_date
-2025-11-10 13:11:54,233 [INFO] Reloading sidebar after date branches built...
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-2025-11-10 13:11:54,286 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4: 76.0s
-2025-11-10 13:11:54,287 [INFO] [VideoMetadataWorker] Finished: 3 success, 0 failed
-[Sidebar] Added 🎬 Videos section with 3 videos and filters.
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=6] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 166 photos
-[GRID] Loaded 166 thumbnails.
-[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Queued 57 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[Sidebar] Filtering videos by codec: h264
-[Sidebar] Showing 3 H.264 / AVC videos
-[GRID] Loaded 3 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2025
-[Sidebar] Showing 0 videos from 2025
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2024
-[Sidebar] Showing 0 videos from 2024
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2023
-[Sidebar] Showing 0 videos from 2023
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2022
-[Sidebar] Showing 0 videos from 2022
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2021
-[Sidebar] Showing 0 videos from 2021
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by codec: h264
-[Sidebar] Showing 3 H.264 / AVC videos
-[GRID] Loaded 3 thumbnails in videos-mode.
-[Sidebar] Displaying all videos for project 1
-[GRID] Loaded 3 thumbnails in videos-mode.
-[Sidebar] Filtering videos by duration: short
-[Sidebar] Showing 0 short (< 30s) videos
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by duration: medium
-[Sidebar] Showing 3 medium (30s - 5min) videos
-[GRID] Loaded 3 thumbnails in videos-mode.
-[Sidebar] Filtering videos by duration: long
-[Sidebar] Showing 0 long (> 5min) videos
-[GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: sd
-[Sidebar] Showing 2 SD (< 720p) videos
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: hd
-[Sidebar] Showing 2 HD (720p) videos
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: sd
-[Sidebar] Showing 2 SD (< 720p) videos
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main>python main_qt.py
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-[ThumbCacheDB] Purged 56 stale thumbnails (> 30 days).
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-10 13:14:40,548 [INFO] ================================================================================
-2025-11-10 13:14:40,549 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-10 13:14:40,549 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-10 13:14:40,549 [INFO] ================================================================================
-2025-11-10 13:14:40,602 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 1, 'size_mb': 0.01, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.22.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-10 13:14'}
-[ThumbCacheDB] Purged 1 stale thumbnails (> 7 days).
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-10 13:14:40,849 [INFO] SearchService initialized
-[13:14:41.202] [Tabs] __init__ started
-[13:14:41.202] [Tabs] _build_tabs → building tab widgets
-[13:14:41.203] [Tabs] _on_tab_changed(idx=0)
-[13:14:41.203] [Tabs] _start_timeout idx=0 type=branches
-[13:14:41.204] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:14:41.204] [Tabs]   populated=False, loading=False
-[13:14:41.204] [Tabs]   Starting load for branches
-[13:14:41.204] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:14:41.204] [Tabs] _clear_tab idx=0
-[13:14:41.207] [Tabs] _on_tab_changed → tab_type=branches
-[13:14:41.208] [Tabs] _build_tabs → added 6 tabs
-[13:14:41.209] [Tabs] __init__ completed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=2] running for 1 targets...
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[13:14:41.377] [Tabs] hide_tabs() called - canceling pending workers
 [Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
+[22:45:53.423] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -414,55 +39,476 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=4] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
 [Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
 [Startup] Database schema initialized successfully
-✅ FFprobe detected (custom path: C:/ffmpeg/bin/ffprobe.exe)
-⚠️ FFmpeg not found in PATH (optional - needed for thumbnails)
-[13:14:45.196] [Tabs] _finish_branches (stale gen=1) — ignoring
-[13:14:45.196] [Tabs] _on_tab_changed(idx=0)
-[13:14:45.196] [Tabs] _start_timeout idx=0 type=branches
-[13:14:45.196] [Tabs] _populate_tab(branches, idx=0, force=False)
-[13:14:45.196] [Tabs]   populated=False, loading=False
-[13:14:45.196] [Tabs]   Starting load for branches
-[13:14:45.196] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[13:14:45.196] [Tabs] _clear_tab idx=0
-[13:14:45.196] [Tabs] _on_tab_changed → tab_type=branches
-[13:14:45.336] [Tabs] _clear_tab idx=0
+✅ FFmpeg and FFprobe detected - full video support enabled
+[22:45:53.949] [Tabs] _on_tab_changed(idx=0)
+[22:45:53.949] [Tabs] _start_timeout idx=0 type=branches
+[22:45:53.950] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:45:53.950] [Tabs]   populated=False, loading=False
+[22:45:53.950] [Tabs]   Starting load for branches
+[22:45:53.950] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:45:53.950] [Tabs] _clear_tab idx=0
+[22:45:53.952] [Tabs] _on_tab_changed → tab_type=branches
+[22:45:53.952] [Tabs] _finish_branches (stale gen=1) — ignoring
+[22:45:53.970] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 166 photos
-[GRID] Loaded 166 thumbnails.
-[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
-[GRID] Using scroll-based start position: 0 (scroll: 0/2749)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Queued 57 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[Sidebar] Filtering videos by year: 2025
-[Sidebar] Showing 0 videos from 2025
+[get_images_by_branch] Found 97 photos
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in branch-mode (base=97)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1461)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Using scroll-based start position: 30 (scroll: 768/1482)
+[GRID] Loading viewport range: 22-96 of 97
+[GRID] Queued 75 new thumbnail workers
+[GRID] Using scroll-based start position: 55 (scroll: 1152/1482)
+[GRID] Loading viewport range: 47-96 of 97
+[GRID] Queued 50 new thumbnail workers
+[GRID] Using scroll-based start position: 77 (scroll: 1482/1482)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 51 (scroll: 1098/1482)
+[GRID] Loading viewport range: 43-96 of 97
+[GRID] Queued 54 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 53 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 77 (scroll: 1482/1482)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 53 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 77 (scroll: 1482/1482)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 53 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000024F94FE8940>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x24ff4476cd0) at 0x0000024FF84260C0>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=97
+[open_lightbox] paths=['d:\\my phone\\videos\\_هاكونا ماتاتا_ - الأسد الملك(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\1- deutsch dialogue - b2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\10 wichtige ausdrücke für b2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\_präsentation _diskussion _problemlösung b2 prüfung _präsentation_ diskussion_ problemlösung(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 1(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 4(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 6(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen (b1)_ ganzer film auf deutsch - _nicos weg_ _ deutsch lernen mit videos _ untertitel(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit dialogen _ b1 b2 c1 _ deutsch lernen kostenlos(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit geschichten _11 _ a2-b1 _ learn german with stories(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch mit geschichten _16 _ a1-a2 _ learn german with stories(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\adel tawil - ist da jemand - lyrics- sadboy(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\bist du real أغنية ألمانية مترجمة(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\facebook 1050793465397912(source).mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\lieblingsmensch namika lyrics(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\mark foster- 194 länder (lyrics) مترجم(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\b1 - lesson 30 _ eine präsentation halten _ goethe zertifikat teil 2 sprechen(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\b1 prüfung_sich vorstellen_bild beschreiben_dialog(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\deutsch lernen a2_ b1 _ indirekte fragen _ wechselpräpositionen _ nebensätze _weil__ _wenn__ _dass_(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\deutsch lernen mit geschichten _34 _ b1-b2 - deutsch lernen kostenlos(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\dialog - kann ich ihnen helfen - deutsch _b1 _ b2_(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 1210473858975381(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2746247528975745(144p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2746522382281593(240p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2823061954627635(144p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\geschichte für niveau b1_  deutsch lernen(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\menschen b1 lektion 1.. part 1_ مع فراو هبة جلال(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\präsentation über eine reise - mündliche telc b2 prüfung(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (2) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (3) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (4) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (6) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (9) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (1)- السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (10) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (7) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (8) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\دقائق ألمانية مع ضياء (107) -2-infinitiv mit zu(360p)_1.mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\دقائق ألمانية مع ضياء (107) -2-infinitiv mit zu(360p)_2.mp4', 'd:\\my phone\\videos\\deutsch lernen\\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\pluspunkt deutsch a 1 ganzer film(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\präsentation – über ein buch_ mündliche prüfung b2 telc(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\spongebob schwammkopf_ bei der ersten abfahrt سبونج بوب عندالإنطلاقة الأولى_ckmocivivgi(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (29) تعلم اللغة الالمانية_جمل مهمة في قسم المحادثة (b1 prüfung (sprechen(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (79) الامتحان الشفهي -الحديث عن رحلة b2 prüfung- präsentation über eine reise(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم الالمانيه مع زيدون (266) اهم الجمل لموضوع المناقشة b2 - thema diskussion 2018(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم اللغة الألمانية مستوى  b1  _ جمل وحوارات هامة للمتوسطين _ مكرر 3 prolingoo_german_(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\كلمات صعبة صدقني انت قدها _ ----  b2 - تعلم اللغة الالمانية(360p).mp4', 'd:\\my phone\\videos\\english songs with words\\eagles - hotel california (lyrics)(360p).mp4', 'd:\\my phone\\videos\\english songs with words\\facebook 327834854911830(480p).mp4', 'd:\\my phone\\videos\\english songs with words\\تمرّد على السفينة باونتي(source)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\grégoire - le cartable rêveur - carl norac [poésies de mon enfance](360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\iglesias julio vous les femmes paroles(360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\kendji girac - habibi [parole](360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\kendji girac ft gims - dernier métro (parole_lyrics)(360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\willy william - ego full song (lyrics)(360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\إليك  . ديو  رائع . جو داسان  . هيلين سيجارا .atoi . joe dassin . hélène ségar(360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\اغنية papaoutai papa اوتي بابا اوتي(360p)_1.mp4', 'd:\\my phone\\videos\\french songs with words\\ترجمة اغنية يا حبيبي محمد رمضان(360p)_1.mp4', 'd:\\my phone\\videos\\turkish\\alnaz ilk öpücük_ - mucize doktor 29. bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 1817002158464272(480p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 227821215371756(source)_1.mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül ve kerim_in mini balayı - fatmagül_ün suçu ne_ 78. bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül_ cristine_e nispet yapıyor_ - fatmagül_ün suçu ne_ 78.bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة (٥٠)(480p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة ٤٩(480p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - أنا بتخان _ assala - ana batkhan [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - جابوا سيرته [assala - gabo serto  [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - صندوق صغير _ assala - sandook segheer [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - مبقاش  سر _ [assala - maba_ash ser [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - نكتة بايخة _ [assala - nokta baykha [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - هيقولك _ assala - hay_oliek [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة والشرنوبي - مين فينا _ assala _ al sharnouby - meen feena [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\الحب والسلام مع الكلمات -اصالة 2020 _assala - love and peace(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\افتح يا سمسم(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\بيل وسيباستيان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\توم سوير(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز- كورال غاردينيا- حفل شارات مسلسلات الكرتون 2016(480p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ريمي الصبي(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\بابار_كونان_ريمي_ماوكلي_هزيم الرعد  طارق العربي طرقان و أبناؤه l برنامج صاحبة السعادة(360p)_1.mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\سنان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\عدنان ولينا(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\غريندايزر(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\فلونة(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\في قصص الشعوب(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\وداعاً إلى اللقاء- ساندي بل(360p).mp4', 'd:\\my phone\\videos\\عمرو دياب\\amr diab - bayen habeit (audio عمرو دياب - باين حبيت (كلمات(360p).mp4', 'd:\\my phone\\videos\\محمد اسكندر لفيروز(source).mp4', 'd:\\my phone\\videos\\محمد محسن\\محمد محسن _ يا مسافر وحدك mohamed mohsen _ ya msafer wahdak [official cover] live(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\mohamad mounir - haret el saqayeen  ☆ محمد منير - حارة السقايين(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\محمد منير - عايش _ النسخة الاصلية  [ كلمات mohamed mounir - ayeish [lyrics(360p).mp4', 'd:\\my phone\\videos\\نورا رحال، طاهر مامللي،، حبذا(480p).mp4']
+[open_lightbox] path=d:\my phone\videos\deutsch lernen\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4
+[VideoPlayer] Opening video: d:\my phone\videos\deutsch lernen\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4
+[VideoPlayer] Loaded: d:\my phone\videos\deutsch lernen\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4
+[VideoPlayer] Opened: d:\my phone\videos\deutsch lernen\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/deutsch lernen/deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2018-10-20T06:56:18.000000Z
+  Duration: 00:43:42.37, start: 0.000000, bitrate: 325 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 640x360 [SAR 1:1 DAR 16:9], 226 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        creation_time   : 2018-10-20T06:56:18.000000Z
+        handler_name    : ISO Media file produced by Google Inc. Created on: 10/19/2018.
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 95 kb/s (default)
+      Metadata:
+        creation_time   : 2018-10-20T06:56:18.000000Z
+        handler_name    : ISO Media file produced by Google Inc. Created on: 10/19/2018.
+        vendor_id       : [0][0][0][0]
+[VideoPlayer] Closed, returning to grid
+[GRID] Using scroll-based start position: 77 (scroll: 1482/1482)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Queued 28 new thumbnail workers
+[Sidebar] Filtering videos by year: 2021
+[Sidebar] Showing 51 videos from 2021
+[GRID] Loaded 51 thumbnails in videos-mode.
+[GRID] Using scroll-based start position: 31 (scroll: 458/458)
+[GRID] Loading viewport range: 23-50 of 51
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-50 of 51
+[Sidebar] Filtering videos by year: 2022
+[Sidebar] Showing 0 videos from 2022
 [GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2025
-[Sidebar] Showing 0 videos from 2025
+[Sidebar] Filtering videos by duration: long
+[Sidebar] Showing 17 long (> 5min) videos
+[GRID] Loaded 17 thumbnails in videos-mode.
+[Sidebar] Filtering videos by duration: medium
+[Sidebar] Showing 6 medium (30s - 5min) videos
+[GRID] Loaded 6 thumbnails in videos-mode.
+[Sidebar] Displaying all videos for project 1
+[GRID] Loaded 97 thumbnails in videos-mode.
+[GRID] Using scroll-based start position: 77 (scroll: 1354/1354)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Using scroll-based start position: 0 (scroll: 0/1354)
+[GRID] Near bottom, loading all remaining 53 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Using scroll-based start position: 77 (scroll: 842/842)
+[GRID] Loading viewport range: 69-96 of 97
+[GRID] Using scroll-based start position: 0 (scroll: 0/842)
+[GRID] Near bottom, loading all remaining 53 items
+[GRID] Loading viewport range: 0-96 of 97
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 97 photos
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in branch-mode (base=97)
+[DB] get_images_by_folder(1, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[DB] get_images_by_folder(1, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in date-mode (base=1)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Queued 1 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in date-mode (base=1)
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in date-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in date-mode (base=6)
+[GRID] Loaded 9 thumbnails.
+[GRID] Reloaded 9 thumbnails in date-mode (base=9)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-8 of 9
+[GRID] Queued 9 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-8 of 9
+[GRID] Loaded 9 thumbnails.
+[GRID] Reloaded 9 thumbnails in date-mode (base=9)
+[GRID] Loaded 17 thumbnails.
+[GRID] Reloaded 17 thumbnails in date-mode (base=17)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-16 of 17
+[GRID] Queued 17 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-16 of 17
+[Sidebar] Filtering videos by duration: short
+[Sidebar] Showing 0 short (< 30s) videos
 [GRID] Loaded 0 thumbnails in videos-mode.
-[Sidebar] Filtering videos by file size: small
-[Sidebar] Showing 3 Small (< 100MB) videos
-[GRID] Loaded 3 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: hd
-[Sidebar] Showing 2 HD (720p) videos
-[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Filtering videos by duration: medium
+[Sidebar] Showing 6 medium (30s - 5min) videos
+[GRID] Loaded 6 thumbnails in videos-mode.
+[Sidebar] Filtering videos by duration: long
+[Sidebar] Showing 17 long (> 5min) videos
+[GRID] Loaded 17 thumbnails in videos-mode.
+[Sidebar] Filtering videos by codec: h264
+[Sidebar] Showing 23 H.264 / AVC videos
+[GRID] Loaded 23 thumbnails in videos-mode.
 [Sidebar] Filtering videos by resolution: sd
-[Sidebar] Showing 2 SD (< 720p) videos
-[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Showing 23 SD (< 720p) videos
+[GRID] Loaded 23 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2021
+[Sidebar] Showing 51 videos from 2021
+[GRID] Loaded 51 thumbnails in videos-mode.
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000024F95068F80>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x24ff4476cd0) at 0x0000024FF84260C0>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=51
+[open_lightbox] paths=['d:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2823061954627635(144p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (2) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (3) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (4) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (6) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (9) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (1)- السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (10) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (7) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (8) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\pluspunkt deutsch a 1 ganzer film(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\präsentation – über ein buch_ mündliche prüfung b2 telc(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\spongebob schwammkopf_ bei der ersten abfahrt سبونج بوب عندالإنطلاقة الأولى_ckmocivivgi(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (29) تعلم اللغة الالمانية_جمل مهمة في قسم المحادثة (b1 prüfung (sprechen(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (79) الامتحان الشفهي -الحديث عن رحلة b2 prüfung- präsentation über eine reise(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم الالمانيه مع زيدون (266) اهم الجمل لموضوع المناقشة b2 - thema diskussion 2018(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم اللغة الألمانية مستوى  b1  _ جمل وحوارات هامة للمتوسطين _ مكرر 3 prolingoo_german_(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\كلمات صعبة صدقني انت قدها _ ----  b2 - تعلم اللغة الالمانية(360p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 1817002158464272(480p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül ve kerim_in mini balayı - fatmagül_ün suçu ne_ 78. bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül_ cristine_e nispet yapıyor_ - fatmagül_ün suçu ne_ 78.bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة (٥٠)(480p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة ٤٩(480p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - أنا بتخان _ assala - ana batkhan [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - جابوا سيرته [assala - gabo serto  [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - صندوق صغير _ assala - sandook segheer [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - مبقاش  سر _ [assala - maba_ash ser [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - نكتة بايخة _ [assala - nokta baykha [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - هيقولك _ assala - hay_oliek [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة والشرنوبي - مين فينا _ assala _ al sharnouby - meen feena [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\الحب والسلام مع الكلمات -اصالة 2020 _assala - love and peace(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\افتح يا سمسم(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\بيل وسيباستيان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\توم سوير(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز- كورال غاردينيا- حفل شارات مسلسلات الكرتون 2016(480p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ريمي الصبي(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\سنان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\عدنان ولينا(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\غريندايزر(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\فلونة(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\في قصص الشعوب(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\وداعاً إلى اللقاء- ساندي بل(360p).mp4', 'd:\\my phone\\videos\\عمرو دياب\\amr diab - bayen habeit (audio عمرو دياب - باين حبيت (كلمات(360p).mp4', 'd:\\my phone\\videos\\محمد اسكندر لفيروز(source).mp4', 'd:\\my phone\\videos\\محمد مُنير\\mohamad mounir - haret el saqayeen  ☆ محمد منير - حارة السقايين(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\محمد منير - عايش _ النسخة الاصلية  [ كلمات mohamed mounir - ayeish [lyrics(360p).mp4', 'd:\\my phone\\videos\\نورا رحال، طاهر مامللي،، حبذا(480p).mp4']
+[open_lightbox] path=d:\my phone\videos\turkish\facebook 1817002158464272(480p).mp4
+[VideoPlayer] Opening video: d:\my phone\videos\turkish\facebook 1817002158464272(480p).mp4
+[VideoPlayer] Loaded: d:\my phone\videos\turkish\facebook 1817002158464272(480p).mp4
+[VideoPlayer] Opened: d:\my phone\videos\turkish\facebook 1817002158464272(480p).mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/turkish/facebook 1817002158464272(480p).mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : 1817002141797607
+    encoder         : Lavf57.56.101
+  Duration: 00:05:58.26, start: 0.000000, bitrate: 278 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, smpte170m/bt470bg/smpte170m, progressive), 640x462, 208 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 64 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[aac @ 0000024FF45DF380] env_facs_q 254 is invalid
+[Sidebar] Filtering videos by year: 2021
+[Sidebar] Showing 51 videos from 2021
+[GRID] Loaded 51 thumbnails in videos-mode.
+[VideoPlayer] Closed, returning to grid
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000024FF8437EC0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x24ff4476cd0) at 0x0000024FF84260C0>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=51
+[open_lightbox] paths=['d:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2823061954627635(144p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (2) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (3) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (4) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (6) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (9) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (1)- السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (10) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (7) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (8) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\pluspunkt deutsch a 1 ganzer film(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\präsentation – über ein buch_ mündliche prüfung b2 telc(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\spongebob schwammkopf_ bei der ersten abfahrt سبونج بوب عندالإنطلاقة الأولى_ckmocivivgi(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (29) تعلم اللغة الالمانية_جمل مهمة في قسم المحادثة (b1 prüfung (sprechen(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (79) الامتحان الشفهي -الحديث عن رحلة b2 prüfung- präsentation über eine reise(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم الالمانيه مع زيدون (266) اهم الجمل لموضوع المناقشة b2 - thema diskussion 2018(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم اللغة الألمانية مستوى  b1  _ جمل وحوارات هامة للمتوسطين _ مكرر 3 prolingoo_german_(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\كلمات صعبة صدقني انت قدها _ ----  b2 - تعلم اللغة الالمانية(360p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 1817002158464272(480p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül ve kerim_in mini balayı - fatmagül_ün suçu ne_ 78. bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül_ cristine_e nispet yapıyor_ - fatmagül_ün suçu ne_ 78.bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة (٥٠)(480p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة ٤٩(480p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - أنا بتخان _ assala - ana batkhan [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - جابوا سيرته [assala - gabo serto  [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - صندوق صغير _ assala - sandook segheer [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - مبقاش  سر _ [assala - maba_ash ser [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - نكتة بايخة _ [assala - nokta baykha [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - هيقولك _ assala - hay_oliek [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة والشرنوبي - مين فينا _ assala _ al sharnouby - meen feena [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\الحب والسلام مع الكلمات -اصالة 2020 _assala - love and peace(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\افتح يا سمسم(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\بيل وسيباستيان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\توم سوير(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز- كورال غاردينيا- حفل شارات مسلسلات الكرتون 2016(480p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ريمي الصبي(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\سنان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\عدنان ولينا(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\غريندايزر(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\فلونة(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\في قصص الشعوب(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\وداعاً إلى اللقاء- ساندي بل(360p).mp4', 'd:\\my phone\\videos\\عمرو دياب\\amr diab - bayen habeit (audio عمرو دياب - باين حبيت (كلمات(360p).mp4', 'd:\\my phone\\videos\\محمد اسكندر لفيروز(source).mp4', 'd:\\my phone\\videos\\محمد مُنير\\mohamad mounir - haret el saqayeen  ☆ محمد منير - حارة السقايين(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\محمد منير - عايش _ النسخة الاصلية  [ كلمات mohamed mounir - ayeish [lyrics(360p).mp4', 'd:\\my phone\\videos\\نورا رحال، طاهر مامللي،، حبذا(480p).mp4']
+[open_lightbox] path=d:\my phone\videos\deutsch lernen\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4
+[VideoPlayer] Opening video: d:\my phone\videos\deutsch lernen\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4
+[VideoPlayer] Loaded: d:\my phone\videos\deutsch lernen\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4
+[VideoPlayer] Opened: d:\my phone\videos\deutsch lernen\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/deutsch lernen/naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf58.20.100
+  Duration: 00:08:59.65, start: 0.000000, bitrate: 843 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(progressive), 1152x648, 770 kb/s, 30.11 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 64 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[VideoPlayer] Closed, returning to grid
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000024FF8426B00>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x24ff4476cd0) at 0x0000024FF84260C0>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=51
+[open_lightbox] paths=['d:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2823061954627635(144p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (2) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (3) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (4) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (6) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (9) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (1)- السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (10) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (7) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (8) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\pluspunkt deutsch a 1 ganzer film(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\präsentation – über ein buch_ mündliche prüfung b2 telc(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\spongebob schwammkopf_ bei der ersten abfahrt سبونج بوب عندالإنطلاقة الأولى_ckmocivivgi(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (29) تعلم اللغة الالمانية_جمل مهمة في قسم المحادثة (b1 prüfung (sprechen(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (79) الامتحان الشفهي -الحديث عن رحلة b2 prüfung- präsentation über eine reise(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم الالمانيه مع زيدون (266) اهم الجمل لموضوع المناقشة b2 - thema diskussion 2018(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم اللغة الألمانية مستوى  b1  _ جمل وحوارات هامة للمتوسطين _ مكرر 3 prolingoo_german_(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\كلمات صعبة صدقني انت قدها _ ----  b2 - تعلم اللغة الالمانية(360p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 1817002158464272(480p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül ve kerim_in mini balayı - fatmagül_ün suçu ne_ 78. bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül_ cristine_e nispet yapıyor_ - fatmagül_ün suçu ne_ 78.bölüm(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة (٥٠)(480p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة ٤٩(480p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - أنا بتخان _ assala - ana batkhan [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - جابوا سيرته [assala - gabo serto  [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - صندوق صغير _ assala - sandook segheer [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - مبقاش  سر _ [assala - maba_ash ser [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - نكتة بايخة _ [assala - nokta baykha [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - هيقولك _ assala - hay_oliek [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة والشرنوبي - مين فينا _ assala _ al sharnouby - meen feena [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\الحب والسلام مع الكلمات -اصالة 2020 _assala - love and peace(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\افتح يا سمسم(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\بيل وسيباستيان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\توم سوير(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز- كورال غاردينيا- حفل شارات مسلسلات الكرتون 2016(480p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ريمي الصبي(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\سنان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\عدنان ولينا(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\غريندايزر(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\فلونة(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\في قصص الشعوب(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\وداعاً إلى اللقاء- ساندي بل(360p).mp4', 'd:\\my phone\\videos\\عمرو دياب\\amr diab - bayen habeit (audio عمرو دياب - باين حبيت (كلمات(360p).mp4', 'd:\\my phone\\videos\\محمد اسكندر لفيروز(source).mp4', 'd:\\my phone\\videos\\محمد مُنير\\mohamad mounir - haret el saqayeen  ☆ محمد منير - حارة السقايين(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\محمد منير - عايش _ النسخة الاصلية  [ كلمات mohamed mounir - ayeish [lyrics(360p).mp4', 'd:\\my phone\\videos\\نورا رحال، طاهر مامللي،، حبذا(480p).mp4']
+[open_lightbox] path=d:\my phone\videos\deutsch lernen\lernen gernan mit diaa\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4
+[VideoPlayer] Opening video: d:\my phone\videos\deutsch lernen\lernen gernan mit diaa\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4
+[VideoPlayer] Loaded: d:\my phone\videos\deutsch lernen\lernen gernan mit diaa\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4
+[VideoPlayer] Opened: d:\my phone\videos\deutsch lernen\lernen gernan mit diaa\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/deutsch lernen/lernen gernan mit diaa/السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2019-08-16T12:59:19.000000Z
+  Duration: 00:03:11.43, start: 0.000000, bitrate: 409 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 640x360 [SAR 1:1 DAR 16:9], 311 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+      Metadata:
+        creation_time   : 2019-08-16T12:59:19.000000Z
+        handler_name    : ISO Media file produced by Google Inc. Created on: 08/16/2019.
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 95 kb/s (default)
+      Metadata:
+        creation_time   : 2019-08-16T12:59:19.000000Z
+        handler_name    : ISO Media file produced by Google Inc. Created on: 08/16/2019.
+        vendor_id       : [0][0][0][0]
+[GRID] Loaded 17 thumbnails.
+[GRID] Reloaded 17 thumbnails in date-mode (base=17)
+[DB] get_images_by_folder(1, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[DB] get_images_by_folder(1, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[DB] get_images_by_folder(2, subfolders=True, project=1) -> 50 paths from 3 folders
+[GRID] Loaded 50 thumbnails.
+[GRID] Reloaded 50 thumbnails in folder-mode (base=50)
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-49 of 50
+[GRID] Queued 50 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-49 of 50
+[DB] get_images_by_folder(2, subfolders=True, project=1) -> 50 paths from 3 folders
+[GRID] Loaded 50 thumbnails.
+[GRID] Reloaded 50 thumbnails in folder-mode (base=50)
+[DB] get_images_by_folder(3, subfolders=True, project=1) -> 5 paths from 1 folders
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in folder-mode (base=5)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[GRID] Queued 5 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[DB] get_images_by_folder(3, subfolders=True, project=1) -> 5 paths from 1 folders
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in folder-mode (base=5)
+[DB] get_images_by_folder(3, subfolders=True, project=1) -> 5 paths from 1 folders
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in folder-mode (base=5)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[GRID] Queued 5 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[SidebarQt] switch_display_mode(tabs) - canceling old workers
+[SidebarQt] Canceled list workers (new gen=5)
+[SidebarQt] Hiding tree view
+[SidebarQt] Showing tabs controller
+[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
+[22:47:51.873] [Tabs] refresh_all(force=True) called
+[22:47:51.873] [Tabs] refresh_all: key=branches, idx=0, force=True
+[22:47:51.873] [Tabs] _populate_tab(branches, idx=0, force=True)
+[22:47:51.873] [Tabs]   populated=True, loading=False
+[22:47:51.873] [Tabs]   Force refresh: removing branches from populated set
+[22:47:51.873] [Tabs]   Starting load for branches
+[22:47:51.873] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:47:51.874] [Tabs] _clear_tab idx=0
+[22:47:51.875] [Tabs] refresh_all: key=folders, idx=1, force=True
+[22:47:51.875] [Tabs] _populate_tab(folders, idx=1, force=True)
+[22:47:51.875] [Tabs]   populated=False, loading=False
+[22:47:51.875] [Tabs]   Starting load for folders
+[22:47:51.876] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[22:47:51.876] [Tabs] _clear_tab idx=1
+[22:47:51.877] [Tabs] refresh_all: key=dates, idx=2, force=True
+[22:47:51.877] [Tabs] _populate_tab(dates, idx=2, force=True)
+[22:47:51.877] [Tabs]   populated=False, loading=False
+[22:47:51.877] [Tabs]   Starting load for dates
+[22:47:51.877] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[22:47:51.878] [Tabs] _clear_tab idx=2
+[22:47:51.878] [Tabs] _load_folders → got 14 rows for project_id=1
+[22:47:51.879] [Tabs] refresh_all: key=tags, idx=3, force=True
+[22:47:51.879] [Tabs] _populate_tab(tags, idx=3, force=True)
+[22:47:51.879] [Tabs]   populated=False, loading=False
+[22:47:51.879] [Tabs]   Starting load for tags
+[22:47:51.879] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[22:47:51.879] [Tabs] _clear_tab idx=3
+[22:47:51.881] [Tabs] refresh_all: key=quick, idx=5, force=True
+[22:47:51.881] [Tabs] _populate_tab(quick, idx=5, force=True)
+[22:47:51.881] [Tabs]   populated=False, loading=False
+[22:47:51.881] [Tabs]   Starting load for quick
+[22:47:51.882] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[22:47:51.882] [Tabs] _clear_tab idx=5
+[22:47:51.883] [Tabs] refresh_all(force=True) completed
+[SidebarQt] tabs_controller.refresh_all() completed after mode switch
+[22:47:51.884] [Tabs] _load_dates → got hierarchy data for project_id=1
+[22:47:51.885] [Tabs] _load_tags → got 0 rows for project_id=1
+[22:47:51.885] [Tabs] _load_quick → got 6 rows
+[22:47:51.886] [Tabs] _clear_tab idx=0
+[DB] get_images_by_folder(3, subfolders=True, project=1) -> 5 paths from 1 folders
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in folder-mode (base=5)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 97 photos
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in branch-mode (base=97)
+[22:47:51.982] [Tabs] _clear_tab idx=1
+[22:47:52.019] [Tabs] _clear_tab idx=2
+[22:47:52.066] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[22:47:52.066] [Tabs] _clear_tab idx=3
+[22:47:52.066] [Tabs] _clear_tab idx=5
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[22:47:53.789] [Tabs] _on_tab_changed(idx=1)
+[22:47:53.790] [Tabs] _start_timeout idx=1 type=folders
+[22:47:53.790] [Tabs] _populate_tab(folders, idx=1, force=False)
+[22:47:53.790] [Tabs]   populated=True, loading=False
+[22:47:53.790] [Tabs]   Skipping folders: already populated or loading
+[22:47:53.790] [Tabs] _on_tab_changed → tab_type=folders
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 97 photos
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in branch-mode (base=97)
+[DB] get_images_by_folder(10, subfolders=True, project=1) -> 14 paths from 2 folders
+[GRID] Loaded 14 thumbnails.
+[GRID] Reloaded 14 thumbnails in folder-mode (base=14)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-13 of 14
+[GRID] Queued 14 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-13 of 14
+[DB] get_images_by_folder(10, subfolders=True, project=1) -> 14 paths from 2 folders
+[GRID] Loaded 14 thumbnails.
+[GRID] Reloaded 14 thumbnails in folder-mode (base=14)
+[DB] get_images_by_folder(11, subfolders=True, project=1) -> 7 paths from 1 folders
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in folder-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[DB] get_images_by_folder(11, subfolders=True, project=1) -> 7 paths from 1 folders
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in folder-mode (base=7)
+[DB] get_images_by_folder(11, subfolders=True, project=1) -> 7 paths from 1 folders
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in folder-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[VideoPlayer] Closed, returning to grid
+[DB] get_images_by_folder(11, subfolders=True, project=1) -> 7 paths from 1 folders
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in folder-mode (base=7)
+[DB] get_images_by_folder(12, subfolders=True, project=1) -> 1 paths from 1 folders
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in folder-mode (base=1)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Queued 1 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[DB] get_images_by_folder(12, subfolders=True, project=1) -> 1 paths from 1 folders
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in folder-mode (base=1)
+[DB] get_images_by_folder(13, subfolders=True, project=1) -> 1 paths from 1 folders
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in folder-mode (base=1)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Queued 1 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[DB] get_images_by_folder(13, subfolders=True, project=1) -> 1 paths from 1 folders
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in folder-mode (base=1)
+[DB] get_images_by_folder(14, subfolders=True, project=1) -> 2 paths from 1 folders
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in folder-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.22.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\MemoryMate-PhotoFlow-main>
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_23.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\MemoryMate-PhotoFlow-main>

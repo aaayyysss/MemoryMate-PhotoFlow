@@ -448,42 +448,38 @@ class PhotoScanService:
         # Step 4: Extract dimensions and EXIF date using MetadataService
         # CRITICAL FIX: Wrap metadata extraction with timeout to prevent hangs
         # PIL/Pillow can hang on corrupted images, malformed TIFF/EXIF, or files with infinite loops
+        # BUG FIX #7: Use full extract_metadata() to get created_* fields for date hierarchy
         width = height = date_taken = None
+        created_ts = created_date = created_year = None
         metadata_timeout = 5.0  # 5 seconds per image
 
-        if extract_exif_date:
-            # Use metadata service for extraction with timeout protection
+        # Always use full metadata extraction to get created_* fields (BUG FIX #7)
+        try:
+            logger.debug(f"[Scan] Processing metadata for: {path_str}")
+            future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
+            metadata = future.result(timeout=metadata_timeout)
+
+            if metadata.success:
+                width = metadata.width
+                height = metadata.height
+                if extract_exif_date:
+                    date_taken = metadata.date_taken
+                # BUG FIX #7: Extract created_* fields for date hierarchy queries
+                created_ts = metadata.created_timestamp
+                created_date = metadata.created_date
+                created_year = metadata.created_year
+
+            logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
+        except FuturesTimeoutError:
+            logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
+            # Continue without dimensions/EXIF - photo will still be indexed
             try:
-                logger.debug(f"[Scan] Processing metadata for: {path_str}")
-                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
-                width, height, date_taken = future.result(timeout=metadata_timeout)
-                logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
-            except FuturesTimeoutError:
-                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
-                # Continue without dimensions/EXIF - photo will still be indexed
-                try:
-                    future.cancel()
-                except Exception:
-                    pass
-            except Exception as e:
-                logger.debug(f"Could not extract image metadata from {path_str}: {e}")
-                # Continue without dimensions/EXIF
-        else:
-            # Just get dimensions without EXIF (with timeout)
-            try:
-                future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
-                metadata = future.result(timeout=metadata_timeout)
-                if metadata.success:
-                    width = metadata.width
-                    height = metadata.height
-            except FuturesTimeoutError:
-                logger.warning(f"Dimension extraction timeout for {path_str} (5s limit)")
-                try:
-                    future.cancel()
-                except Exception:
-                    pass
-            except Exception as e:
-                logger.debug(f"Could not extract dimensions from {path_str}: {e}")
+                future.cancel()
+            except Exception:
+                pass
+        except Exception as e:
+            logger.debug(f"Could not extract image metadata from {path_str}: {e}")
+            # Continue without dimensions/EXIF
 
         # Step 5: Ensure folder hierarchy exists
         try:
@@ -497,8 +493,11 @@ class PhotoScanService:
         self._stats['photos_indexed'] += 1
 
         # Return row tuple for batch insert
-        # (path, folder_id, size_kb, modified, width, height, date_taken, tags)
-        return (path_str, folder_id, size_kb, mtime, width, height, date_taken, None)
+        # BUG FIX #7: Include created_ts, created_date, created_year for date hierarchy
+        # (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+        #  created_ts, created_date, created_year)
+        return (path_str, folder_id, size_kb, mtime, width, height, date_taken, None,
+                created_ts, created_date, created_year)
 
     def _ensure_folder_hierarchy(self, folder_path: Path, root_path: Path, project_id: int) -> int:
         """
@@ -558,7 +557,8 @@ class PhotoScanService:
         Write a batch of photo rows to database.
 
         Args:
-            rows: List of tuples (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            rows: List of tuples (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+                                   created_ts, created_date, created_year)
             project_id: Project ID for photo ownership
         """
         if not rows:
@@ -572,9 +572,10 @@ class PhotoScanService:
             # Try individual writes as fallback
             for row in rows:
                 try:
-                    # Unpack row and add project_id
-                    path, folder_id, size_kb, modified, width, height, date_taken, tags = row
-                    self.photo_repo.upsert(path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags)
+                    # BUG FIX #7: Unpack row with created_* fields
+                    path, folder_id, size_kb, modified, width, height, date_taken, tags, created_ts, created_date, created_year = row
+                    self.photo_repo.upsert(path, folder_id, project_id, size_kb, modified, width, height,
+                                          date_taken, tags, created_ts, created_date, created_year)
                 except Exception as e2:
                     logger.error(f"Failed to write individual photo {row[0]}: {e2}")
 

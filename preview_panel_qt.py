@@ -1415,6 +1415,12 @@ class LightboxDialog(QDialog):
                    .replace("💻", "Software")
                    .replace("💾", "Database")
                    .replace("🏷️", "Tags")
+                   .replace("🎬", "Video")
+                   .replace("📐", "Resolution")
+                   .replace("🎞️", "Frame Rate")
+                   .replace("🎥", "Codec")
+                   .replace("📊", "Bitrate")
+                   .replace("📅", "Date Taken")
                    .strip()
             )
             words = key.split()
@@ -1429,6 +1435,10 @@ class LightboxDialog(QDialog):
         lines.append(f"📄 {base}")
         lines.append(f"📁 {folder}")
         lines.append("")
+
+        # Check if this is a video file
+        is_video = self._is_video_file(path)
+
         try:
             st = os.stat(path)
             dt_mod = datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
@@ -1441,35 +1451,85 @@ class LightboxDialog(QDialog):
         except Exception as e:
             lines.append(f"⚠️ File info error: {e}")
         lines.append("")
-        try:
-            img = Image.open(path)
-            exif = img._getexif() or {}
-            if exif:
-                exif_tags = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
-                wanted = [
-                    ("DateTimeOriginal", "🕰️ Captured"),
-                    ("Make", "🏭 Camera Make"),
-                    ("Model", "📷 Camera Model"),
-                    ("LensModel", "🔍 Lens"),
-                    ("FNumber", "ƒ Aperture"),
-                    ("ExposureTime", "⏱ Exposure"),
-                    ("ISOSpeedRatings", "ISO"),
-                    ("FocalLength", "🔭 Focal Length"),
-                    ("Software", "💻 Processed by"),
-                ]
-                for key, label in wanted:
-                    if key in exif_tags:
-                        lines.append(f"{label}: {exif_tags[key]}")
-            else:
-                lines.append("⚠️ No EXIF metadata found.")
-        except Exception:
-            lines.append("⚠️ Failed to read EXIF info.")
+
+        if is_video:
+            # Load video metadata from database
+            try:
+                db = getattr(self, "_shared_db_instance", None)
+                if not db and hasattr(self.parent(), "reference_db"):
+                    db = self.parent().reference_db
+                if db:
+                    # Get project_id from parent if available
+                    project_id = getattr(self.parent(), "project_id", None) if hasattr(self, "parent") else None
+                    if project_id:
+                        video_meta = db.get_video_by_path(path, project_id)
+                        if video_meta:
+                            lines.append("🎬 Video Metadata:")
+
+                            # Duration (formatted as MM:SS or H:MM:SS)
+                            if video_meta.get('duration_seconds'):
+                                duration_str = self._format_duration(video_meta['duration_seconds'])
+                                lines.append(f"⏱ Duration: {duration_str}")
+
+                            # Resolution
+                            if video_meta.get('width') and video_meta.get('height'):
+                                lines.append(f"📐 Resolution: {video_meta['width']}×{video_meta['height']}")
+
+                            # FPS
+                            if video_meta.get('fps'):
+                                lines.append(f"🎞️ Frame Rate: {video_meta['fps']:.2f} fps")
+
+                            # Codec
+                            if video_meta.get('codec'):
+                                lines.append(f"🎥 Codec: {video_meta['codec']}")
+
+                            # Bitrate
+                            if video_meta.get('bitrate'):
+                                bitrate_mbps = video_meta['bitrate'] / 1_000_000
+                                lines.append(f"📊 Bitrate: {bitrate_mbps:.2f} Mbps")
+
+                            # Date taken
+                            if video_meta.get('date_taken'):
+                                lines.append(f"📅 Date Taken: {video_meta['date_taken']}")
+                        else:
+                            lines.append("⚠️ No video metadata found in database.")
+                            lines.append("   (Video may need to be scanned)")
+                    else:
+                        lines.append("⚠️ No project context available.")
+            except Exception as e:
+                lines.append(f"⚠️ Video metadata error: {e}")
+        else:
+            # Load photo EXIF metadata
+            try:
+                img = Image.open(path)
+                exif = img._getexif() or {}
+                if exif:
+                    exif_tags = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
+                    wanted = [
+                        ("DateTimeOriginal", "🕰️ Captured"),
+                        ("Make", "🏭 Camera Make"),
+                        ("Model", "📷 Camera Model"),
+                        ("LensModel", "🔍 Lens"),
+                        ("FNumber", "ƒ Aperture"),
+                        ("ExposureTime", "⏱ Exposure"),
+                        ("ISOSpeedRatings", "ISO"),
+                        ("FocalLength", "🔭 Focal Length"),
+                        ("Software", "💻 Processed by"),
+                    ]
+                    for key, label in wanted:
+                        if key in exif_tags:
+                            lines.append(f"{label}: {exif_tags[key]}")
+                else:
+                    lines.append("⚠️ No EXIF metadata found.")
+            except Exception:
+                lines.append("⚠️ Failed to read EXIF info.")
+
         lines.append("")
         try:
             db = getattr(self, "_shared_db_instance", None)
             if not db and hasattr(self.parent(), "reference_db"):
                 db = self.parent().reference_db
-            if db:
+            if db and not is_video:  # Only for photos (videos handled above)
                 record = db.get_photo_metadata_by_path(path)
                 if record:
                     lines.append("💾 Database Metadata:")
@@ -1481,6 +1541,30 @@ class LightboxDialog(QDialog):
             lines.append(f"⚠️ DB error: {e}")
 
         return "\n".join(lines)
+
+    def _is_video_file(self, path: str) -> bool:
+        """Check if file is a video based on extension."""
+        if not path:
+            return False
+        ext = os.path.splitext(path)[1].lower()
+        video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                      '.avi', '.mkv', '.flv', '.webm', '.3gp', '.ogv', '.ts', '.mts'}
+        return ext in video_exts
+
+    def _format_duration(self, seconds: float) -> str:
+        """Format duration as MM:SS or H:MM:SS."""
+        if not seconds or seconds < 0:
+            return "0:00"
+
+        total_seconds = int(seconds)
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        secs = total_seconds % 60
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+        else:
+            return f"{minutes}:{secs:02d}"
 
     def _preload_metadata_async(self):
         if self._meta_preloader and self._meta_preloader.is_alive():

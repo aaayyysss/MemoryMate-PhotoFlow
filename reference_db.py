@@ -1934,15 +1934,15 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT pm.created_year, COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_year IS NOT NULL
-                    GROUP BY pm.created_year
-                    ORDER BY pm.created_year DESC
+                    SELECT created_year, COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_year IS NOT NULL
+                    GROUP BY created_year
+                    ORDER BY created_year DESC
                 """, (project_id,))
             else:
                 # No project filter - use all photos globally
@@ -2081,14 +2081,13 @@ class ReferenceDB:
     def _count_between_meta_dates(self, conn, start_iso: str, end_iso: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
         if project_id is not None:
-            # Filter by project_id using project_images junction table
+            # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
             cur.execute(
                 """
-                SELECT COUNT(DISTINCT pm.path)
-                FROM photo_metadata pm
-                INNER JOIN project_images pi ON pm.path = pi.image_path
-                WHERE pi.project_id = ?
-                  AND date(COALESCE(pm.date_taken, pm.modified)) BETWEEN ? AND ?
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE project_id = ?
+                  AND date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
                 """,
                 (project_id, start_iso, end_iso)
             )
@@ -2135,14 +2134,13 @@ class ReferenceDB:
     def _count_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
         if project_id is not None:
-            # Filter by project_id using project_images junction table
+            # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
             cur.execute(
                 """
-                SELECT COUNT(DISTINCT pm.path)
-                FROM photo_metadata pm
-                INNER JOIN project_images pi ON pm.path = pi.image_path
-                WHERE pi.project_id = ?
-                  AND pm.updated_at >= ?
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE project_id = ?
+                  AND updated_at >= ?
                 """,
                 (project_id, start_ts)
             )
@@ -2391,14 +2389,14 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT DISTINCT pm.created_date
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date IS NOT NULL
-                    ORDER BY pm.created_date ASC
+                    SELECT DISTINCT created_date
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date IS NOT NULL
+                    ORDER BY created_date ASC
                 """, (project_id,))
             else:
                 # No project filter - use all photos globally
@@ -2428,13 +2426,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date LIKE ? || '-%'
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
                 """, (project_id, y))
             else:
                 # No project filter - count all photos globally
@@ -2460,13 +2458,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date LIKE ? || '-%'
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
                 """, (project_id, ym))
             else:
                 # No project filter - count all photos globally
@@ -2488,13 +2486,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date = ?
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date = ?
                 """, (project_id, day_yyyymmdd))
             else:
                 # No project filter - count all photos globally
@@ -3308,27 +3306,30 @@ class ReferenceDB:
             project_id: Filter count to only photos from this project.
                        If None, counts all photos (backward compatibility).
 
-        Uses recursive CTE for performance. Corrected to use photo_metadata table.
+        Uses recursive CTE for performance. Schema v3.2.0 uses direct project_id column.
+
+        Performance: Uses compound index idx_photo_metadata_project_folder for fast filtering.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter count by project_id
-                # Only count photos that belong to this project
+                # PERFORMANCE: Use direct project_id column (no JOIN to project_images needed)
+                # Schema v3.2.0 has project_id directly in photo_metadata and photo_folders
                 cur.execute("""
                     WITH RECURSIVE subfolders(id) AS (
-                        SELECT id FROM photo_folders WHERE id = ?
+                        SELECT id FROM photo_folders
+                        WHERE id = ? AND project_id = ?
                         UNION ALL
                         SELECT f.id
                         FROM photo_folders f
                         JOIN subfolders s ON f.parent_id = s.id
+                        WHERE f.project_id = ?
                     )
-                    SELECT COUNT(DISTINCT pm.path)
+                    SELECT COUNT(*)
                     FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
                     WHERE pm.folder_id IN (SELECT id FROM subfolders)
-                      AND pi.project_id = ?
-                """, (folder_id, project_id))
+                      AND pm.project_id = ?
+                """, (folder_id, project_id, project_id, project_id))
             else:
                 # No filter - count all photos (backward compatibility)
                 cur.execute("""
@@ -3344,6 +3345,68 @@ class ReferenceDB:
                 """, (folder_id,))
             row = cur.fetchone()
             return row[0] if row else 0
+
+    def get_folder_counts_batch(self, project_id: int) -> dict[int, int]:
+        """
+        Get photo counts for ALL folders in ONE query (fixes N+1 problem).
+
+        This is dramatically faster than calling get_image_count_recursive() for each folder.
+        Used by sidebar folder tree to display counts efficiently.
+
+        Args:
+            project_id: Project ID to count photos for
+
+        Returns:
+            dict mapping folder_id -> photo_count (including subfolders)
+
+        Performance:
+            Before: N+1 queries (1 to get folders + 1 per folder for count)
+            After: 1 query (get all counts at once)
+
+        Example:
+            counts = db.get_folder_counts_batch(project_id=1)
+            # counts = {1: 150, 2: 75, 3: 0, ...}
+
+        Note: Uses compound index idx_photo_metadata_project_folder for optimal performance.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # OPTIMIZATION: Get counts for ALL folders at once using recursive CTE
+            # This replaces N individual queries with ONE query
+            cur.execute("""
+                WITH RECURSIVE folder_tree AS (
+                    -- Start with all folders in this project
+                    SELECT id, parent_id, id as root_id
+                    FROM photo_folders
+                    WHERE project_id = ?
+
+                    UNION ALL
+
+                    -- Recursively include child folders, remembering the root ancestor
+                    SELECT f.id, f.parent_id, ft.root_id
+                    FROM photo_folders f
+                    JOIN folder_tree ft ON f.parent_id = ft.id
+                    WHERE f.project_id = ?
+                )
+                SELECT
+                    ft.root_id as folder_id,
+                    COUNT(pm.id) as photo_count
+                FROM folder_tree ft
+                LEFT JOIN photo_metadata pm
+                    ON pm.folder_id = ft.id
+                    AND pm.project_id = ?
+                GROUP BY ft.root_id
+            """, (project_id, project_id, project_id))
+
+            # Convert to dict: folder_id -> count
+            counts = {}
+            for row in cur.fetchall():
+                folder_id = row[0]
+                photo_count = row[1] or 0
+                counts[folder_id] = photo_count
+
+            return counts
 
 
 # --- Maintenance / Diagnostics ------------------------------------------------

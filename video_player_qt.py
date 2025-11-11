@@ -248,11 +248,9 @@ class VideoPlayerPanel(QWidget):
             print(f"[VideoPlayer] Video file not found: {video_path}")
             return
 
-        # BUG FIX #4: Stop and clear previous video before loading new one
-        # This prevents resource leaks when loading multiple videos
-        if self.player.playbackState() != QMediaPlayer.StoppedState:
-            self.player.stop()
-        self.update_timer.stop()
+        # BUG #4 FIX: Stop previous playback and release resources before loading new video
+        self.player.stop()
+        self.player.setSource(QUrl())  # Clear previous source to release file handles
 
         self.current_video_path = video_path
         self.current_metadata = metadata
@@ -371,16 +369,8 @@ class VideoPlayerPanel(QWidget):
         # BUG FIX #4: Properly release all media resources
         self.player.stop()
         self.update_timer.stop()
-
-        # Clear media source to release file handles
-        self.player.setSource(QUrl())
-
-        # Reset state
-        self.current_video_path = None
-        self.current_video_id = None
-        self.current_metadata = None
-        self.current_project_id = None  # BUG FIX #5
-
+        # BUG #4 FIX: Release media resources to prevent memory leak
+        self.player.setSource(QUrl())  # Clear source to release file handles
         self.closed.emit()
 
     def _format_time(self, milliseconds):
@@ -429,10 +419,8 @@ class VideoPlayerPanel(QWidget):
         # BUG FIX #4: Properly release all media resources on widget close
         self.player.stop()
         self.update_timer.stop()
-
-        # Clear media source to release file handles
-        self.player.setSource(QUrl())
-
+        # BUG #4 FIX: Release media resources to prevent memory leak
+        self.player.setSource(QUrl())  # Clear source to release file handles
         super().closeEvent(event)
     # ========================================================================
     # INFO PANEL METHODS

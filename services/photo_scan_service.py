@@ -226,7 +226,13 @@ class PhotoScanService:
 
         try:
             # Step 1: Discover all media files (photos + videos)
-            ignore_set = ignore_folders or self.DEFAULT_IGNORE_FOLDERS
+            # Priority: explicit parameter > settings > platform-specific defaults
+            if ignore_folders is not None:
+                ignore_set = ignore_folders
+            else:
+                # Check settings for custom exclusions
+                ignore_set = self._get_ignore_folders_from_settings()
+
             all_files = self._discover_files(root_path, ignore_set)
             all_videos = self._discover_videos(root_path, ignore_set)
 
@@ -402,6 +408,35 @@ class PhotoScanService:
                     video_files.append(Path(dirpath) / filename)
 
         return video_files
+
+    def _get_ignore_folders_from_settings(self) -> Set[str]:
+        """
+        Get ignore folders from settings, with fallback to platform-specific defaults.
+
+        Returns:
+            Set of folder names to ignore during scanning
+
+        Priority:
+            1. Custom exclusions from settings (if non-empty)
+            2. Platform-specific defaults (DEFAULT_IGNORE_FOLDERS)
+        """
+        try:
+            from settings_manager_qt import SettingsManager
+            settings = SettingsManager()
+            custom_exclusions = settings.get("scan_exclude_folders", [])
+
+            if custom_exclusions:
+                # User has configured custom exclusions - use them
+                logger.info(f"Using custom scan exclusions from settings: {len(custom_exclusions)} folders")
+                return set(custom_exclusions)
+            else:
+                # No custom exclusions - use platform-specific defaults
+                logger.debug(f"Using platform-specific default exclusions ({platform.system()})")
+                return self.DEFAULT_IGNORE_FOLDERS
+        except Exception as e:
+            logger.warning(f"Could not load scan exclusions from settings: {e}")
+            logger.debug("Falling back to platform-specific default exclusions")
+            return self.DEFAULT_IGNORE_FOLDERS
 
     def _load_existing_metadata(self) -> Dict[str, str]:
         """

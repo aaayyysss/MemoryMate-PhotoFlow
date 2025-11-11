@@ -23,6 +23,11 @@ DEFAULT_SETTINGS = {
     "cache_auto_cleanup": True,  # 👈 added new default
     "ffprobe_path": "",  # Custom path to ffprobe executable (empty = use system PATH)
 
+    # Scan exclusions (folders to skip during photo scanning)
+    # Empty list = use platform-specific defaults from PhotoScanService
+    # Non-empty list = override defaults with custom exclusions
+    "scan_exclude_folders": [],  # Example: ["node_modules", ".git", "my_private_folder"]
+
 }
 
 

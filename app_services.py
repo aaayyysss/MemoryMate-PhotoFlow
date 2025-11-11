@@ -20,8 +20,6 @@ from PySide6.QtCore import QSize, Qt, Signal, QObject
 from reference_db import ReferenceDB
 from services import get_thumbnail_service
 
-DB_PATH = "photo_app.db"
-
 # Image file extensions
 SUPPORTED_EXT = {
     # JPEG family

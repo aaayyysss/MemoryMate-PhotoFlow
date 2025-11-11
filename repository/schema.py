@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "3.2.0"
+SCHEMA_VERSION = "3.3.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -41,6 +41,9 @@ VALUES ('3.1.0', 'Added project_id to tags table for proper tag isolation betwee
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES ('3.2.0', 'Added complete video infrastructure (video_metadata, project_videos, video_tags)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.3.0', 'Added compound indexes for query optimization (project_id + folder/date patterns)');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -326,6 +329,15 @@ CREATE INDEX IF NOT EXISTS idx_project_videos_path ON project_videos(video_path)
 
 CREATE INDEX IF NOT EXISTS idx_video_tags_video ON video_tags(video_id);
 CREATE INDEX IF NOT EXISTS idx_video_tags_tag ON video_tags(tag_id);
+
+-- Compound indexes for performance (v3.3.0: Query optimization)
+-- These indexes optimize common filtering patterns by project + another column
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_folder ON photo_metadata(project_id, folder_id);
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_date ON photo_metadata(project_id, created_year, created_date);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_folder ON video_metadata(project_id, folder_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_date ON video_metadata(project_id, created_year, created_date);
+CREATE INDEX IF NOT EXISTS idx_project_images_project_branch ON project_images(project_id, branch_key, image_path);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project_parent ON photo_folders(project_id, parent_id);
 """
 
 
@@ -424,6 +436,13 @@ def get_expected_indexes() -> list[str]:
         "idx_project_videos_path",
         "idx_video_tags_video",
         "idx_video_tags_tag",
+        # Compound indexes (v3.3.0)
+        "idx_photo_metadata_project_folder",
+        "idx_photo_metadata_project_date",
+        "idx_video_metadata_project_folder",
+        "idx_video_metadata_project_date",
+        "idx_project_images_project_branch",
+        "idx_photo_folders_project_parent",
     ]
 
 

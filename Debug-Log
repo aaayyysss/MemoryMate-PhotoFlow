@@ -2,70 +2,16 @@ I also tried to run the bundled tests to see what actually breaks. Below is an a
 
 I’ll group it so you can fix them in order.
 
-1. Hard/Actual Breakages I Saw
-1.1 test_date_branches.py runs on import and kills the process
-
-File: MemoryMate-PhotoFlow-main/test_date_branches.py
-
-This script immediately connects to reference_data.db, doesn’t find the table, prints an error, and does sys.exit(1).
-
-When I ran pytest from the project root, this file was picked up and the whole run died because it’s not wrapped in if __name__ == "__main__":.
-
-Why it’s a bug: any tool/test runner that discovers files named test_*.py will try to import it. Importing it currently executes it and exits.
-
-Fix:
-
-if __name__ == "__main__":
-    # existing script body
-
-
-Optionally move it into a scripts/ folder so pytest won’t see it.
-
-1.2 Tests can’t be collected because of missing GUI deps
-
-When I ran the tests under tests/, collection failed because services/__init__.py pulls in Qt/PySide6 things (like the thumbnail service) right at import time, and PySide6 isn’t installed in this environment.
-
-Why it matters: the “pure business logic” tests (tests/test_metadata_service.py, tests/test_photo_scan_service.py, tests/test_repositories.py) should be runnable without a GUI stack. Right now they aren’t, because importing services cascades into Qt imports.
-
-Minimal fix:
-Make the GUI/Qt stuff optional in services/__init__.py:
-
-# services/__init__.py
-try:
-    from .thumbnail_service import (
-        ThumbnailService,
-        LRUCache,
-        get_thumbnail_service,
-        install_qt_message_handler,
-        PIL_PREFERRED_FORMATS,
-    )
-    _QT_AVAILABLE = True
-except Exception:
-    _QT_AVAILABLE = False
-
-
-…and only export those names when Qt is available. That lets tests import the service layer in CI/headless environments.
-
-2. Inconsistencies Around the Database
-
+1. Inconsistencies Around the Database
 I found three different “ideas” of what the database is called:
-
 reference_db.py → uses DB_FILE = "reference_data.db"
-
 the repository layer (repository/base_repository.py) → default path is also "reference_data.db" (good)
-
 but app_services.py defines DB_PATH = "photo_app.db" and then doesn’t actually use it anywhere meaningful
-
 Why it’s a bug-ish thing: having “photo_app.db” defined but not used is confusing, and it’s easy to accidentally write code later that connects to the wrong file and you end up with two SQLite files side by side.
-
 Fix choices:
-
 EITHER delete the unused constant in app_services.py:
-
 # app_services.py
 # DB_PATH = "photo_app.db"  # ← remove this, source of confusion
-
-
 OR, if "photo_app.db" was the new name, make all entry points (the repository DatabaseConnection and ReferenceDB) build the same absolute path to that file.
 
 Right now it’s just inconsistent, so I’d clean it.

@@ -43,7 +43,7 @@
 #  Store a hash or last_modified so we can incrementally update later.
 
 from splash_qt import SplashScreen, StartupWorker
-import os, traceback, time as _time, logging
+import os, platform, traceback, time as _time, logging
 from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
@@ -146,6 +146,27 @@ def _clamp_pct(v):
     except Exception:
         return 0
 
+
+def _get_default_ignore_folders():
+    """
+    Get platform-specific default ignore folders for scanning.
+    Returns a list of folder names to skip during repository scans.
+    """
+    common = ["__pycache__", "node_modules", ".git", ".svn", ".hg",
+              "venv", ".venv", "env", ".env"]
+
+    if platform.system() == "Windows":
+        return common + [
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        ]
+    elif platform.system() == "Darwin":  # macOS
+        return common + ["Library", ".Trash", "Caches", "Logs",
+                        "Application Support"]
+    else:  # Linux and others
+        return common + [".cache", ".local/share/Trash", "tmp"]
 
 
 # ---------------------------
@@ -765,12 +786,8 @@ class PreferencesDialog(QDialog):
         ignore_layout = QVBoxLayout(ignore_group)
         self.txt_ignore_folders = QTextEdit()
         self.txt_ignore_folders.setPlaceholderText("One folder name per line (case-sensitive)...")
-        current_ignore = settings.get("ignore_folders", [
-            "AppData", "Program Files", "Program Files (x86)", "Windows",
-            "$Recycle.Bin", "System Volume Information", "__pycache__",
-            "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-            "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
-        ])
+        # Use platform-specific defaults
+        current_ignore = settings.get("ignore_folders", _get_default_ignore_folders())
         self.txt_ignore_folders.setText("\n".join(current_ignore))
         ignore_layout.addWidget(self.txt_ignore_folders)
         layout.addWidget(ignore_group)

@@ -3,6 +3,7 @@
 # Photo scanning service - Uses MetadataService for extraction
 
 import os
+import platform
 import time
 from pathlib import Path
 from typing import Optional, List, Tuple, Callable, Dict, Any, Set
@@ -55,6 +56,12 @@ class PhotoScanService:
     - Advanced EXIF parsing (use MetadataService)
     - Thumbnail generation (use ThumbnailService)
     - Face detection (separate service)
+
+    Metadata Extraction Approach:
+    - Uses MetadataService.extract_basic_metadata() for ALL photos (BUG FIX #8)
+    - This avoids hangs from corrupted/malformed images
+    - created_ts/created_date/created_year are computed inline from date_taken
+    - Consistent across entire service - do not mix with extract_metadata()
     """
 
     # Supported image extensions
@@ -114,13 +121,30 @@ class PhotoScanService:
     # Combined: all supported media files (photos + videos)
     SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
 
-    # Default ignore patterns
-    DEFAULT_IGNORE_FOLDERS = {
-        "AppData", "Program Files", "Program Files (x86)", "Windows",
-        "$Recycle.Bin", "System Volume Information", "__pycache__",
-        "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-        "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
+    # Default ignore patterns (OS-specific to avoid irrelevant exclusions)
+    # Common folders to ignore across all platforms
+    _COMMON_IGNORE_FOLDERS = {
+        "__pycache__", "node_modules", ".git", ".svn", ".hg",
+        "venv", ".venv", "env", ".env"
     }
+
+    # Platform-specific ignore folders
+    if platform.system() == "Windows":
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        }
+    elif platform.system() == "Darwin":  # macOS
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "Library", ".Trash", "Caches", "Logs",
+            "Application Support"
+        }
+    else:  # Linux and others
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            ".cache", ".local/share/Trash", "tmp"
+        }
 
     def __init__(self,
                  photo_repo: Optional[PhotoRepository] = None,
@@ -137,8 +161,10 @@ class PhotoScanService:
             folder_repo: Folder repository (creates default if None)
             project_repo: Project repository (creates default if None)
             metadata_service: Metadata extraction service (creates default if None)
-            batch_size: Number of photos to batch before writing
-            stat_timeout: Timeout for os.stat calls (seconds)
+            batch_size: Number of photos to batch before writing (default: 200)
+                       NOTE: Could be made configurable via SettingsManager in the future
+            stat_timeout: Timeout for os.stat calls in seconds (default: 3.0)
+                         NOTE: Could be made configurable via SettingsManager in the future
         """
         self.photo_repo = photo_repo or PhotoRepository()
         self.folder_repo = folder_repo or FolderRepository()

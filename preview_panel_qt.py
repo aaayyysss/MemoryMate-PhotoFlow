@@ -565,6 +565,11 @@ class LightboxDialog(QDialog):
         # Connect signals for video playback
         self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
         self.media_player.errorOccurred.connect(self._on_video_error)
+        self.media_player.positionChanged.connect(self._on_video_position_changed)
+        self.media_player.durationChanged.connect(self._on_video_duration_changed)
+
+        # Video position update timer
+        self._video_duration = 0
 
         # Track current media type
         self._current_media_type = "photo"  # "photo" or "video"
@@ -1696,6 +1701,11 @@ class LightboxDialog(QDialog):
             else:
                 self.setWindowTitle(f"📹 {filename}")
 
+            # Update info label for video
+            if hasattr(self, 'info_label'):
+                file_size = os.path.getsize(path) / (1024 * 1024)  # MB
+                self.info_label.setText(f"🎬 Video   💾 {file_size:.1f} MB")
+
             # Auto-play video
             self.media_player.play()
             print(f"[LightboxDialog] Video playback started")
@@ -1790,6 +1800,47 @@ class LightboxDialog(QDialog):
             "Video Playback Error",
             f"Failed to play video:\n{error_string}\n\nError code: {error}"
         )
+
+    def _on_video_position_changed(self, position):
+        """Update video position display (Apple/Google-style)."""
+        if not self._is_video or not hasattr(self, 'video_position_label'):
+            return
+
+        # Format: "1:23 / 5:45"
+        current = self._format_time(position)
+        total = self._format_time(self._video_duration)
+        self.video_position_label.setText(f"{current} / {total}")
+
+    def _on_video_duration_changed(self, duration):
+        """Store video duration when loaded."""
+        self._video_duration = duration
+        print(f"[LightboxDialog] Video duration: {self._format_time(duration)}")
+
+    def _format_time(self, milliseconds):
+        """Format milliseconds to M:SS or H:MM:SS."""
+        if milliseconds <= 0:
+            return "0:00"
+
+        seconds = int(milliseconds / 1000)
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        secs = seconds % 60
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+        else:
+            return f"{minutes}:{secs:02d}"
+
+    def keyPressEvent(self, event):
+        """Handle keyboard shortcuts - Apple/Google Photos style."""
+        # Space bar: Play/Pause video
+        if event.key() == Qt.Key_Space and self._is_video:
+            self._toggle_video_playback()
+            event.accept()
+            return
+
+        # Call parent implementation for other keys (arrow navigation, etc.)
+        super().keyPressEvent(event)
 
     def _pil_to_qpixmap(self, pil_img):
         """Convert a Pillow Image (RGBA) to QPixmap safely."""
@@ -1986,16 +2037,24 @@ class LightboxDialog(QDialog):
         self._current_index = max(0, min(start_index, len(self._image_list) - 1))
         if self._image_list:
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # FIX: Use unified loader for videos and photos
 
     def _update_titles_and_meta(self):
         base = os.path.basename(self._path) if self._path else ""
-        self.setWindowTitle(f"Photo Viewer – {base}")
+
+        # Update title based on media type
+        if self._is_video:
+            self.setWindowTitle(f"📹 {base}")
+        else:
+            self.setWindowTitle(f"Photo Viewer – {base}")
+
         if hasattr(self, "title_label"):
             self.title_label.setText(base)
         if hasattr(self, "lbl_edit_title"):
             self.lbl_edit_title.setText(base)
-        if hasattr(self, "canvas") and self.canvas._pixmap:
+
+        # Only update info for photos (videos don't have pixmaps)
+        if not self._is_video and hasattr(self, "canvas") and self.canvas._pixmap:
             self._update_info(self.canvas._pixmap)
         if hasattr(self, "_meta_panel") and self._meta_panel.isVisible():
             meta_dict = self._parse_metadata_to_dict(self._get_metadata_text())
@@ -2220,7 +2279,15 @@ class LightboxDialog(QDialog):
             subprocess.run(["explorer", "/select,", os.path.normpath(self._path)])
 
     def closeEvent(self, ev):
+        """Clean up resources when closing - professional resource management."""
         self._preload_stop = True
+
+        # Stop video playback and release media player resources
+        if hasattr(self, 'media_player') and self._is_video:
+            self.media_player.stop()
+            self.media_player.setSource(QUrl())  # Release file handle
+            print("[LightboxDialog] Video playback stopped and resources released")
+
         super().closeEvent(ev)
 
     # -------------------------------

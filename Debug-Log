@@ -121,25 +121,3 @@ services/photo_scan_service.py — a lot of defensive code (timeouts, skip syste
 services/thumbnail_service.py — contains the install_qt_message_handler the app uses; looks fine.
 
 So the biggest immediate bugs are the import-time script that exits, and the service package pulling in GUI stuff unconditionally.
-
-7. Summary/Checklist for You
-
-Guard the root script
-
- Add if __name__ == "__main__": to test_date_branches.py
-
-Make service imports headless-safe
-
- Wrap Qt-related imports in services/__init__.py in a try/except ImportError
-
- Only export thumbnail/Qt helpers when PySide6 is present
-
-Unify DB name
-
- Remove/align DB_PATH = "photo_app.db" in app_services.py
-
- Make sure everything uses one SQLite file, probably reference_data.db
-
-Script hygiene
-
- For any other root-level “run me once” scripts, add if __name__ == "__main__":

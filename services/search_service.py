@@ -404,15 +404,13 @@ class SearchService:
         if not tags_all and not tags_any:
             return paths
 
-        # This requires querying the tags table
-        # For now, we'll use the ReferenceDB method
-        # TODO: Move this to TagRepository when it's created
-        from reference_db import ReferenceDB
-        db = ReferenceDB()
+        # Use TagService for tag filtering (replaced ReferenceDB usage)
+        from .tag_service import get_tag_service
+        tag_service = get_tag_service()
 
         filtered_paths = []
         for path in paths:
-            photo_tags = db.get_tags_for_photo(path)
+            photo_tags = tag_service.get_tags_for_path(path)
 
             # Check tags_all (AND logic)
             if tags_all:
@@ -484,10 +482,10 @@ class SearchService:
             )
             suggestions["folders"] = [f.get('name', '') for f in folders if f.get('name')]
 
-            # Tag suggestions
-            from reference_db import ReferenceDB
-            db = ReferenceDB()
-            all_tags = db.get_all_tags()
+            # Tag suggestions (using TagService instead of ReferenceDB)
+            from .tag_service import get_tag_service
+            tag_service = get_tag_service()
+            all_tags = tag_service.get_all_tags()
             matching_tags = [tag for tag in all_tags if query.lower() in tag.lower()]
             suggestions["tags"] = matching_tags[:limit]
 

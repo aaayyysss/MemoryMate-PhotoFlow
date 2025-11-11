@@ -121,7 +121,10 @@ class PhotoRepository(BaseRepository):
                width: Optional[int] = None,
                height: Optional[int] = None,
                date_taken: Optional[str] = None,
-               tags: Optional[str] = None) -> int:
+               tags: Optional[str] = None,
+               created_ts: Optional[int] = None,
+               created_date: Optional[str] = None,
+               created_year: Optional[int] = None) -> int:
         """
         Insert or update photo metadata for a project.
 
@@ -135,6 +138,9 @@ class PhotoRepository(BaseRepository):
             height: Image height in pixels
             date_taken: EXIF date taken
             tags: Comma-separated tags
+            created_ts: Unix timestamp for date hierarchy (BUG FIX #7)
+            created_date: YYYY-MM-DD format for date queries (BUG FIX #7)
+            created_year: Year for date grouping (BUG FIX #7)
 
         Returns:
             Photo ID (newly inserted or existing)
@@ -146,10 +152,12 @@ class PhotoRepository(BaseRepository):
 
         now = time.strftime("%Y-%m-%d %H:%M:%S")
 
+        # BUG FIX #7: Include created_ts, created_date, created_year for date hierarchy queries
         sql = """
             INSERT INTO photo_metadata
-                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at,
+                 created_ts, created_date, created_year)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(path, project_id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 size_kb = excluded.size_kb,
@@ -158,12 +166,16 @@ class PhotoRepository(BaseRepository):
                 height = excluded.height,
                 date_taken = excluded.date_taken,
                 tags = excluded.tags,
-                updated_at = excluded.updated_at
+                updated_at = excluded.updated_at,
+                created_ts = excluded.created_ts,
+                created_date = excluded.created_date,
+                created_year = excluded.created_year
         """
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute(sql, (normalized_path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, now))
+            cur.execute(sql, (normalized_path, folder_id, project_id, size_kb, modified, width, height,
+                            date_taken, tags, now, created_ts, created_date, created_year))
             conn.commit()
 
             # Get the ID of the inserted/updated row
@@ -179,7 +191,8 @@ class PhotoRepository(BaseRepository):
         Bulk insert or update multiple photos for a project.
 
         Args:
-            rows: List of tuples: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            rows: List of tuples: (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+                                   created_ts, created_date, created_year)
             project_id: Project ID
 
         Returns:
@@ -194,20 +207,25 @@ class PhotoRepository(BaseRepository):
         # Normalize paths and add project_id + updated_at timestamp to each row
         rows_normalized = []
         for row in rows:
-            # Unpack: (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            # BUG FIX #7: Unpack with created_* fields
+            # (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+            #  created_ts, created_date, created_year)
             path = row[0]
             normalized_path = self._normalize_path(path)
             # Rebuild tuple with normalized path and project_id
-            # New order: (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
-            normalized_row = (normalized_path, row[1], project_id) + row[2:] + (now,)
+            # New order: (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags,
+            #             updated_at, created_ts, created_date, created_year)
+            normalized_row = (normalized_path, row[1], project_id) + row[2:8] + (now,) + row[8:]
             rows_normalized.append(normalized_row)
 
         rows_with_timestamp = rows_normalized
 
+        # BUG FIX #7: Include created_ts, created_date, created_year in INSERT
         sql = """
             INSERT INTO photo_metadata
-                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, updated_at,
+                 created_ts, created_date, created_year)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(path, project_id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 size_kb = excluded.size_kb,
@@ -216,7 +234,10 @@ class PhotoRepository(BaseRepository):
                 height = excluded.height,
                 date_taken = excluded.date_taken,
                 tags = excluded.tags,
-                updated_at = excluded.updated_at
+                updated_at = excluded.updated_at,
+                created_ts = excluded.created_ts,
+                created_date = excluded.created_date,
+                created_year = excluded.created_year
         """
 
         with self.connection() as conn:

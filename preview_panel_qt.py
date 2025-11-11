@@ -1209,15 +1209,49 @@ class LightboxDialog(QDialog):
         self.zoom_combo.editTextChanged.connect(self._on_zoom_combo_changed)
         self.zoom_combo.activated.connect(lambda _: self._on_zoom_combo_changed())
 
-        # Video playback controls
+        # === PHASE 1: Professional Video Controls ===
+
+        # Video playback button
         self.btn_play_pause = QPushButton("▶ Play")
         self.btn_play_pause.setStyleSheet(self._button_style())
         self.btn_play_pause.clicked.connect(self._toggle_video_playback)
-        self.btn_play_pause.hide()  # Hidden by default
+        self.btn_play_pause.setFixedWidth(80)
+        self.btn_play_pause.hide()
 
+        # Video timeline slider (for seeking)
+        self.video_timeline_slider = QSlider(Qt.Horizontal)
+        self.video_timeline_slider.setRange(0, 1000)  # 0-1000 for smooth seeking
+        self.video_timeline_slider.setValue(0)
+        self.video_timeline_slider.setFixedWidth(300)
+        self.video_timeline_slider.setToolTip("Seek through video")
+        self.video_timeline_slider.sliderMoved.connect(self._on_timeline_slider_moved)
+        self.video_timeline_slider.sliderPressed.connect(self._on_timeline_slider_pressed)
+        self.video_timeline_slider.sliderReleased.connect(self._on_timeline_slider_released)
+        self.video_timeline_slider.hide()
+
+        # Video time label
         self.video_position_label = QLabel("0:00 / 0:00")
         self.video_position_label.setStyleSheet("color:#000;font-size:12px;")
-        self.video_position_label.hide()  # Hidden by default
+        self.video_position_label.setMinimumWidth(90)
+        self.video_position_label.hide()
+
+        # Volume mute button
+        self.btn_mute = QToolButton()
+        self.btn_mute.setText("🔊")
+        self.btn_mute.setToolTip("Mute/Unmute (M)")
+        self.btn_mute.setCheckable(True)
+        self.btn_mute.clicked.connect(self._toggle_mute)
+        self.btn_mute.setStyleSheet(self._button_style())
+        self.btn_mute.hide()
+
+        # Volume slider
+        self.video_volume_slider = QSlider(Qt.Horizontal)
+        self.video_volume_slider.setRange(0, 100)
+        self.video_volume_slider.setValue(100)  # Default 100%
+        self.video_volume_slider.setFixedWidth(80)
+        self.video_volume_slider.setToolTip("Volume")
+        self.video_volume_slider.valueChanged.connect(self._on_volume_changed)
+        self.video_volume_slider.hide()
 
         # Common info controls
         self.info_label = QLabel()
@@ -1237,9 +1271,12 @@ class LightboxDialog(QDialog):
         h.addWidget(self.btn_zoom_plus)
         h.addWidget(self.zoom_combo)
 
-        # Add video controls
+        # Add video controls (Apple/Google Photos style layout)
         h.addWidget(self.btn_play_pause)
+        h.addWidget(self.video_timeline_slider)
         h.addWidget(self.video_position_label)
+        h.addWidget(self.btn_mute)
+        h.addWidget(self.video_volume_slider)
 
         h.addStretch(1)
         h.addWidget(self.info_label, 0)
@@ -1757,11 +1794,17 @@ class LightboxDialog(QDialog):
         if hasattr(self, 'zoom_combo'):
             self.zoom_combo.setVisible(is_photo)
 
-        # Bottom bar video controls (video-only)
+        # Bottom bar video controls (video-only) - PHASE 1 ENHANCED
         if hasattr(self, 'btn_play_pause'):
             self.btn_play_pause.setVisible(is_video)
+        if hasattr(self, 'video_timeline_slider'):
+            self.video_timeline_slider.setVisible(is_video)
         if hasattr(self, 'video_position_label'):
             self.video_position_label.setVisible(is_video)
+        if hasattr(self, 'btn_mute'):
+            self.btn_mute.setVisible(is_video)
+        if hasattr(self, 'video_volume_slider'):
+            self.video_volume_slider.setVisible(is_video)
 
     def _toggle_video_playback(self):
         """Toggle video play/pause."""
@@ -1802,19 +1845,100 @@ class LightboxDialog(QDialog):
         )
 
     def _on_video_position_changed(self, position):
-        """Update video position display (Apple/Google-style)."""
-        if not self._is_video or not hasattr(self, 'video_position_label'):
+        """Update video position display and timeline slider (Apple/Google-style)."""
+        if not self._is_video:
             return
 
-        # Format: "1:23 / 5:45"
-        current = self._format_time(position)
-        total = self._format_time(self._video_duration)
-        self.video_position_label.setText(f"{current} / {total}")
+        # Update time label
+        if hasattr(self, 'video_position_label'):
+            current = self._format_time(position)
+            total = self._format_time(self._video_duration)
+            self.video_position_label.setText(f"{current} / {total}")
+
+        # Update timeline slider position (only if not being dragged by user)
+        if hasattr(self, 'video_timeline_slider') and not getattr(self, '_timeline_seeking', False):
+            if self._video_duration > 0:
+                # Map position to slider range (0-1000)
+                slider_position = int((position / self._video_duration) * 1000)
+                self.video_timeline_slider.blockSignals(True)
+                self.video_timeline_slider.setValue(slider_position)
+                self.video_timeline_slider.blockSignals(False)
 
     def _on_video_duration_changed(self, duration):
         """Store video duration when loaded."""
         self._video_duration = duration
         print(f"[LightboxDialog] Video duration: {self._format_time(duration)}")
+
+    # === PHASE 1: Timeline Slider (Seeking) Functionality ===
+
+    def _on_timeline_slider_pressed(self):
+        """User started dragging timeline slider."""
+        self._timeline_seeking = True
+        print("[LightboxDialog] Timeline seeking started")
+
+    def _on_timeline_slider_moved(self, value):
+        """User is dragging timeline slider - show preview time."""
+        if not self._is_video or self._video_duration <= 0:
+            return
+
+        # Calculate target position in milliseconds
+        target_position = int((value / 1000.0) * self._video_duration)
+
+        # Update time label to show where we'll seek to
+        if hasattr(self, 'video_position_label'):
+            current = self._format_time(target_position)
+            total = self._format_time(self._video_duration)
+            self.video_position_label.setText(f"{current} / {total}")
+
+    def _on_timeline_slider_released(self):
+        """User released timeline slider - perform seek."""
+        self._timeline_seeking = False
+
+        if not self._is_video or not hasattr(self, 'media_player'):
+            return
+
+        # Get slider value (0-1000) and map to video position
+        slider_value = self.video_timeline_slider.value()
+        target_position = int((slider_value / 1000.0) * self._video_duration)
+
+        # Seek to target position
+        self.media_player.setPosition(target_position)
+        print(f"[LightboxDialog] Seeked to {self._format_time(target_position)}")
+
+    # === PHASE 1: Volume Control Functionality ===
+
+    def _toggle_mute(self):
+        """Toggle audio mute (Apple/Google Photos style)."""
+        if not hasattr(self, 'audio_output'):
+            return
+
+        is_muted = self.audio_output.isMuted()
+        self.audio_output.setMuted(not is_muted)
+
+        # Update button icon
+        if hasattr(self, 'btn_mute'):
+            self.btn_mute.setText("🔇" if not is_muted else "🔊")
+            self.btn_mute.setChecked(not is_muted)
+
+        print(f"[LightboxDialog] Audio {'muted' if not is_muted else 'unmuted'}")
+
+    def _on_volume_changed(self, value):
+        """Update video volume (0-100)."""
+        if not hasattr(self, 'audio_output'):
+            return
+
+        # Convert 0-100 to 0.0-1.0
+        volume = value / 100.0
+        self.audio_output.setVolume(volume)
+
+        # Auto-unmute if volume increased from 0
+        if value > 0 and self.audio_output.isMuted():
+            self.audio_output.setMuted(False)
+            if hasattr(self, 'btn_mute'):
+                self.btn_mute.setText("🔊")
+                self.btn_mute.setChecked(False)
+
+        print(f"[LightboxDialog] Volume set to {value}%")
 
     def _format_time(self, milliseconds):
         """Format milliseconds to M:SS or H:MM:SS."""
@@ -1833,11 +1957,49 @@ class LightboxDialog(QDialog):
 
     def keyPressEvent(self, event):
         """Handle keyboard shortcuts - Apple/Google Photos style."""
-        # Space bar: Play/Pause video
-        if event.key() == Qt.Key_Space and self._is_video:
-            self._toggle_video_playback()
-            event.accept()
-            return
+        # PHASE 1: Enhanced keyboard shortcuts for video
+        if self._is_video:
+            # Space bar: Play/Pause
+            if event.key() == Qt.Key_Space:
+                self._toggle_video_playback()
+                event.accept()
+                return
+
+            # M key: Mute/Unmute
+            if event.key() == Qt.Key_M:
+                self._toggle_mute()
+                event.accept()
+                return
+
+            # Up/Down arrows: Volume control
+            if event.key() == Qt.Key_Up and hasattr(self, 'video_volume_slider'):
+                current = self.video_volume_slider.value()
+                self.video_volume_slider.setValue(min(100, current + 5))
+                event.accept()
+                return
+
+            if event.key() == Qt.Key_Down and hasattr(self, 'video_volume_slider'):
+                current = self.video_volume_slider.value()
+                self.video_volume_slider.setValue(max(0, current - 5))
+                event.accept()
+                return
+
+            # Left/Right arrows: Seek (when not navigating between media)
+            if event.key() == Qt.Key_Left and event.modifiers() == Qt.ShiftModifier:
+                # Shift+Left: Seek backward 5 seconds
+                if hasattr(self, 'media_player'):
+                    pos = self.media_player.position()
+                    self.media_player.setPosition(max(0, pos - 5000))
+                    event.accept()
+                    return
+
+            if event.key() == Qt.Key_Right and event.modifiers() == Qt.ShiftModifier:
+                # Shift+Right: Seek forward 5 seconds
+                if hasattr(self, 'media_player'):
+                    pos = self.media_player.position()
+                    self.media_player.setPosition(min(self._video_duration, pos + 5000))
+                    event.accept()
+                    return
 
         # Call parent implementation for other keys (arrow navigation, etc.)
         super().keyPressEvent(event)

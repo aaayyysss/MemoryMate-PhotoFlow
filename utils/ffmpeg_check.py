@@ -21,10 +21,17 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
     """
     # First, try to get custom path from settings
     ffprobe_custom_path = None
+    ffmpeg_custom_path = None
     try:
         from settings_manager_qt import SettingsManager
         settings = SettingsManager()
         ffprobe_custom_path = settings.get_setting('ffprobe_path', '')
+        # If custom ffprobe path is set, derive ffmpeg path from same directory
+        if ffprobe_custom_path:
+            ffprobe_dir = Path(ffprobe_custom_path).parent
+            potential_ffmpeg = ffprobe_dir / 'ffmpeg.exe' if os.name == 'nt' else ffprobe_dir / 'ffmpeg'
+            if potential_ffmpeg.exists():
+                ffmpeg_custom_path = str(potential_ffmpeg)
     except Exception:
         pass
 
@@ -33,7 +40,7 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
     if ffprobe_custom_path:
         ffprobe_available = _check_command(ffprobe_custom_path)
         if ffprobe_available:
-            message = f"✅ FFprobe detected at custom path: {ffprobe_custom_path}"
+            message = f"✅ FFprobe detected (custom path: {ffprobe_custom_path})"
         else:
             # Custom path configured but not working - notify user
             message = f"⚠️ FFprobe configured at '{ffprobe_custom_path}' but not working\n"
@@ -43,23 +50,35 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
         # No custom path, check system PATH
         ffprobe_available = _check_command('ffprobe')
 
-    # Check ffmpeg in system PATH
-    ffmpeg_available = _check_command('ffmpeg')
+    # Check ffmpeg (custom path first, then system PATH)
+    ffmpeg_available = False
+    if ffmpeg_custom_path:
+        ffmpeg_available = _check_command(ffmpeg_custom_path)
+        if not ffmpeg_available:
+            # Try system PATH as fallback
+            ffmpeg_available = _check_command('ffmpeg')
+    else:
+        # No custom path, check system PATH
+        ffmpeg_available = _check_command('ffmpeg')
 
     if ffprobe_available and ffmpeg_available:
-        if ffprobe_custom_path:
-            message = f"✅ FFmpeg and FFprobe detected (custom ffprobe: {ffprobe_custom_path})"
+        if ffprobe_custom_path and ffmpeg_custom_path:
+            message = f"✅ FFmpeg and FFprobe detected (custom path: {Path(ffprobe_custom_path).parent})"
+        elif ffprobe_custom_path:
+            message = f"✅ FFmpeg and FFprobe detected (custom ffprobe: {ffprobe_custom_path}, system ffmpeg)"
         else:
             message = "✅ FFmpeg and FFprobe detected - full video support enabled"
         return True, True, message
 
     elif ffprobe_available and not ffmpeg_available:
-        # FFprobe works, but ffmpeg missing (not critical - we mainly need ffprobe)
+        # FFprobe works, but ffmpeg missing (affects thumbnail generation)
         if ffprobe_custom_path:
+            ffprobe_dir = Path(ffprobe_custom_path).parent
             message = f"✅ FFprobe detected (custom path: {ffprobe_custom_path})\n"
-            message += "⚠️ FFmpeg not found in PATH (optional - needed for thumbnails)"
+            message += f"⚠️ FFmpeg not found at {ffprobe_dir} or in system PATH\n"
+            message += f"💡 Tip: Install ffmpeg.exe in {ffprobe_dir} for video thumbnails"
         else:
-            message = "✅ FFprobe detected\n⚠️ FFmpeg not found (optional - needed for thumbnails)"
+            message = "✅ FFprobe detected\n⚠️ FFmpeg not found (needed for video thumbnails)"
         return True, True, message  # Return success since ffprobe is the critical component
 
     elif not ffprobe_available and not ffmpeg_available:

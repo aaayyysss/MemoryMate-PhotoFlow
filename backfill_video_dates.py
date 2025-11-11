@@ -138,20 +138,23 @@ def backfill_video_dates(project_id: int = None, dry_run: bool = False, progress
             date_taken = metadata['date_taken']
             update_fields = {'date_taken': date_taken}
 
-            # Calculate created_date and created_year
+            # Calculate created_date, created_year, and created_ts (matching VideoMetadataWorker logic)
             try:
+                from datetime import datetime
                 created_date = date_taken.split(' ')[0]  # Extract YYYY-MM-DD
-                created_year = int(created_date.split('-')[0])
+                dt = datetime.strptime(created_date, '%Y-%m-%d')
+                update_fields['created_ts'] = int(dt.timestamp())
                 update_fields['created_date'] = created_date
-                update_fields['created_year'] = created_year
+                update_fields['created_year'] = dt.year
             except Exception as e:
-                logger.warning(f"  ! Could not extract created_date/year: {e}")
+                logger.warning(f"  ! Could not extract created_date/year/ts: {e}")
 
             # Show what will be updated
             logger.info(f"  → date_taken: {date_taken}")
             if 'created_date' in update_fields:
                 logger.info(f"  → created_date: {update_fields['created_date']}")
                 logger.info(f"  → created_year: {update_fields['created_year']}")
+                logger.info(f"  → created_ts: {update_fields['created_ts']}")
 
             # Update database (unless dry run)
             if not dry_run:

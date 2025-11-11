@@ -1,0 +1,175 @@
+what to do best with the preview pan to integrate it correctly with the videos, so to show the thumbnails of the video and the user can preview the video and see the meta data in similar way of the photos, or what do you recommend?
+
+Great question! Based on the current architecture and user experience best practices, I recommend Option B: Unified Preview Panel. Let me explain why and how to implement it.
+
+🎯 Recommended Approach: Unified Media Preview Panel
+Concept: Transform the preview panel into a unified media viewer that handles both photos AND videos seamlessly.
+
+Why This is Best:
+✅ Consistent User Experience
+
+Single interaction pattern for all media types
+Same navigation (prev/next arrows)
+Same metadata panel behavior
+Users learn one interface, not two
+✅ Better Workflow
+
+Navigate through mixed collections (photos + videos)
+Quick preview without context switching
+Metadata always in the same place
+✅ Already 90% Done!
+
+Metadata panel already supports videos (Phase 3)
+Video detection logic exists (_is_video_file())
+Just need to embed video player widget
+🏗️ Implementation Plan
+Architecture Changes
+Current State:
+
+Grid Click → is_photo? → LightboxDialog (image viewer)
+          → is_video? → VideoPlayerPanel (separate window)
+Proposed State:
+
+Grid Click → MediaPreviewDialog (unified)
+          → is_photo? → Show image canvas + edit tools
+          → is_video? → Show embedded video player + playback controls
+          → Both: Same metadata panel, same navigation
+📋 Step-by-Step Implementation
+Phase 1: Embed Video Player in Preview Panel (High Priority)
+Goal: Show videos in the preview panel instead of separate window
+
+Changes to preview_panel_qt.py:
+
+class LightboxDialog(QDialog):  # Consider renaming to MediaPreviewDialog
+    
+    def __init__(self, ...):
+        # ... existing code ...
+        
+        # Add video player widget (hidden by default)
+        self.video_widget = None
+        self.video_player = None
+        self._is_current_video = False
+        
+    def _build_viewer_page(self):
+        # ... existing code ...
+        
+        # Add video container (stacked with image canvas)
+        self.media_stack = QStackedWidget()
+        self.media_stack.addWidget(self.canvas)  # Index 0: Image canvas
+        
+        # Video player widget (index 1)
+        from video_player_qt import VideoPlayerPanel
+        self.video_widget = VideoPlayerPanel(self)
+        self.video_widget.closed.connect(self._on_video_closed)
+        self.media_stack.addWidget(self.video_widget)  # Index 1: Video
+        
+        # Use media_stack instead of canvas directly
+        viewer_vbox.addWidget(self.media_stack)
+        
+    def _load_image(self, path: str):
+        # Detect media type
+        if self._is_video_file(path):
+            self._load_video(path)
+        else:
+            self._load_photo(path)
+    
+    def _load_photo(self, path: str):
+        """Load photo (existing logic)"""
+        self._is_current_video = False
+        self.media_stack.setCurrentIndex(0)  # Show image canvas
+        
+        # Hide video-specific controls
+        self.btn_edit.setVisible(True)  # Show edit button
+        self.btn_rotate.setVisible(True)  # Show rotate button
+        
+        # ... existing photo loading code ...
+    
+    def _load_video(self, path: str):
+        """Load video in embedded player"""
+        self._is_current_video = True
+        self.media_stack.setCurrentIndex(1)  # Show video player
+        
+        # Hide photo-specific controls
+        self.btn_edit.setVisible(False)  # Hide edit button
+        self.btn_rotate.setVisible(False)  # Hide rotate for videos
+        
+        # Load video metadata
+        project_id = getattr(self.parent(), "project_id", None)
+        video_meta = None
+        if project_id:
+            video_meta = self.db.get_video_by_path(path, project_id)
+        
+        # Load video in player widget
+        self.video_widget.load_video(path, video_meta, project_id)
+        
+        # Update info label with video resolution
+        if video_meta:
+            w, h = video_meta.get('width', 0), video_meta.get('height', 0)
+            duration = video_meta.get('duration_seconds', 0)
+            self.info_label.setText(f"🎬 {w}×{h}   ⏱️ {self._format_duration(duration)}")
+Key Points:
+
+✅ Use QStackedWidget to switch between image canvas and video player
+✅ Detect file type and show appropriate widget
+✅ Hide irrelevant controls (edit for videos, playback for photos)
+✅ Metadata panel already works for both (Phase 3)
+Phase 2: Unified Navigation (Medium Priority)
+Goal: Prev/Next arrows work for mixed media collections
+
+def _go_next(self):
+    if self._image_list and self._current_index < len(self._image_list) - 1:
+        self._current_index += 1
+        self._path = self._image_list[self._current_index]
+        
+        # Stop current video if playing
+        if self._is_current_video and self.video_widget:
+            self.video_widget.player.stop()
+        
+        # Load next media (auto-detects type)
+        self._load_image(self._path)
+        self._update_titles_and_meta()
+        self._refresh_metadata_panel()
+Key Points:
+
+✅ Navigation works seamlessly between photos and videos
+✅ Stop video playback when navigating away
+✅ Same arrows for all media types
+Phase 3: Smart Thumbnail Preview (Nice to Have)
+Goal: Show video thumbnail while player loads
+
+def _load_video(self, path: str):
+    """Load video with thumbnail preview while loading"""
+    
+    # Show thumbnail first (instant feedback)
+    thumb_path = self._get_video_thumbnail(path)
+    if thumb_path and os.path.exists(thumb_path):
+        # Show thumbnail on image canvas temporarily
+        self.media_stack.setCurrentIndex(0)
+        temp_img = Image.open(thumb_path)
+        qimg = ImageQt.ImageQt(temp_img)
+        pm = QPixmap.fromImage(qimg)
+        self.canvas.set_pixmap(pm)
+        
+        # Add "Loading video..." overlay
+        self.info_label.setText("🎬 Loading video...")
+    
+    # Switch to video player after brief delay
+    QTimer.singleShot(100, lambda: self._load_video_player(path))
+🎨 UI/UX Improvements
+Adaptive Controls
+# Bottom bar adapts based on media type
+if self._is_current_video:
+    # Video controls visible
+    self.video_controls_bar.setVisible(True)
+    self.zoom_controls.setVisible(False)
+    self.btn_edit.setVisible(False)
+    self.btn_rotate.setVisible(False)
+else:
+    # Photo controls visible
+    self.video_controls_bar.setVisible(False)
+    self.zoom_controls.setVisible(True)
+    self.btn_edit.setVisible(True)
+    self.btn_rotate.setVisible(True)
+Unified Titlebar
+📄 vacation_video.mp4 (3 of 127)    # Video
+📄 sunset_photo.jpg (4 of 127)      # Photo

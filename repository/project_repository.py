@@ -52,6 +52,10 @@ class ProjectRepository(BaseRepository):
 
         Returns:
             List of projects with additional metadata
+
+        Performance: Uses direct project_id from photo_metadata (schema v3.2.0+)
+        instead of JOINing to project_images. Uses compound index
+        idx_photo_metadata_project for fast counting.
         """
         sql = """
             SELECT
@@ -61,10 +65,10 @@ class ProjectRepository(BaseRepository):
                 p.mode,
                 p.created_at,
                 COUNT(DISTINCT b.id) as branch_count,
-                COUNT(DISTINCT pi.id) as image_count
+                COUNT(DISTINCT pm.id) as image_count
             FROM projects p
             LEFT JOIN branches b ON b.project_id = p.id
-            LEFT JOIN project_images pi ON pi.project_id = p.id
+            LEFT JOIN photo_metadata pm ON pm.project_id = p.id
             GROUP BY p.id
             ORDER BY p.created_at DESC
         """

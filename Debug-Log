@@ -1,17 +1,1 @@
-I also tried to run the bundled tests to see what actually breaks. Below is an audit-style report of things that look wrong, brittle, or inconsistent, plus what to change.
-
-I’ll group it so you can fix them in order.
-
-1. Inconsistencies Around the Database
-I found three different “ideas” of what the database is called:
-reference_db.py → uses DB_FILE = "reference_data.db"
-the repository layer (repository/base_repository.py) → default path is also "reference_data.db" (good)
-but app_services.py defines DB_PATH = "photo_app.db" and then doesn’t actually use it anywhere meaningful
-Why it’s a bug-ish thing: having “photo_app.db” defined but not used is confusing, and it’s easy to accidentally write code later that connects to the wrong file and you end up with two SQLite files side by side.
-Fix choices:
-EITHER delete the unused constant in app_services.py:
-# app_services.py
-# DB_PATH = "photo_app.db"  # ← remove this, source of confusion
-OR, if "photo_app.db" was the new name, make all entry points (the repository DatabaseConnection and ReferenceDB) build the same absolute path to that file.
-
-Right now it’s just inconsistent, so I’d clean it.
+I also tried 

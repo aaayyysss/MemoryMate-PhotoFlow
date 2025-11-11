@@ -33,10 +33,12 @@ from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageQt,ExifTags
 from datetime import datetime
 
 from PySide6.QtCore import (
-    Qt, QParallelAnimationGroup, QPropertyAnimation, 
-    QEasingCurve, QEvent, QTimer, QSize, 
+    Qt, QParallelAnimationGroup, QPropertyAnimation,
+    QEasingCurve, QEvent, QTimer, QSize,
     Signal, QRect, QPoint, QPointF, QUrl
 )
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 
 
 from PySide6.QtWidgets import (
@@ -526,15 +528,60 @@ class LightboxDialog(QDialog):
         hbox.setContentsMargins(0,0,0,0)
         hbox.setSpacing(0)
 
+        # === PHASE 1: Content stack for unified photo/video display ===
+        self.content_stack = QStackedWidget()
+
+        # Page 0: Image canvas (for photos)
         self.canvas = LightboxDialog._ImageCanvas(self)
         self.canvas.setCursor(Qt.OpenHandCursor)
         # keep viewer & editor zoom controls synchronized whenever canvas scale changes
         try:
             self.canvas.scaleChanged.connect(self._on_canvas_scale_changed)
         except Exception:
-            pass        
-        
-        hbox.addWidget(self.canvas, 1)
+            pass
+        self.content_stack.addWidget(self.canvas)  # index 0
+
+        # Page 1: Video player (for videos)
+        video_container = QWidget()
+        video_layout = QVBoxLayout(video_container)
+        video_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.video_widget = QVideoWidget()
+        self.video_widget.setMinimumHeight(300)
+        video_layout.addWidget(self.video_widget)
+
+        # PHASE 3: Loading overlay for video (child of video_container for proper positioning)
+        self.video_loading_label = QLabel(video_container)
+        self.video_loading_label.setText("⏳ Loading video...")
+        self.video_loading_label.setAlignment(Qt.AlignCenter)
+        self.video_loading_label.setStyleSheet("""
+            QLabel {
+                background-color: rgba(0, 0, 0, 180);
+                color: white;
+                font-size: 18px;
+                padding: 20px;
+                border-radius: 10px;
+            }
+        """)
+        self.video_loading_label.hide()
+        # Position will be set in resizeEvent
+
+        self.content_stack.addWidget(video_container)  # index 1
+
+        # Initialize media player for video playback
+        self.media_player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
+        self.media_player.setVideoOutput(self.video_widget)
+
+        # Connect signals to hide loading overlay when video starts
+        self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
+
+        # Track current media type
+        self._current_media_type = "photo"  # "photo" or "video"
+        self._is_video = False
+
+        hbox.addWidget(self.content_stack, 1)
 
         # install event filter for canvas (if needed downstream)
         self.canvas.installEventFilter(self)
@@ -559,9 +606,9 @@ class LightboxDialog(QDialog):
         # right editor panel (created but not added until edit mode)
         self.right_editor_panel = self._build_right_editor_panel()
 
-        # load image file
+        # load media file (photo or video)
         if image_path:
-            self._load_image(image_path)
+            self._load_media(image_path)
 
         self._init_navigation_arrows()
         self.stack.setCurrentIndex(0)
@@ -1596,8 +1643,57 @@ class LightboxDialog(QDialog):
     # -------------------------------
     # Load image and store original PIL image
     # -------------------------------
-    def _load_image(self, path: str):
+    def _load_media(self, path: str):
+        """Unified media loader: detects media type and routes to appropriate handler."""
+        if self._is_video_file(path):
+            self._is_video = True
+            self._current_media_type = "video"
+            self._load_video(path)
+            self._update_controls_visibility()
+        else:
+            self._is_video = False
+            self._current_media_type = "photo"
+            self._load_photo(path)
+            self._update_controls_visibility()
+
+    def _load_video(self, path: str):
+        """Load and display video in the unified preview panel."""
         try:
+            # Switch to video widget page
+            self.content_stack.setCurrentIndex(1)
+
+            # PHASE 3: Show loading overlay
+            if hasattr(self, 'video_loading_label'):
+                self.video_loading_label.show()
+                self.video_loading_label.raise_()  # Bring to front
+
+            # Load video
+            self.media_player.setSource(QUrl.fromLocalFile(path))
+
+            # Update window title
+            filename = os.path.basename(path)
+            if self._image_list:
+                idx_display = self._current_index + 1
+                total = len(self._image_list)
+                self.setWindowTitle(f"📹 {filename} ({idx_display} of {total})")
+            else:
+                self.setWindowTitle(f"📹 {filename}")
+
+            # Auto-play video (loading overlay will hide when playback starts)
+            self.media_player.play()
+
+        except Exception as e:
+            # Hide loading overlay on error
+            if hasattr(self, 'video_loading_label'):
+                self.video_loading_label.hide()
+            QMessageBox.warning(self, "Load failed", f"Couldn't load video: {e}")
+
+    def _load_photo(self, path: str):
+        """Load and display photo (renamed from _load_image for consistency)."""
+        try:
+            # Switch to image canvas page
+            self.content_stack.setCurrentIndex(0)
+
             img = Image.open(path)
             img = ImageOps.exif_transpose(img).convert("RGBA")
             self._orig_pil = img.copy()
@@ -1607,6 +1703,36 @@ class LightboxDialog(QDialog):
             self._update_info(pm)
         except Exception as e:
             QMessageBox.warning(self, "Load failed", f"Couldn't load image: {e}")
+
+    def _load_image(self, path: str):
+        """Legacy wrapper for backwards compatibility - calls _load_photo()."""
+        self._load_photo(path)
+
+    def _update_controls_visibility(self):
+        """Hide/show controls based on current media type."""
+        is_photo = self._current_media_type == "photo"
+
+        # Top bar controls (photo-only)
+        if hasattr(self, 'btn_edit'):
+            self.btn_edit.setVisible(is_photo)
+        if hasattr(self, 'btn_rotate'):
+            self.btn_rotate.setVisible(is_photo)
+
+        # Bottom bar zoom controls (photo-only)
+        if hasattr(self, 'btn_zoom_minus'):
+            self.btn_zoom_minus.setVisible(is_photo)
+        if hasattr(self, 'zoom_slider'):
+            self.zoom_slider.setVisible(is_photo)
+        if hasattr(self, 'btn_zoom_plus'):
+            self.btn_zoom_plus.setVisible(is_photo)
+        if hasattr(self, 'zoom_combo'):
+            self.zoom_combo.setVisible(is_photo)
+
+    def _on_video_playback_state_changed(self, state):
+        """PHASE 3: Hide loading overlay when video starts playing."""
+        if state == QMediaPlayer.PlaybackState.PlayingState:
+            if hasattr(self, 'video_loading_label'):
+                self.video_loading_label.hide()
 
     def _pil_to_qpixmap(self, pil_img):
         """Convert a Pillow Image (RGBA) to QPixmap safely."""
@@ -1833,20 +1959,36 @@ class LightboxDialog(QDialog):
 
     def _go_prev(self):
         if self._image_list and self._current_index > 0:
+            # PHASE 2: Stop video playback when navigating
+            if self._is_video and hasattr(self, 'media_player'):
+                self.media_player.stop()
+
             self._current_index -= 1
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # Unified loader handles both photos and videos
             self._update_titles_and_meta()
-            self._fit_to_window()
+
+            # Only fit to window for photos
+            if self._current_media_type == "photo":
+                self._fit_to_window()
+
             self._refresh_metadata_panel()
 
     def _go_next(self):
         if self._image_list and self._current_index < len(self._image_list) - 1:
+            # PHASE 2: Stop video playback when navigating
+            if self._is_video and hasattr(self, 'media_player'):
+                self.media_player.stop()
+
             self._current_index += 1
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # Unified loader handles both photos and videos
             self._update_titles_and_meta()
-            self._fit_to_window()
+
+            # Only fit to window for photos
+            if self._current_media_type == "photo":
+                self._fit_to_window()
+
             self._refresh_metadata_panel()
     
     # ---------- Utilities ----------

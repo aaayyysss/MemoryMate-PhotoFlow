@@ -3898,15 +3898,12 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 🎬 Phase 4.4: Check if this is a video file
-        if is_video_file(path):
-            print(f"[VideoPlayer] Opening video: {path}")
-            self._open_video_player(path)
-            return
+        # 🎬 UNIFIED MEDIA PREVIEW: LightboxDialog now handles both photos AND videos
+        # Previous separate video player logic has been replaced with unified viewer
 
-        # 3) Launch dialog for photos
+        # 3) Launch unified media preview dialog (supports both photos and videos)
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev
+        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev navigation
         dlg.resize(900, 700)
         dlg.exec()
 

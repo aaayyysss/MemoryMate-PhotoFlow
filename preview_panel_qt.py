@@ -545,26 +545,14 @@ class LightboxDialog(QDialog):
         video_container = QWidget()
         video_layout = QVBoxLayout(video_container)
         video_layout.setContentsMargins(0, 0, 0, 0)
+        video_layout.setSpacing(0)
 
+        # Video widget with proper sizing
         self.video_widget = QVideoWidget()
         self.video_widget.setMinimumHeight(300)
+        self.video_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.video_widget.setStyleSheet("background-color: black;")
         video_layout.addWidget(self.video_widget)
-
-        # PHASE 3: Loading overlay for video (child of video_container for proper positioning)
-        self.video_loading_label = QLabel(video_container)
-        self.video_loading_label.setText("⏳ Loading video...")
-        self.video_loading_label.setAlignment(Qt.AlignCenter)
-        self.video_loading_label.setStyleSheet("""
-            QLabel {
-                background-color: rgba(0, 0, 0, 180);
-                color: white;
-                font-size: 18px;
-                padding: 20px;
-                border-radius: 10px;
-            }
-        """)
-        self.video_loading_label.hide()
-        # Position will be set in resizeEvent
 
         self.content_stack.addWidget(video_container)  # index 1
 
@@ -574,8 +562,9 @@ class LightboxDialog(QDialog):
         self.media_player.setAudioOutput(self.audio_output)
         self.media_player.setVideoOutput(self.video_widget)
 
-        # Connect signals to hide loading overlay when video starts
+        # Connect signals for video playback
         self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
+        self.media_player.errorOccurred.connect(self._on_video_error)
 
         # Track current media type
         self._current_media_type = "photo"  # "photo" or "video"
@@ -1187,6 +1176,7 @@ class LightboxDialog(QDialog):
         h.setContentsMargins(0,0,0,0)
         h.setSpacing(6)
 
+        # Photo zoom controls
         self.btn_zoom_minus = QToolButton()
         self.btn_zoom_minus.setText("−")
         self.btn_zoom_minus.setStyleSheet("color:#000; font-size:16px; font-weight:bold;")
@@ -1214,6 +1204,17 @@ class LightboxDialog(QDialog):
         self.zoom_combo.editTextChanged.connect(self._on_zoom_combo_changed)
         self.zoom_combo.activated.connect(lambda _: self._on_zoom_combo_changed())
 
+        # Video playback controls
+        self.btn_play_pause = QPushButton("▶ Play")
+        self.btn_play_pause.setStyleSheet(self._button_style())
+        self.btn_play_pause.clicked.connect(self._toggle_video_playback)
+        self.btn_play_pause.hide()  # Hidden by default
+
+        self.video_position_label = QLabel("0:00 / 0:00")
+        self.video_position_label.setStyleSheet("color:#000;font-size:12px;")
+        self.video_position_label.hide()  # Hidden by default
+
+        # Common info controls
         self.info_label = QLabel()
         self.info_label.setStyleSheet("color:#000;font-size:12px;")
         self.info_label.setText("🖼️ — × —   💾 — KB")
@@ -1225,10 +1226,16 @@ class LightboxDialog(QDialog):
         self.btn_info_toggle.toggled.connect(self._toggle_metadata_panel)
         self.btn_info_toggle.setStyleSheet(self._button_style())
 
+        # Add photo controls
         h.addWidget(self.btn_zoom_minus)
         h.addWidget(self.zoom_slider)
         h.addWidget(self.btn_zoom_plus)
         h.addWidget(self.zoom_combo)
+
+        # Add video controls
+        h.addWidget(self.btn_play_pause)
+        h.addWidget(self.video_position_label)
+
         h.addStretch(1)
         h.addWidget(self.info_label, 0)
         h.addWidget(self.btn_info_toggle, 0)
@@ -1659,16 +1666,26 @@ class LightboxDialog(QDialog):
     def _load_video(self, path: str):
         """Load and display video in the unified preview panel."""
         try:
+            print(f"[LightboxDialog] Loading video: {path}")
+
+            # Ensure path is valid
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Video file not found: {path}")
+
             # Switch to video widget page
             self.content_stack.setCurrentIndex(1)
+            print(f"[LightboxDialog] Switched to video widget (index 1)")
 
-            # PHASE 3: Show loading overlay
-            if hasattr(self, 'video_loading_label'):
-                self.video_loading_label.show()
-                self.video_loading_label.raise_()  # Bring to front
+            # Stop any currently playing video
+            if hasattr(self, 'media_player'):
+                self.media_player.stop()
 
-            # Load video
-            self.media_player.setSource(QUrl.fromLocalFile(path))
+            # Load video - use absolute path
+            abs_path = os.path.abspath(path)
+            video_url = QUrl.fromLocalFile(abs_path)
+            print(f"[LightboxDialog] Video URL: {video_url.toString()}")
+
+            self.media_player.setSource(video_url)
 
             # Update window title
             filename = os.path.basename(path)
@@ -1679,13 +1696,14 @@ class LightboxDialog(QDialog):
             else:
                 self.setWindowTitle(f"📹 {filename}")
 
-            # Auto-play video (loading overlay will hide when playback starts)
+            # Auto-play video
             self.media_player.play()
+            print(f"[LightboxDialog] Video playback started")
 
         except Exception as e:
-            # Hide loading overlay on error
-            if hasattr(self, 'video_loading_label'):
-                self.video_loading_label.hide()
+            print(f"[LightboxDialog] Error loading video: {e}")
+            import traceback
+            traceback.print_exc()
             QMessageBox.warning(self, "Load failed", f"Couldn't load video: {e}")
 
     def _load_photo(self, path: str):
@@ -1711,6 +1729,7 @@ class LightboxDialog(QDialog):
     def _update_controls_visibility(self):
         """Hide/show controls based on current media type."""
         is_photo = self._current_media_type == "photo"
+        is_video = self._current_media_type == "video"
 
         # Top bar controls (photo-only)
         if hasattr(self, 'btn_edit'):
@@ -1728,11 +1747,49 @@ class LightboxDialog(QDialog):
         if hasattr(self, 'zoom_combo'):
             self.zoom_combo.setVisible(is_photo)
 
+        # Bottom bar video controls (video-only)
+        if hasattr(self, 'btn_play_pause'):
+            self.btn_play_pause.setVisible(is_video)
+        if hasattr(self, 'video_position_label'):
+            self.video_position_label.setVisible(is_video)
+
+    def _toggle_video_playback(self):
+        """Toggle video play/pause."""
+        if not hasattr(self, 'media_player'):
+            return
+
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.media_player.pause()
+            self.btn_play_pause.setText("▶ Play")
+        else:
+            self.media_player.play()
+            self.btn_play_pause.setText("⏸ Pause")
+
     def _on_video_playback_state_changed(self, state):
-        """PHASE 3: Hide loading overlay when video starts playing."""
-        if state == QMediaPlayer.PlaybackState.PlayingState:
-            if hasattr(self, 'video_loading_label'):
-                self.video_loading_label.hide()
+        """Handle video playback state changes."""
+        state_names = {
+            QMediaPlayer.PlaybackState.StoppedState: "Stopped",
+            QMediaPlayer.PlaybackState.PlayingState: "Playing",
+            QMediaPlayer.PlaybackState.PausedState: "Paused"
+        }
+        state_name = state_names.get(state, "Unknown")
+        print(f"[LightboxDialog] Video playback state: {state_name}")
+
+        # Update button text based on state
+        if hasattr(self, 'btn_play_pause'):
+            if state == QMediaPlayer.PlaybackState.PlayingState:
+                self.btn_play_pause.setText("⏸ Pause")
+            else:
+                self.btn_play_pause.setText("▶ Play")
+
+    def _on_video_error(self, error, error_string):
+        """Handle media player errors."""
+        print(f"[LightboxDialog] Video error: {error} - {error_string}")
+        QMessageBox.critical(
+            self,
+            "Video Playback Error",
+            f"Failed to play video:\n{error_string}\n\nError code: {error}"
+        )
 
     def _pil_to_qpixmap(self, pil_img):
         """Convert a Pillow Image (RGBA) to QPixmap safely."""

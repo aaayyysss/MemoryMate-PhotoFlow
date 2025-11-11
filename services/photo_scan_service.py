@@ -448,38 +448,55 @@ class PhotoScanService:
         # Step 4: Extract dimensions and EXIF date using MetadataService
         # CRITICAL FIX: Wrap metadata extraction with timeout to prevent hangs
         # PIL/Pillow can hang on corrupted images, malformed TIFF/EXIF, or files with infinite loops
-        # BUG FIX #7: Use full extract_metadata() to get created_* fields for date hierarchy
+        # BUG FIX #8: Use fast extract_basic_metadata() to avoid hangs, compute created_* inline
         width = height = date_taken = None
         created_ts = created_date = created_year = None
         metadata_timeout = 5.0  # 5 seconds per image
 
-        # Always use full metadata extraction to get created_* fields (BUG FIX #7)
-        try:
-            logger.debug(f"[Scan] Processing metadata for: {path_str}")
-            future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
-            metadata = future.result(timeout=metadata_timeout)
-
-            if metadata.success:
-                width = metadata.width
-                height = metadata.height
-                if extract_exif_date:
-                    date_taken = metadata.date_taken
-                # BUG FIX #7: Extract created_* fields for date hierarchy queries
-                created_ts = metadata.created_timestamp
-                created_date = metadata.created_date
-                created_year = metadata.created_year
-
-            logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
-        except FuturesTimeoutError:
-            logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
-            # Continue without dimensions/EXIF - photo will still be indexed
+        if extract_exif_date:
+            # Use fast basic metadata extraction (BUG FIX #8: Reverted from extract_metadata)
             try:
-                future.cancel()
-            except Exception:
-                pass
-        except Exception as e:
-            logger.debug(f"Could not extract image metadata from {path_str}: {e}")
-            # Continue without dimensions/EXIF
+                logger.debug(f"[Scan] Processing metadata for: {path_str}")
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, date_taken = future.result(timeout=metadata_timeout)
+                logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
+            except FuturesTimeoutError:
+                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
+                # Continue without dimensions/EXIF - photo will still be indexed
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
+            except Exception as e:
+                logger.debug(f"Could not extract image metadata from {path_str}: {e}")
+                # Continue without dimensions/EXIF
+        else:
+            # Just get dimensions without EXIF (with timeout)
+            try:
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, _ = future.result(timeout=metadata_timeout)
+            except FuturesTimeoutError:
+                logger.warning(f"Dimension extraction timeout for {path_str} (5s limit)")
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
+            except Exception as e:
+                logger.debug(f"Could not extract dimensions from {path_str}: {e}")
+
+        # BUG FIX #7 + #8: Compute created_* fields from date_taken inline (no heavy extract_metadata call)
+        if date_taken:
+            try:
+                from datetime import datetime
+                # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+                date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
+                dt = datetime.strptime(date_str, '%Y-%m-%d')
+                created_ts = int(dt.timestamp())
+                created_date = date_str  # YYYY-MM-DD
+                created_year = dt.year
+            except (ValueError, AttributeError, IndexError) as e:
+                # If date parsing fails, these fields will remain NULL
+                logger.debug(f"[Scan] Failed to parse date_taken '{date_taken}': {e}")
 
         # Step 5: Ensure folder hierarchy exists
         try:

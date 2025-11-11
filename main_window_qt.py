@@ -3898,19 +3898,50 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 🎬 UNIFIED MEDIA PREVIEW: LightboxDialog now handles both photos AND videos
-        # Previous separate video player logic has been replaced with unified viewer
+        # 🎬 Phase 4.4: Check if this is a video file
+        if is_video_file(path):
+            print(f"[VideoPlayer] Opening video: {path}")
+            # BUG FIX: Filter paths to only include videos for navigation
+            video_paths = [p for p in paths if is_video_file(p)]
+            try:
+                video_idx = video_paths.index(path)
+            except ValueError:
+                # Normalization fallback
+                try:
+                    norm = lambda p: os.path.normcase(os.path.normpath(p))
+                    video_idx = [norm(p) for p in video_paths].index(norm(path))
+                except Exception:
+                    video_idx = 0
+            self._open_video_player(path, video_paths, video_idx)
+            return
 
-        # 3) Launch unified media preview dialog (supports both photos and videos)
+        # 3) Launch dialog for photos - BUG FIX: Filter to photos only
+        photo_paths = [p for p in paths if not is_video_file(p)]
+        try:
+            photo_idx = photo_paths.index(path)
+        except ValueError:
+            # Normalization fallback
+            try:
+                norm = lambda p: os.path.normcase(os.path.normpath(p))
+                photo_idx = [norm(p) for p in photo_paths].index(norm(path))
+            except Exception:
+                photo_idx = 0
+
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev navigation
+        dlg.set_image_list(photo_paths, photo_idx)   # <-- THIS ENABLES next/prev
         dlg.resize(900, 700)
         dlg.exec()
 
-    def _open_video_player(self, video_path: str):
+    def _open_video_player(self, video_path: str, video_list: list = None, start_index: int = 0):
         """
-        Open video player for the given video path.
+        Open video player for the given video path with navigation support.
         🎬 Phase 4.4: Video playback support
+        🎬 Enhanced: Added video list and navigation support
+
+        Args:
+            video_path: Path to the video file
+            video_list: List of video paths for navigation (optional)
+            start_index: Index of current video in the list (optional)
         """
         if not video_path:
             return
@@ -3930,10 +3961,16 @@ class MainWindow(QMainWindow):
         self.grid.hide()
         self.video_player.show()
 
-        # Load and play video
+        # Load and play video with navigation support
         # BUG FIX #5: Pass project_id explicitly to support tagging
         self.video_player.load_video(video_path, metadata, project_id=project_id)
-        print(f"[VideoPlayer] Opened: {video_path}")
+
+        # BUG FIX: Set video list for next/previous navigation
+        if video_list:
+            self.video_player.set_video_list(video_list, start_index)
+            print(f"[VideoPlayer] Opened: {video_path} ({start_index+1}/{len(video_list)})")
+        else:
+            print(f"[VideoPlayer] Opened: {video_path}")
 
     def _on_video_player_closed(self):
         """

@@ -1,0 +1,41 @@
+# Large status and log files
+status_*.txt
+Status-*.txt
+app_log.txt
+*.log
+
+# Large documentation files (can be selectively included when needed)
+*_STATUS.md
+*_SUMMARY.md
+*_REPORT.md
+*_COMPLETE.md
+
+# Build and dependency files
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.tiff
+*.tif
+
+# Git files
+.git/

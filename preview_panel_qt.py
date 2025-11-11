@@ -563,13 +563,18 @@ class LightboxDialog(QDialog):
         self.media_player.setVideoOutput(self.video_widget)
 
         # Connect signals for video playback
-        self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
-        self.media_player.errorOccurred.connect(self._on_video_error)
-        self.media_player.positionChanged.connect(self._on_video_position_changed)
-        self.media_player.durationChanged.connect(self._on_video_duration_changed)
+        try:
+            self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
+            self.media_player.errorOccurred.connect(self._on_video_error)
+            self.media_player.positionChanged.connect(self._on_video_position_changed)
+            self.media_player.durationChanged.connect(self._on_video_duration_changed)
+            print("[LightboxDialog] Video player signals connected successfully")
+        except Exception as e:
+            print(f"[LightboxDialog] WARNING: Failed to connect video signals: {e}")
 
         # Video position update timer
         self._video_duration = 0
+        self._timeline_seeking = False  # Track if user is dragging timeline
 
         # Track current media type
         self._current_media_type = "photo"  # "photo" or "video"
@@ -1224,9 +1229,12 @@ class LightboxDialog(QDialog):
         self.video_timeline_slider.setValue(0)
         self.video_timeline_slider.setFixedWidth(300)
         self.video_timeline_slider.setToolTip("Seek through video")
-        self.video_timeline_slider.sliderMoved.connect(self._on_timeline_slider_moved)
-        self.video_timeline_slider.sliderPressed.connect(self._on_timeline_slider_pressed)
-        self.video_timeline_slider.sliderReleased.connect(self._on_timeline_slider_released)
+        try:
+            self.video_timeline_slider.sliderMoved.connect(self._on_timeline_slider_moved)
+            self.video_timeline_slider.sliderPressed.connect(self._on_timeline_slider_pressed)
+            self.video_timeline_slider.sliderReleased.connect(self._on_timeline_slider_released)
+        except Exception as e:
+            print(f"[LightboxDialog] WARNING: Failed to connect timeline slider signals: {e}")
         self.video_timeline_slider.hide()
 
         # Video time label

@@ -41,6 +41,10 @@ class VideoPlayerPanel(QWidget):
         self.is_seeking = False
         self.info_panel_visible = False
 
+        # Navigation support
+        self._video_list = []
+        self._current_index = 0
+
         self._setup_ui()
         self._setup_player()
         self._setup_connections()
@@ -110,6 +114,23 @@ class VideoPlayerPanel(QWidget):
         self.stop_button.setFixedSize(40, 40)
         self.stop_button.setToolTip("Stop")
         controls_layout.addWidget(self.stop_button)
+
+        controls_layout.addSpacing(20)
+
+        # Navigation buttons (Previous/Next video)
+        self.prev_button = QPushButton()
+        self.prev_button.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
+        self.prev_button.setFixedSize(40, 40)
+        self.prev_button.setToolTip("Previous Video")
+        self.prev_button.setEnabled(False)  # Disabled until video list is set
+        controls_layout.addWidget(self.prev_button)
+
+        self.next_button = QPushButton()
+        self.next_button.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
+        self.next_button.setFixedSize(40, 40)
+        self.next_button.setToolTip("Next Video")
+        self.next_button.setEnabled(False)  # Disabled until video list is set
+        controls_layout.addWidget(self.next_button)
 
         controls_layout.addSpacing(20)
 
@@ -206,6 +227,10 @@ class VideoPlayerPanel(QWidget):
         self.volume_slider.valueChanged.connect(self._on_volume_changed)
         self.info_button.toggled.connect(self._toggle_info_panel)
         self.close_button.clicked.connect(self._close_player)
+
+        # Navigation signals
+        self.prev_button.clicked.connect(self._go_prev)
+        self.next_button.clicked.connect(self._go_next)
 
         # Update timer
         self.update_timer.timeout.connect(self._update_position)
@@ -731,3 +756,86 @@ class VideoPlayerPanel(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to remove tag: {e}")
             print(f"[VideoPlayer] Error removing tag: {e}")
+
+    # === Navigation Methods ===
+
+    def set_video_list(self, video_list: list, start_index: int = 0):
+        """
+        Set the list of videos for navigation.
+
+        Args:
+            video_list: List of video file paths
+            start_index: Index of the current video in the list
+        """
+        self._video_list = list(video_list or [])
+        self._current_index = max(0, min(start_index, len(self._video_list) - 1))
+        self._update_nav_buttons()
+        print(f"[VideoPlayer] Video list set: {len(self._video_list)} videos, starting at index {self._current_index}")
+
+    def _update_nav_buttons(self):
+        """Update the enabled state of prev/next buttons based on current index."""
+        has_list = len(self._video_list) > 0
+
+        # Enable/disable buttons based on position in list
+        self.prev_button.setEnabled(has_list and self._current_index > 0)
+        self.next_button.setEnabled(has_list and self._current_index < len(self._video_list) - 1)
+
+        # Update metadata label to show position in list
+        if has_list and len(self._video_list) > 1:
+            position_text = f"Video {self._current_index + 1}/{len(self._video_list)}"
+            current_text = self.metadata_label.text()
+            # Append position if not already shown
+            if "/" not in current_text or "Video" not in current_text:
+                separator = " | " if current_text and current_text != "No video loaded" else ""
+                self.metadata_label.setText(f"{current_text}{separator}{position_text}")
+
+    def _go_prev(self):
+        """Navigate to the previous video in the list."""
+        if not self._video_list or self._current_index <= 0:
+            return
+
+        self._current_index -= 1
+        video_path = self._video_list[self._current_index]
+        print(f"[VideoPlayer] Loading previous video ({self._current_index + 1}/{len(self._video_list)}): {video_path}")
+
+        # Load the previous video
+        self._load_video_from_list(video_path)
+
+    def _go_next(self):
+        """Navigate to the next video in the list."""
+        if not self._video_list or self._current_index >= len(self._video_list) - 1:
+            return
+
+        self._current_index += 1
+        video_path = self._video_list[self._current_index]
+        print(f"[VideoPlayer] Loading next video ({self._current_index + 1}/{len(self._video_list)}): {video_path}")
+
+        # Load the next video
+        self._load_video_from_list(video_path)
+
+    def _load_video_from_list(self, video_path: str):
+        """
+        Load a video from the navigation list.
+
+        Args:
+            video_path: Path to the video file
+        """
+        if not video_path or not Path(video_path).exists():
+            QMessageBox.warning(self, "Video Not Found", f"Video file not found:\n{video_path}")
+            return
+
+        # Get video metadata from database
+        metadata = None
+        try:
+            from reference_db import ReferenceDB
+            db = ReferenceDB()
+            if self.current_project_id:
+                metadata = db.get_video_by_path(video_path, self.current_project_id)
+        except Exception as e:
+            print(f"[VideoPlayer] Failed to load metadata for {video_path}: {e}")
+
+        # Load the video (reuse existing load_video method)
+        self.load_video(video_path, metadata, project_id=self.current_project_id)
+
+        # Update navigation buttons
+        self._update_nav_buttons()

@@ -29,6 +29,7 @@ class VideoThumbnailService:
         """
         self.logger = logger
         self.thumbnail_dir = Path(thumbnail_dir)
+        self._ffmpeg_path = self._get_ffmpeg_path()
         self._ffmpeg_available = self._check_ffmpeg()
 
         # Create thumbnail directory if it doesn't exist
@@ -37,23 +38,51 @@ class VideoThumbnailService:
         except Exception as e:
             self.logger.error(f"Failed to create thumbnail directory {thumbnail_dir}: {e}")
 
+    def _get_ffmpeg_path(self) -> str:
+        """
+        Get ffmpeg path from settings or default to 'ffmpeg'.
+
+        Checks for custom ffprobe path in settings and looks for ffmpeg in same directory.
+
+        Returns:
+            Path to ffmpeg executable
+        """
+        try:
+            from settings_manager_qt import SettingsManager
+            import os
+            settings = SettingsManager()
+            ffprobe_path = settings.get_setting('ffprobe_path', '')
+            if ffprobe_path:
+                # If custom ffprobe path is set, try to find ffmpeg in same directory
+                ffprobe_dir = Path(ffprobe_path).parent
+                potential_ffmpeg = ffprobe_dir / 'ffmpeg.exe' if os.name == 'nt' else ffprobe_dir / 'ffmpeg'
+                if potential_ffmpeg.exists():
+                    self.logger.info(f"Using ffmpeg from same directory as ffprobe: {potential_ffmpeg}")
+                    return str(potential_ffmpeg)
+        except Exception as e:
+            self.logger.debug(f"Could not load ffmpeg path from settings: {e}")
+        return 'ffmpeg'  # Default to system PATH
+
     def _check_ffmpeg(self) -> bool:
         """
-        Check if ffmpeg is available on the system.
+        Check if ffmpeg is available at the configured path.
 
         Returns:
             True if ffmpeg is available, False otherwise
         """
         try:
             result = subprocess.run(
-                ['ffmpeg', '-version'],
+                [self._ffmpeg_path, '-version'],
                 capture_output=True,
                 text=True,
                 timeout=5
             )
             available = result.returncode == 0
             if available:
-                self.logger.info("ffmpeg detected - video thumbnail generation enabled")
+                if self._ffmpeg_path != 'ffmpeg':
+                    self.logger.info(f"ffmpeg detected at '{self._ffmpeg_path}' - video thumbnail generation enabled")
+                else:
+                    self.logger.info("ffmpeg detected - video thumbnail generation enabled")
             else:
                 self.logger.warning("ffmpeg not available - video thumbnail generation disabled")
             return available
@@ -109,7 +138,7 @@ class VideoThumbnailService:
         try:
             # Use ffmpeg to extract frame
             cmd = [
-                'ffmpeg',
+                self._ffmpeg_path,  # Use configured ffmpeg path
                 '-y',  # Overwrite output file
                 '-ss', str(timestamp),  # Seek to timestamp
                 '-i', video_path,  # Input file

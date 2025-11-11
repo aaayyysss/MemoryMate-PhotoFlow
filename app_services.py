@@ -11,15 +11,14 @@ from queue import Queue
 
 from pathlib import Path
 from typing import Optional
-from reference_db import ReferenceDB
 from PIL import Image, ImageOps, ExifTags
 from io import BytesIO
 
 # NOTE: Qt imports are lazy-loaded in functions that need them
 # This allows app_services to be imported in headless/CLI environments
+# ThumbnailService is also lazy-loaded since it requires Qt
 
 from reference_db import ReferenceDB
-from services import get_thumbnail_service
 
 # Image file extensions
 SUPPORTED_EXT = {
@@ -125,9 +124,8 @@ def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
 
 _db = ReferenceDB()
 
-# Get global thumbnail service (replaces old _thumbnail_cache and disk cache)
-_thumbnail_service = get_thumbnail_service(l1_capacity=500)
-_enable_thumbnail_cache = True  # toggle caching on/off
+# Toggle for thumbnail caching
+_enable_thumbnail_cache = True
 
 
 
@@ -137,7 +135,9 @@ def clear_disk_thumbnail_cache():
     Now delegates to ThumbnailService.clear_all().
     """
     try:
-        _thumbnail_service.clear_all()
+        from services import get_thumbnail_service
+        svc = get_thumbnail_service(l1_capacity=500)
+        svc.clear_all()
         print("[Cache] All thumbnail caches cleared (L1 + L2)")
         return True
     except Exception as e:
@@ -228,14 +228,17 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixm
 
         return placeholder
 
-    # For images, use ThumbnailService
+    # For images, use ThumbnailService (lazy-loaded)
+    from services import get_thumbnail_service
+    svc = get_thumbnail_service(l1_capacity=500)
+
     if not _enable_thumbnail_cache:
         # Caching disabled - generate directly without caching
         # This is rare but supported for debugging
-        return _thumbnail_service._generate_thumbnail(path, height, timeout=5.0)
+        return svc._generate_thumbnail(path, height, timeout=5.0)
 
     # Use ThumbnailService which handles L1 (memory) + L2 (database) caching
-    return _thumbnail_service.get_thumbnail(path, height)
+    return svc.get_thumbnail(path, height)
 
 
 def get_project_images(project_id: int, branch_key: Optional[str]):

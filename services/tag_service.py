@@ -33,6 +33,14 @@ class TagService:
         DatabaseConnection
                 ↓
         SQLite
+
+    Exception Handling Approach:
+    - Most methods return False/None/empty list on errors for UI convenience
+    - All errors are logged with self.logger.error()
+    - This design prioritizes UI usability over error propagation
+    - Future enhancement: Could distinguish between expected errors
+      (e.g., "tag not found") and unexpected errors (e.g., "database crashed")
+      for better CLI/API support by raising custom exceptions
     """
 
     def __init__(self, tag_repository=None, photo_repository=None):

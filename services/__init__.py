@@ -18,13 +18,25 @@ from .metadata_service import (
     ImageMetadata
 )
 
-from .thumbnail_service import (
-    ThumbnailService,
-    LRUCache,
-    get_thumbnail_service,
-    install_qt_message_handler,
-    PIL_PREFERRED_FORMATS
-)
+# Thumbnail service requires Qt - only import if Qt is available
+# This allows services to be imported in headless/CLI environments
+try:
+    from .thumbnail_service import (
+        ThumbnailService,
+        LRUCache,
+        get_thumbnail_service,
+        install_qt_message_handler,
+        PIL_PREFERRED_FORMATS
+    )
+    _THUMBNAIL_SERVICE_AVAILABLE = True
+except ImportError:
+    # Qt not available - thumbnail service cannot be imported
+    ThumbnailService = None
+    LRUCache = None
+    get_thumbnail_service = None
+    install_qt_message_handler = None
+    PIL_PREFERRED_FORMATS = None
+    _THUMBNAIL_SERVICE_AVAILABLE = False
 
 from .photo_deletion_service import (
     PhotoDeletionService,
@@ -54,7 +66,7 @@ __all__ = [
     'MetadataService',
     'ImageMetadata',
 
-    # Thumbnails
+    # Thumbnails (may be None in headless mode)
     'ThumbnailService',
     'LRUCache',
     'get_thumbnail_service',

@@ -24,8 +24,12 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+from schema_check import ensure_schema_ready
 from reference_db import ReferenceDB
 from services.metadata_service import MetadataService
+
+# Ensure database and schema exist before running
+ensure_schema_ready(required_tables=['photo_metadata', 'projects'])
 
 def backfill_created_year(project_id: int = None, dry_run: bool = False):
     """

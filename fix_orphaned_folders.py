@@ -23,7 +23,11 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+from schema_check import ensure_schema_ready
 from reference_db import ReferenceDB
+
+# Ensure database and schema exist before running
+ensure_schema_ready(required_tables=['photo_folders', 'photo_metadata', 'projects'])
 
 def normalize_path(path_str: str) -> str:
     """Normalize path for case-insensitive comparison on Windows."""

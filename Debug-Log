@@ -1,0 +1,486 @@
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.26.01.01-Photo-App\MemoryMate-PhotoFlow-main-01>[Startup] pillow_heif available — HEIC/HEIF support enabled.
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-11 17:42:53,545 [INFO] ================================================================================
+2025-11-11 17:42:53,553 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-11 17:42:53,554 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.26.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\app_log.txt
+2025-11-11 17:42:53,554 [INFO] ================================================================================
+2025-11-11 17:42:53,587 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-01\\thumbnails_cache.db', 'last_updated': '2025-11-11 17:42'}
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-11 17:42:53,810 [INFO] SearchService initialized
+[17:42:53.986] [Tabs] __init__ started
+[17:42:54.005] [Tabs] _build_tabs → building tab widgets
+[17:42:54.010] [Tabs] _on_tab_changed(idx=0)
+[17:42:54.010] [Tabs] _start_timeout idx=0 type=branches
+[17:42:54.010] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:42:54.010] [Tabs]   populated=False, loading=False
+[17:42:54.010] [Tabs]   Starting load for branches
+[17:42:54.010] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:42:54.010] [Tabs] _clear_tab idx=0
+[17:42:54.029] [Tabs] _on_tab_changed → tab_type=branches
+[17:42:54.043] [Tabs] _build_tabs → added 6 tabs
+[17:42:54.046] [Tabs] __init__ completed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[17:42:54.187] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] _build_tree_model() completed
+[Startup] Database schema initialized successfully
+✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
+[17:42:57.223] [Tabs] _finish_branches (stale gen=1) — ignoring
+[17:42:57.226] [Tabs] _on_tab_changed(idx=0)
+[17:42:57.226] [Tabs] _start_timeout idx=0 type=branches
+[17:42:57.226] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:42:57.226] [Tabs]   populated=False, loading=False
+[17:42:57.226] [Tabs]   Starting load for branches
+[17:42:57.226] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:42:57.226] [Tabs] _clear_tab idx=0
+[17:42:57.229] [Tabs] _on_tab_changed → tab_type=branches
+[17:42:57.242] [Tabs] _clear_tab idx=0
+[MainWindow] Set grid.project_id = 1
+[17:43:06.698] [Tabs] refresh_all(force=True) called
+[17:43:06.698] [Tabs] refresh_all: key=branches, idx=0, force=True
+[17:43:06.698] [Tabs] _populate_tab(branches, idx=0, force=True)
+[17:43:06.699] [Tabs]   populated=True, loading=False
+[17:43:06.699] [Tabs]   Force refresh: removing branches from populated set
+[17:43:06.699] [Tabs]   Starting load for branches
+[17:43:06.699] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:43:06.699] [Tabs] _clear_tab idx=0
+[17:43:06.700] [Tabs] refresh_all: key=folders, idx=1, force=True
+[17:43:06.701] [Tabs] _populate_tab(folders, idx=1, force=True)
+[17:43:06.701] [Tabs]   populated=False, loading=False
+[17:43:06.701] [Tabs]   Starting load for folders
+[17:43:06.701] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[17:43:06.701] [Tabs] _clear_tab idx=1
+[17:43:06.702] [Tabs] refresh_all: key=dates, idx=2, force=True
+[17:43:06.703] [Tabs] _populate_tab(dates, idx=2, force=True)
+[17:43:06.703] [Tabs]   populated=False, loading=False
+[17:43:06.703] [Tabs]   Starting load for dates
+[17:43:06.703] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[17:43:06.703] [Tabs] _clear_tab idx=2
+[17:43:06.703] [Tabs] _load_folders → got 0 rows for project_id=1
+[17:43:06.704] [Tabs] refresh_all: key=tags, idx=3, force=True
+[17:43:06.704] [Tabs] _populate_tab(tags, idx=3, force=True)
+[17:43:06.705] [Tabs]   populated=False, loading=False
+[17:43:06.705] [Tabs]   Starting load for tags
+[17:43:06.705] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[17:43:06.705] [Tabs] _clear_tab idx=3
+[17:43:06.707] [Tabs] refresh_all: key=quick, idx=5, force=True
+[17:43:06.707] [Tabs] _populate_tab(quick, idx=5, force=True)
+[17:43:06.707] [Tabs]   populated=False, loading=False
+[17:43:06.707] [Tabs]   Starting load for quick
+[17:43:06.707] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[17:43:06.707] [Tabs] _clear_tab idx=5
+[17:43:06.707] [Tabs] _load_dates → got hierarchy data for project_id=1
+[17:43:06.709] [Tabs] refresh_all(force=True) completed
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[17:43:06.709] [Tabs] _load_tags → got 0 rows for project_id=1
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[Sidebar] Processing pending events before model clear
+[17:43:06.710] [Tabs] _load_quick → got 6 rows
+[17:43:06.711] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[17:43:06.725] [Tabs] _clear_tab idx=1
+[17:43:06.727] [Tabs] _clear_tab idx=2
+[17:43:06.738] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[17:43:06.743] [Tabs] _clear_tab idx=3
+[17:43:06.746] [Tabs] _clear_tab idx=5
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[MainWindow] Switched to project ID: 1
+[Breadcrumb] Switched to project ID: 1
+[MainWindow] Refreshed project list: 1 projects
+[Schema] Database schema initialized successfully
+[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Desktop
+[ScanController] ScanWorker imported successfully
+[ScanController] QThread created
+[ScanController] ScanWorker instance created with project_id=1
+[ScanController] Worker moved to thread
+[ScanController] Signals connected
+[ScanController] Starting scan thread...
+[ScanController] thread.start() called
+[ScanWorkerAdapter] run() method called!
+2025-11-11 17:43:17,712 [INFO] DBWriter timer started in worker thread
+[ScanController] QThread STARTED!
+[ScanWorkerAdapter] folder=C:/Users/suleimaa/Desktop, incremental=True
+2025-11-11 17:43:17,802 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
+[ScanWorkerAdapter] Starting scan...
+2025-11-11 17:43:17,804 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
+2025-11-11 17:43:17,857 [INFO] Discovered 166 candidate image files and 3 video files
+2025-11-11 17:43:21,170 [INFO] Bulk upserted 166 photos for project 1
+2025-11-11 17:43:21,171 [INFO] Processing 3 videos...
+2025-11-11 17:43:21,179 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4 (id=1, status=pending)
+2025-11-11 17:43:21,187 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4 (id=2, status=pending)
+2025-11-11 17:43:21,194 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4 (id=3, status=pending)
+2025-11-11 17:43:21,195 [INFO] Indexed 3 videos (metadata extraction pending)
+2025-11-11 17:43:21,211 [INFO] Launching background workers for 3 videos...
+2025-11-11 17:43:21,212 [INFO] Using ffprobe from settings: C:/ffmpeg/bin/ffprobe.exe
+2025-11-11 17:43:22,289 [INFO] ffprobe detected at 'C:/ffmpeg/bin/ffprobe.exe' - video metadata extraction enabled
+2025-11-11 17:43:22,290 [INFO] Connected metadata finished callback for sidebar refresh
+2025-11-11 17:43:22,290 [INFO] ✓ Video metadata extraction worker started
+2025-11-11 17:43:22,290 [INFO] Using ffmpeg from same directory as ffprobe: C:\ffmpeg\bin\ffmpeg.exe
+2025-11-11 17:43:22,291 [INFO] [VideoMetadataWorker] Starting for project_id=1
+2025-11-11 17:43:22,294 [INFO] [VideoMetadataWorker] Found 3 videos to process
+2025-11-11 17:43:22,350 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4: 76.0s
+2025-11-11 17:43:22,413 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4: 75.9s
+2025-11-11 17:43:22,470 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4: 76.0s
+2025-11-11 17:43:22,470 [INFO] [VideoMetadataWorker] Finished: 3 success, 0 failed
+2025-11-11 17:43:23,355 [INFO] ffmpeg detected at 'C:\ffmpeg\bin\ffmpeg.exe' - video thumbnail generation enabled
+2025-11-11 17:43:23,356 [INFO] ✓ Video thumbnail generation worker started
+2025-11-11 17:43:23,356 [INFO] [VideoThumbnailWorker] Starting for project_id=1
+2025-11-11 17:43:23,356 [INFO] 🎬 Processing 3 videos in background (check logs for progress)
+2025-11-11 17:43:23,358 [INFO] Scan complete: 166 photos indexed, 3 videos indexed, 0 skipped, 0 failed in 5.6s
+2025-11-11 17:43:23,358 [INFO] Scan completed: 166 photos, 3 videos, 45 folders in 5.6s
+[ScanController] scan finished: 45 folders, 166 photos, 3 videos
+2025-11-11 17:43:23,359 [INFO] [VideoThumbnailWorker] Found 3 videos to process
+[ScanController] cleanup after scan
+2025-11-11 17:43:23,491 [INFO] Building date branches...
+2025-11-11 17:43:23,494 [INFO] Building date branches for project_id=1
+[build_date_branches] Using project_id=1
+[build_date_branches] Populating 'all' branch with 166 photos for project 1
+[build_date_branches] Inserted 166/166 photos into 'all' branch
+[build_date_branches] Found 11 unique dates
+[build_date_branches] Date 2024-08-11: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar1.jpeg
+[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-10-07: found 7 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/mietwohnung/1-wohnzimmer.jpeg
+[build_date_branches] Date 2024-10-07: inserted 7/7 into project_images (new)
+[build_date_branches] Date 2024-11-18: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar2.jpeg
+[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-11-29: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya1.jpeg
+[build_date_branches] Date 2024-11-29: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-12-02: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya2.jpeg
+[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-12-16: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/1.jpeg
+[build_date_branches] Date 2024-12-16: inserted 2/2 into project_images (new)
+[build_date_branches] Date 2025-03-07: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/6.jpg
+[build_date_branches] Date 2025-03-07: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-04: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya5.jpeg
+[build_date_branches] Date 2025-07-04: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-06: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya6.jpeg
+[build_date_branches] Date 2025-07-06: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-30: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6850.jpeg
+[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-08-09: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6934.jpeg
+[build_date_branches] Date 2025-08-09: inserted 2/2 into project_images (new)
+[build_date_branches] Total entries processed: 19
+[build_date_branches] project_images table has 185 rows for project 1
+2025-11-11 17:43:23,535 [INFO] Created 19 date branch entries for project 1
+2025-11-11 17:43:23,536 [INFO] Backfilling created_date fields...
+2025-11-11 17:43:23,543 [INFO] Backfilled 4 rows with created_date
+2025-11-11 17:43:23,552 [INFO] Reloading sidebar after date branches built...
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 59 folder counts in batch (performance optimization)
+2025-11-11 17:43:23,592 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4 at .thumb_cache\qouzleh_mitsubtitles-ezgif.com-resize-video_mp4_thumb.jpg
+2025-11-11 17:43:23,646 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=6] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
+[get_images_by_branch] Found 166 photos
+[GRID] Loaded 166 thumbnails.
+[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Queued 57 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
+2025-11-11 17:43:23,942 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4 at .thumb_cache\qouzleh_mitsubtitles_mp4_thumb.jpg
+2025-11-11 17:43:23,967 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+2025-11-11 17:43:24,130 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4 at .thumb_cache\syria-song_mp4_thumb.jpg
+2025-11-11 17:43:24,134 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4
+2025-11-11 17:43:24,136 [INFO] [VideoThumbnailWorker] Finished: 3 success, 0 failed
+python main_qt.py
+[Startup] pillow_heif available — HEIC/HEIF support enabled.
+[ThumbCacheDB] Purged 56 stale thumbnails (> 30 days).
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-11 17:43:36,084 [INFO] ================================================================================
+2025-11-11 17:43:36,086 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-11 17:43:36,086 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.26.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\app_log.txt
+2025-11-11 17:43:36,086 [INFO] ================================================================================
+2025-11-11 17:43:36,123 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 1, 'size_mb': 0.01, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-01\\thumbnails_cache.db', 'last_updated': '2025-11-11 17:42'}
+[ThumbCacheDB] Purged 1 stale thumbnails (> 7 days).
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-11 17:43:36,326 [INFO] SearchService initialized
+[17:43:36.569] [Tabs] __init__ started
+[17:43:36.674] [Tabs] _build_tabs → building tab widgets
+[17:43:36.683] [Tabs] _on_tab_changed(idx=0)
+[17:43:36.690] [Tabs] _start_timeout idx=0 type=branches
+[17:43:36.690] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:43:36.690] [Tabs]   populated=False, loading=False
+[17:43:36.690] [Tabs]   Starting load for branches
+[17:43:36.690] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:43:36.690] [Tabs] _clear_tab idx=0
+[17:43:36.691] [Tabs] _on_tab_changed → tab_type=branches
+[17:43:36.692] [Tabs] _build_tabs → added 6 tabs
+[17:43:36.692] [Tabs] __init__ completed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 59 folder counts in batch (performance optimization)
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=2] running for 1 targets...
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
+[SidebarQt] Hiding tabs controller
+[17:43:37.034] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 59 folder counts in batch (performance optimization)
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[SidebarQt] _build_tree_model() completed
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[Startup] Database schema initialized successfully
+✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
+[17:43:39.989] [Tabs] _on_tab_changed(idx=0)
+[17:43:39.989] [Tabs] _start_timeout idx=0 type=branches
+[17:43:39.989] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:43:39.990] [Tabs]   populated=False, loading=False
+[17:43:39.990] [Tabs]   Starting load for branches
+[17:43:39.990] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:43:39.990] [Tabs] _clear_tab idx=0
+[17:43:39.991] [Tabs] _on_tab_changed → tab_type=branches
+[17:43:39.991] [Tabs] _finish_branches (stale gen=1) — ignoring
+[17:43:40.006] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 166 photos
+[GRID] Loaded 166 thumbnails.
+[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
+[GRID] Using scroll-based start position: 0 (scroll: 0/2749)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Queued 57 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Using scroll-based start position: 146 (scroll: 166/166)
+[GRID] Loading viewport range: 138-165 of 166
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/166)
+[GRID] Near bottom, loading all remaining 87 items
+[GRID] Loading viewport range: 0-165 of 166
+[GRID] Queued 166 new thumbnail workers
+2025-11-11 17:43:45,470 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:43:45,479 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:43:45,483 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[GRID] Using scroll-based start position: 146 (scroll: 166/166)
+[GRID] Loading viewport range: 138-165 of 166
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/166)
+[GRID] Near bottom, loading all remaining 87 items
+[GRID] Loading viewport range: 0-165 of 166
+[GRID] Queued 166 new thumbnail workers
+2025-11-11 17:43:47,640 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:43:47,686 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:43:47,735 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[GRID] Using scroll-based start position: 146 (scroll: 166/166)
+[GRID] Loading viewport range: 138-165 of 166
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/166)
+[GRID] Near bottom, loading all remaining 87 items
+[GRID] Loading viewport range: 0-165 of 166
+[GRID] Queued 166 new thumbnail workers
+2025-11-11 17:44:00,106 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:00,249 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:00,251 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[GRID] Using scroll-based start position: 146 (scroll: 166/166)
+[GRID] Loading viewport range: 138-165 of 166
+[GRID] Queued 24 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/166)
+[GRID] Near bottom, loading all remaining 87 items
+[GRID] Loading viewport range: 0-165 of 166
+[GRID] Queued 166 new thumbnail workers
+2025-11-11 17:44:01,434 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:01,438 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:01,439 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000275953FFDC0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x275ec89a030) at 0x0000027595398A00>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=166
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\1.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20241127-lastminutes.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20250122_g+d genai cheat sheet 1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-45-49.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-46-14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-rs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-vs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\aufenthalt\\04-fraualyaahmad--photo.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715144678.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715748246.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya4.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya5.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya6.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6850.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6934.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6995.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\1\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\2\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\sailor moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\autoexpertchat.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\gvk28drwkaahxik.jfif', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\lufthansainternet.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\rundv-mietskautionsbürgerschaft\\rundv-mietkautionsbürgerschaft-20241004.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\möbel\\waschmaschine.png', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\20201119-20301118-suleimanammar_de_epass_p3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\22.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\sro-kmmf-0123111311170.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar - kopie.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar-revised.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\schwartz.png', 'c:\\users\\suleimaa\\desktop\\eigen\\shaimaa\\n8n\\img-20250526-wa0000.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-businesscard.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-deausweis.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syr.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\chatgpt image 6. mai 2025, 16_50_55.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\10.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\13.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\16.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\18.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\3.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\9.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4', 'c:\\users\\suleimaa\\desktop\\projects\\estonia\\output.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\20241028-kick-off workshop\\20241028.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\finals\\hti-project-organigram.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1111.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240812at1000h-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240821at1500-workhop.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240826at1100-workhop-preparation.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02-r.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240903at1700-hti-intro.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20241105-vericore-eisat1500\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\22222.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\3333.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\4444.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\5555.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\backend-checkandclearancewf.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\bordercontrolsystem.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr3.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr4.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr5.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\generalepp-workflow.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\stop-list.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\projekt-tracking und -rollup.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\telco-abis-20240801.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\meeting\\status-meeting-20250203.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\project-implementation\\revised\\kenya_gantt_chart_phase1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-2.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20241010-hl-report\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\deployment highleveloverview.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\move5.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\platform components.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\user authentication.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis - main requirements.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis platform - source code.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250206-softalliance\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250304-npl-dl-entrust-telco\\screenshot.png', 'c:\\users\\suleimaa\\desktop\\projects\\pm-department-meeting\\kw28-2024\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\projects\\proposal-2025\\kenya\\20250121-kickoff-proposal.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\2022_0144_uga_l_bdar\\04_proposal\\01_draft_proposal\\input_maho\\uga_bdar system overview_26april2022_mh.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\crs detailed component diagram - v2.1.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\infrastructure diagram.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\suleimanammar-qrc.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241108-um1500-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241112-um0930-1000.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\20241113-at1600-1700-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\tunisia evisa hl architecture.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\turks&caicos\\20241017-jf-at0900-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\flag_of_myanmar.svg.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\wbs tha mmr v 0.6.drawio.png', 'c:\\users\\suleimaa\\desktop\\trainings\\finance_controlling-intro\\20240705-screenshot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\intro-business-management\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\1.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\20240704-projectboardmeeting-1600h.png']
+[open_lightbox] path=c:\users\suleimaa\desktop\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg
+[GRID] Using scroll-based start position: 146 (scroll: 166/166)
+[GRID] Loading viewport range: 138-165 of 166
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/166)
+[GRID] Near bottom, loading all remaining 87 items
+[GRID] Loading viewport range: 0-165 of 166
+[GRID] Queued 166 new thumbnail workers
+2025-11-11 17:44:20,384 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:20,388 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-11 17:44:20,389 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000275978FFF80>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x275ec89a030) at 0x0000027595398A00>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=166
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\1.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20241127-lastminutes.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20250122_g+d genai cheat sheet 1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-45-49.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-46-14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-rs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-vs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\aufenthalt\\04-fraualyaahmad--photo.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715144678.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715748246.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya4.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya5.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya6.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6850.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6934.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6995.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\1\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\2\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\sailor moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\autoexpertchat.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\gvk28drwkaahxik.jfif', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\lufthansainternet.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\rundv-mietskautionsbürgerschaft\\rundv-mietkautionsbürgerschaft-20241004.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\möbel\\waschmaschine.png', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\20201119-20301118-suleimanammar_de_epass_p3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\22.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\sro-kmmf-0123111311170.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar - kopie.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar-revised.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\schwartz.png', 'c:\\users\\suleimaa\\desktop\\eigen\\shaimaa\\n8n\\img-20250526-wa0000.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-businesscard.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-deausweis.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syr.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\chatgpt image 6. mai 2025, 16_50_55.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\10.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\13.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\16.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\18.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\3.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\9.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4', 'c:\\users\\suleimaa\\desktop\\projects\\estonia\\output.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\20241028-kick-off workshop\\20241028.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\finals\\hti-project-organigram.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1111.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240812at1000h-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240821at1500-workhop.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240826at1100-workhop-preparation.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02-r.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240903at1700-hti-intro.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20241105-vericore-eisat1500\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\22222.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\3333.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\4444.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\5555.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\backend-checkandclearancewf.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\bordercontrolsystem.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr3.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr4.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr5.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\generalepp-workflow.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\stop-list.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\projekt-tracking und -rollup.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\telco-abis-20240801.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\meeting\\status-meeting-20250203.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\project-implementation\\revised\\kenya_gantt_chart_phase1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-2.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20241010-hl-report\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\deployment highleveloverview.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\move5.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\platform components.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\user authentication.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis - main requirements.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis platform - source code.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250206-softalliance\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250304-npl-dl-entrust-telco\\screenshot.png', 'c:\\users\\suleimaa\\desktop\\projects\\pm-department-meeting\\kw28-2024\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\projects\\proposal-2025\\kenya\\20250121-kickoff-proposal.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\2022_0144_uga_l_bdar\\04_proposal\\01_draft_proposal\\input_maho\\uga_bdar system overview_26april2022_mh.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\crs detailed component diagram - v2.1.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\infrastructure diagram.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\suleimanammar-qrc.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241108-um1500-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241112-um0930-1000.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\20241113-at1600-1700-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\tunisia evisa hl architecture.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\turks&caicos\\20241017-jf-at0900-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\flag_of_myanmar.svg.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\wbs tha mmr v 0.6.drawio.png', 'c:\\users\\suleimaa\\desktop\\trainings\\finance_controlling-intro\\20240705-screenshot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\intro-business-management\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\1.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\20240704-projectboardmeeting-1600h.png']
+[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:01:15.94, start: 0.000000, bitrate: 6220 kb/s
+  Stream #0:0[0x1](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 224 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Video: h264 (Main) (avc1 / 0x31637661), yuvj420p(pc, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], 5986 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000027595350C80>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x275ec89a030) at 0x0000027595398A00>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=166
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\1.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20241127-lastminutes.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20250122_g+d genai cheat sheet 1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-45-49.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-46-14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-rs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-vs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\aufenthalt\\04-fraualyaahmad--photo.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715144678.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715748246.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya4.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya5.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya6.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6850.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6934.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6995.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\1\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\2\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\sailor moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\autoexpertchat.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\gvk28drwkaahxik.jfif', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\lufthansainternet.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\rundv-mietskautionsbürgerschaft\\rundv-mietkautionsbürgerschaft-20241004.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\möbel\\waschmaschine.png', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\20201119-20301118-suleimanammar_de_epass_p3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\22.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\sro-kmmf-0123111311170.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar - kopie.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar-revised.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\schwartz.png', 'c:\\users\\suleimaa\\desktop\\eigen\\shaimaa\\n8n\\img-20250526-wa0000.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-businesscard.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-deausweis.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syr.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\chatgpt image 6. mai 2025, 16_50_55.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\10.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\13.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\16.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\18.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\3.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\9.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4', 'c:\\users\\suleimaa\\desktop\\projects\\estonia\\output.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\20241028-kick-off workshop\\20241028.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\finals\\hti-project-organigram.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1111.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240812at1000h-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240821at1500-workhop.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240826at1100-workhop-preparation.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02-r.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240903at1700-hti-intro.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20241105-vericore-eisat1500\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\22222.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\3333.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\4444.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\5555.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\backend-checkandclearancewf.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\bordercontrolsystem.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr3.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr4.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr5.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\generalepp-workflow.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\stop-list.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\projekt-tracking und -rollup.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\telco-abis-20240801.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\meeting\\status-meeting-20250203.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\project-implementation\\revised\\kenya_gantt_chart_phase1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-2.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20241010-hl-report\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\deployment highleveloverview.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\move5.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\platform components.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\user authentication.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis - main requirements.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis platform - source code.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250206-softalliance\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250304-npl-dl-entrust-telco\\screenshot.png', 'c:\\users\\suleimaa\\desktop\\projects\\pm-department-meeting\\kw28-2024\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\projects\\proposal-2025\\kenya\\20250121-kickoff-proposal.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\2022_0144_uga_l_bdar\\04_proposal\\01_draft_proposal\\input_maho\\uga_bdar system overview_26april2022_mh.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\crs detailed component diagram - v2.1.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\infrastructure diagram.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\suleimanammar-qrc.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241108-um1500-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241112-um0930-1000.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\20241113-at1600-1700-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\tunisia evisa hl architecture.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\turks&caicos\\20241017-jf-at0900-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\flag_of_myanmar.svg.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\wbs tha mmr v 0.6.drawio.png', 'c:\\users\\suleimaa\\desktop\\trainings\\finance_controlling-intro\\20240705-screenshot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\intro-business-management\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\1.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\20240704-projectboardmeeting-1600h.png']
+[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/syria-song.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+  Duration: 00:01:16.02, start: 0.000000, bitrate: 2345 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1280x720, 2293 kb/s, 29.39 fps, 29.39 tbr, 14696 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : AVC Coding
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 48 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[aac @ 00000275A29913C0] Could not update timestamps for skipped samples.
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000027597C9A780>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x275ec89a030) at 0x0000027595398A00>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=166
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\1.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20241127-lastminutes.png', 'c:\\users\\suleimaa\\desktop\\eigen\\20250122_g+d genai cheat sheet 1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-45-49.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\2\\photo-2025-04-08-11-46-14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-rs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\alyayasserahmad-oman-id-vs.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\aufenthalt\\04-fraualyaahmad--photo.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\mtcn-379-925-3908-appscreenshot.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715144678.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\output_1746715748246.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya4.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya5.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\alya6.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar2.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\ammar3.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6850.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6934.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\inbox\\img_6995.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\1\\ammar-ref.png', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\photos\\ref\\2\\alya.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\alya\\sailor moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\chatgpt_files\\autoexpertchat.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\gvk28drwkaahxik.jfif', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\leasing\\ihre anfrage (renault koleos 2.0 dci 185 initale paris 4x4 automatik) [o-rrg-89647]\\leasingvertrag renault koleos initiale paris schwarz 279 €\\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\lufthansainternet.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\1-wohnzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\2-kleinschlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\3-schlaffzimmer.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\4-kuche.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\5-bad.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\kalt.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\rundv-mietskautionsbürgerschaft\\rundv-mietkautionsbürgerschaft-20241004.png', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\mietwohnung\\warm.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\möbel\\waschmaschine.png', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\20201119-20301118-suleimanammar_de_epass_p3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\22.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\mtcn-379-925-3908-appscreenshot.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\sro-kmmf-0123111311170.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar - kopie.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar-revised.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\reisepass\\suleimanammar.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\schwartz.png', 'c:\\users\\suleimaa\\desktop\\eigen\\shaimaa\\n8n\\img-20250526-wa0000.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-businesscard.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\suleimanammar-deausweis.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syr.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\1.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\3.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\chatgpt image 6. mai 2025, 16_50_55.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\1.jpeg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\10.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\11.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\13.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\14.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\16.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\18.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\2.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\3.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\4.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\5.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\6.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\7.jpg', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\8.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\cnn\\9.png', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4', 'c:\\users\\suleimaa\\desktop\\projects\\estonia\\output.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\20241028-kick-off workshop\\20241028.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\finals\\hti-project-organigram.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\1111.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240812at1000h-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240821at1500-workhop.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240826at1100-workhop-preparation.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02-r.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240828at1500-workhop-preparation-part02.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20240903at1700-hti-intro.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\20241105-vericore-eisat1500\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\22222.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\3333.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\4444.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\5555.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\backend-checkandclearancewf.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\bordercontrolsystem.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr1.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr2.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr3.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr4.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\enr5.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\generalepp-workflow.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\meetings\\stop-list.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\projekt-tracking und -rollup.png', 'c:\\users\\suleimaa\\desktop\\projects\\hti\\telco-abis-20240801.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\meeting\\status-meeting-20250203.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\project-implementation\\revised\\kenya_gantt_chart_phase1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\1.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\2.png', 'c:\\users\\suleimaa\\desktop\\projects\\ken\\travel\\3.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20240923\\vmeet-2.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20241010-hl-report\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\deployment highleveloverview.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\move5.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\platform components.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\user authentication.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis - main requirements.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250121-move5-workshop\\vericore eis platform - source code.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250206-softalliance\\screenshot1.png', 'c:\\users\\suleimaa\\desktop\\projects\\meetings\\20250304-npl-dl-entrust-telco\\screenshot.png', 'c:\\users\\suleimaa\\desktop\\projects\\pm-department-meeting\\kw28-2024\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\projects\\proposal-2025\\kenya\\20250121-kickoff-proposal.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\2022_0144_uga_l_bdar\\04_proposal\\01_draft_proposal\\input_maho\\uga_bdar system overview_26april2022_mh.png', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\crs detailed component diagram - v2.1.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\infrastructure diagram.jpg', 'c:\\users\\suleimaa\\desktop\\projects\\suleimanammar-qrc.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241108-um1500-telco.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\lichtenstein\\20241112-um0930-1000.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\20241113-at1600-1700-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\tunisia\\tunisia evisa hl architecture.png', 'c:\\users\\suleimaa\\desktop\\projects\\tender-2024\\turks&caicos\\20241017-jf-at0900-meeting.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\flag_of_myanmar.svg.png', 'c:\\users\\suleimaa\\desktop\\projects\\tha_mmr_epp\\wbs tha mmr v 0.6.drawio.png', 'c:\\users\\suleimaa\\desktop\\trainings\\finance_controlling-intro\\20240705-screenshot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\intro-business-management\\screen-shot.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\1.png', 'c:\\users\\suleimaa\\desktop\\trainings\\ordercenter-vdoc\\20240704-projectboardmeeting-1600h.png']
+[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:01:15.94, start: 0.000000, bitrate: 6220 kb/s
+  Stream #0:0[0x1](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 224 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Video: h264 (Main) (avc1 / 0x31637661), yuvj420p(pc, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], 5986 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+[Sidebar] Filtering videos by duration: medium
+[Sidebar] Showing 3 medium (30s - 5min) videos
+[GRID] Loaded 3 thumbnails in videos-mode.
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000275979678C0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x275ec89a030) at 0x0000027595398A00>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=3
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4']
+[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:01:15.94, start: 0.000000, bitrate: 6220 kb/s
+  Stream #0:0[0x1](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 224 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Video: h264 (Main) (avc1 / 0x31637661), yuvj420p(pc, bt709, progressive), 1280x720 [SAR 1:1 DAR 16:9], 5986 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+[Shutdown] Grid threads shut down.
+[ThumbnailManager] Thread pool shut down.
+[Shutdown] ThumbnailManager threads shut down.
+[Shutdown] Thumbnail cache cleared.
+[ThumbCacheDB] Closing cache gracefully...
+
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.26.01.01-Photo-App\MemoryMate-PhotoFlow-main-01>

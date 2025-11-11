@@ -2259,7 +2259,7 @@ class SidebarQt(QWidget):
         except Exception:
             traceback.print_exc()
 
-    def _add_folder_items(self, parent_item, parent_id=None):
+    def _add_folder_items(self, parent_item, parent_id=None, _folder_counts=None):
         # CRITICAL FIX: Pass project_id to filter folders and counts by project
         try:
             rows = self.db.get_child_folders(parent_id, project_id=self.project_id)
@@ -2269,12 +2269,32 @@ class SidebarQt(QWidget):
             traceback.print_exc()
             rows = []
 
+        # PERFORMANCE OPTIMIZATION: Get all folder counts in ONE query (only at root level)
+        # This dramatically improves performance when there are many folders
+        if _folder_counts is None and parent_id is None:
+            # Root level call - get all counts at once to avoid N+1 queries
+            if hasattr(self.db, "get_folder_counts_batch") and self.project_id:
+                try:
+                    _folder_counts = self.db.get_folder_counts_batch(self.project_id)
+                    print(f"[Sidebar] Loaded {len(_folder_counts)} folder counts in batch (performance optimization)")
+                except Exception as e:
+                    print(f"[Sidebar] Error in get_folder_counts_batch: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    _folder_counts = {}
+            else:
+                _folder_counts = {}
+
         for row in rows:
             try:
                 name = row["name"]
                 fid = row["id"]
 
-                if hasattr(self.db, "get_image_count_recursive"):
+                # Get count from batch result (fast) or fall back to individual query (slow)
+                if _folder_counts and fid in _folder_counts:
+                    photo_count = _folder_counts[fid]
+                elif hasattr(self.db, "get_image_count_recursive"):
+                    # Fallback: Individual query (N+1 problem, but works if batch failed)
                     # CRITICAL FIX: Pass project_id to count only photos from this project
                     try:
                         photo_count = int(self.db.get_image_count_recursive(fid, project_id=self.project_id) or 0)
@@ -2295,8 +2315,8 @@ class SidebarQt(QWidget):
                 count_item.setForeground(QColor("#888888"))
                 parent_item.appendRow([name_item, count_item])
 
-                # Recursive call with error handling
-                self._add_folder_items(name_item, fid)
+                # Recursive call with error handling - pass counts down to avoid re-fetching
+                self._add_folder_items(name_item, fid, _folder_counts)
             except Exception as e:
                 print(f"[Sidebar] Error adding folder item: {e}")
                 import traceback

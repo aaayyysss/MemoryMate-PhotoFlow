@@ -14,8 +14,9 @@ from typing import Optional
 from reference_db import ReferenceDB
 from PIL import Image, ImageOps, ExifTags
 from io import BytesIO
-from PySide6.QtGui import QPixmap, QImageReader, QImage
-from PySide6.QtCore import QSize, Qt, Signal, QObject
+
+# NOTE: Qt imports are lazy-loaded in functions that need them
+# This allows app_services to be imported in headless/CLI environments
 
 from reference_db import ReferenceDB
 from services import get_thumbnail_service
@@ -175,7 +176,7 @@ def list_branches(project_id: int):
             return [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
 
-def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixmap:
+def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixmap":
     """
     Get thumbnail for an image or video file.
 
@@ -190,6 +191,9 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
     Returns:
         QPixmap thumbnail
     """
+    from PySide6.QtGui import QPixmap, QPainter, QFont, QColor
+    from PySide6.QtCore import Qt
+
     if not path:
         return QPixmap()
 
@@ -215,7 +219,6 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
         placeholder = QPixmap(int(height * 4/3), height)
         placeholder.fill(QColor(40, 40, 40))
 
-        from PySide6.QtGui import QPainter, QFont, QColor
         painter = QPainter(placeholder)
         painter.setPen(QColor(180, 180, 180))
         font = QFont("Arial", int(height / 4))
@@ -281,13 +284,26 @@ def set_thumbnail_cache_enabled(flag: bool):
  
 
 
-      
 
 
-class ScanSignals(QObject):
-    progress = Signal(int, str)  # percent, message
 
-scan_signals = ScanSignals()
+# Qt-dependent scan signals (lazy-loaded to support headless environments)
+try:
+    from PySide6.QtCore import Signal, QObject
+
+    class ScanSignals(QObject):
+        progress = Signal(int, str)  # percent, message
+
+    scan_signals = ScanSignals()
+except ImportError:
+    # Headless mode - no Qt available
+    class ScanSignals:
+        class progress:
+            @staticmethod
+            def emit(*args):
+                pass  # No-op in headless mode
+
+    scan_signals = ScanSignals()
 
 def scan_repository(root_folder, incremental=False, cancel_callback=None):
     """

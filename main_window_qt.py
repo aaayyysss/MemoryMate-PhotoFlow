@@ -4074,9 +4074,20 @@ class MainWindow(QMainWindow):
             if self.grid.navigation_mode == "folder" and hasattr(self.grid, "navigation_key"):
                 # For folder mode, show folder path
                 folder_id = self.grid.navigation_key
-                # TODO: Get folder name from DB
+                # Get folder name from DB
+                folder_name = f"Folder #{folder_id}"  # Fallback
+                try:
+                    with self.db._connect() as conn:
+                        cur = conn.cursor()
+                        cur.execute("SELECT name FROM photo_folders WHERE id = ?", (folder_id,))
+                        row = cur.fetchone()
+                        if row:
+                            folder_name = row[0]
+                except Exception as e:
+                    self.logger.warning(f"Failed to get folder name for ID {folder_id}: {e}")
+
                 segments.append(("Folder View", lambda: self.grid.set_branch("all")))
-                segments.append((f"Folder #{folder_id}", None))
+                segments.append((folder_name, None))
             elif self.grid.navigation_mode == "date" and hasattr(self.grid, "navigation_key"):
                 # For date mode, show date path
                 date_key = str(self.grid.navigation_key)

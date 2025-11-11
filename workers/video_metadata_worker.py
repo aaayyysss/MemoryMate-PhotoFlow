@@ -133,8 +133,9 @@ class VideoMetadataWorker(QRunnable):
                         # Update database
                         video_id = video['id']
 
-                        # Prepare update fields
-                        update_fields = {
+                        # BUG FIX #6: Compute created_date, created_year, created_ts from date_taken
+                        # This enables efficient date hierarchy queries (matching photo metadata pattern)
+                        update_data = {
                             'duration_seconds': metadata.get('duration_seconds'),
                             'width': metadata.get('width'),
                             'height': metadata.get('height'),
@@ -145,19 +146,22 @@ class VideoMetadataWorker(QRunnable):
                             'metadata_status': 'ok'
                         }
 
-                        # Calculate created_date and created_year from date_taken
-                        if metadata.get('date_taken'):
+                        # Compute created_* fields from date_taken for date hierarchy
+                        date_taken = metadata.get('date_taken')
+                        if date_taken:
                             try:
-                                date_taken_str = metadata['date_taken']
-                                # Extract date part (YYYY-MM-DD) from "YYYY-MM-DD HH:MM:SS"
-                                created_date = date_taken_str.split(' ')[0]
-                                created_year = int(created_date.split('-')[0])
-                                update_fields['created_date'] = created_date
-                                update_fields['created_year'] = created_year
-                            except Exception as e:
-                                logger.debug(f"Failed to extract created_date/year: {e}")
+                                from datetime import datetime
+                                # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+                                date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
+                                dt = datetime.strptime(date_str, '%Y-%m-%d')
+                                update_data['created_ts'] = int(dt.timestamp())
+                                update_data['created_date'] = date_str  # YYYY-MM-DD
+                                update_data['created_year'] = dt.year
+                            except (ValueError, AttributeError, IndexError):
+                                # If date parsing fails, these fields will remain NULL
+                                logger.debug(f"[VideoMetadataWorker] Failed to parse date_taken: {date_taken}")
 
-                        self.video_repo.update(video_id=video_id, **update_fields)
+                        self.video_repo.update(video_id=video_id, **update_data)
 
                         success_count += 1
                         logger.info(f"[VideoMetadataWorker] ✓ {video_path}: {metadata.get('duration_seconds', 0):.1f}s")

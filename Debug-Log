@@ -1,1 +1,1368 @@
-I also tried 
+PYI-15364:DEBUG] PyInstaller Bootloader 6.x
+[PYI-15364:DEBUG] LOADER: argv[0]: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-15364:DEBUG] LOADER: executable file: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-15364:DEBUG] LOADER: trying to load executable-embedded archive...
+[PYI-15364:DEBUG] LOADER: attempting to open archive C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-15364:DEBUG] LOADER: cookie found at offset 0xE7996EE
+[PYI-15364:DEBUG] LOADER: archive file: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-15364:DEBUG] LOADER: application has onefile semantics...
+[PYI-15364:DEBUG] LOADER: _PYI_ARCHIVE_FILE not defined...
+[PYI-15364:DEBUG] LOADER: parent process level = -2
+[PYI-15364:DEBUG] LOADER: process level = 0
+[PYI-15364:DEBUG] LOADER: this is parent process of onefile application.
+[PYI-15364:DEBUG] LOADER: initializing security descriptor for temporary directory...
+[PYI-15364:DEBUG] LOADER: initializing security descriptor from string: D:(A;;FA;;;S-1-5-21-589717298-517187558-579722565-1001)
+[PYI-15364:DEBUG] LOADER: creating temporary directory (runtime_tmpdir=.)...
+[PYI-15364:DEBUG] LOADER: absolute runtime-tmpdir is C:\Users\Alya\Downloads\RevisedMemoryMate
+[PYI-15364:DEBUG] LOADER: creating runtime-tmpdir path component: C:
+[PYI-15364:DEBUG] LOADER: creating runtime-tmpdir path component: C:\Users
+[PYI-15364:DEBUG] LOADER: creating runtime-tmpdir path component: C:\Users\Alya
+[PYI-15364:DEBUG] LOADER: creating runtime-tmpdir path component: C:\Users\Alya\Downloads
+[PYI-15364:DEBUG] LOADER: creating runtime-tmpdir path: C:\Users\Alya\Downloads\RevisedMemoryMate
+[PYI-15364:DEBUG] LOADER: successfully resolved the specified runtime-tmpdir
+[PYI-15364:DEBUG] LOADER: attempting to create temporary application directory under C:\Users\Alya\Downloads\RevisedMemoryMate\
+[PYI-15364:DEBUG] LOADER: created temporary directory: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-15364:DEBUG] LOADER: setting _PYI_APPLICATION_HOME_DIR to C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-15364:DEBUG] LOADER: application's top-level directory: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-15364:DEBUG] LOADER: attempting to pre-load system copy of VCRUNTIME140.dll...
+[PYI-15364:DEBUG] LOADER: successfully loaded system copy of VCRUNTIME140.dll.
+[PYI-15364:DEBUG] LOADER: attempting to pre-load system copy of VCRUNTIME140_1.dll...
+[PYI-15364:DEBUG] LOADER: successfully loaded system copy of VCRUNTIME140_1.dll.
+[PYI-15364:DEBUG] LOADER: calling SetDllDirectoryW: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-15364:DEBUG] LOADER: splash screen is unavailable.
+[PYI-15364:DEBUG] LOADER: extracting files to temporary directory...
+[PYI-15364:DEBUG] LOADER: starting the child process...
+[PYI-15364:DEBUG] LOADER: setting up child process...
+[PYI-15364:DEBUG] LOADER: child process started!
+[PYI-15364:DEBUG] LOADER: creating hidden window to capture system sh[PYI-utdown 28684:DEBUG] PyInstaller Bootloevents...
+ader 6.x
+[PYI-28684:DEBUG] LOADER: argv[0]: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-15364:DEBUG] LOADER: hidden window created!
+[PYI-15364:DEBUG] LOADER: [PeYnIt-e2ring86 84th:DEe waiting looBUG] LOADEp...
+R: executable file: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-28684:DEBUG] LOADER: trying to load executable-embedded archive...
+[PYI-28684:DEBUG] LOADER: attempting to open archive C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-28684:DEBUG] LOADER: cookie found at offset 0xE7996EE
+[PYI-28684:DEBUG] LOADER: archive file: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-28684:DEBUG] LOADER: application has onefile semantics...
+[PYI-28684:DEBUG] LOADER: _PYI_ARCHIVE_FILE already defined: C:\Users\Alya\Downloads\RevisedMemoryMate\Memory-Mate Photo-Flow 6.0.exe
+[PYI-28684:DEBUG] LOADER: using same archive file as parent environment!
+[PYI-28684:DEBUG] LOADER: parent process level = 0
+[PYI-28684:DEBUG] LOADER: process level = 1
+[PYI-28684:DEBUG] LOADER: this is child process of onefile application (main application process).
+[PYI-28684:DEBUG] LOADER: application's top-level directory: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-28684:DEBUG] LOADER: calling SetDllDirectoryW: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642
+[PYI-28684:DEBUG] LOADER: splash screen is unavailable.
+[PYI-28684:DEBUG] DYLIB: loading Python DLL: C:\Users\Alya\Downloads\RevisedMemoryMate\_MEI153642\python310.dll
+[PYI-28684:DEBUG] DYLIB: loaded Python shared library.
+[PYI-28684:DEBUG] DYLIB: imported symbols from Python shared library.
+[PYI-28684:DEBUG] LOADER: pre-initializing embedded python interpreter...
+[PYI-28684:DEBUG] LOADER: using PEP-587 API...
+[PYI-28684:DEBUG] LOADER: creating PyConfig structure...
+[PYI-28684:DEBUG] LOADER: initializing interpreter configuration...
+[PYI-28684:DEBUG] LOADER: setting program name...
+[PYI-28684:DEBUG] LOADER: setting python home path...
+[PYI-28684:DEBUG] LOADER: setting module search paths...
+[PYI-28684:DEBUG] LOADER: setting sys.argv...
+[PYI-28684:DEBUG] LOADER: applying run-time options...
+[PYI-28684:DEBUG] LOADER: starting embedded python interpreter...
+[PYI-28684:DEBUG] LOADER: setting sys._MEIPASS
+[PYI-28684:DEBUG] LOADER: importing modules from PKG/CArchive
+[PYI-28684:DEBUG] LOADER: extracted struct
+[PYI-28684:DEBUG] LOADER: running unmarshalled code object for module struct...
+[PYI-28684:DEBUG] LOADER: extracted pyimod01_archive
+[PYI-28684:DEBUG] LOADER: running unmarshalled code object for module pyimod01_archive...
+[PYI-28684:DEBUG] LOADER: extracted pyimod02_importers
+[PYI-28684:DEBUG] LOADER: running unmarshalled code object for module pyimod02_importers...
+[PYI-28684:DEBUG] LOADER: extracted pyimod03_ctypes
+[PYI-28684:DEBUG] LOADER: running unmarshalled code object for module pyimod03_ctypes...
+[PYI-28684:DEBUG] LOADER: extracted pyimod04_pywin32
+[PYI-28684:DEBUG] LOADER: running unmarshalled code object for module pyimod04_pywin32...
+[PYI-28684:DEBUG] LOADER: looking for PYZ archive TOC entry...
+[PYI-28684:DEBUG] LOADER: path to PYZ archive stored into sys._pyinstaller_pyz...
+[PYI-28684:DEBUG] LOADER: running pyiboot01_bootstrap.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_inspect.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_pkgutil.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_multiprocessing.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_pkgres.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_setuptools.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_pyside6.py
+[PYI-28684:DEBUG] LOADER: running pyi_rth_mplconfig.py
+[PYI-28684:DEBUG] LOADER: running main_qt.py
+[Startup] pillow_heif available — HEIC/HEIF support enabled.
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-12 01:02:37,142 [INFO] ================================================================================
+2025-11-12 01:02:37,142 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-12 01:02:37,142 [INFO] Log file: C:\Users\Alya\Downloads\RevisedMemoryMate\app_log.txt
+2025-11-12 01:02:37,142 [INFO] ================================================================================
+2025-11-12 01:02:37,178 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-12 01:02:37,178 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\Alya\\Downloads\\RevisedMemoryMate\\_MEI153642\\thumbnails_cache.db', 'last_updated': '2025-11-12 01:02'}
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-12 01:02:37,432 [INFO] SearchService initialized
+[01:02:38.058] [Tabs] __init__ started
+[01:02:38.058] [Tabs] _build_tabs → building tab widgets
+[01:02:38.058] [Tabs] _on_tab_changed(idx=0)
+[01:02:38.058] [Tabs] _start_timeout idx=0 type=branches
+[01:02:38.058] [Tabs] _populate_tab(branches, idx=0, force=False)
+[01:02:38.058] [Tabs]   populated=False, loading=False
+[01:02:38.058] [Tabs]   Starting load for branches
+[01:02:38.058] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[01:02:38.058] [Tabs] _clear_tab idx=0
+[01:02:38.065] [Tabs] _on_tab_changed → tab_type=branches
+[01:02:38.065] [Tabs] _build_tabs → added 6 tabs
+[01:02:38.065] [Tabs] __init__ completed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[01:02:38.070] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] _build_tree_model() completed
+2025-11-12 01:02:38,089 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-12 01:02:38,094 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-12 01:02:38,094 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Startup] Database schema initialized successfully
+✅ FFmpeg and FFprobe detected (custom path: C:\Users\Alya\Downloads\RevisedMemoryMate\ffmpeg-2025-11-06-git-222127418b-full_build\ffmpeg-2025-11-06-git-222127418b-full_build\bin)
+[01:02:38.827] [Tabs] _finish_branches (stale gen=1) — ignoring
+[01:02:38.827] [Tabs] _on_tab_changed(idx=0)
+[01:02:38.827] [Tabs] _start_timeout idx=0 type=branches
+[01:02:38.827] [Tabs] _populate_tab(branches, idx=0, force=False)
+[01:02:38.827] [Tabs]   populated=False, loading=False
+[01:02:38.827] [Tabs]   Starting load for branches
+[01:02:38.827] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[01:02:38.827] [Tabs] _clear_tab idx=0
+[01:02:38.827] [Tabs] _on_tab_changed → tab_type=branches
+[01:02:38.868] [Tabs] _clear_tab idx=0
+[MainWindow] Set grid.project_id = 1
+[01:02:59.226] [Tabs] refresh_all(force=True) called
+[01:02:59.226] [Tabs] refresh_all: key=branches, idx=0, force=True
+[01:02:59.226] [Tabs] _populate_tab(branches, idx=0, force=True)
+[01:02:59.226] [Tabs]   populated=True, loading=False
+[01:02:59.226] [Tabs]   Force refresh: removing branches from populated set
+[01:02:59.226] [Tabs]   Starting load for branches
+[01:02:59.226] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[01:02:59.226] [Tabs] _clear_tab idx=0
+[01:02:59.228] [Tabs] refresh_all: key=folders, idx=1, force=True
+[01:02:59.228] [Tabs] _populate_tab(folders, idx=1, force=True)
+[01:02:59.228] [Tabs]   populated=False, loading=False
+[01:02:59.228] [Tabs]   Starting load for folders
+[01:02:59.228] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[01:02:59.228] [Tabs] _clear_tab idx=1
+[01:02:59.230] [Tabs] refresh_all: key=dates, idx=2, force=True
+[01:02:59.231] [Tabs] _populate_tab(dates, idx=2, force=True)
+[01:02:59.231] [Tabs]   populated=False, loading=False
+[01:02:59.231] [Tabs]   Starting load for dates
+[01:02:59.231] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[01:02:59.231] [Tabs] _clear_tab idx=2
+[01:02:59.231] [Tabs] _load_folders → got 0 rows for project_id=1
+[01:02:59.231] [Tabs] refresh_all: key=tags, idx=3, force=True
+[01:02:59.231] [Tabs] _populate_tab(tags, idx=3, force=True)
+[01:02:59.231] [Tabs]   populated=False, loading=False
+[01:02:59.231] [Tabs]   Starting load for tags
+[01:02:59.231] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[01:02:59.231] [Tabs] _clear_tab idx=3
+[01:02:59.234] [Tabs] refresh_all: key=quick, idx=5, force=True
+[01:02:59.234] [Tabs] _populate_tab(quick, idx=5, force=True)
+[01:02:59.234] [Tabs]   populated=False, loading=False
+[01:02:59.234] [Tabs]   Starting load for quick
+[01:02:59.234] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[01:02:59.234] [Tabs] _clear_tab idx=5
+[01:02:59.234] [Tabs] refresh_all(force=True) completed
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[01:02:59.234] [Tabs] _load_tags → got 0 rows for project_id=1
+[Sidebar] Processing pending events before model clear
+[01:02:59.234] [Tabs] _load_dates → got hierarchy data for project_id=1
+[01:02:59.234] [Tabs] _clear_tab idx=0
+[01:02:59.239] [Tabs] _load_quick → got 6 rows
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[01:02:59.288] [Tabs] _clear_tab idx=1
+[01:02:59.292] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[01:02:59.292] [Tabs] _clear_tab idx=3
+[01:02:59.299] [Tabs] _clear_tab idx=2
+[01:02:59.301] [Tabs] _clear_tab idx=5
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[MainWindow] Switched to project ID: 1
+[Breadcrumb] Switched to project ID: 1
+[MainWindow] Refreshed project list: 1 projects
+[Schema] Database schema initialized successfully
+[ScanController] Creating ScanWorker for folder: D:/
+[ScanController] ScanWorker imported successfully
+[ScanController] QThread created
+[ScanController] ScanWorker instance created with project_id=1
+[ScanController] Worker moved to thread
+2025-11-12 01:03:13,245 [INFO] DBWriter timer started in worker thread
+[ScanController] Signals connected
+[ScanController] Starting scan thread...
+[ScanController] thread.start() called
+[ScanWorkerAdapter] run() method called!
+[ScanWorkerAdapter] folder=D:/, incremental=True
+2025-11-12 01:03:13,253 [INFO] ScanWorkerAdapter starting scan of D:/
+[ScanWorkerAdapter] Starting scan...
+2025-11-12 01:03:13,257 [INFO] Starting scan: D:/ (incremental=True)
+[ScanController] QThread STARTED!
+2025-11-12 01:04:48,362 [INFO] Discovered 70585 candidate image files and 3432 video files
+2025-11-12 01:04:52,562 [WARNING] Qt: QObject::startTimer: Timers cannot be started from another thread
+2025-11-12 01:05:03,371 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:05:15,387 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:05:24,797 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:05:33,459 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:05:45,549 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:05:54,340 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:03,848 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:14,417 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:25,059 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:34,742 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:45,143 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:06:54,443 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:02,201 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:11,688 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:21,524 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:30,111 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:37,430 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:46,937 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:07:54,674 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:01,519 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:08,208 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:15,715 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:23,580 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:29,611 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:33,041 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:41,538 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:50,310 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:08:58,055 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:06,290 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:07,124 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,166 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В УГЛОВОЙ (600_600_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,239 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,239 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В УГЛОВОЙ СТ (600_600_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,271 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,271 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В150 ОТКР (150_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,319 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,319 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В200 ЗАВ (200_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,377 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,379 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В250 ЗАВ (250_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,428 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,437 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В250 ЗАВ ДВ (250_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,508 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,508 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В300 (300_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,554 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,554 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В300 ГНУТЫЙ (300_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,587 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,587 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В300 ОТКР (300_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,627 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,629 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В300 СТ (300_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,659 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,659 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В400 (400_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,707 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,707 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В400 ПЕНАЛ (400_320_1270).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,764 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,766 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В400 СТ (400_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,821 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,828 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,958 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:07,960 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 2 СОФТ (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,024 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,024 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 2 СОФТ СУШКА (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,083 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,083 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 2СОФТ 1СТ (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,130 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,130 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 2СОФТ 2СТ (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,177 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,177 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 ГАЗОВКА (500_320_360).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,271 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,271 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 НИША (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,320 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,320 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 СУШКА (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,351 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,351 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В500 СУШКА (500_320_900).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,390 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,390 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,465 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,465 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 2 СОФТ (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,494 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,494 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 2 СОФТ СУШКА (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,525 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,525 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 2 СТ (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,557 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,557 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 2СОФТ 1СТ (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,588 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,588 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 ГАЗОВКА (600_320_360).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,629 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,638 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 НИША (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,677 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,677 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 СВЧ (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,725 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,725 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 СТ (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,756 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,756 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 СУШКА (500_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,806 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,820 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В600 СУШКА НИША (600_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,852 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,852 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,915 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,915 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 2 СОФТ (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,963 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:08,963 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 2СОФТ 1СТ (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,059 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,059 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 2СОФТ 2СТ (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,107 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,107 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 СТ (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,139 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,155 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог подвесных секций\В800 СУШКА (800_320_720).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,260 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,260 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н УГЛ ПРЯМ (900_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,306 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,306 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н УГЛОВОЙ (900_900_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,370 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,370 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н150 (150_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,401 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,401 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н150 БУТЫЛ (150_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,449 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,449 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н200 ЗАВ (200_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,491 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,491 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н250 ЗАВ (250_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,528 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,528 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н250 ЗАВ 1Д (250_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,575 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,575 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н300 (300_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,607 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,622 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н300 1Я 1Д (300_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,639 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,639 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н300 3Я (300_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,670 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,670 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н300 ГНУТЫЙ (300_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,704 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,704 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н400 (400_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,735 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,735 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н400 1Я 1Д (400_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,759 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,759 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н400 4Я (400_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,791 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,791 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,839 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,839 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 1Я 1Д (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,879 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,879 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 1Я 1Д СТ (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,903 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,903 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 2Я (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,952 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,952 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 2Я 1СТ (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,998 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:09,998 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 3Я (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,045 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,053 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н500 МОЙКА (500_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,104 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,104 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,131 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,131 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 2Я (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,171 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,171 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 2Я 1СТ (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,247 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,247 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 3Я (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,304 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,307 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 МОЙКА (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,362 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,362 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 ПЛИТА (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,400 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,400 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 СВЧ (600_600_1180).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,448 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,448 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н600 СТ СВЧ (600_600_1180).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,487 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,490 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н700 СТИРМАШ (600_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,524 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,524 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н800 (800_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,558 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,571 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н800 2Я (800_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,605 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,605 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н800 2Я 1СТ (800_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,656 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,656 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н800 2Я 2Д (800_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,683 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,683 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\Н800 МОЙКА (800_600_850).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,715 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:10,715 [ERROR] Failed to create folder hierarchy for D:\Arch.MohammedAlArab\بلوكات\مطبخ\علب مطبخ\1\Каталог секций\ПЕНАЛ 400 (400_600_2140).png: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:09:17,343 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:24,383 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:32,073 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:41,044 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:48,175 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:09:57,125 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:06,168 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:14,779 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:25,844 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:31,073 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:34,713 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:38,054 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:41,513 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:44,961 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:48,439 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:51,836 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:55,445 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:10:58,914 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:02,197 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:05,588 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:08,912 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:12,253 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:15,609 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:18,943 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:21,929 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:24,781 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:27,734 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:30,935 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:41,300 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:11:51,905 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:02,401 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:12,365 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:24,255 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:35,595 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:46,799 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:12:57,160 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:13:08,419 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:13:19,508 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:13:31,042 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:13:41,939 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:13:53,208 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:14:05,035 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:14:16,871 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:14:28,690 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:14:40,234 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:14:51,587 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:15:03,831 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:15:16,053 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:15:28,710 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:15:40,856 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:15:53,266 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:16:05,940 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:16:19,272 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:16:31,139 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:16:44,904 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:16:57,460 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:08,936 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:16,796 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:27,853 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:37,979 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:45,974 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:17:58,941 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:06,758 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:14,480 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:23,935 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:31,964 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:41,086 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:49,681 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:18:56,809 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:03,727 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:13,767 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:21,539 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:30,336 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:37,503 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:44,391 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:19:52,634 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:03,755 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:13,604 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:21,977 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:27,986 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:33,450 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:38,632 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:45,030 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:51,987 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:20:58,017 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:04,057 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:10,491 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:18,930 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:30,433 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:42,523 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:21:54,207 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:06,378 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:19,339 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:30,427 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:35,392 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:41,063 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:46,524 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:51,233 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:22:55,802 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:01,515 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:07,189 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:13,668 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:19,839 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:26,375 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:34,914 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:41,502 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:48,153 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:23:54,862 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:00,934 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:06,915 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:12,157 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:17,367 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:21,670 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:27,914 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:33,097 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:37,843 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:42,814 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:47,590 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:24:55,890 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:02,168 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:06,726 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:12,115 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:17,593 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:23,179 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:28,370 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:34,166 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:39,549 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:46,609 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:51,544 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:25:57,773 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:04,803 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:12,143 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:19,077 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:24,058 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:29,248 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:40,595 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:26:52,363 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:27:04,130 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:27:15,280 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:27:24,711 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:27:34,640 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:27:46,305 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:28:02,810 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:28:16,387 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:28:29,659 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:28:44,431 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:28:57,499 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:29:11,178 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:29:28,250 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:29:42,382 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:29:56,972 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:30:11,280 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:30:26,882 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:30:41,358 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:30:59,594 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:31:11,499 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:31:29,920 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:31:45,402 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:32:00,532 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:32:15,661 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:32:31,245 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:32:46,400 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:33:01,909 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:33:14,282 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:33:30,863 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:33:49,405 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:34:06,220 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:34:22,795 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:34:39,644 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:34:56,987 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:35:10,068 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,069 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-10-2023 Über das Erdbeben\IMG_3145.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,285 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,288 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-10-2023 Über das Erdbeben\IMG_3146.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,505 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,509 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2901.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,717 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,719 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2902.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,859 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,859 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2903.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,984 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:10,984 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2904.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,206 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,206 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2905.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,284 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,287 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2906.JPG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,477 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,533 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-7-2023 Über das Erdbeben\IMG_2909.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,686 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,686 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-8-2023 Über das Erdbeben\IMG_2945.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,771 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,771 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-8-2023 Über das Erdbeben\IMG_2957.JPG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,833 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,833 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-8-2023 Über das Erdbeben\IMG_2958.JPG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,895 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,895 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-8-2023 Über das Erdbeben\IMG_2959.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,951 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:11,957 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-8-2023 Über das Erdbeben\IMG_2960.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,111 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,111 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-9-2023 Über das Erdbeben\IMG_2985.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,225 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,226 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-9-2023 Über das Erdbeben\IMG_2987.PNG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,281 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,281 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-9-2023 Über das Erdbeben\IMG_2989.JPG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,358 [ERROR] Database connection error: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+Traceback (most recent call last):
+  File "repository\base_repository.py", line 102, in get_connection
+    yield conn
+  File "repository\base_repository.py", line 337, in connection
+    yield conn
+  File "repository\folder_repository.py", line 142, in ensure_folder
+    cur.execute(sql, (path, name, parent_id, project_id))
+sqlite3.IntegrityError: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:12,360 [ERROR] Failed to create folder hierarchy for D:\From Laptob\Meine Fotos\2023\2\Über das Erdbeben\2-9-2023 Über das Erdbeben\IMG_2994.JPG: UNIQUE constraint failed: photo_folders.path, photo_folders.project_id
+2025-11-12 01:35:17,144 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:35:37,166 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:35:54,316 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:36:11,594 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:36:24,911 [INFO] Bulk upserted 200 photos for project 1
+2025-11-12 01:36:40,517 [INFO] Bulk upserted 200 photos for project 1

@@ -1,41 +1,38 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-06> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-12 20:31:45,579 [INFO] ================================================================================
-2025-11-12 20:31:45,580 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-12 20:31:45,580 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\app_log.txt
-2025-11-12 20:31:45,580 [INFO] ================================================================================
-2025-11-12 20:31:45,616 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-12 20:31:45,617 [INFO] Qt message handler installed to suppress TIFF warnings
-[ThumbCacheDB] Purged 53 stale thumbnails (> 30 days).
-[Cache] {'entries': 59, 'size_mb': 0.22, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\thumbnails_cache.db', 'last_updated': '2025-11-12 20:31'}
-[ThumbCacheDB] Purged 6 stale thumbnails (> 7 days).
+2025-11-12 22:02:14,833 [INFO] ================================================================================
+2025-11-12 22:02:14,833 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-12 22:02:14,834 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
+2025-11-12 22:02:14,834 [INFO] ================================================================================
+2025-11-12 22:02:14,869 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-12 22:02:14,869 [INFO] Qt message handler installed to suppress TIFF warnings
+[ThumbCacheDB] Purged 51 stale thumbnails (> 30 days).
+[Cache] {'entries': 51, 'size_mb': 0.19, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-12 22:02'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-12 20:31:45,869 [INFO] SearchService initialized
-[20:31:46.340] [Tabs] __init__ started
-[20:31:46.341] [Tabs] _build_tabs → building tab widgets
-[20:31:46.341] [Tabs] _on_tab_changed(idx=0)
-[20:31:46.343] [Tabs] _start_timeout idx=0 type=branches
-[20:31:46.343] [Tabs] _populate_tab(branches, idx=0, force=False)
-[20:31:46.343] [Tabs]   populated=False, loading=False
-[20:31:46.343] [Tabs]   Starting load for branches
-[20:31:46.343] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[20:31:46.343] [Tabs] _clear_tab idx=0
-[20:31:46.344] [Tabs] _on_tab_changed → tab_type=branches
-[20:31:46.345] [Tabs] _build_tabs → added 6 tabs
-[20:31:46.345] [Tabs] __init__ completed
+2025-11-12 22:02:15,111 [INFO] SearchService initialized
+[22:02:15.554] [Tabs] __init__ started
+[22:02:15.554] [Tabs] _build_tabs → building tab widgets
+[22:02:15.555] [Tabs] _on_tab_changed(idx=0)
+[22:02:15.555] [Tabs] _start_timeout idx=0 type=branches
+[22:02:15.555] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:02:15.555] [Tabs]   populated=False, loading=False
+[22:02:15.555] [Tabs]   Starting load for branches
+[22:02:15.555] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:02:15.555] [Tabs] _clear_tab idx=0
+[22:02:15.556] [Tabs] _on_tab_changed → tab_type=branches
+[22:02:15.557] [Tabs] _build_tabs → added 6 tabs
+[22:02:15.557] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 37 folder counts in batch (performance optimization)
-[VideoDateHierarchy] Building: 6 years, 27 months, 66 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] Loaded 31 folder counts in batch (performance optimization)
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=2] running for 1 targets...
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[20:31:46.556] [Tabs] hide_tabs() called - canceling pending workers
+[22:02:15.691] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
@@ -44,147 +41,161 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 37 folder counts in batch (performance optimization)
-[VideoDateHierarchy] Building: 6 years, 27 months, 66 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] Loaded 31 folder counts in batch (performance optimization)
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=4] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
 [Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-12 20:31:46,773 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-12 20:31:46,773 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-12 20:31:46,774 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-12 22:02:15,825 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-12 22:02:15,825 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-12 22:02:15,826 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected - full video support enabled
-[20:31:47.266] [Tabs] _on_tab_changed(idx=0)
-[20:31:47.266] [Tabs] _start_timeout idx=0 type=branches
-[20:31:47.266] [Tabs] _populate_tab(branches, idx=0, force=False)
-[20:31:47.267] [Tabs]   populated=False, loading=False
-[20:31:47.267] [Tabs]   Starting load for branches
-[20:31:47.267] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[20:31:47.267] [Tabs] _clear_tab idx=0
-[20:31:47.269] [Tabs] _on_tab_changed → tab_type=branches
-[20:31:47.269] [Tabs] _finish_branches (stale gen=1) — ignoring
-[20:31:47.289] [Tabs] _clear_tab idx=0
+[22:02:16.272] [Tabs] _on_tab_changed(idx=0)
+[22:02:16.273] [Tabs] _start_timeout idx=0 type=branches
+[22:02:16.273] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:02:16.273] [Tabs]   populated=False, loading=False
+[22:02:16.273] [Tabs]   Starting load for branches
+[22:02:16.273] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:02:16.273] [Tabs] _clear_tab idx=0
+[22:02:16.274] [Tabs] _on_tab_changed → tab_type=branches
+[22:02:16.274] [Tabs] _finish_branches (stale gen=1) — ignoring
+[22:02:16.291] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 408 photos
-[GRID] Loaded 408 thumbnails.
-[GRID] Reloaded 408 thumbnails in branch-mode (base=408)
-[GRID] Using scroll-based start position: 0 (scroll: 0/7989)
-[GRID] Loading viewport range: 0-50 of 408
+[get_images_by_branch] Found 395 photos
+[GRID] Loaded 395 thumbnails.
+[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
+[GRID] Using scroll-based start position: 0 (scroll: 0/7733)
+[GRID] Loading viewport range: 0-50 of 395
 [GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/8010)
-[GRID] Loading viewport range: 0-50 of 408
-[Sidebar] Filtering videos by year: 2014
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 videos from 2014
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by day: 2014-08-13
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 videos from 2014-08-13
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2017
-[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
-[Sidebar] Showing 2 videos from 2017
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2018
-[MediaTypeSeparation] ✅ VERIFIED: All 16 items are videos
-[Sidebar] Showing 16 videos from 2018
-[GRID] Loaded 16 thumbnails in videos-mode.
-[Sidebar] Filtering videos by month: 2018-11
-[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
-[Sidebar] Filtering videos by day: 2018-11-28
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 videos from 2018-11-28
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by month: 2018-11
-[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
-[Sidebar] Filtering videos by month: 2018-11
-[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
-[Sidebar] Filtering videos by day: 2018-11-28
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 videos from 2018-11-28
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by day: 2018-11-10
-[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
-[Sidebar] Showing 2 videos from 2018-11-10
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Sidebar] Filtering videos by day: 2018-11-03
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 videos from 2018-11-03
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by month: 2018-10
-[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
-[Sidebar] Filtering videos by month: 2018-10
-[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
-[Sidebar] Filtering videos by year: 2019
-[MediaTypeSeparation] ✅ VERIFIED: All 32 items are videos
-[Sidebar] Showing 32 videos from 2019
-[GRID] Loaded 32 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2020
-[MediaTypeSeparation] ✅ VERIFIED: All 13 items are videos
-[Sidebar] Showing 13 videos from 2020
-[GRID] Loaded 13 thumbnails in videos-mode.
-[Sidebar] Filtering videos by year: 2021
-[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
-[Sidebar] Showing 2 videos from 2021
-[GRID] Loaded 2 thumbnails in videos-mode.
-[Sidebar] Filtering videos by file size: small
-[MediaTypeSeparation] ✅ VERIFIED: All 88 items are videos
-[Sidebar] Showing 88 Small (< 100MB) videos
-[GRID] Loaded 88 thumbnails in videos-mode.
-[Sidebar] Filtering videos by file size: medium
-[MediaTypeSeparation] ✅ VERIFIED: All 9 items are videos
-[Sidebar] Showing 9 Medium (100MB - 1GB) videos
-[GRID] Loaded 9 thumbnails in videos-mode.
-[Sidebar] Filtering videos by codec: h264
-[MediaTypeSeparation] ✅ VERIFIED: All 97 items are videos
-[Sidebar] Showing 97 H.264 / AVC videos
-[GRID] Loaded 97 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: sd
-[MediaTypeSeparation] ✅ VERIFIED: All 96 items are videos
-[Sidebar] Showing 96 SD (< 720p) videos
-[GRID] Loaded 96 thumbnails in videos-mode.
-[Sidebar] Filtering videos by resolution: hd
-[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
-[Sidebar] Showing 1 HD (720p) videos
-[GRID] Loaded 1 thumbnails in videos-mode.
-[Sidebar] Filtering videos by duration: medium
-[MediaTypeSeparation] ✅ VERIFIED: All 54 items are videos
-[Sidebar] Showing 54 medium (30s - 5min) videos
-[GRID] Loaded 54 thumbnails in videos-mode.
-[Sidebar] Filtering videos by duration: long
-[MediaTypeSeparation] ✅ VERIFIED: All 43 items are videos
-[Sidebar] Showing 43 long (> 5min) videos
-[GRID] Loaded 43 thumbnails in videos-mode.
-[Sidebar] Displaying all videos for project 1
-[MediaTypeSeparation] ✅ VERIFIED: All 97 items are videos
-[GRID] Loaded 97 thumbnails in videos-mode.
+[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
+[GRID] Loading viewport range: 0-50 of 395
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 408 photos
-[GRID] Loaded 408 thumbnails.
-[GRID] Reloaded 408 thumbnails in branch-mode (base=408)
-[GRID] Loaded 51 thumbnails.
-[GRID] Reloaded 51 thumbnails in date-mode (base=51)
-[GRID] Using scroll-based start position: 0 (scroll: 0/458)
-[GRID] Loading viewport range: 0-50 of 51
+[get_images_by_branch] Found 395 photos
+[GRID] Loaded 395 thumbnails.
+[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
+[DB] get_images_by_folder(848, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[DB] get_images_by_folder(848, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Loaded 33 thumbnails.
+[GRID] Reloaded 33 thumbnails in date-mode (base=33)
+[GRID] Using scroll-based start position: 0 (scroll: 0/74)
+[GRID] Loading viewport range: 0-32 of 33
+[GRID] Queued 33 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/74)
+[GRID] Loading viewport range: 0-32 of 33
+[GRID] Loaded 33 thumbnails.
+[GRID] Reloaded 33 thumbnails in date-mode (base=33)
+[GRID] Loaded 65 thumbnails.
+[GRID] Reloaded 65 thumbnails in date-mode (base=65)
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
+[GRID] Queued 65 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
+[GRID] Loaded 65 thumbnails.
+[GRID] Reloaded 65 thumbnails in date-mode (base=65)
+[GRID] Loaded 236 thumbnails.
+[GRID] Reloaded 236 thumbnails in date-mode (base=236)
+[GRID] Using scroll-based start position: 0 (scroll: 0/4426)
+[GRID] Loading viewport range: 0-50 of 236
 [GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/458)
-[GRID] Loading viewport range: 0-50 of 51
-[GRID] Loaded 51 thumbnails.
-[GRID] Reloaded 51 thumbnails in date-mode (base=51)
-[GRID] Loaded 13 thumbnails.
-[GRID] Reloaded 13 thumbnails in date-mode (base=13)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-12 of 13
-[GRID] Queued 13 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-12 of 13
-[GRID] Loaded 13 thumbnails.
-[GRID] Reloaded 13 thumbnails in date-mode (base=13)
+[GRID] Using scroll-based start position: 0 (scroll: 0/4426)
+[GRID] Loading viewport range: 0-50 of 236
+[GRID] Loaded 236 thumbnails.
+[GRID] Reloaded 236 thumbnails in date-mode (base=236)
+[GRID] Loaded 65 thumbnails.
+[GRID] Reloaded 65 thumbnails in date-mode (base=65)
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
+[GRID] Queued 65 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x000001FB92FC9CC0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1fb8e6f24c0) at 0x000001FB8EDAA440>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=65
+[open_lightbox] paths=['d:\\my phone\\videos\\محمد اسكندر لفيروز(source).mp4', 'd:\\my phone\\videos\\نورا رحال، طاهر مامللي،، حبذا(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\facebook 2823061954627635(144p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (1)- السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (2) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (29) تعلم اللغة الالمانية_جمل مهمة في قسم المحادثة (b1 prüfung (sprechen(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم اللغة الألمانية مستوى  b1  _ جمل وحوارات هامة للمتوسطين _ مكرر 3 prolingoo_german_(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (3) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (4) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (6) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (5) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (7) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (8) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الالماني (10) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\lernen gernan mit diaa\\السهل الممتنع في الألماني (9) السلسلة الذهبية لتعلم المحادثة(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة ٤٩(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\كلمات صعبة صدقني انت قدها _ ----  b2 - تعلم اللغة الالمانية(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 1(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 4(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\1- deutsch dialogue - b2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit dialogen _ b1 b2 c1 _ deutsch lernen kostenlos(360p).mp4', 'd:\\my phone\\videos\\turkish\\الطبيب المعجزة الحلقة (٥٠)(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\alltag und beruf - b2 - deutsch lernen mit dialogen 6(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز- كورال غاردينيا- حفل شارات مسلسلات الكرتون 2016(480p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\افتح يا سمسم(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\جزيرة الكنز(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\غريندايزر(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ريمي الصبي(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\سنان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\بيل وسيباستيان(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\توم سوير(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\عدنان ولينا(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\gardinia band\\ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\في قصص الشعوب(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\وداعاً إلى اللقاء- ساندي بل(360p).mp4', 'd:\\my phone\\videos\\أغاني كرتون قديم\\فلونة(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül ve kerim_in mini balayı - fatmagül_ün suçu ne_ 78. bölüm(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\german songs with words\\lieblingsmensch namika lyrics(360p).mp4', 'd:\\my phone\\videos\\_هاكونا ماتاتا_ - الأسد الملك(360p).mp4', 'd:\\my phone\\videos\\turkish\\new folder\\fatmagül_ cristine_e nispet yapıyor_ - fatmagül_ün suçu ne_ 78.bölüm(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\_präsentation _diskussion _problemlösung b2 prüfung _präsentation_ diskussion_ problemlösung(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\الدرس (79) الامتحان الشفهي -الحديث عن رحلة b2 prüfung- präsentation über eine reise(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\präsentation – über ein buch_ mündliche prüfung b2 telc(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\تعلم الالمانيه مع زيدون (266) اهم الجمل لموضوع المناقشة b2 - thema diskussion 2018(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\10 wichtige ausdrücke für b2(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\naruto_ die rettung der schriftrolle  ناروتو إنقاذ المخطوطة_ckweiopifth(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\spongebob schwammkopf_ bei der ersten abfahrt سبونج بوب عندالإنطلاقة الأولى_ckmocivivgi(mp4).mp4', 'd:\\my phone\\videos\\deutsch lernen\\pluspunkt deutsch a 1 ganzer film(480p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch mit geschichten _16 _ a1-a2 _ learn german with stories(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit geschichten _24 _ a1-a2  _ german for free(360p).mp4', 'd:\\my phone\\videos\\deutsch lernen\\deutsch lernen mit geschichten _11 _ a2-b1 _ learn german with stories(360p).mp4', 'd:\\my phone\\videos\\turkish\\facebook 1817002158464272(480p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - جابوا سيرته [assala - gabo serto  [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - نكتة بايخة _ [assala - nokta baykha [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - هيقولك _ assala - hay_oliek [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة والشرنوبي - مين فينا _ assala _ al sharnouby - meen feena [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - صندوق صغير _ assala - sandook segheer [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - أنا بتخان _ assala - ana batkhan [فيديو كلمات - lyrics video](360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\أصالة - مبقاش  سر _ [assala - maba_ash ser [lyrics video(360p).mp4', 'd:\\my phone\\videos\\أصالة نصري\\الحب والسلام مع الكلمات -اصالة 2020 _assala - love and peace(360p).mp4', 'd:\\my phone\\videos\\عمرو دياب\\amr diab - bayen habeit (audio عمرو دياب - باين حبيت (كلمات(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\mohamad mounir - haret el saqayeen  ☆ محمد منير - حارة السقايين(360p).mp4', 'd:\\my phone\\videos\\محمد مُنير\\محمد منير - عايش _ النسخة الاصلية  [ كلمات mohamed mounir - ayeish [lyrics(360p).mp4', 'c:\\users\\asus\\onedrive\\documents\\python\\test-photos\\photos\\refs\\2\\244008930_565686944637059_4279754871252118785_n.jpg']
+[open_lightbox] path=d:\my phone\videos\نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[UnifiedPreview] Opening media in unified dialog: d:\my phone\videos\نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: d:\my phone\videos\نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///d:/my phone/videos/نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: d:\my phone\videos\نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///d:/my phone/videos/نورا رحال، طاهر مامللي،، حبذا(480p).mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/نورا رحال، طاهر مامللي،، حبذا(480p).mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : 454776449241457
+    encoder         : Lavf57.56.101
+  Duration: 00:02:18.09, start: 0.000000, bitrate: 354 kb/s
+  Stream #0:0[0x1](eng): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 852x480 [SAR 640:639 DAR 16:9], 285 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](eng): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 64 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 2:18
+[LightboxDialog] Video playback state: Playing
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[GRID] Using scroll-based start position: 45 (scroll: 714/714)
+[GRID] Loading viewport range: 37-64 of 65
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 7 items
+[GRID] Loading viewport range: 0-64 of 65
+[GRID] Queued 65 new thumbnail workers
+[GRID] Loaded 65 thumbnails.
+[GRID] Reloaded 65 thumbnails in date-mode (base=65)
+[GRID] Loaded 33 thumbnails.
+[GRID] Reloaded 33 thumbnails in date-mode (base=33)
+[GRID] Using scroll-based start position: 0 (scroll: 0/74)
+[GRID] Loading viewport range: 0-32 of 33
+[GRID] Queued 33 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/74)
+[GRID] Loading viewport range: 0-32 of 33
+[GRID] Loaded 33 thumbnails.
+[GRID] Reloaded 33 thumbnails in date-mode (base=33)
+[GRID] Loaded 236 thumbnails.
+[GRID] Reloaded 236 thumbnails in date-mode (base=236)
+[GRID] Using scroll-based start position: 0 (scroll: 0/4426)
+[GRID] Loading viewport range: 0-50 of 236
+[GRID] Queued 51 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/4426)
+[GRID] Loading viewport range: 0-50 of 236
+[GRID] Loaded 236 thumbnails.
+[GRID] Reloaded 236 thumbnails in date-mode (base=236)
 [GRID] Loaded 10 thumbnails.
 [GRID] Reloaded 10 thumbnails in date-mode (base=10)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
@@ -194,16 +205,102 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-
 [GRID] Loading viewport range: 0-9 of 10
 [GRID] Loaded 10 thumbnails.
 [GRID] Reloaded 10 thumbnails in date-mode (base=10)
-[GRID] Loaded 236 thumbnails.
-[GRID] Reloaded 236 thumbnails in date-mode (base=236)
-[GRID] Using scroll-based start position: 0 (scroll: 0/3284)
-[GRID] Loading viewport range: 0-64 of 236
+[GRID] Loaded 13 thumbnails.
+[GRID] Reloaded 13 thumbnails in date-mode (base=13)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-12 of 13
+[GRID] Queued 13 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-12 of 13
+[GRID] Loaded 13 thumbnails.
+[GRID] Reloaded 13 thumbnails in date-mode (base=13)
+[GRID] Loaded 38 thumbnails.
+[GRID] Reloaded 38 thumbnails in date-mode (base=38)
+[GRID] Using scroll-based start position: 0 (scroll: 0/202)
+[GRID] Loading viewport range: 0-37 of 38
+[GRID] Queued 38 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/202)
+[GRID] Loading viewport range: 0-37 of 38
+[GRID] Using scroll-based start position: 18 (scroll: 202/202)
+[GRID] Loading viewport range: 10-37 of 38
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/202)
+[GRID] Loading viewport range: 0-37 of 38
+[GRID] Queued 38 new thumbnail workers
+[GRID] Loaded 38 thumbnails.
+[GRID] Reloaded 38 thumbnails in date-mode (base=38)
+[DB] get_images_by_folder(848, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[GRID] Queued 97 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1482)
+[GRID] Near bottom, loading all remaining 46 items
+[GRID] Loading viewport range: 0-96 of 97
+[DB] get_images_by_folder(848, subfolders=True, project=1) -> 97 paths from 14 folders
+[GRID] Loaded 97 thumbnails.
+[GRID] Reloaded 97 thumbnails in folder-mode (base=97)
+[DB] get_images_by_folder(852, subfolders=True, project=1) -> 50 paths from 3 folders
+[GRID] Loaded 50 thumbnails.
+[GRID] Reloaded 50 thumbnails in folder-mode (base=50)
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-49 of 50
+[GRID] Queued 50 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-49 of 50
+[DB] get_images_by_folder(852, subfolders=True, project=1) -> 50 paths from 3 folders
+[GRID] Loaded 50 thumbnails.
+[GRID] Reloaded 50 thumbnails in folder-mode (base=50)
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in date-mode (base=1)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Queued 1 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-0 of 1
+[GRID] Loaded 1 thumbnails.
+[GRID] Reloaded 1 thumbnails in date-mode (base=1)
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in date-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in date-mode (base=6)
+[GRID] Loaded 9 thumbnails.
+[GRID] Reloaded 9 thumbnails in date-mode (base=9)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-8 of 9
+[GRID] Queued 9 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-8 of 9
+[GRID] Loaded 9 thumbnails.
+[GRID] Reloaded 9 thumbnails in date-mode (base=9)
+[GRID] Loaded 17 thumbnails.
+[GRID] Reloaded 17 thumbnails in date-mode (base=17)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-16 of 17
+[GRID] Queued 17 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-16 of 17
+[GRID] Loaded 17 thumbnails.
+[GRID] Reloaded 17 thumbnails in date-mode (base=17)
+[GRID] Loaded 65 thumbnails.
+[GRID] Reloaded 65 thumbnails in date-mode (base=65)
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
 [GRID] Queued 65 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/3284)
-[GRID] Loading viewport range: 0-64 of 236
+[GRID] Using scroll-based start position: 0 (scroll: 0/714)
+[GRID] Near bottom, loading all remaining 14 items
+[GRID] Loading viewport range: 0-64 of 65
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02>
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-06>

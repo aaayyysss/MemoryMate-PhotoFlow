@@ -167,7 +167,9 @@ class VideoService:
             return False
 
     def index_video(self, path: str, project_id: int, folder_id: int = None,
-                   size_kb: float = None, modified: str = None) -> Optional[int]:
+                   size_kb: float = None, modified: str = None,
+                   created_ts: int = None, created_date: str = None,
+                   created_year: int = None) -> Optional[int]:
         """
         Index a video file during scanning.
 
@@ -180,14 +182,24 @@ class VideoService:
             folder_id: Folder ID (optional)
             size_kb: File size in KB (optional)
             modified: Modified timestamp (optional)
+            created_ts: Created timestamp (optional, for immediate date hierarchy)
+            created_date: Created date YYYY-MM-DD (optional, for immediate date hierarchy)
+            created_year: Created year (optional, for immediate date hierarchy)
 
         Returns:
             Video ID, or None if indexing failed
 
         Example:
             >>> service.index_video("/videos/clip.mp4", project_id=1, folder_id=5,
-            ...                     size_kb=102400, modified="2025-01-01 12:00:00")
+            ...                     size_kb=102400, modified="2025-01-01 12:00:00",
+            ...                     created_ts=1735689600, created_date="2025-01-01",
+            ...                     created_year=2025)
             123
+
+        Note:
+            created_* fields are populated from file modified date during scan for immediate
+            sidebar display. Background workers will UPDATE these with proper date_taken
+            extracted from video metadata.
         """
         try:
             # Check if video already exists
@@ -196,13 +208,16 @@ class VideoService:
                 self.logger.debug(f"Video already indexed: {path}")
                 return existing.get('id')
 
-            # Create new video entry with pending status
+            # Create new video entry with pending status AND date fields
             video_id = self._video_repo.create(
                 path=path,
                 folder_id=folder_id,
                 project_id=project_id,
                 size_kb=size_kb,
                 modified=modified,
+                created_ts=created_ts,
+                created_date=created_date,
+                created_year=created_year,
                 metadata_status='pending',
                 thumbnail_status='pending'
             )

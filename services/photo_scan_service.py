@@ -475,6 +475,48 @@ class PhotoScanService:
             logger.warning(f"Could not load existing metadata: {e}")
             return {}
 
+    def _compute_created_fields(self, date_str: str = None, modified: str = None) -> tuple:
+        """
+        Compute created_ts, created_date, created_year from date or modified time.
+
+        This helper is used for both photos and videos to ensure consistent date handling.
+
+        Args:
+            date_str: Date string in YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format
+            modified: Modified timestamp in YYYY-MM-DD HH:MM:SS format (fallback)
+
+        Returns:
+            Tuple of (created_ts, created_date, created_year) or (None, None, None)
+
+        Example:
+            >>> _compute_created_fields("2024-11-12", None)
+            (1699747200, "2024-11-12", 2024)
+
+            >>> _compute_created_fields(None, "2024-11-12 15:30:00")
+            (1699747200, "2024-11-12", 2024)
+        """
+        from datetime import datetime
+
+        # Try parsing date_str first, fall back to modified
+        date_to_parse = date_str if date_str else modified
+
+        if not date_to_parse:
+            return (None, None, None)
+
+        try:
+            # Extract YYYY-MM-DD part
+            date_only = date_to_parse.split(' ')[0]
+            dt = datetime.strptime(date_only, '%Y-%m-%d')
+
+            return (
+                int(dt.timestamp()),  # created_ts
+                date_only,             # created_date (YYYY-MM-DD)
+                dt.year                # created_year
+            )
+        except (ValueError, AttributeError, IndexError) as e:
+            logger.debug(f"Failed to parse date '{date_to_parse}': {e}")
+            return (None, None, None)
+
     def _process_file(self,
                      file_path: Path,
                      root_path: Path,
@@ -759,13 +801,20 @@ class PhotoScanService:
                     size_kb = stat.st_size / 1024
                     modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
 
-                    # Index video (status will be 'pending' for metadata/thumbnail extraction)
+                    # CRITICAL FIX: Compute created_* fields from modified date for immediate sidebar display
+                    # Background workers will UPDATE these with proper date_taken from video metadata
+                    created_ts, created_date, created_year = self._compute_created_fields(None, modified)
+
+                    # Index video WITH date fields (using modified as fallback until workers extract date_taken)
                     video_service.index_video(
                         path=str(video_path),
                         project_id=project_id,
                         folder_id=folder_id,
                         size_kb=size_kb,
-                        modified=modified
+                        modified=modified,
+                        created_ts=created_ts,
+                        created_date=created_date,
+                        created_year=created_year
                     )
                     self._stats['videos_indexed'] += 1
 

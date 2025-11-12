@@ -1292,16 +1292,25 @@ class ThumbnailGridQt(QWidget):
             # Use TagService for proper layered architecture
             tag_service = get_tag_service()
             tags_map = tag_service.get_tags_for_paths(paths, self.project_id)
-        except Exception:
+            print(f"[TagCache] Refreshing tags for {len(paths)} paths, got {len(tags_map)} entries")
+        except Exception as e:
+            print(f"[TagCache] ❌ Failed to fetch tags: {e}")
             return
+
         # normalize to the same format used in load()
+        updated_count = 0
         for row in range(self.model.rowCount()):
             item = self.model.item(row)
             if not item:
                 continue
             p = item.data(Qt.UserRole)
             if p in tags_map:
-                item.setData(tags_map.get(p, []), Qt.UserRole + 2)
+                new_tags = tags_map.get(p, [])
+                item.setData(new_tags, Qt.UserRole + 2)
+                updated_count += 1
+
+        if updated_count > 0:
+            print(f"[TagCache] Updated {updated_count} items, repaint complete")
 
         # repaint only
         self.list_view.viewport().update()

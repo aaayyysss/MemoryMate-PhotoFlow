@@ -115,7 +115,11 @@ class FolderRepository(BaseRepository):
 
     def ensure_folder(self, path: str, name: str, parent_id: Optional[int], project_id: int) -> int:
         """
-        Ensure a folder exists in the database for a project.
+        Ensure a folder exists in the database for a project (thread-safe).
+
+        This method is safe for concurrent calls from multiple threads.
+        It handles race conditions where multiple threads try to create
+        the same folder simultaneously.
 
         Args:
             path: Full file system path
@@ -125,26 +129,63 @@ class FolderRepository(BaseRepository):
 
         Returns:
             Folder ID
-        """
-        # Check if exists for this project
-        existing = self.get_by_path(path, project_id)
-        if existing:
-            return existing['id']
 
-        # Insert new folder
-        sql = """
-            INSERT INTO photo_folders (path, name, parent_id, project_id)
+        Thread Safety:
+            Uses INSERT OR IGNORE followed by SELECT to atomically ensure
+            the folder exists and retrieve its ID. This pattern is safe for
+            concurrent operations.
+
+        Algorithm:
+            1. INSERT OR IGNORE (creates folder if doesn't exist, no-op if exists)
+            2. COMMIT (always commit, operation is idempotent)
+            3. SELECT to get folder ID (guaranteed to find it after commit)
+        """
+        sql_insert = """
+            INSERT OR IGNORE INTO photo_folders (path, name, parent_id, project_id)
             VALUES (?, ?, ?, ?)
         """
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute(sql, (path, name, parent_id, project_id))
-            conn.commit()
-            folder_id = cur.lastrowid
 
-        self.logger.debug(f"Created folder: {path} (id={folder_id}, project={project_id})")
-        return folder_id
+            # Always try to insert (ignored if folder already exists)
+            cur.execute(sql_insert, (path, name, parent_id, project_id))
+            conn.commit()  # Always commit (idempotent operation)
+
+            # CRITICAL FIX: Use case-insensitive matching on Windows for SELECT
+            # Windows file paths are case-insensitive but can be stored with different casing
+            # We need the same logic as get_by_path() to handle path variations
+            import platform
+            if platform.system() == 'Windows':
+                # Normalize both stored and query paths to lowercase for comparison
+                normalized_path = path.lower().replace('/', '\\')
+                cur.execute(
+                    """
+                    SELECT id FROM photo_folders
+                    WHERE LOWER(REPLACE(path, '/', '\\')) = ?
+                    AND project_id = ?
+                    """,
+                    (normalized_path, project_id)
+                )
+            else:
+                # Unix-like systems: use exact match (case-sensitive)
+                cur.execute(
+                    "SELECT id FROM photo_folders WHERE path = ? AND project_id = ?",
+                    (path, project_id)
+                )
+
+            row = cur.fetchone()
+
+            if row:
+                # CRITICAL FIX: row is a dict (from row_factory), not a tuple!
+                # Access by column name, not index
+                folder_id = row['id']
+                self.logger.debug(f"Ensured folder: {path} (id={folder_id}, project={project_id})")
+                return folder_id
+
+            # This should never happen (insert was successful, so select must find it)
+            self.logger.error(f"CRITICAL: Folder disappeared after insert: {path} (project={project_id})")
+            raise RuntimeError(f"Database inconsistency: folder {path} not found after INSERT")
 
     def get_folder_tree(self) -> List[Dict[str, Any]]:
         """

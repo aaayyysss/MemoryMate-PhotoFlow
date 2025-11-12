@@ -1320,6 +1320,24 @@ class SidebarQt(QWidget):
             if mode in ("folder", "branch", "date") and hasattr(mw, "_clear_tag_filter"):
                 mw._clear_tag_filter()
 
+        def _ensure_video_paths_only(paths):
+            """
+            CRITICAL: Ensure strict media type separation - filter out any photos from video paths.
+            Returns tuple: (filtered_paths, photo_count, video_count)
+            """
+            from main_window_qt import is_video_file
+            photo_count = sum(1 for p in paths if not is_video_file(p))
+            video_count = sum(1 for p in paths if is_video_file(p))
+
+            if photo_count > 0:
+                print(f"[MediaTypeSeparation] ⚠️ WARNING: Found {photo_count} photos mixed with {video_count} videos!")
+                paths = [p for p in paths if is_video_file(p)]
+                print(f"[MediaTypeSeparation] ✅ Filtered to {len(paths)} videos only")
+            else:
+                print(f"[MediaTypeSeparation] ✅ VERIFIED: All {video_count} items are videos")
+
+            return paths, photo_count, video_count
+
         if mode == "folder" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("folder", value)
@@ -1365,11 +1383,15 @@ class SidebarQt(QWidget):
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
+
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     # Clear grid first to avoid showing stale content
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} videos")
                 else:
                     print(f"[Sidebar] Unable to display videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1398,11 +1420,15 @@ class SidebarQt(QWidget):
                     label = value
 
                 paths = [v['path'] for v in filtered]
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1431,14 +1457,17 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 quality_labels = {'sd': 'SD (< 720p)', 'hd': 'HD (720p)', 'fhd': 'Full HD (1080p)', '4k': '4K (2160p+)'}
                 label = quality_labels.get(value, value)
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1466,6 +1495,9 @@ class SidebarQt(QWidget):
                 filtered = video_service.filter_by_codec(videos, codecs=codecs_to_filter)
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 codec_labels = {
                     'h264': 'H.264 / AVC',
                     'hevc': 'H.265 / HEVC',
@@ -1475,11 +1507,11 @@ class SidebarQt(QWidget):
                 }
                 label = codec_labels.get(value, value.upper())
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎞️ Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1496,6 +1528,9 @@ class SidebarQt(QWidget):
                 filtered = video_service.filter_by_file_size(videos, size_range=value)
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 size_labels = {
                     'small': 'Small (< 100MB)',
                     'medium': 'Medium (100MB - 1GB)',
@@ -1504,11 +1539,11 @@ class SidebarQt(QWidget):
                 }
                 label = size_labels.get(value, value)
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"📦 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1529,11 +1564,14 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
-                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
+                    mw.statusBar().showMessage(f"📅 Showing {len(paths)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1788,14 +1826,19 @@ class SidebarQt(QWidget):
                     # 🎯 Filter by Duration
                     duration_parent = QStandardItem("⏱️ By Duration")
                     duration_parent.setEditable(False)
-                    duration_count = QStandardItem("")
-                    duration_count.setEditable(False)
-                    root_name_item.appendRow([duration_parent, duration_count])
 
                     # Count videos by duration
                     short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
                     medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
                     long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
+
+                    # CRITICAL FIX: Show sum count for Duration section
+                    total_duration_videos = len(short_videos) + len(medium_videos) + len(long_videos)
+                    duration_count = QStandardItem(str(total_duration_videos))
+                    duration_count.setEditable(False)
+                    duration_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    duration_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([duration_parent, duration_count])
 
                     # Short videos (< 30s)
                     short_item = QStandardItem("Short (< 30s)")
@@ -1833,15 +1876,20 @@ class SidebarQt(QWidget):
                     # 📺 Filter by Resolution
                     res_parent = QStandardItem("📺 By Resolution")
                     res_parent.setEditable(False)
-                    res_count = QStandardItem("")
-                    res_count.setEditable(False)
-                    root_name_item.appendRow([res_parent, res_count])
 
                     # Count videos by resolution (require both width and height metadata)
                     sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
                     hd_videos = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
                     fhd_videos = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
                     uhd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
+
+                    # CRITICAL FIX: Show sum count for Resolution section
+                    total_res_videos = len(sd_videos) + len(hd_videos) + len(fhd_videos) + len(uhd_videos)
+                    res_count = QStandardItem(str(total_res_videos))
+                    res_count.setEditable(False)
+                    res_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    res_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([res_parent, res_count])
 
                     # SD videos (< 720p)
                     sd_item = QStandardItem("SD (< 720p)")
@@ -1890,9 +1938,6 @@ class SidebarQt(QWidget):
                     # 🎞️ Filter by Codec (Option 7)
                     codec_parent = QStandardItem("🎞️ By Codec")
                     codec_parent.setEditable(False)
-                    codec_count = QStandardItem("")
-                    codec_count.setEditable(False)
-                    root_name_item.appendRow([codec_parent, codec_count])
 
                     # Count videos by codec
                     h264_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['h264', 'avc']]
@@ -1900,6 +1945,14 @@ class SidebarQt(QWidget):
                     vp9_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'vp9']
                     av1_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'av1']
                     mpeg4_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['mpeg4', 'xvid', 'divx']]
+
+                    # CRITICAL FIX: Show sum count for Codec section
+                    total_codec_videos = len(h264_videos) + len(hevc_videos) + len(vp9_videos) + len(av1_videos) + len(mpeg4_videos)
+                    codec_count = QStandardItem(str(total_codec_videos))
+                    codec_count.setEditable(False)
+                    codec_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    codec_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([codec_parent, codec_count])
 
                     # H.264
                     h264_item = QStandardItem("H.264 / AVC")
@@ -1959,15 +2012,20 @@ class SidebarQt(QWidget):
                     # 📦 Filter by File Size (Option 7)
                     size_parent = QStandardItem("📦 By File Size")
                     size_parent.setEditable(False)
-                    size_count = QStandardItem("")
-                    size_count.setEditable(False)
-                    root_name_item.appendRow([size_parent, size_count])
 
                     # Count videos by file size
                     small_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 < 100]
                     medium_size_videos = [v for v in videos if v.get('size_kb') and 100 <= v['size_kb'] / 1024 < 1024]
                     large_videos = [v for v in videos if v.get('size_kb') and 1024 <= v['size_kb'] / 1024 < 5120]
                     xlarge_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 >= 5120]
+
+                    # CRITICAL FIX: Show sum count for File Size section
+                    total_size_videos = len(small_videos) + len(medium_size_videos) + len(large_videos) + len(xlarge_videos)
+                    size_count = QStandardItem(str(total_size_videos))
+                    size_count.setEditable(False)
+                    size_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    size_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([size_parent, size_count])
 
                     # Small (< 100MB)
                     small_size_item = QStandardItem("Small (< 100MB)")
@@ -2038,10 +2096,12 @@ class SidebarQt(QWidget):
                         year_item.setEditable(False)
                         year_item.setData("videos_year", Qt.UserRole)
                         year_item.setData(year, Qt.UserRole + 1)
+
                         year_cnt = QStandardItem(str(year_count))
                         year_cnt.setEditable(False)
                         year_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         year_cnt.setForeground(QColor("#888888"))
+
                         date_parent.appendRow([year_item, year_cnt])
 
                         # Month nodes under year

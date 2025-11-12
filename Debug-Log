@@ -1,1 +1,163 @@
-I also tried 
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-10> python main_qt.py
+[Startup] pillow_heif available — HEIC/HEIF support enabled.
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-12 23:35:19,535 [INFO] ================================================================================
+2025-11-12 23:35:19,536 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-12 23:35:19,536 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\app_log.txt
+2025-11-12 23:35:19,536 [INFO] ================================================================================
+2025-11-12 23:35:19,572 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-12 23:35:19,572 [INFO] Qt message handler installed to suppress TIFF warnings
+[ThumbCacheDB] Purged 69 stale thumbnails (> 30 days).
+[Cache] {'entries': 69, 'size_mb': 0.27, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-10\\thumbnails_cache.db', 'last_updated': '2025-11-12 23:35'}
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-12 23:35:19,807 [INFO] SearchService initialized
+[23:35:20.215] [Tabs] __init__ started
+[23:35:20.216] [Tabs] _build_tabs → building tab widgets
+[23:35:20.216] [Tabs] _on_tab_changed(idx=0)
+[23:35:20.216] [Tabs] _start_timeout idx=0 type=branches
+[23:35:20.216] [Tabs] _populate_tab(branches, idx=0, force=False)
+[23:35:20.216] [Tabs]   populated=False, loading=False
+[23:35:20.217] [Tabs]   Starting load for branches
+[23:35:20.217] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[23:35:20.217] [Tabs] _clear_tab idx=0
+[23:35:20.218] [Tabs] _on_tab_changed → tab_type=branches
+[23:35:20.219] [Tabs] _build_tabs → added 6 tabs
+[23:35:20.219] [Tabs] __init__ completed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 31 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 97 videos in project 1
+[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] starting async count population for 56 branch targets
+[Sidebar][counts worker gen=2] running for 56 targets...
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[23:35:20.439] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 31 folder counts in batch (performance optimization)
+[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 97 videos in project 1
+[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] starting async count population for 56 branch targets
+[Sidebar][counts worker gen=4] running for 56 targets...
+[SidebarQt] _build_tree_model() completed
+2025-11-12 23:35:20,691 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-12 23:35:20,691 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-12 23:35:20,692 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Startup] Database schema initialized successfully
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+✅ FFmpeg and FFprobe detected - full video support enabled
+[23:35:21.125] [Tabs] _on_tab_changed(idx=0)
+[23:35:21.126] [Tabs] _start_timeout idx=0 type=branches
+[23:35:21.126] [Tabs] _populate_tab(branches, idx=0, force=False)
+[23:35:21.126] [Tabs]   populated=False, loading=False
+[23:35:21.126] [Tabs]   Starting load for branches
+[23:35:21.126] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[23:35:21.126] [Tabs] _clear_tab idx=0
+[23:35:21.127] [Tabs] _on_tab_changed → tab_type=branches
+[23:35:21.128] [Tabs] _finish_branches (stale gen=1) — ignoring
+[23:35:21.151] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 395 photos
+[GRID] Loaded 395 thumbnails.
+[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
+[GRID] Using scroll-based start position: 0 (scroll: 0/7733)
+[GRID] Loading viewport range: 0-50 of 395
+[GRID] Queued 51 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
+[GRID] Loading viewport range: 0-50 of 395
+[Sidebar] Filtering videos by year: 2021
+[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
+[Sidebar] Showing 2 videos from 2021
+[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2020
+[MediaTypeSeparation] ✅ VERIFIED: All 13 items are videos
+[Sidebar] Showing 13 videos from 2020
+[GRID] Loaded 13 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2019
+[MediaTypeSeparation] ✅ VERIFIED: All 32 items are videos
+[Sidebar] Showing 32 videos from 2019
+[GRID] Loaded 32 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2018
+[MediaTypeSeparation] ✅ VERIFIED: All 16 items are videos
+[Sidebar] Showing 16 videos from 2018
+[GRID] Loaded 16 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2017
+[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
+[Sidebar] Showing 2 videos from 2017
+[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2014
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2014
+[GRID] Loaded 1 thumbnails in videos-mode.
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x000002C762C3A100>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x2c7420a09d0) at 0x000002C762C4E740>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=1
+[open_lightbox] paths=['d:\\my phone\\videos\\french songs with words\\iglesias julio vous les femmes paroles(360p)_1.mp4']
+[open_lightbox] path=d:\my phone\videos\french songs with words\iglesias julio vous les femmes paroles(360p)_1.mp4
+[UnifiedPreview] Opening media in unified dialog: d:\my phone\videos\french songs with words\iglesias julio vous les femmes paroles(360p)_1.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: d:\my phone\videos\french songs with words\iglesias julio vous les femmes paroles(360p)_1.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///d:/my phone/videos/french songs with words/iglesias julio vous les femmes paroles(360p)_1.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: d:\my phone\videos\french songs with words\iglesias julio vous les femmes paroles(360p)_1.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///d:/my phone/videos/french songs with words/iglesias julio vous les femmes paroles(360p)_1.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'd:/my phone/videos/french songs with words/iglesias julio vous les femmes paroles(360p)_1.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2014-08-13T14:16:06.000000Z
+  Duration: 00:02:58.75, start: 0.000000, bitrate: 195 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(progressive), 640x360 [SAR 1:1 DAR 16:9], 97 kb/s, 25 fps, 25 tbr, 25 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 95 kb/s (default)
+      Metadata:
+        creation_time   : 2014-08-13T14:16:07.000000Z
+        handler_name    : IsoMedia File Produced by Google, 5-11-2011
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 2:58
+[LightboxDialog] Video playback state: Playing
+[LightboxDialog] Timeline seeking started
+[LightboxDialog] Seeked to 1:20
+[LightboxDialog] Timeline seeking started
+[LightboxDialog] Seeked to 2:24
+[LightboxDialog] Timeline seeking started
+[LightboxDialog] Seeked to 0:07
+[LightboxDialog] Timeline seeking started
+[LightboxDialog] Seeked to 0:00
+[LightboxDialog] Video playback state: Paused
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[Shutdown] Grid threads shut down.
+[ThumbnailManager] Thread pool shut down.
+[Shutdown] ThumbnailManager threads shut down.
+[Shutdown] Thumbnail cache cleared.
+[ThumbCacheDB] Closing cache gracefully...
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-10>

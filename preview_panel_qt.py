@@ -552,6 +552,7 @@ class LightboxDialog(QDialog):
         self.video_widget.setMinimumHeight(300)
         self.video_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.video_widget.setStyleSheet("background-color: black;")
+        self.video_widget.installEventFilter(self)  # PHASE 2: Capture double-click for fullscreen
         video_layout.addWidget(self.video_widget)
 
         self.content_stack.addWidget(video_container)  # index 1
@@ -579,6 +580,11 @@ class LightboxDialog(QDialog):
         # Track current media type
         self._current_media_type = "photo"  # "photo" or "video"
         self._is_video = False
+
+        # === PHASE 2: Fullscreen mode support ===
+        self._is_fullscreen = False
+        self._pre_fullscreen_geometry = None
+        self._pre_fullscreen_state = None
 
         hbox.addWidget(self.content_stack, 1)
 
@@ -1261,6 +1267,28 @@ class LightboxDialog(QDialog):
         self.video_volume_slider.valueChanged.connect(self._on_volume_changed)
         self.video_volume_slider.hide()
 
+        # === PHASE 2: Playback Speed Controls ===
+        self.btn_playback_speed = QToolButton()
+        self.btn_playback_speed.setText("1x")
+        self.btn_playback_speed.setToolTip("Playback speed")
+        self.btn_playback_speed.setStyleSheet(self._button_style())
+        self.btn_playback_speed.setPopupMode(QToolButton.InstantPopup)
+        self.btn_playback_speed.setFixedWidth(50)
+        self.btn_playback_speed.hide()
+
+        # Speed menu
+        speed_menu = QMenu(self.btn_playback_speed)
+        self._playback_speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+        for speed in self._playback_speeds:
+            action = QAction(f"{speed}x", self)
+            action.setCheckable(True)
+            action.setChecked(speed == 1.0)  # Default 1x
+            action.triggered.connect(lambda checked, s=speed: self._set_playback_speed(s))
+            speed_menu.addAction(action)
+        self.btn_playback_speed.setMenu(speed_menu)
+        self._speed_menu = speed_menu
+        self._current_playback_speed = 1.0
+
         # Common info controls
         self.info_label = QLabel()
         self.info_label.setStyleSheet("color:#000;font-size:12px;")
@@ -1285,6 +1313,7 @@ class LightboxDialog(QDialog):
         h.addWidget(self.video_position_label)
         h.addWidget(self.btn_mute)
         h.addWidget(self.video_volume_slider)
+        h.addWidget(self.btn_playback_speed)  # PHASE 2
 
         h.addStretch(1)
         h.addWidget(self.info_label, 0)
@@ -1764,17 +1793,21 @@ class LightboxDialog(QDialog):
     def _load_photo(self, path: str):
         """Load and display photo (renamed from _load_image for consistency)."""
         try:
+            print(f"[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: {path}")
             # Switch to image canvas page
             self.content_stack.setCurrentIndex(0)
 
             img = Image.open(path)
             img = ImageOps.exif_transpose(img).convert("RGBA")
             self._orig_pil = img.copy()
+            print(f"[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: {self._orig_pil.size}")
             qimg = ImageQt.ImageQt(img)
             pm = QPixmap.fromImage(qimg)
             self.canvas.set_pixmap(pm)
             self._update_info(pm)
         except Exception as e:
+            print(f"[PhotoLoad] ❌ DIAGNOSTIC: Failed to load photo: {e}")
+            self._orig_pil = None  # Ensure it's None on failure
             QMessageBox.warning(self, "Load failed", f"Couldn't load image: {e}")
 
     def _load_image(self, path: str):
@@ -1802,7 +1835,7 @@ class LightboxDialog(QDialog):
         if hasattr(self, 'zoom_combo'):
             self.zoom_combo.setVisible(is_photo)
 
-        # Bottom bar video controls (video-only) - PHASE 1 ENHANCED
+        # Bottom bar video controls (video-only) - PHASE 1 & 2 ENHANCED
         if hasattr(self, 'btn_play_pause'):
             self.btn_play_pause.setVisible(is_video)
         if hasattr(self, 'video_timeline_slider'):
@@ -1813,6 +1846,8 @@ class LightboxDialog(QDialog):
             self.btn_mute.setVisible(is_video)
         if hasattr(self, 'video_volume_slider'):
             self.video_volume_slider.setVisible(is_video)
+        if hasattr(self, 'btn_playback_speed'):  # PHASE 2
+            self.btn_playback_speed.setVisible(is_video)
 
     def _toggle_video_playback(self):
         """Toggle video play/pause."""
@@ -1948,6 +1983,29 @@ class LightboxDialog(QDialog):
 
         print(f"[LightboxDialog] Volume set to {value}%")
 
+    # === PHASE 2: Playback Speed Control Functionality ===
+
+    def _set_playback_speed(self, speed: float):
+        """Set video playback speed (0.25x to 2x)."""
+        if not hasattr(self, 'media_player'):
+            return
+
+        self._current_playback_speed = speed
+        self.media_player.setPlaybackRate(speed)
+
+        # Update button text
+        if hasattr(self, 'btn_playback_speed'):
+            self.btn_playback_speed.setText(f"{speed}x")
+
+        # Update menu checkmarks
+        if hasattr(self, '_speed_menu'):
+            for action in self._speed_menu.actions():
+                # Extract speed from action text (e.g., "1.5x" -> 1.5)
+                action_speed = float(action.text().replace('x', ''))
+                action.setChecked(abs(action_speed - speed) < 0.01)
+
+        print(f"[LightboxDialog] Playback speed set to {speed}x")
+
     def _format_time(self, milliseconds):
         """Format milliseconds to M:SS or H:MM:SS."""
         if milliseconds <= 0:
@@ -1962,6 +2020,72 @@ class LightboxDialog(QDialog):
             return f"{hours}:{minutes:02d}:{secs:02d}"
         else:
             return f"{minutes}:{secs:02d}"
+
+    # === PHASE 2: Fullscreen Mode Functionality ===
+
+    def eventFilter(self, obj, event):
+        """Capture double-click on video widget for fullscreen toggle."""
+        if obj == self.video_widget and event.type() == QEvent.MouseButtonDblClick:
+            self._toggle_fullscreen()
+            return True  # Event handled
+        return super().eventFilter(obj, event)
+
+    def _toggle_fullscreen(self):
+        """Toggle fullscreen mode (F key or double-click on video)."""
+        if self._is_fullscreen:
+            # Exit fullscreen - restore window state
+            self.showNormal()
+
+            # Restore previous geometry if available
+            if self._pre_fullscreen_geometry:
+                self.setGeometry(self._pre_fullscreen_geometry)
+
+            # Show all UI elements
+            if hasattr(self, '_top_bar'):
+                self._top_bar.show()
+            if hasattr(self, '_bottom'):
+                self._bottom.show()
+
+            self._is_fullscreen = False
+            print("[LightboxDialog] Exited fullscreen mode")
+        else:
+            # Enter fullscreen - save current state
+            self._pre_fullscreen_geometry = self.geometry()
+
+            # Hide UI elements for immersive experience
+            if hasattr(self, '_top_bar'):
+                self._top_bar.hide()
+            if hasattr(self, '_bottom'):
+                self._bottom.hide()
+
+            # Go fullscreen
+            self.showFullScreen()
+            self._is_fullscreen = True
+            print("[LightboxDialog] Entered fullscreen mode")
+
+    # === PHASE 2: Frame-by-frame Navigation ===
+
+    def _step_frame(self, direction: int):
+        """Step forward (+1) or backward (-1) by one frame when video is paused."""
+        if not self._is_video or not hasattr(self, 'media_player'):
+            return
+
+        # Only allow frame stepping when paused
+        if self.media_player.playbackState() != QMediaPlayer.PlaybackState.PausedState:
+            return
+
+        # Estimate frame duration (assuming 30fps = ~33ms per frame)
+        # For more accuracy, could extract from video metadata
+        frame_duration_ms = 33  # ~30 FPS
+
+        current_pos = self.media_player.position()
+        new_pos = current_pos + (direction * frame_duration_ms)
+
+        # Clamp to valid range
+        new_pos = max(0, min(self._video_duration, new_pos))
+
+        self.media_player.setPosition(new_pos)
+        print(f"[LightboxDialog] Frame step {direction}: {self._format_time(new_pos)}")
 
     def keyPressEvent(self, event):
         """Handle keyboard shortcuts - Apple/Google Photos style."""
@@ -1979,6 +2103,12 @@ class LightboxDialog(QDialog):
                 event.accept()
                 return
 
+            # PHASE 2: F key - Fullscreen toggle
+            if event.key() == Qt.Key_F:
+                self._toggle_fullscreen()
+                event.accept()
+                return
+
             # Up/Down arrows: Volume control
             if event.key() == Qt.Key_Up and hasattr(self, 'video_volume_slider'):
                 current = self.video_volume_slider.value()
@@ -1992,22 +2122,38 @@ class LightboxDialog(QDialog):
                 event.accept()
                 return
 
-            # Left/Right arrows: Seek (when not navigating between media)
-            if event.key() == Qt.Key_Left and event.modifiers() == Qt.ShiftModifier:
-                # Shift+Left: Seek backward 5 seconds
-                if hasattr(self, 'media_player'):
-                    pos = self.media_player.position()
-                    self.media_player.setPosition(max(0, pos - 5000))
-                    event.accept()
-                    return
+            # PHASE 2: Left/Right arrows - Frame-by-frame when paused, seek when playing
+            if event.key() == Qt.Key_Left:
+                if event.modifiers() == Qt.ShiftModifier:
+                    # Shift+Left: Seek backward 5 seconds (always)
+                    if hasattr(self, 'media_player'):
+                        pos = self.media_player.position()
+                        self.media_player.setPosition(max(0, pos - 5000))
+                        event.accept()
+                        return
+                else:
+                    # Plain Left: Frame-by-frame backward when paused, or navigate to prev media
+                    if hasattr(self, 'media_player') and self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+                        self._step_frame(-1)
+                        event.accept()
+                        return
+                    # Otherwise let parent handle navigation
 
-            if event.key() == Qt.Key_Right and event.modifiers() == Qt.ShiftModifier:
-                # Shift+Right: Seek forward 5 seconds
-                if hasattr(self, 'media_player'):
-                    pos = self.media_player.position()
-                    self.media_player.setPosition(min(self._video_duration, pos + 5000))
-                    event.accept()
-                    return
+            if event.key() == Qt.Key_Right:
+                if event.modifiers() == Qt.ShiftModifier:
+                    # Shift+Right: Seek forward 5 seconds (always)
+                    if hasattr(self, 'media_player'):
+                        pos = self.media_player.position()
+                        self.media_player.setPosition(min(self._video_duration, pos + 5000))
+                        event.accept()
+                        return
+                else:
+                    # Plain Right: Frame-by-frame forward when paused, or navigate to next media
+                    if hasattr(self, 'media_player') and self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+                        self._step_frame(+1)
+                        event.accept()
+                        return
+                    # Otherwise let parent handle navigation
 
         # Call parent implementation for other keys (arrow navigation, etc.)
         super().keyPressEvent(event)
@@ -2138,11 +2284,29 @@ class LightboxDialog(QDialog):
     # -------------------------------
     def _enter_edit_mode(self):
         """Switch UI to edit mode (reuse main canvas). Prepare edit staging but do not auto-open the panel."""
+        print(f"[EditMode] 🔍 DIAGNOSTIC: Entering edit mode, _orig_pil={'exists' if self._orig_pil else 'None'}")
+
+        # CRITICAL FIX: If _orig_pil is None, try to reload from current path
+        if not self._orig_pil and hasattr(self, 'current_path') and self.current_path:
+            print(f"[EditMode] 🔄 DIAGNOSTIC: _orig_pil is None, attempting to reload from {self.current_path}")
+            try:
+                img = Image.open(self.current_path)
+                img = ImageOps.exif_transpose(img).convert("RGBA")
+                self._orig_pil = img.copy()
+                print(f"[EditMode] ✅ DIAGNOSTIC: Successfully reloaded image, size: {self._orig_pil.size}")
+            except Exception as e:
+                print(f"[EditMode] ❌ DIAGNOSTIC: Failed to reload image: {e}")
+                QMessageBox.warning(self, "Edit Error", f"Cannot enter edit mode: Image not loaded.\n\nError: {e}")
+                return
+
         # Prepare edit staging
         if self._orig_pil:
             self._edit_base_pil = self._orig_pil.copy()
+            print(f"[EditMode] ✅ DIAGNOSTIC: Created _edit_base_pil copy")
         else:
-            self._edit_base_pil = None
+            print(f"[EditMode] ❌ DIAGNOSTIC: Cannot enter edit mode - no image loaded")
+            QMessageBox.warning(self, "Edit Error", "Cannot enter edit mode: No image loaded.")
+            return
         self._working_pil = self._edit_base_pil.copy() if self._edit_base_pil else None
 
         # Reset adjustments values & sliders

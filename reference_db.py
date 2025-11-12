@@ -2029,6 +2029,83 @@ class ReferenceDB:
                 """, (ymd,))
             return [r[0] for r in cur.fetchall()]
 
+    def get_videos_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
+        """
+        Get all video paths for a specific day (YYYY-MM-DD).
+
+        Args:
+            ymd: Date string (YYYY-MM-DD)
+            project_id: Filter by project_id if provided, otherwise return all videos
+
+        Returns:
+            List of video paths for that day, ordered by created_ts then path
+
+        Example:
+            >>> db.get_videos_by_date("2024-11-12", project_id=1)
+            ['/videos/vid1.mp4', '/videos/vid2.mp4']
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id
+                cur.execute("""
+                    SELECT path
+                    FROM video_metadata
+                    WHERE created_date = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd, project_id))
+            else:
+                # No project filter
+                cur.execute("""
+                    SELECT path
+                    FROM video_metadata
+                    WHERE created_date = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd,))
+            return [r[0] for r in cur.fetchall()]
+
+    def get_media_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
+        """
+        SURGICAL FIX C: Get all media (photos + videos) for a specific day (YYYY-MM-DD).
+
+        This combines photos and videos into a single list, ordered by timestamp.
+        The grid renderer already detects video files, so no UI changes needed.
+
+        Args:
+            ymd: Date string (YYYY-MM-DD)
+            project_id: Filter by project_id if provided, otherwise return all media
+
+        Returns:
+            Combined list of photo and video paths for that day, ordered by created_ts
+
+        Example:
+            >>> db.get_media_by_date("2024-11-12", project_id=1)
+            ['/photos/img1.jpg', '/videos/vid1.mp4', '/photos/img2.jpg', '/videos/vid2.mp4']
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # UNION photos and videos, ordered by timestamp
+                cur.execute("""
+                    SELECT path, created_ts FROM photo_metadata
+                    WHERE created_date = ? AND project_id = ?
+                    UNION ALL
+                    SELECT path, created_ts FROM video_metadata
+                    WHERE created_date = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd, project_id, ymd, project_id))
+            else:
+                # No project filter - get all media globally
+                cur.execute("""
+                    SELECT path, created_ts FROM photo_metadata
+                    WHERE created_date = ?
+                    UNION ALL
+                    SELECT path, created_ts FROM video_metadata
+                    WHERE created_date = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd, ymd))
+            return [r[0] for r in cur.fetchall()]
+
 
 # === BEGIN: Quick-date helpers =============================================
 
@@ -2792,6 +2869,131 @@ class ReferenceDB:
                     SELECT COUNT(*) FROM video_metadata
                     WHERE created_date = ?
                 """, (day_yyyymmdd,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+
+    # ===============================================
+    # 📊 COMBINED MEDIA COUNTERS (Photos + Videos)
+    # ===============================================
+    # SURGICAL FIX B: Combined media counters for unified date hierarchy
+
+    def count_media_for_year(self, year: int | str, project_id: int | None = None) -> int:
+        """
+        Count both photos and videos for a given year.
+
+        Args:
+            year: Year (e.g., 2024)
+            project_id: Filter by project_id if provided, otherwise count all media globally
+
+        Returns:
+            Combined count of photos + videos for that year
+
+        Example:
+            >>> db.count_media_for_year(2024, project_id=1)
+            523  # 395 photos + 128 videos
+        """
+        y = str(year)
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id for both tables
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata
+                         WHERE project_id = ? AND created_date LIKE ? || '-%')
+                        +
+                        (SELECT COUNT(*) FROM video_metadata
+                         WHERE project_id = ? AND created_date LIKE ? || '-%')
+                """, (project_id, y, project_id, y))
+            else:
+                # No project filter - count all media globally
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata WHERE created_date LIKE ? || '-%')
+                        +
+                        (SELECT COUNT(*) FROM video_metadata WHERE created_date LIKE ? || '-%')
+                """, (y, y))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_media_for_month(self, year: int | str, month: int | str, project_id: int | None = None) -> int:
+        """
+        Count both photos and videos for a given year and month.
+
+        Args:
+            year: Year (e.g., 2024)
+            month: Month (1-12)
+            project_id: Filter by project_id if provided, otherwise count all media globally
+
+        Returns:
+            Combined count of photos + videos for that month
+
+        Example:
+            >>> db.count_media_for_month(2024, 11, project_id=1)
+            87  # 62 photos + 25 videos in November 2024
+        """
+        y = str(year)
+        m = f"{int(month):02d}" if str(month).isdigit() else str(month)
+        ym = f"{y}-{m}"
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id for both tables
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata
+                         WHERE project_id = ? AND created_date LIKE ? || '-%')
+                        +
+                        (SELECT COUNT(*) FROM video_metadata
+                         WHERE project_id = ? AND created_date LIKE ? || '-%')
+                """, (project_id, ym, project_id, ym))
+            else:
+                # No project filter - count all media globally
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata WHERE created_date LIKE ? || '-%')
+                        +
+                        (SELECT COUNT(*) FROM video_metadata WHERE created_date LIKE ? || '-%')
+                """, (ym, ym))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_media_for_day(self, day_yyyymmdd: str, project_id: int | None = None) -> int:
+        """
+        Count both photos and videos for a given day.
+
+        Args:
+            day_yyyymmdd: Date in YYYY-MM-DD format
+            project_id: Filter by project_id if provided, otherwise count all media globally
+
+        Returns:
+            Combined count of photos + videos for that day
+
+        Example:
+            >>> db.count_media_for_day("2024-11-12", project_id=1)
+            23  # 15 photos + 8 videos on Nov 12, 2024
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id for both tables
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata
+                         WHERE project_id = ? AND created_date = ?)
+                        +
+                        (SELECT COUNT(*) FROM video_metadata
+                         WHERE project_id = ? AND created_date = ?)
+                """, (project_id, day_yyyymmdd, project_id, day_yyyymmdd))
+            else:
+                # No project filter - count all media globally
+                cur.execute("""
+                    SELECT
+                        (SELECT COUNT(*) FROM photo_metadata WHERE created_date = ?)
+                        +
+                        (SELECT COUNT(*) FROM video_metadata WHERE created_date = ?)
+                """, (day_yyyymmdd, day_yyyymmdd))
             row = cur.fetchone()
             return int(row[0] if row and row[0] is not None else 0)
 
@@ -3731,6 +3933,86 @@ class ReferenceDB:
 
             cur.executemany("""
                 UPDATE photo_metadata
+                SET created_ts = ?, created_date = ?, created_year = ?
+                WHERE path = ?
+            """, updates)
+            conn.commit()
+            return len(updates)
+
+    def single_pass_backfill_created_fields_videos(self, chunk_size: int = 1000) -> int:
+        """
+        SURGICAL FIX E: Fill created_* fields for videos from date_taken or modified.
+
+        This mirrors single_pass_backfill_created_fields() but operates on video_metadata.
+        Ensures videos have created_ts, created_date, created_year populated even if
+        they were indexed without these fields.
+
+        Args:
+            chunk_size: Number of rows to process in this pass
+
+        Returns:
+            Number of rows updated (0 when all done)
+
+        Usage:
+            >>> while db.single_pass_backfill_created_fields_videos() > 0:
+            ...     pass  # Keep calling until done
+        """
+        import datetime as _dt
+
+        def _parse_any(s: str | None):
+            """Parse date from various formats."""
+            if not s:
+                return None
+            fmts = [
+                "%Y:%m:%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y/%m/%d %H:%M:%S",
+                "%d.%m.%Y %H:%M:%S",
+                "%Y-%m-%d",
+            ]
+            for f in fmts:
+                try:
+                    return _dt.datetime.strptime(s, f)
+                except Exception:
+                    pass
+            return None
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Check if video_metadata has created_* columns
+            cur.execute("PRAGMA table_info(video_metadata)")
+            cols = {row[1] for row in cur.fetchall()}
+            if not {"created_ts", "created_date", "created_year"}.issubset(cols):
+                return 0
+
+            # Get videos missing created_* fields
+            cur.execute("""
+                SELECT path, date_taken, modified
+                FROM video_metadata
+                WHERE created_ts IS NULL OR created_date IS NULL OR created_year IS NULL
+                LIMIT ?
+            """, (chunk_size,))
+            rows = cur.fetchall()
+
+            if not rows:
+                return 0
+
+            # Compute created_* fields
+            updates = []
+            for path, date_taken, modified in rows:
+                # Try date_taken first, fall back to modified
+                t = _parse_any(date_taken) or _parse_any(modified)
+                if not t:
+                    updates.append((None, None, None, path))
+                else:
+                    ts = int(t.timestamp())
+                    dstr = t.strftime("%Y-%m-%d")
+                    updates.append((ts, dstr, int(dstr[:4]), path))
+
+            # Update video_metadata
+            cur.executemany("""
+                UPDATE video_metadata
                 SET created_ts = ?, created_date = ?, created_year = ?
                 WHERE path = ?
             """, updates)

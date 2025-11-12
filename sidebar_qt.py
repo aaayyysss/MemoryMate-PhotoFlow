@@ -2535,7 +2535,8 @@ class SidebarQt(QWidget):
 
         for year in sorted(hier.keys(), key=lambda y: int(str(y))):
             try:
-                y_count = self.db.count_for_year(year, project_id=self.project_id)
+                # SURGICAL FIX B: Use combined media counter (photos + videos)
+                y_count = self.db.count_media_for_year(year, project_id=self.project_id)
             except Exception:
                 y_count = 0
             y_item = QStandardItem(str(year))
@@ -2551,7 +2552,8 @@ class SidebarQt(QWidget):
             for month in sorted(months.keys(), key=lambda m: int(str(m))):
                 m_label = f"{int(month):02d}"
                 try:
-                    m_count = self.db.count_for_month(year, month, project_id=self.project_id)
+                    # SURGICAL FIX B: Use combined media counter (photos + videos)
+                    m_count = self.db.count_media_for_month(year, month, project_id=self.project_id)
                 except Exception:
                     m_count = 0
                 m_item = QStandardItem(m_label)
@@ -2572,7 +2574,8 @@ class SidebarQt(QWidget):
                     d_label = f"{int(day):02d}"
                     ymd = f"{year}-{m_label}-{d_label}"
                     try:
-                        d_count = self.db.count_for_day(ymd, project_id=self.project_id)
+                        # SURGICAL FIX B: Use combined media counter (photos + videos)
+                        d_count = self.db.count_media_for_day(ymd, project_id=self.project_id)
                     except Exception:
                         d_count = 0
                     d_item = QStandardItem(d_label)

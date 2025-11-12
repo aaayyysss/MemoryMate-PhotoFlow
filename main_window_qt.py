@@ -425,10 +425,16 @@ class ScanController:
             # CRITICAL: Backfill created_date field immediately after scan
             # This populates created_date from date_taken so get_date_hierarchy() works
             # Without this, the "By Date" section won't appear until app restart
-            self.logger.info("Backfilling created_date fields...")
+            self.logger.info("Backfilling created_date fields for photos...")
             backfilled = db.single_pass_backfill_created_fields()
             if backfilled:
-                self.logger.info(f"Backfilled {backfilled} rows with created_date")
+                self.logger.info(f"Backfilled {backfilled} photo rows with created_date")
+
+            # SURGICAL FIX E: Backfill video created_date fields too
+            self.logger.info("Backfilling created_date fields for videos...")
+            video_backfilled = db.single_pass_backfill_created_fields_videos()
+            if video_backfilled:
+                self.logger.info(f"Backfilled {video_backfilled} video rows with created_date")
 
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
@@ -3913,7 +3919,8 @@ class MainWindow(QMainWindow):
                     context = f"month({date_key})"
                 elif len(date_key) == 10 and date_key[4] == "-" and date_key[7] == "-":
                     # format "YYYY-MM-DD"
-                    paths = db.get_images_by_date(date_key)
+                    # SURGICAL FIX C: Load both photos and videos for date nodes
+                    paths = db.get_media_by_date(date_key, project_id=self.db_handler.project_id)
                     context = f"day({date_key})"
             except Exception as e:
                 print(f"[open_lightbox] date fetch failed: {e}")

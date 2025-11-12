@@ -365,8 +365,34 @@ class ScanController:
         except Exception as e:
             self.logger.error(f"Cleanup error: {e}", exc_info=True)
 
+        # Get scan results BEFORE heavy operations
+        f, p, v = self.main._scan_result if len(self.main._scan_result) == 3 else (*self.main._scan_result, 0)
+
+        # Show completion message IMMEDIATELY (before heavy operations)
+        # This prevents UI freeze perception and gives user feedback
+        msg = f"Indexed {p} photos"
+        if v > 0:
+            msg += f" and {v} videos"
+        msg += f" in {f} folders.\n\n"
+        msg += "📊 Processing metadata and updating views...\nThis may take a few seconds."
+        QMessageBox.information(self.main, "Scan Complete", msg)
+
+        # Show progress indicator for post-scan processing
+        progress = QProgressDialog("Building date branches...", None, 0, 4, self.main)
+        progress.setWindowTitle("Processing...")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoClose(True)
+        progress.setValue(0)
+        progress.show()
+        QApplication.processEvents()
+
         # Build date branches after scan completes
+        sidebar_was_updated = False
         try:
+            progress.setLabelText("Building photo date branches...")
+            progress.setValue(1)
+            QApplication.processEvents()
+
             self.logger.info("Building date branches...")
             from reference_db import ReferenceDB
             from app_services import get_default_project_id
@@ -387,6 +413,10 @@ class ScanController:
             branch_count = db.build_date_branches(current_project_id)
             self.logger.info(f"Created {branch_count} date branch entries for project {current_project_id}")
 
+            progress.setLabelText("Backfilling photo metadata...")
+            progress.setValue(2)
+            QApplication.processEvents()
+
             # CRITICAL: Backfill created_date field immediately after scan
             # This populates created_date from date_taken so get_date_hierarchy() works
             # Without this, the "By Date" section won't appear until app restart
@@ -397,7 +427,6 @@ class ScanController:
 
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
-            sidebar_was_updated = False
             if self.main.sidebar.project_id is None:
                 self.logger.info("Sidebar project_id was None, updating to default project")
                 from app_services import get_default_project_id
@@ -422,6 +451,10 @@ class ScanController:
         # CRITICAL: Schedule UI updates in main thread (this method may run in worker thread)
         def refresh_ui():
             try:
+                progress.setLabelText("Refreshing sidebar...")
+                progress.setValue(3)
+                QApplication.processEvents()
+
                 self.logger.info("Reloading sidebar after date branches built...")
                 # CRITICAL FIX: Only reload sidebar if it wasn't just updated via set_project()
                 # set_project() already calls reload(), so reloading again causes double refresh crash
@@ -437,17 +470,20 @@ class ScanController:
                     self.main.grid.reload()
             except Exception:
                 pass
+
+            progress.setLabelText("Loading thumbnails...")
+            progress.setValue(4)
+            QApplication.processEvents()
+
             # reload thumbnails after scan
             if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
                 self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
-            # summary
-            f, p, v = self.main._scan_result if len(self.main._scan_result) == 3 else (*self.main._scan_result, 0)
-            msg = f"Indexed {p} photos"
-            if v > 0:
-                msg += f" and {v} videos"
-            msg += f" in {f} folders.\nCommitted: {self.main._committed_total} rows."
-            QMessageBox.information(self.main, "Scan Complete", msg)
+            # Close progress dialog
+            progress.close()
+
+            # Final status message
+            self.main.statusBar().showMessage(f"✓ Scan complete: {p} photos, {v} videos indexed", 5000)
 
         # Schedule refresh in main thread's event loop
         if sidebar_was_updated:
@@ -3915,38 +3951,16 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 🎬 Phase 4.4: Check if this is a video file
-        if is_video_file(path):
-            print(f"[VideoPlayer] Opening video: {path}")
-            # BUG FIX: Filter paths to only include videos for navigation
-            video_paths = [p for p in paths if is_video_file(p)]
-            try:
-                video_idx = video_paths.index(path)
-            except ValueError:
-                # Normalization fallback
-                try:
-                    norm = lambda p: os.path.normcase(os.path.normpath(p))
-                    video_idx = [norm(p) for p in video_paths].index(norm(path))
-                except Exception:
-                    video_idx = 0
-            self._open_video_player(path, video_paths, video_idx)
-            return
+        # 🎬 UNIFIED MEDIA PREVIEW: Open LightboxDialog for BOTH photos AND videos
+        # The LightboxDialog now handles both media types with adaptive controls
+        print(f"[UnifiedPreview] Opening media in unified dialog: {path}")
+        print(f"[UnifiedPreview] Media type: {'video' if is_video_file(path) else 'photo'}")
 
-        # 3) Launch dialog for photos - BUG FIX: Filter to photos only
-        photo_paths = [p for p in paths if not is_video_file(p)]
-        try:
-            photo_idx = photo_paths.index(path)
-        except ValueError:
-            # Normalization fallback
-            try:
-                norm = lambda p: os.path.normcase(os.path.normpath(p))
-                photo_idx = [norm(p) for p in photo_paths].index(norm(path))
-            except Exception:
-                photo_idx = 0
-
+        # No filtering - pass ALL media paths (mixed photos and videos)
+        # LightboxDialog will detect media type and show appropriate controls
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(photo_paths, photo_idx)   # <-- THIS ENABLES next/prev
-        dlg.resize(900, 700)
+        dlg.set_image_list(paths, idx)  # Pass full mixed media list
+        dlg.resize(1200, 800)  # Larger default size for video viewing
         dlg.exec()
 
     def _open_video_player(self, video_path: str, video_list: list = None, start_index: int = 0):

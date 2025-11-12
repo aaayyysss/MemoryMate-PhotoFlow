@@ -131,43 +131,44 @@ class FolderRepository(BaseRepository):
             Folder ID
 
         Thread Safety:
-            Uses INSERT OR IGNORE + SELECT to handle concurrent insertions.
-            If another thread creates the folder between check and insert,
-            we simply query and return the existing folder ID.
+            Uses INSERT OR IGNORE followed by SELECT to atomically ensure
+            the folder exists and retrieve its ID. This pattern is safe for
+            concurrent operations.
+
+        Algorithm:
+            1. INSERT OR IGNORE (creates folder if doesn't exist, no-op if exists)
+            2. COMMIT (always commit, operation is idempotent)
+            3. SELECT to get folder ID (guaranteed to find it after commit)
         """
-        # Try to insert, ignoring if it already exists (handles race condition)
         sql_insert = """
             INSERT OR IGNORE INTO photo_folders (path, name, parent_id, project_id)
             VALUES (?, ?, ?, ?)
         """
 
+        sql_select = """
+            SELECT id FROM photo_folders
+            WHERE path = ? AND project_id = ?
+        """
+
         with self.connection() as conn:
             cur = conn.cursor()
+
+            # Always try to insert (ignored if folder already exists)
             cur.execute(sql_insert, (path, name, parent_id, project_id))
+            conn.commit()  # Always commit (idempotent operation)
 
-            # If we inserted a new row, lastrowid will be set
-            if cur.lastrowid:
-                conn.commit()
-                folder_id = cur.lastrowid
-                self.logger.debug(f"Created folder: {path} (id={folder_id}, project={project_id})")
-                return folder_id
-
-            # Folder already existed (inserted by us earlier or another thread)
-            # Query to get the existing folder ID
-            sql_select = """
-                SELECT id FROM photo_folders
-                WHERE path = ? AND project_id = ?
-            """
+            # Now query for the folder ID (whether just inserted or already existed)
             cur.execute(sql_select, (path, project_id))
             row = cur.fetchone()
 
             if row:
                 folder_id = row[0]
-                self.logger.debug(f"Folder already exists: {path} (id={folder_id}, project={project_id})")
+                self.logger.debug(f"Ensured folder: {path} (id={folder_id}, project={project_id})")
                 return folder_id
 
-            # This should never happen, but handle it gracefully
-            raise RuntimeError(f"Failed to create or find folder: {path} (project={project_id})")
+            # This should never happen (insert was successful, so select must find it)
+            self.logger.error(f"CRITICAL: Folder disappeared after insert: {path} (project={project_id})")
+            raise RuntimeError(f"Database inconsistency: folder {path} not found after INSERT")
 
     def get_folder_tree(self) -> List[Dict[str, Any]]:
         """

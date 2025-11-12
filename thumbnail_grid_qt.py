@@ -1290,16 +1290,11 @@ class ThumbnailGridQt(QWidget):
             return
         try:
             # Use TagService for proper layered architecture
-            print(f"[TagCacheInvalidation] 🔄 DIAGNOSTIC: Refreshing tags for {len(paths)} paths")
             tag_service = get_tag_service()
             tags_map = tag_service.get_tags_for_paths(paths, self.project_id)
-            print(f"[TagCacheInvalidation] 📊 DIAGNOSTIC: Got tags_map with {len(tags_map)} entries")
-
-            # Debug: Show what tags were fetched
-            for path, tags in tags_map.items():
-                print(f"[TagCacheInvalidation]   {path}: {tags}")
+            print(f"[TagCache] Refreshing tags for {len(paths)} paths, got {len(tags_map)} entries")
         except Exception as e:
-            print(f"[TagCacheInvalidation] ❌ DIAGNOSTIC: Failed to fetch tags: {e}")
+            print(f"[TagCache] ❌ Failed to fetch tags: {e}")
             return
 
         # normalize to the same format used in load()
@@ -1310,13 +1305,12 @@ class ThumbnailGridQt(QWidget):
                 continue
             p = item.data(Qt.UserRole)
             if p in tags_map:
-                old_tags = item.data(Qt.UserRole + 2)
                 new_tags = tags_map.get(p, [])
                 item.setData(new_tags, Qt.UserRole + 2)
                 updated_count += 1
-                print(f"[TagCacheInvalidation] ✅ DIAGNOSTIC: Updated tags for item {row}: {old_tags} → {new_tags}")
 
-        print(f"[TagCacheInvalidation] 🎉 DIAGNOSTIC: Updated {updated_count} items in grid, repainting viewport")
+        if updated_count > 0:
+            print(f"[TagCache] Updated {updated_count} items, repaint complete")
 
         # repaint only
         self.list_view.viewport().update()

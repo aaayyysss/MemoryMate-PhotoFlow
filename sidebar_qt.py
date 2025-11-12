@@ -2081,22 +2081,19 @@ class SidebarQt(QWidget):
                     date_parent.setEditable(False)
 
                     # Get video date hierarchy: {year: {month: [days]}}
-                    print(f"[VideoDateHierarchy] 🔍 DIAGNOSTIC: Fetching video date hierarchy for project_id={self.project_id}")
                     video_hier = self.db.get_video_date_hierarchy(self.project_id) or {}
-                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_hier = {video_hier}")
-                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_hier has {len(video_hier)} years")
-
-                    video_years = self.db.list_video_years_with_counts(self.project_id) or []
-                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_years = {video_years}")
+                    video_years = self.db.list_video_years_with_counts(self.project_id) or {}
                     total_dated_videos = sum(count for _, count in video_years)
-                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: total_dated_videos = {total_dated_videos}")
                     year_counts = {str(y): c for y, c in video_years}
 
+                    # DIAGNOSTIC: Log summary only (reduced verbosity to prevent console flooding)
+                    if video_hier:
+                        total_months = sum(len(months) for months in video_hier.values())
+                        print(f"[VideoDateHierarchy] Building: {len(video_hier)} years, {total_months} months, {total_dated_videos} videos")
+
                     # Build expandable hierarchy: Year → Month → Day
-                    print(f"[VideoDateHierarchy] 🏗️ DIAGNOSTIC: Building hierarchy for {len(video_hier)} years")
                     for year in sorted(video_hier.keys(), reverse=True):
                         year_count = year_counts.get(str(year), 0)
-                        print(f"[VideoDateHierarchy] 📅 DIAGNOSTIC: Processing year {year} with count {year_count}")
 
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
@@ -2109,16 +2106,13 @@ class SidebarQt(QWidget):
                         year_cnt.setForeground(QColor("#888888"))
 
                         date_parent.appendRow([year_item, year_cnt])
-                        print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added year {year} to date_parent")
 
                         # Months (children of year)
                         months_dict = video_hier[year]
-                        print(f"[VideoDateHierarchy] 🗓️ DIAGNOSTIC: Year {year} has {len(months_dict)} months")
                         month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
                         for month_num in sorted(months_dict.keys(), reverse=True):
-                            print(f"[VideoDateHierarchy] 🗓️ DIAGNOSTIC: Processing month {month_num} in year {year}")
                             try:
                                 month_int = int(month_num)
                                 month_label = month_names[month_int] if 1 <= month_int <= 12 else month_num
@@ -2144,11 +2138,9 @@ class SidebarQt(QWidget):
                             month_cnt.setForeground(QColor("#888888"))
 
                             year_item.appendRow([month_item, month_cnt])
-                            print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added month {month_label} to year {year}")
 
                             # Days (children of month)
                             days_list = months_dict[month_num]
-                            print(f"[VideoDateHierarchy] 📆 DIAGNOSTIC: Month {month_num} has {len(days_list)} days")
                             for day_str in sorted(days_list, reverse=True):
                                 try:
                                     # Extract day number from date string (YYYY-MM-DD)
@@ -2171,9 +2163,7 @@ class SidebarQt(QWidget):
                                     day_cnt.setForeground(QColor("#888888"))
 
                                     month_item.appendRow([day_item, day_cnt])
-                                    print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added day {day_num} to month {month_num}")
                                 except (IndexError, ValueError):
-                                    print(f"[VideoDateHierarchy] ⚠️ DIAGNOSTIC: Skipped malformed date: {day_str}")
                                     pass  # Skip malformed dates
 
                     # Set total count on date parent
@@ -2182,7 +2172,6 @@ class SidebarQt(QWidget):
                     date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     date_count.setForeground(QColor("#888888"))
                     root_name_item.appendRow([date_parent, date_count])
-                    print(f"[VideoDateHierarchy] 🎉 DIAGNOSTIC: Completed building date hierarchy with {total_dated_videos} total videos")
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

@@ -1709,10 +1709,14 @@ class SidebarQt(QWidget):
                 try:
                     from services.video_service import VideoService
                     video_service = VideoService()
+                    print(f"[Sidebar] Loading videos for project_id={self.project_id}")
                     videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                     total_videos = len(videos)
+                    print(f"[Sidebar] Found {total_videos} videos in project {self.project_id}")
                 except Exception as e:
-                    print("[Sidebar] Failed to load videos:", e)
+                    print(f"[Sidebar] Failed to load videos: {e}")
+                    import traceback
+                    traceback.print_exc()
                     total_videos = 0
                     videos = []
 

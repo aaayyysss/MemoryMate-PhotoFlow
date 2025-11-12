@@ -162,7 +162,7 @@ class FolderRepository(BaseRepository):
             row = cur.fetchone()
 
             if row:
-                folder_id = row[0]
+                folder_id = row['id']  # FIX: row is a dict, not a tuple (due to _dict_factory)
                 self.logger.debug(f"Folder already exists: {path} (id={folder_id}, project={project_id})")
                 return folder_id
 

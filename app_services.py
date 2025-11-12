@@ -167,13 +167,23 @@ def list_projects():
             ]
 
 def list_branches(project_id: int):
+    """
+    Get list of branches for a project.
+
+    NOTE: Filters out video-specific branches (branch_key starting with 'videos:')
+    because video branches are displayed separately in the Videos section of the sidebar,
+    not in the general Branches section.
+    """
     try:
-        return _db.get_branches(project_id)
+        all_branches = _db.get_branches(project_id)
     except Exception:
         with _db._connect() as conn:
             cur = conn.cursor()
             cur.execute("SELECT branch_key, display_name FROM branches WHERE project_id=? ORDER BY id ASC", (project_id,))
-            return [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
+            all_branches = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
+
+    # Filter out video branches (they're displayed in Videos section, not Branches section)
+    return [b for b in all_branches if not b["branch_key"].startswith("videos:")]
 
 
 def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixmap":

@@ -240,10 +240,38 @@ VALUES ('2.0.0', 'Repository layer schema with full migration', CURRENT_TIMESTAM
 )
 
 
+# Migration to v3.0.0 (add project_id for project isolation)
+MIGRATION_3_0_0 = Migration(
+    version="3.0.0",
+    description="Add project_id to photo_folders and photo_metadata for clean project isolation",
+    sql="""
+-- This migration adds project_id columns to photo_folders and photo_metadata
+-- for proper project isolation at the schema level
+
+-- 1. Add project_id columns with default value of 1 (first project)
+--    Note: ALTER TABLE will be handled in code (see _add_project_id_columns_if_missing)
+
+-- 2. Create indexes for project_id (if they don't exist yet)
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project ON photo_folders(project_id);
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project ON photo_metadata(project_id);
+
+-- 3. Ensure default project exists
+INSERT OR IGNORE INTO projects (id, name, folder, mode, created_at)
+VALUES (1, 'Default Project', '', 'date', CURRENT_TIMESTAMP);
+
+-- 4. Record migration
+INSERT OR REPLACE INTO schema_version (version, description, applied_at)
+VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean project isolation', CURRENT_TIMESTAMP);
+""",
+    rollback_sql=""
+)
+
+
 # Ordered list of all migrations
 ALL_MIGRATIONS = [
     MIGRATION_1_5_0,
     MIGRATION_2_0_0,
+    MIGRATION_3_0_0,
 ]
 
 
@@ -394,6 +422,8 @@ class MigrationManager:
                 elif migration.version == "2.0.0":
                     self._add_created_columns_if_missing(conn)
                     self._add_metadata_columns_if_missing(conn)
+                elif migration.version == "3.0.0":
+                    self._add_project_id_columns_if_missing(conn)
 
                 # Execute migration SQL
                 conn.executescript(migration.sql)
@@ -564,6 +594,45 @@ class MigrationManager:
             cur.execute("ALTER TABLE photo_metadata ADD COLUMN metadata_fail_count INTEGER DEFAULT 0")
 
         conn.commit()
+
+    def _add_project_id_columns_if_missing(self, conn: sqlite3.Connection):
+        """
+        Add project_id columns to photo_folders and photo_metadata if they don't exist.
+
+        This is the core of the v3.0.0 migration - adds project ownership to photos and folders.
+        Existing rows will default to project_id=1 (default project).
+
+        Args:
+            conn: Database connection
+        """
+        cur = conn.cursor()
+
+        # Check photo_folders for project_id column
+        cur.execute("PRAGMA table_info(photo_folders)")
+        folder_columns = {row['name'] for row in cur.fetchall()}
+
+        if 'project_id' not in folder_columns:
+            self.logger.info("Adding column photo_folders.project_id (default=1)")
+            cur.execute("""
+                ALTER TABLE photo_folders
+                ADD COLUMN project_id INTEGER NOT NULL DEFAULT 1
+            """)
+            # Add foreign key constraint note: SQLite doesn't enforce FK on ALTER,
+            # but new schema creation will have proper FK
+
+        # Check photo_metadata for project_id column
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        metadata_columns = {row['name'] for row in cur.fetchall()}
+
+        if 'project_id' not in metadata_columns:
+            self.logger.info("Adding column photo_metadata.project_id (default=1)")
+            cur.execute("""
+                ALTER TABLE photo_metadata
+                ADD COLUMN project_id INTEGER NOT NULL DEFAULT 1
+            """)
+
+        conn.commit()
+        self.logger.info("✓ Project ID columns added successfully")
 
 
 def get_migration_status(db_connection) -> Dict[str, Any]:

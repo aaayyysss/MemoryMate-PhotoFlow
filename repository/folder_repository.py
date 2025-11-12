@@ -162,8 +162,8 @@ class FolderRepository(BaseRepository):
             row = cur.fetchone()
 
             if row:
-                folder_id = row[0]
-                self.logger.debug(f"Ensured folder: {path} (id={folder_id}, project={project_id})")
+                folder_id = row['id']  # FIX: row is a dict, not a tuple (due to _dict_factory)
+                self.logger.debug(f"Folder already exists: {path} (id={folder_id}, project={project_id})")
                 return folder_id
 
             # This should never happen (insert was successful, so select must find it)

@@ -24,8 +24,8 @@ class ScanWorkerAdapter(QObject):
         error(str): Error message
     """
 
-    progress = Signal(int, str)      # percent, message
-    finished = Signal(int, int)      # folders, photos
+    progress = Signal(int, str)          # percent, message
+    finished = Signal(int, int, int)     # folders, photos, videos
     error = Signal(str)
 
     def __init__(self,
@@ -33,7 +33,8 @@ class ScanWorkerAdapter(QObject):
                  project_id: int,
                  incremental: bool,
                  settings: Dict[str, Any],
-                 db_writer: Optional[Any] = None):
+                 db_writer: Optional[Any] = None,
+                 on_video_metadata_finished: Optional[Any] = None):
         """
         Initialize adapter.
 
@@ -43,6 +44,7 @@ class ScanWorkerAdapter(QObject):
             incremental: Enable incremental scanning
             settings: Application settings dict
             db_writer: Optional DBWriter (not used - kept for API compatibility)
+            on_video_metadata_finished: Optional callback for when video metadata extraction finishes
         """
         super().__init__()
 
@@ -51,6 +53,7 @@ class ScanWorkerAdapter(QObject):
         self.incremental = incremental
         self.settings = settings
         self.db_writer = db_writer  # Kept for compatibility, but not used
+        self.on_video_metadata_finished = on_video_metadata_finished
 
         # Create service instance
         self.service = PhotoScanService(
@@ -105,7 +108,8 @@ class ScanWorkerAdapter(QObject):
                 skip_unchanged=skip_unchanged,
                 extract_exif_date=extract_exif,
                 ignore_folders=ignore_folders if ignore_folders else None,
-                progress_callback=on_progress
+                progress_callback=on_progress,
+                on_video_metadata_finished=self.on_video_metadata_finished
             )
 
             # Update statistics
@@ -115,11 +119,12 @@ class ScanWorkerAdapter(QObject):
             # Emit completion
             logger.info(
                 f"Scan completed: {result.photos_indexed} photos, "
+                f"{result.videos_indexed} videos, "
                 f"{result.folders_found} folders in {result.duration_seconds:.1f}s"
             )
 
             try:
-                self.finished.emit(result.folders_found, result.photos_indexed)
+                self.finished.emit(result.folders_found, result.photos_indexed, result.videos_indexed)
             except Exception as e:
                 logger.warning(f"Failed to emit finished signal: {e}")
 

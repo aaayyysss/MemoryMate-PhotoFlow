@@ -5,6 +5,10 @@ Run this AFTER scanning photos to test the date branch building.
 """
 import sys
 import sqlite3
+from schema_check import ensure_schema_ready
+
+# Ensure database and schema exist before running tests
+ensure_schema_ready(required_tables=['photo_metadata', 'photo_folders'])
 
 # Test 1: Check if photos have date_taken values
 print("=" * 60)

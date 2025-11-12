@@ -33,6 +33,14 @@ class TagService:
         DatabaseConnection
                 ↓
         SQLite
+
+    Exception Handling Approach:
+    - Most methods return False/None/empty list on errors for UI convenience
+    - All errors are logged with self.logger.error()
+    - This design prioritizes UI usability over error propagation
+    - Future enhancement: Could distinguish between expected errors
+      (e.g., "tag not found") and unexpected errors (e.g., "database crashed")
+      for better CLI/API support by raising custom exceptions
     """
 
     def __init__(self, tag_repository=None, photo_repository=None):
@@ -60,19 +68,20 @@ class TagService:
     # TAG ASSIGNMENT (Work with paths, not IDs)
     # ========================================================================
 
-    def assign_tag(self, photo_path: str, tag_name: str) -> bool:
+    def assign_tag(self, photo_path: str, tag_name: str, project_id: int) -> bool:
         """
         Assign a tag to a photo by file path.
 
         Args:
             photo_path: Full path to photo file
             tag_name: Tag name to assign
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             True if assigned, False if photo not found or already had tag
 
         Example:
-            >>> service.assign_tag("/photos/img001.jpg", "favorite")
+            >>> service.assign_tag("/photos/img001.jpg", "favorite", project_id=1)
             True
         """
         tag_name = tag_name.strip()
@@ -81,19 +90,19 @@ class TagService:
             return False
 
         # Get photo ID from path, creating photo_metadata entry if needed
-        photo = self._photo_repo.get_by_path(photo_path)
+        photo = self._photo_repo.get_by_path(photo_path, project_id)
         if not photo:
             # Auto-create photo_metadata entry if it doesn't exist
-            photo_id = self._ensure_photo_metadata_exists(photo_path)
+            photo_id = self._ensure_photo_metadata_exists(photo_path, project_id)
             if not photo_id:
                 self.logger.warning(f"Photo not found and could not be created: {photo_path}")
                 return False
         else:
             photo_id = photo['id']
 
-        # Ensure tag exists
+        # Ensure tag exists for this project (Schema v3.1.0)
         try:
-            tag_id = self._tag_repo.ensure_exists(tag_name)
+            tag_id = self._tag_repo.ensure_exists(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to ensure tag exists '{tag_name}': {e}")
             return False
@@ -108,28 +117,29 @@ class TagService:
             self.logger.error(f"Failed to assign tag '{tag_name}' to {photo_path}: {e}")
             return False
 
-    def remove_tag(self, photo_path: str, tag_name: str) -> bool:
+    def remove_tag(self, photo_path: str, tag_name: str, project_id: int) -> bool:
         """
         Remove a tag from a photo by file path.
 
         Args:
             photo_path: Full path to photo file
             tag_name: Tag name to remove
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             True if removed, False if not found
 
         Example:
-            >>> service.remove_tag("/photos/img001.jpg", "favorite")
+            >>> service.remove_tag("/photos/img001.jpg", "favorite", project_id=1)
             True
         """
         # Get photo ID
-        photo = self._photo_repo.get_by_path(photo_path)
+        photo = self._photo_repo.get_by_path(photo_path, project_id)
         if not photo:
             return False
 
-        # Get tag ID
-        tag = self._tag_repo.get_by_name(tag_name)
+        # Get tag ID for this project (Schema v3.1.0)
+        tag = self._tag_repo.get_by_name(tag_name, project_id)
         if not tag:
             return False
 
@@ -205,20 +215,21 @@ class TagService:
     # BULK OPERATIONS
     # ========================================================================
 
-    def assign_tags_bulk(self, photo_paths: List[str], tag_name: str) -> int:
+    def assign_tags_bulk(self, photo_paths: List[str], tag_name: str, project_id: int) -> int:
         """
         Assign a tag to multiple photos (bulk operation).
 
         Args:
             photo_paths: List of photo file paths
             tag_name: Tag name to assign
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Number of photos successfully tagged
 
         Example:
             >>> paths = ['/photos/img001.jpg', '/photos/img002.jpg']
-            >>> service.assign_tags_bulk(paths, "vacation")
+            >>> service.assign_tags_bulk(paths, "vacation", project_id=1)
             2
         """
         if not photo_paths:
@@ -229,20 +240,20 @@ class TagService:
             return 0
 
         try:
-            # Ensure tag exists
-            tag_id = self._tag_repo.ensure_exists(tag_name)
+            # Ensure tag exists for this project (Schema v3.1.0)
+            tag_id = self._tag_repo.ensure_exists(tag_name, project_id)
 
             # Get photo IDs for all paths, creating photo_metadata entries if needed
             photo_ids = []
             created_count = 0
 
             for path in photo_paths:
-                photo = self._photo_repo.get_by_path(path)
+                photo = self._photo_repo.get_by_path(path, project_id)
 
                 # If photo doesn't exist in photo_metadata, create it
                 # (This happens when photos are in project_images but not photo_metadata)
                 if not photo:
-                    photo_id = self._ensure_photo_metadata_exists(path)
+                    photo_id = self._ensure_photo_metadata_exists(path, project_id)
                     if photo_id:
                         photo_ids.append(photo_id)
                         created_count += 1
@@ -265,7 +276,47 @@ class TagService:
             self.logger.error(f"Failed bulk tag assignment: {e}", exc_info=True)
             return 0
 
-    def _ensure_photo_metadata_exists(self, path: str) -> Optional[int]:
+    def _find_parent_folder_id(self, folder_path: str, folder_repo, project_id: int) -> Optional[int]:
+        """
+        Find the parent folder ID for a given folder path.
+
+        Walks up the directory tree to find an existing parent folder in the database.
+        If no parent is found, returns None (indicating this should be a root folder).
+
+        Args:
+            folder_path: Full path to the folder
+            folder_repo: FolderRepository instance
+            project_id: Project ID
+
+        Returns:
+            Parent folder ID, or None if this is a root folder
+        """
+        import os
+
+        # Walk up the directory tree to find existing parent
+        current_path = os.path.dirname(folder_path)
+
+        while current_path:
+            # Try to find this parent in the database
+            parent_folder = folder_repo.get_by_path(current_path, project_id)
+            if parent_folder:
+                self.logger.debug(f"Found parent folder for {folder_path}: {current_path} (id={parent_folder['id']})")
+                return parent_folder['id']
+
+            # Move up one level
+            parent_path = os.path.dirname(current_path)
+
+            # Avoid infinite loop - stop if we're not making progress
+            if parent_path == current_path:
+                break
+
+            current_path = parent_path
+
+        # No parent found - this will be a root folder
+        self.logger.debug(f"No parent found for {folder_path} - will be root folder")
+        return None
+
+    def _ensure_photo_metadata_exists(self, path: str, project_id: int) -> Optional[int]:
         """
         Ensure a photo exists in photo_metadata table.
 
@@ -274,6 +325,7 @@ class TagService:
 
         Args:
             path: Photo file path
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Photo ID, or None if creation failed
@@ -293,8 +345,12 @@ class TagService:
             folder_path = os.path.dirname(path)
             folder_name = os.path.basename(folder_path) if folder_path else "Unknown"
 
-            # Ensure folder exists (with no parent for simplicity)
-            folder_id = folder_repo.ensure_folder(folder_path, folder_name, None)
+            # CRITICAL FIX: Find proper parent folder instead of using None
+            # Using None creates orphaned folders that break the tree view
+            parent_id = self._find_parent_folder_id(folder_path, folder_repo, project_id)
+
+            # Ensure folder exists with proper parent
+            folder_id = folder_repo.ensure_folder(folder_path, folder_name, parent_id, project_id)
 
             # Get file stats
             stat = os.stat(path)
@@ -306,6 +362,7 @@ class TagService:
             photo_id = self._photo_repo.upsert(
                 path=path,
                 folder_id=folder_id,
+                project_id=project_id,
                 size_kb=size_kb,
                 modified=modified,
                 width=None,  # Will be populated by metadata scan later
@@ -314,6 +371,21 @@ class TagService:
                 tags=None
             )
 
+            # CRITICAL FIX: Also add photo to project_images for 'all' branch
+            # Without this, the photo exists in photo_metadata but not in project_images,
+            # causing count mismatches (e.g., 299 in metadata vs 298 in all branch)
+            try:
+                from reference_db import ReferenceDB
+                db = ReferenceDB()
+                db.add_project_image(project_id=project_id, image_path=path, branch_key='all', label=None)
+                self.logger.debug(f"Added photo to project_images (all branch): {path}")
+            except Exception as e:
+                # If photo already exists in project_images, that's fine
+                if "UNIQUE constraint failed" in str(e):
+                    self.logger.debug(f"Photo already in project_images: {path}")
+                else:
+                    self.logger.warning(f"Failed to add photo to project_images: {e}")
+
             self.logger.debug(f"Created photo_metadata entry for: {path} (id={photo_id})")
             return photo_id
 
@@ -321,19 +393,20 @@ class TagService:
             self.logger.error(f"Failed to ensure photo_metadata exists for {path}: {e}", exc_info=True)
             return None
 
-    def get_tags_for_paths(self, photo_paths: List[str]) -> Dict[str, List[str]]:
+    def get_tags_for_paths(self, photo_paths: List[str], project_id: int) -> Dict[str, List[str]]:
         """
         Get tags for multiple photos (bulk operation).
 
         Args:
             photo_paths: List of photo file paths
+            project_id: Project ID (Schema v3.0.0 requirement)
 
         Returns:
             Dict mapping photo_path to list of tag names
 
         Example:
             >>> paths = ['/photos/img001.jpg', '/photos/img002.jpg']
-            >>> service.get_tags_for_paths(paths)
+            >>> service.get_tags_for_paths(paths, project_id=1)
             {
                 '/photos/img001.jpg': ['favorite', 'vacation'],
                 '/photos/img002.jpg': ['vacation', 'beach']
@@ -348,7 +421,7 @@ class TagService:
             id_to_path = {}
 
             for path in photo_paths:
-                photo = self._photo_repo.get_by_path(path)
+                photo = self._photo_repo.get_by_path(path, project_id)
                 if photo:
                     photo_id = photo['id']
                     path_to_id[path] = photo_id
@@ -381,20 +454,23 @@ class TagService:
     # TAG MANAGEMENT
     # ========================================================================
 
-    def get_all_tags_with_counts(self) -> List[Tuple[str, int]]:
+    def get_all_tags_with_counts(self, project_id: int | None = None) -> List[Tuple[str, int]]:
         """
         Get all tags with their photo counts.
+
+        Args:
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all tags globally.
 
         Returns:
             List of tuples: (tag_name, photo_count)
             Ordered alphabetically by tag name
 
         Example:
-            >>> service.get_all_tags_with_counts()
+            >>> service.get_all_tags_with_counts(project_id=1)
             [('beach', 5), ('favorite', 12), ('vacation', 8)]
         """
         try:
-            return self._tag_repo.get_all_with_counts()
+            return self._tag_repo.get_all_with_counts(project_id)
         except Exception as e:
             self.logger.error(f"Failed to get tags with counts: {e}")
             return []
@@ -417,18 +493,19 @@ class TagService:
             self.logger.error(f"Failed to get all tags: {e}")
             return []
 
-    def ensure_tag_exists(self, tag_name: str) -> Optional[int]:
+    def ensure_tag_exists(self, tag_name: str, project_id: int) -> Optional[int]:
         """
-        Ensure a tag exists, creating it if necessary.
+        Ensure a tag exists within a project, creating it if necessary (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             Tag ID, or None if creation failed
 
         Example:
-            >>> service.ensure_tag_exists("new-tag")
+            >>> service.ensure_tag_exists("new-tag", project_id=1)
             42
         """
         tag_name = tag_name.strip()
@@ -436,68 +513,71 @@ class TagService:
             return None
 
         try:
-            return self._tag_repo.ensure_exists(tag_name)
+            return self._tag_repo.ensure_exists(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to ensure tag exists '{tag_name}': {e}")
             return None
 
-    def rename_tag(self, old_name: str, new_name: str) -> bool:
+    def rename_tag(self, old_name: str, new_name: str, project_id: int) -> bool:
         """
-        Rename a tag (or merge if new name exists).
+        Rename a tag within a project (or merge if new name exists) (Schema v3.1.0).
 
         Args:
             old_name: Current tag name
             new_name: New tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             True if renamed/merged, False if failed
 
         Example:
-            >>> service.rename_tag("favourites", "favorite")
+            >>> service.rename_tag("favourites", "favorite", project_id=1)
             True
         """
         try:
-            return self._tag_repo.rename(old_name, new_name)
+            return self._tag_repo.rename(old_name, new_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to rename tag '{old_name}' to '{new_name}': {e}")
             return False
 
-    def delete_tag(self, tag_name: str) -> bool:
+    def delete_tag(self, tag_name: str, project_id: int) -> bool:
         """
-        Delete a tag and remove it from all photos.
+        Delete a tag from a project and remove it from all photos (Schema v3.1.0).
 
         Args:
             tag_name: Tag name to delete
+            project_id: Project ID for tag isolation
 
         Returns:
             True if deleted, False if not found
 
         Example:
-            >>> service.delete_tag("old-tag")
+            >>> service.delete_tag("old-tag", project_id=1)
             True
         """
         try:
-            return self._tag_repo.delete_by_name(tag_name)
+            return self._tag_repo.delete_by_name(tag_name, project_id)
         except Exception as e:
             self.logger.error(f"Failed to delete tag '{tag_name}': {e}")
             return False
 
-    def get_photo_count(self, tag_name: str) -> int:
+    def get_photo_count(self, tag_name: str, project_id: int) -> int:
         """
-        Get number of photos with this tag.
+        Get number of photos with this tag within a project (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             Number of photos, or 0 if tag not found
 
         Example:
-            >>> service.get_photo_count("favorite")
+            >>> service.get_photo_count("favorite", project_id=1)
             12
         """
         try:
-            tag = self._tag_repo.get_by_name(tag_name)
+            tag = self._tag_repo.get_by_name(tag_name, project_id)
             if not tag:
                 return 0
             return self._tag_repo.get_photo_count(tag['id'])

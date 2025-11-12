@@ -1,0 +1,404 @@
+What you’re seeing (“Video section in Sidebar shows wrong counts” + “dates in video section are not shown correctly” + “videos sometimes show up with photos”) usually comes from one root problem:
+
+the current date / count queries don’t separate media types — they just look at photo_metadata (or project_images) and group by date, so videos get counted together with photos, or the video section reuses the photo query and then shows nonsense.
+
+So let’s make it clean and explicit:
+
+
+Photos → shown in “📅 By Date” (your current section)
+
+
+Videos → shown in a new “🎬 Videos” (or “🎬 Videos by Date”) section
+
+
+Each of those uses its own query that filters by media type (by extension, since your DB currently doesn’t fully separate them)
+
+
+Sidebar only shows videos in the video section; photo dates never contain videos again
+
+
+Counts are computed from the same filtered query → no mismatch
+
+
+Below are the ready-to-paste changes for the two places that matter the most in your codebase:
+
+
+your DB / reference accessor (I’ll call it reference_db.py / ReferenceDB)
+
+
+your SidebarQt builder (sidebar_qt.py)
+
+
+I’ll show them in “drop-in” style so you can paste them into your current files.
+
+1) Fix the DB layer: add photo-only and video-only date queries
+Your current sidebar code calls things like self.db.get_date_hierarchy() and self.db.count_for_year(...) — but those look like they return all media. We need them split.
+In reference_db.py (or wherever your ReferenceDB lives), add this near the other date helpers:
+# reference_db.py  (add these helpers)
+
+VIDEO_EXTENSIONS = ("mp4", "mov", "m4v", "avi", "mkv", "3gp", "webm")
+
+class ReferenceDB:
+    ...
+    def _is_video_ext_sql(self) -> str:
+        """
+        Builds a SQL fragment for filtering video extensions.
+        """
+        # ('mp4','mov',...) → ?, ?, ...
+        placeholders = ",".join("?" for _ in VIDEO_EXTENSIONS)
+        return f"LOWER(pm.extension) IN ({placeholders})", VIDEO_EXTENSIONS
+
+    def _is_photo_ext_sql(self) -> str:
+        """
+        Opposite of video: we consider everything that is NOT a video extension as photo.
+        """
+        placeholders = ",".join("?" for _ in VIDEO_EXTENSIONS)
+        # if extension is null we treat as photo to be safe
+        return f"(pm.extension IS NULL OR LOWER(pm.extension) NOT IN ({placeholders}))", VIDEO_EXTENSIONS
+
+    def get_photo_date_hierarchy(self, project_id: int | None = None) -> dict:
+        """
+        Returns {year: {month: [ymd, ...]}} for PHOTOS ONLY.
+        """
+        where_cond, params = self._is_photo_ext_sql()
+        sql = f"""
+            SELECT 
+                strftime('%Y', pm.created_date) AS y,
+                strftime('%m', pm.created_date) AS m,
+                strftime('%d', pm.created_date) AS d
+            FROM photo_metadata pm
+            WHERE pm.created_date IS NOT NULL
+              AND {where_cond}
+        """
+        if project_id:
+            sql += " AND pm.project_id = ?"
+            params = (*params, project_id)
+
+        rows = []
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            rows = cur.fetchall()
+
+        # build hierarchy
+        hier: dict[str, dict[str, list[str]]] = {}
+        for r in rows:
+            y = r["y"]
+            m = r["m"]
+            d = r["d"]
+            if not y or not m or not d:
+                continue
+            hier.setdefault(y, {}).setdefault(m, []).append(f"{y}-{m}-{d}")
+        return hier
+
+    def get_video_date_hierarchy(self, project_id: int | None = None) -> dict:
+        """
+        Same as above but for VIDEOS ONLY.
+        """
+        where_cond, params = self._is_video_ext_sql()
+        sql = f"""
+            SELECT 
+                strftime('%Y', pm.created_date) AS y,
+                strftime('%m', pm.created_date) AS m,
+                strftime('%d', pm.created_date) AS d
+            FROM photo_metadata pm
+            WHERE pm.created_date IS NOT NULL
+              AND {where_cond}
+        """
+        if project_id:
+            sql += " AND pm.project_id = ?"
+            params = (*params, project_id)
+
+        rows = []
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            rows = cur.fetchall()
+
+        hier: dict[str, dict[str, list[str]]] = {}
+        for r in rows:
+            y = r["y"]
+            m = r["m"]
+            d = r["d"]
+            if not y or not m or not d:
+                continue
+            hier.setdefault(y, {}).setdefault(m, []).append(f"{y}-{m}-{d}")
+        return hier
+
+    def count_photos_for_day(self, ymd: str, project_id: int | None = None) -> int:
+        where_cond, params = self._is_photo_ext_sql()
+        sql = f"""
+            SELECT COUNT(*) AS c
+            FROM photo_metadata pm
+            WHERE pm.created_date LIKE ? || '%'
+              AND {where_cond}
+        """
+        query_params: tuple = (ymd, *params)
+        if project_id:
+            sql += " AND pm.project_id=?"
+            query_params = (*query_params, project_id)
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, query_params)
+            row = cur.fetchone()
+        return int(row["c"] if row and row["c"] else 0)
+
+    def count_videos_for_day(self, ymd: str, project_id: int | None = None) -> int:
+        where_cond, params = self._is_video_ext_sql()
+        sql = f"""
+            SELECT COUNT(*) AS c
+            FROM photo_metadata pm
+            WHERE pm.created_date LIKE ? || '%'
+              AND {where_cond}
+        """
+        query_params: tuple = (ymd, *params)
+        if project_id:
+            sql += " AND pm.project_id=?"
+            query_params = (*query_params, project_id)
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, query_params)
+            row = cur.fetchone()
+        return int(row["c"] if row and row["c"] else 0)
+
+    # you can likewise add count_photos_for_month / count_videos_for_month if your sidebar uses them
+
+What this does:
+
+
+we explicitly define what a video is (by extension)
+
+
+we give the sidebar two separate hierarchies: one for photos, one for videos
+
+
+we give the sidebar two separate count methods: one for photos, one for videos
+
+
+So now the sidebar doesn’t have to guess.
+
+2) Fix the SidebarQt: build photos and videos separately
+Right now your SidebarQt has something like _build_by_date_section(self) that shows dates — but that’s probably showing all media or reusing the same DB call for both.
+Let’s split it cleanly.
+In sidebar_qt.py, change your date builder to call the photo-only DB function, and add a video section right after.
+# sidebar_qt.py  (inside SidebarQt)
+
+def _build_by_date_section(self):
+    """
+    Build '📅 By Date' for PHOTOS ONLY.
+    """
+    try:
+        hier = self.db.get_photo_date_hierarchy(self.project_id)
+    except Exception:
+        return
+    if not hier:
+        return
+
+    root_name_item = QStandardItem("📅 By Date")
+    root_cnt_item = QStandardItem("")
+    root_name_item.setEditable(False)
+    root_cnt_item.setEditable(False)
+    self.model.appendRow([root_name_item, root_cnt_item])
+
+    def _cnt_item(num):
+        c = QStandardItem("" if not num else str(num))
+        c.setEditable(False)
+        c.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        c.setForeground(QColor("#888888"))
+        return c
+
+    for year in sorted(hier.keys(), key=lambda y: int(str(y))):
+        # you may add a year-level count too, but here we focus on days
+        y_item = QStandardItem(str(year))
+        y_item.setEditable(False)
+        y_item.setData("branch", Qt.UserRole)
+        y_item.setData(f"date:{year}", Qt.UserRole + 1)
+        root_name_item.appendRow([y_item, QStandardItem("")])
+
+        months = hier.get(year, {})
+        for month in sorted(months.keys(), key=lambda m: int(str(m))):
+            m_label = f"{int(month):02d}"
+            m_item = QStandardItem(m_label)
+            m_item.setEditable(False)
+            m_item.setData("branch", Qt.UserRole)
+            m_item.setData(f"date:{year}-{m_label}", Qt.UserRole + 1)
+            y_item.appendRow([m_item, QStandardItem("")])
+
+            # list of full ymd strings
+            day_ymd_list = months.get(month, []) or []
+            # deduplicate days
+            days = sorted({d.split("-")[2] for d in day_ymd_list})
+            for day in days:
+                d_label = f"{int(day):02d}"
+                ymd = f"{year}-{m_label}-{d_label}"
+                d_item = QStandardItem(d_label)
+                d_item.setEditable(False)
+                d_item.setData("branch", Qt.UserRole)
+                d_item.setData(f"date:{ymd}", Qt.UserRole + 1)
+                # photo-only count
+                d_count = self.db.count_photos_for_day(ymd, self.project_id)
+                m_item.appendRow([d_item, _cnt_item(d_count)])
+
+    # auto expand
+    self.tree.expand(self.model.indexFromItem(root_name_item))
+    print("[SidebarQt] _build_by_date_section → photos-only dates built")
+
+Now add a video counterpart right under it:
+def _build_video_section(self):
+    """
+    Build '🎬 Videos' grouped by date, VIDEOS ONLY.
+    """
+    try:
+        hier = self.db.get_video_date_hierarchy(self.project_id)
+    except Exception as e:
+        print(f"[SidebarQt] _build_video_section failed: {e}")
+        return
+    if not hier:
+        return
+
+    root_name_item = QStandardItem("🎬 Videos")
+    root_cnt_item = QStandardItem("")
+    root_name_item.setEditable(False)
+    root_cnt_item.setEditable(False)
+    self.model.appendRow([root_name_item, root_cnt_item])
+
+    def _cnt_item(num):
+        c = QStandardItem("" if not num else str(num))
+        c.setEditable(False)
+        c.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        c.setForeground(QColor("#888888"))
+        return c
+
+    for year in sorted(hier.keys(), key=lambda y: int(str(y))):
+        y_item = QStandardItem(str(year))
+        y_item.setEditable(False)
+        # mark as VIDEO-DATE to distinguish in click handler
+        y_item.setData("video-date", Qt.UserRole)
+        y_item.setData(f"video:{year}", Qt.UserRole + 1)
+        root_name_item.appendRow([y_item, QStandardItem("")])
+
+        months = hier.get(year, {})
+        for month in sorted(months.keys(), key=lambda m: int(str(m))):
+            m_label = f"{int(month):02d}"
+            m_item = QStandardItem(m_label)
+            m_item.setEditable(False)
+            m_item.setData("video-date", Qt.UserRole)
+            m_item.setData(f"video:{year}-{m_label}", Qt.UserRole + 1)
+            y_item.appendRow([m_item, QStandardItem("")])
+
+            day_ymd_list = months.get(month, []) or []
+            days = sorted({d.split("-")[2] for d in day_ymd_list})
+            for day in days:
+                d_label = f"{int(day):02d}"
+                ymd = f"{year}-{m_label}-{d_label}"
+                d_item = QStandardItem(d_label)
+                d_item.setEditable(False)
+                d_item.setData("video-date", Qt.UserRole)
+                d_item.setData(f"video:{ymd}", Qt.UserRole + 1)
+                d_count = self.db.count_videos_for_day(ymd, self.project_id)
+                m_item.appendRow([d_item, _cnt_item(d_count)])
+
+    self.tree.expand(self.model.indexFromItem(root_name_item))
+    print("[SidebarQt] _build_video_section → video-only dates built")
+
+And in your main tree builder (_build_tree_model) call both:
+def _build_tree_model(self):
+    self.model.removeRows(0, self.model.rowCount())
+    self._count_targets = []
+    ...
+    self._build_by_date_section()   # photos
+    self._build_video_section()     # videos
+    ...
+
+
+3) Make clicking a video date show only videos in the grid
+Right now your _on_item_clicked checks:
+if mode == "date": ...
+elif mode == "tag": ...
+
+Add a branch for the new "video-date" mode:
+def _on_item_clicked(self, index):
+    ...
+    mode = item.data(Qt.UserRole)
+    value = item.data(Qt.UserRole + 1)
+    mw = self.window()
+
+    ...
+    elif mode == "video-date" and value:
+        # value looks like "video:2025-01-11"
+        date_key = value.replace("video:", "")
+        # tell grid to show *videos only* for that date
+        if hasattr(mw, "grid"):
+            mw.grid.set_context("video-date", date_key)
+        # optionally clear tag filter
+        if hasattr(mw, "_clear_tag_filter"):
+            mw._clear_tag_filter()
+
+Then in your grid code (you already have contexts like "branch", "folder", "date"), add a handler for "video-date" that runs a video-only query:
+# in thumbnail_grid_qt.py or wherever your grid controller is:
+
+def set_context(self, mode, value):
+    self.current_mode = mode
+    self.current_value = value
+    if mode == "video-date":
+        # new method in your DB/service
+        paths = self.db.get_videos_by_date(self.project_id, value)
+        self.display_thumbnails(paths)
+        return
+    ...
+
+And in ReferenceDB add:
+def get_videos_by_date(self, project_id: int, ymd: str) -> list[str]:
+    where_cond, params = self._is_video_ext_sql()
+    sql = f"""
+        SELECT pm.path
+        FROM photo_metadata pm
+        WHERE pm.project_id = ?
+          AND pm.created_date LIKE ? || '%'
+          AND {where_cond}
+        ORDER BY pm.created_date DESC
+    """
+    with self._connect() as conn:
+        cur = conn.cursor()
+        cur.execute(sql, (project_id, ymd, *params))
+        rows = cur.fetchall()
+    return [r["path"] for r in rows]
+
+Now:
+
+
+video dates → only videos
+
+
+photo dates → only photos
+
+
+counts match because they come from the same filtered query
+
+
+videos don’t creep into the photo section anymore
+
+
+
+4) Why dates were “not shown correctly”
+That was likely because the old code did:
+SELECT strftime('%Y', created_date) ... FROM photo_metadata
+
+without WHERE extension NOT IN (video …) so if a video had a date, it got grouped with photos. Then you created a separate videos section that still used the same data → mismatched/bigger counts.
+Splitting it like above fixes that at the root — no workaround, just two explicit code paths.
+
+If you drop these three chunks in (DB filter helpers, photo-only section, video-only section + click handler), your Sidebar (List) will start behaving like you described:
+
+
+correct video counts
+
+
+correct video dates
+
+
+strict separation photos/videos
+
+
+no double-counting 🎯

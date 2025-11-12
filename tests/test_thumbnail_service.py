@@ -1,5 +1,9 @@
 # tests/test_thumbnail_service.py
 # Integration tests for ThumbnailService
+#
+# REQUIRES Qt: This test suite imports PySide6 and ThumbnailService which depends on Qt.
+# Mark with: @pytest.mark.requires_qt
+# Skip in headless environments with: pytest -m "not requires_qt"
 
 import os
 import time
@@ -9,6 +13,9 @@ import pytest
 from PySide6.QtGui import QPixmap
 
 from services import ThumbnailService, LRUCache
+
+# Mark all tests in this module as requiring Qt
+pytestmark = pytest.mark.requires_qt
 
 
 class TestLRUCache:

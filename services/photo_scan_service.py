@@ -3,6 +3,7 @@
 # Photo scanning service - Uses MetadataService for extraction
 
 import os
+import platform
 import time
 from pathlib import Path
 from typing import Optional, List, Tuple, Callable, Dict, Any, Set
@@ -23,6 +24,7 @@ class ScanResult:
     photos_indexed: int
     photos_skipped: int
     photos_failed: int
+    videos_indexed: int  # 🎬 NEW: video count
     duration_seconds: float
     interrupted: bool = False
 
@@ -54,11 +56,17 @@ class PhotoScanService:
     - Advanced EXIF parsing (use MetadataService)
     - Thumbnail generation (use ThumbnailService)
     - Face detection (separate service)
+
+    Metadata Extraction Approach:
+    - Uses MetadataService.extract_basic_metadata() for ALL photos (BUG FIX #8)
+    - This avoids hangs from corrupted/malformed images
+    - created_ts/created_date/created_year are computed inline from date_taken
+    - Consistent across entire service - do not mix with extract_metadata()
     """
 
     # Supported image extensions
     # Common formats
-    SUPPORTED_EXTENSIONS = {
+    IMAGE_EXTENSIONS = {
         # JPEG family
         '.jpg', '.jpeg', '.jpe', '.jfif',
         # PNG
@@ -68,7 +76,7 @@ class PhotoScanService:
         # TIFF
         '.tif', '.tiff',
         # HEIF/HEIC (Apple/modern)
-        '.heic', '.heif',
+        '.heic', '.heif',  # ✅ iPhone photos, Live Photos (still image part)
         # BMP
         '.bmp', '.dib',
         # GIF
@@ -80,20 +88,63 @@ class PhotoScanService:
         '.cr2', '.cr3',  # Canon RAW
         '.nef', '.nrw',  # Nikon RAW
         '.arw', '.srf', '.sr2',  # Sony RAW
-        '.dng',  # Adobe Digital Negative
+        '.dng',  # Adobe Digital Negative (includes Apple ProRAW)
         '.orf',  # Olympus RAW
         '.rw2',  # Panasonic RAW
         '.pef',  # Pentax RAW
         '.raf',  # Fujifilm RAW
     }
 
-    # Default ignore patterns
-    DEFAULT_IGNORE_FOLDERS = {
-        "AppData", "Program Files", "Program Files (x86)", "Windows",
-        "$Recycle.Bin", "System Volume Information", "__pycache__",
-        "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-        "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
+    # Video file extensions
+    VIDEO_EXTENSIONS = {
+        # Apple/iPhone formats
+        '.mov',   # ✅ QuickTime, Live Photos (video part), Cinematic mode, ProRes
+        '.m4v',   # ✅ iTunes video, iPhone recordings
+        # Common video formats
+        '.mp4',   # MPEG-4
+        # MPEG family
+        '.mpeg', '.mpg', '.mpe',
+        # Windows Media
+        '.wmv', '.asf',
+        # AVI
+        '.avi',
+        # Matroska
+        '.mkv', '.webm',
+        # Flash
+        '.flv', '.f4v',
+        # Mobile/Other
+        '.3gp', '.3g2',  # Mobile phones
+        '.ogv',          # Ogg Video
+        '.ts', '.mts', '.m2ts'  # MPEG transport stream
     }
+
+    # Combined: all supported media files (photos + videos)
+    SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
+
+    # Default ignore patterns (OS-specific to avoid irrelevant exclusions)
+    # Common folders to ignore across all platforms
+    _COMMON_IGNORE_FOLDERS = {
+        "__pycache__", "node_modules", ".git", ".svn", ".hg",
+        "venv", ".venv", "env", ".env"
+    }
+
+    # Platform-specific ignore folders
+    if platform.system() == "Windows":
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        }
+    elif platform.system() == "Darwin":  # macOS
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "Library", ".Trash", "Caches", "Logs",
+            "Application Support"
+        }
+    else:  # Linux and others
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            ".cache", ".local/share/Trash", "tmp"
+        }
 
     def __init__(self,
                  photo_repo: Optional[PhotoRepository] = None,
@@ -110,8 +161,10 @@ class PhotoScanService:
             folder_repo: Folder repository (creates default if None)
             project_repo: Project repository (creates default if None)
             metadata_service: Metadata extraction service (creates default if None)
-            batch_size: Number of photos to batch before writing
-            stat_timeout: Timeout for os.stat calls (seconds)
+            batch_size: Number of photos to batch before writing (default: 200)
+                       NOTE: Could be made configurable via SettingsManager in the future
+            stat_timeout: Timeout for os.stat calls in seconds (default: 3.0)
+                         NOTE: Could be made configurable via SettingsManager in the future
         """
         self.photo_repo = photo_repo or PhotoRepository()
         self.folder_repo = folder_repo or FolderRepository()
@@ -129,6 +182,10 @@ class PhotoScanService:
             'folders_found': 0
         }
 
+        # Video workers (initialized when videos are processed)
+        self.video_metadata_worker = None
+        self.video_thumbnail_worker = None
+
     def scan_repository(self,
                        root_folder: str,
                        project_id: int,
@@ -136,7 +193,8 @@ class PhotoScanService:
                        skip_unchanged: bool = True,
                        extract_exif_date: bool = True,
                        ignore_folders: Optional[Set[str]] = None,
-                       progress_callback: Optional[Callable[[ScanProgress], None]] = None) -> ScanResult:
+                       progress_callback: Optional[Callable[[ScanProgress], None]] = None,
+                       on_video_metadata_finished: Optional[Callable[[int, int], None]] = None) -> ScanResult:
         """
         Scan a photo repository and index all photos.
 
@@ -158,7 +216,7 @@ class PhotoScanService:
         """
         start_time = time.time()
         self._cancelled = False
-        self._stats = {'photos_indexed': 0, 'photos_skipped': 0, 'photos_failed': 0, 'folders_found': 0}
+        self._stats = {'photos_indexed': 0, 'photos_skipped': 0, 'photos_failed': 0, 'videos_indexed': 0, 'folders_found': 0}
 
         root_path = Path(root_folder).resolve()
         if not root_path.exists():
@@ -167,15 +225,25 @@ class PhotoScanService:
         logger.info(f"Starting scan: {root_folder} (incremental={incremental})")
 
         try:
-            # Step 1: Discover all image files
-            all_files = self._discover_files(root_path, ignore_folders or self.DEFAULT_IGNORE_FOLDERS)
+            # Step 1: Discover all media files (photos + videos)
+            # Priority: explicit parameter > settings > platform-specific defaults
+            if ignore_folders is not None:
+                ignore_set = ignore_folders
+            else:
+                # Check settings for custom exclusions
+                ignore_set = self._get_ignore_folders_from_settings()
+
+            all_files = self._discover_files(root_path, ignore_set)
+            all_videos = self._discover_videos(root_path, ignore_set)
+
             total_files = len(all_files)
+            total_videos = len(all_videos)
 
-            logger.info(f"Discovered {total_files} candidate image files")
+            logger.info(f"Discovered {total_files} candidate image files and {total_videos} video files")
 
-            if total_files == 0:
-                logger.warning("No image files found")
-                return ScanResult(0, 0, 0, 0, time.time() - start_time)
+            if total_files == 0 and total_videos == 0:
+                logger.warning("No media files found")
+                return ScanResult(0, 0, 0, 0, 0, time.time() - start_time)
 
             # Step 2: Load existing metadata for incremental scan
             existing_metadata = {}
@@ -187,7 +255,10 @@ class PhotoScanService:
             batch_rows = []
             folders_seen: Set[str] = set()
 
-            executor = ThreadPoolExecutor(max_workers=4)
+            # CRITICAL FIX: Increase thread pool size to prevent deadlock
+            # With max_workers=4, if 4 files timeout simultaneously, the pool deadlocks
+            # Using 8 workers provides headroom for timeouts while maintaining reasonable concurrency
+            executor = ThreadPoolExecutor(max_workers=8)
 
             try:
                 for i, file_path in enumerate(all_files, 1):
@@ -239,15 +310,28 @@ class PhotoScanService:
             finally:
                 executor.shutdown(wait=False)
 
-            # Step 4: Create default project and branch if needed
+            # Step 4: Process videos
+            if total_videos > 0 and not self._cancelled:
+                logger.info(f"Processing {total_videos} videos...")
+                self._process_videos(all_videos, root_path, project_id, folders_seen, progress_callback)
+
+            # Step 5: Create default project and branch if needed
             self._ensure_default_project(root_folder)
+
+            # Step 6: Launch background workers for video processing
+            if self._stats['videos_indexed'] > 0:
+                self.video_metadata_worker, self.video_thumbnail_worker = self._launch_video_workers(
+                    project_id,
+                    on_metadata_finished_callback=on_video_metadata_finished
+                )
 
             # Finalize
             duration = time.time() - start_time
             self._stats['folders_found'] = len(folders_seen)
 
             logger.info(
-                f"Scan complete: {self._stats['photos_indexed']} indexed, "
+                f"Scan complete: {self._stats['photos_indexed']} photos indexed, "
+                f"{self._stats['videos_indexed']} videos indexed, "
                 f"{self._stats['photos_skipped']} skipped, "
                 f"{self._stats['photos_failed']} failed in {duration:.1f}s"
             )
@@ -257,6 +341,7 @@ class PhotoScanService:
                 photos_indexed=self._stats['photos_indexed'],
                 photos_skipped=self._stats['photos_skipped'],
                 photos_failed=self._stats['photos_failed'],
+                videos_indexed=self._stats['videos_indexed'],
                 duration_seconds=duration,
                 interrupted=self._cancelled
             )
@@ -296,6 +381,62 @@ class PhotoScanService:
                     image_files.append(Path(dirpath) / filename)
 
         return image_files
+
+    def _discover_videos(self, root_path: Path, ignore_folders: Set[str]) -> List[Path]:
+        """
+        Discover all video files in directory tree.
+
+        Args:
+            root_path: Root directory
+            ignore_folders: Folder names to skip
+
+        Returns:
+            List of video file paths
+        """
+        video_files = []
+
+        for dirpath, dirnames, filenames in os.walk(root_path):
+            # Filter ignored directories in-place
+            dirnames[:] = [
+                d for d in dirnames
+                if d not in ignore_folders and not d.startswith(".")
+            ]
+
+            for filename in filenames:
+                ext = Path(filename).suffix.lower()
+                if ext in self.VIDEO_EXTENSIONS:
+                    video_files.append(Path(dirpath) / filename)
+
+        return video_files
+
+    def _get_ignore_folders_from_settings(self) -> Set[str]:
+        """
+        Get ignore folders from settings, with fallback to platform-specific defaults.
+
+        Returns:
+            Set of folder names to ignore during scanning
+
+        Priority:
+            1. Custom exclusions from settings (if non-empty)
+            2. Platform-specific defaults (DEFAULT_IGNORE_FOLDERS)
+        """
+        try:
+            from settings_manager_qt import SettingsManager
+            settings = SettingsManager()
+            custom_exclusions = settings.get("scan_exclude_folders", [])
+
+            if custom_exclusions:
+                # User has configured custom exclusions - use them
+                logger.info(f"Using custom scan exclusions from settings: {len(custom_exclusions)} folders")
+                return set(custom_exclusions)
+            else:
+                # No custom exclusions - use platform-specific defaults
+                logger.debug(f"Using platform-specific default exclusions ({platform.system()})")
+                return self.DEFAULT_IGNORE_FOLDERS
+        except Exception as e:
+            logger.warning(f"Could not load scan exclusions from settings: {e}")
+            logger.debug("Falling back to platform-specific default exclusions")
+            return self.DEFAULT_IGNORE_FOLDERS
 
     def _load_existing_metadata(self) -> Dict[str, str]:
         """
@@ -368,16 +509,20 @@ class PhotoScanService:
         # Step 4: Extract dimensions and EXIF date using MetadataService
         # CRITICAL FIX: Wrap metadata extraction with timeout to prevent hangs
         # PIL/Pillow can hang on corrupted images, malformed TIFF/EXIF, or files with infinite loops
+        # BUG FIX #8: Use fast extract_basic_metadata() to avoid hangs, compute created_* inline
         width = height = date_taken = None
+        created_ts = created_date = created_year = None
         metadata_timeout = 5.0  # 5 seconds per image
 
         if extract_exif_date:
-            # Use metadata service for extraction with timeout protection
+            # Use fast basic metadata extraction (BUG FIX #8: Reverted from extract_metadata)
             try:
+                logger.debug(f"[Scan] Processing metadata for: {path_str}")
                 future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
                 width, height, date_taken = future.result(timeout=metadata_timeout)
+                logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
             except FuturesTimeoutError:
-                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit)")
+                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
                 # Continue without dimensions/EXIF - photo will still be indexed
                 try:
                     future.cancel()
@@ -389,11 +534,8 @@ class PhotoScanService:
         else:
             # Just get dimensions without EXIF (with timeout)
             try:
-                future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
-                metadata = future.result(timeout=metadata_timeout)
-                if metadata.success:
-                    width = metadata.width
-                    height = metadata.height
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, _ = future.result(timeout=metadata_timeout)
             except FuturesTimeoutError:
                 logger.warning(f"Dimension extraction timeout for {path_str} (5s limit)")
                 try:
@@ -402,6 +544,20 @@ class PhotoScanService:
                     pass
             except Exception as e:
                 logger.debug(f"Could not extract dimensions from {path_str}: {e}")
+
+        # BUG FIX #7 + #8: Compute created_* fields from date_taken inline (no heavy extract_metadata call)
+        if date_taken:
+            try:
+                from datetime import datetime
+                # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+                date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
+                dt = datetime.strptime(date_str, '%Y-%m-%d')
+                created_ts = int(dt.timestamp())
+                created_date = date_str  # YYYY-MM-DD
+                created_year = dt.year
+            except (ValueError, AttributeError, IndexError) as e:
+                # If date parsing fails, these fields will remain NULL
+                logger.debug(f"[Scan] Failed to parse date_taken '{date_taken}': {e}")
 
         # Step 5: Ensure folder hierarchy exists
         try:
@@ -415,8 +571,11 @@ class PhotoScanService:
         self._stats['photos_indexed'] += 1
 
         # Return row tuple for batch insert
-        # (path, folder_id, size_kb, modified, width, height, date_taken, tags)
-        return (path_str, folder_id, size_kb, mtime, width, height, date_taken, None)
+        # BUG FIX #7: Include created_ts, created_date, created_year for date hierarchy
+        # (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+        #  created_ts, created_date, created_year)
+        return (path_str, folder_id, size_kb, mtime, width, height, date_taken, None,
+                created_ts, created_date, created_year)
 
     def _ensure_folder_hierarchy(self, folder_path: Path, root_path: Path, project_id: int) -> int:
         """
@@ -476,7 +635,8 @@ class PhotoScanService:
         Write a batch of photo rows to database.
 
         Args:
-            rows: List of tuples (path, folder_id, size_kb, modified, width, height, date_taken, tags)
+            rows: List of tuples (path, folder_id, size_kb, modified, width, height, date_taken, tags,
+                                   created_ts, created_date, created_year)
             project_id: Project ID for photo ownership
         """
         if not rows:
@@ -490,9 +650,10 @@ class PhotoScanService:
             # Try individual writes as fallback
             for row in rows:
                 try:
-                    # Unpack row and add project_id
-                    path, folder_id, size_kb, modified, width, height, date_taken, tags = row
-                    self.photo_repo.upsert(path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags)
+                    # BUG FIX #7: Unpack row with created_* fields
+                    path, folder_id, size_kb, modified, width, height, date_taken, tags, created_ts, created_date, created_year = row
+                    self.photo_repo.upsert(path, folder_id, project_id, size_kb, modified, width, height,
+                                          date_taken, tags, created_ts, created_date, created_year)
                 except Exception as e2:
                     logger.error(f"Failed to write individual photo {row[0]}: {e2}")
 
@@ -530,3 +691,132 @@ class PhotoScanService:
 
         except Exception as e:
             logger.warning(f"Could not create default project: {e}")
+
+    def _process_videos(self, video_files: List[Path], root_path: Path, project_id: int,
+                       folders_seen: Set[str], progress_callback: Optional[Callable] = None):
+        """
+        Process discovered video files and index them.
+
+        Args:
+            video_files: List of video file paths
+            root_path: Root directory of scan
+            project_id: Project ID
+            folders_seen: Set of folder paths already seen
+            progress_callback: Optional progress callback
+        """
+        try:
+            from services.video_service import VideoService
+            video_service = VideoService()
+
+            for i, video_path in enumerate(video_files, 1):
+                if self._cancelled:
+                    logger.info("Video processing cancelled by user")
+                    break
+
+                try:
+                    # Track folder
+                    folder_path = os.path.dirname(str(video_path))
+                    folders_seen.add(folder_path)
+
+                    # Ensure folder exists and get folder_id (PROPER FIX)
+                    folder_id = self._ensure_folder_hierarchy(video_path.parent, root_path, project_id)
+
+                    # Get file stats
+                    stat = os.stat(video_path)
+                    size_kb = stat.st_size / 1024
+                    modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+                    # Index video (status will be 'pending' for metadata/thumbnail extraction)
+                    video_service.index_video(
+                        path=str(video_path),
+                        project_id=project_id,
+                        folder_id=folder_id,
+                        size_kb=size_kb,
+                        modified=modified
+                    )
+                    self._stats['videos_indexed'] += 1
+
+                except Exception as e:
+                    logger.warning(f"Failed to index video {video_path}: {e}")
+
+                # Report progress
+                if progress_callback and (i % 10 == 0 or i == len(video_files)):
+                    progress = ScanProgress(
+                        current=i,
+                        total=len(video_files),
+                        percent=int((i / len(video_files)) * 100),
+                        message=f"Indexed {self._stats['videos_indexed']}/{len(video_files)} videos",
+                        current_file=str(video_path)
+                    )
+                    progress_callback(progress)
+
+            logger.info(f"Indexed {self._stats['videos_indexed']} videos (metadata extraction pending)")
+
+        except ImportError:
+            logger.warning("VideoService not available, skipping video indexing")
+        except Exception as e:
+            logger.error(f"Error processing videos: {e}", exc_info=True)
+
+    def _launch_video_workers(self, project_id: int, on_metadata_finished_callback=None):
+        """
+        Launch background workers for video metadata extraction and thumbnail generation.
+
+        Args:
+            project_id: Project ID for which to process videos
+            on_metadata_finished_callback: Optional callback(success, failed) to call when metadata extraction finishes
+
+        Returns:
+            Tuple of (metadata_worker, thumbnail_worker) or (None, None) if failed
+        """
+        try:
+            from PySide6.QtCore import QThreadPool
+            from workers.video_metadata_worker import VideoMetadataWorker
+            from workers.video_thumbnail_worker import VideoThumbnailWorker
+
+            logger.info(f"Launching background workers for {self._stats['videos_indexed']} videos...")
+
+            # Launch metadata extraction worker
+            metadata_worker = VideoMetadataWorker(project_id=project_id)
+
+            # Connect progress signals for UI feedback
+            metadata_worker.signals.progress.connect(
+                lambda curr, total, path: logger.info(f"[Metadata] Processing {curr}/{total}: {path}")
+            )
+            metadata_worker.signals.finished.connect(
+                lambda success, failed: logger.info(f"[Metadata] Complete: {success} successful, {failed} failed")
+            )
+
+            # CRITICAL: Connect callback BEFORE starting worker to avoid race condition
+            if on_metadata_finished_callback:
+                metadata_worker.signals.finished.connect(on_metadata_finished_callback)
+                logger.info("Connected metadata finished callback for sidebar refresh")
+
+            QThreadPool.globalInstance().start(metadata_worker)
+            logger.info("✓ Video metadata extraction worker started")
+
+            # Launch thumbnail generation worker
+            thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+
+            # Connect progress signals for UI feedback
+            thumbnail_worker.signals.progress.connect(
+                lambda curr, total, path: logger.info(f"[Thumbnails] Generating {curr}/{total}: {path}")
+            )
+            thumbnail_worker.signals.finished.connect(
+                lambda success, failed: logger.info(f"[Thumbnails] Complete: {success} successful, {failed} failed")
+            )
+
+            QThreadPool.globalInstance().start(thumbnail_worker)
+            logger.info("✓ Video thumbnail generation worker started")
+
+            # Store worker count for status
+            logger.info(f"🎬 Processing {self._stats['videos_indexed']} videos in background (check logs for progress)")
+
+            # Return workers so callers can connect to their signals
+            return metadata_worker, thumbnail_worker
+
+        except ImportError as e:
+            logger.warning(f"Video workers not available: {e}")
+            return None, None
+        except Exception as e:
+            logger.error(f"Error launching video workers: {e}", exc_info=True)
+            return None, None

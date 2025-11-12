@@ -24,7 +24,9 @@ from datetime import datetime
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-DB_FILE = "reference_data.db"
+from db_config import get_db_filename
+
+DB_FILE = get_db_filename()
 
 
 class ReferenceDB:
@@ -39,6 +41,10 @@ class ReferenceDB:
         Args:
             db_file: Path to database file (default: reference_data.db)
         """
+        # Initialize logger
+        from logging_config import get_logger
+        self.logger = get_logger(__name__)
+
         # CRITICAL FIX: Convert to absolute path BEFORE storing
         # This ensures _connect() uses the same database file as DatabaseConnection
         import os
@@ -387,23 +393,24 @@ class ReferenceDB:
         Return all folders as list of dicts: {id, parent_id, path, name}.
 
         Args:
-            project_id: Filter folders to only those containing photos from this project.
+            project_id: Filter folders by project_id (Schema v3.0.0 direct column filtering).
                        If None, returns all folders globally (backward compatibility).
 
-        Useful to build an in-memory tree quickly in the UI thread.
+        Returns:
+            List of folder dicts with keys: id, parent_id, path, name
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_folders table.
+              This is much faster than v2.0.0's junction table approach.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter folders by project_id
-                # Only return folders that contain photos belonging to this project
+                # Schema v3.0.0: Direct project_id column filtering
                 cur.execute("""
-                    SELECT DISTINCT pf.id, pf.parent_id, pf.path, pf.name
-                    FROM photo_folders pf
-                    INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                    ORDER BY pf.parent_id IS NOT NULL, pf.parent_id, pf.name
+                    SELECT id, parent_id, path, name
+                    FROM photo_folders
+                    WHERE project_id = ?
+                    ORDER BY parent_id IS NOT NULL, parent_id, name
                 """, (project_id,))
             else:
                 # No filter - return all folders globally (backward compatibility)
@@ -411,11 +418,27 @@ class ReferenceDB:
             rows = [{"id": r[0], "parent_id": r[1], "path": r[2], "name": r[3]} for r in cur.fetchall()]
         return rows
 
-    def count_for_folder(self, folder_id: int) -> int:
-        """Alias for get_folder_photo_count / faster direct SQL for the UI."""
+    def count_for_folder(self, folder_id: int, project_id: int | None = None) -> int:
+        """
+        Count photos in a folder (faster direct SQL for the UI).
+
+        Args:
+            folder_id: The folder ID to count photos in
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ? AND project_id = ?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
             row = cur.fetchone()
             return int(row[0]) if row and row[0] is not None else 0
 
@@ -645,8 +668,8 @@ class ReferenceDB:
             )
             rows = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
-            # Get total photo count for "All Photos"
-            cur.execute("SELECT COUNT(DISTINCT path) FROM photo_metadata")
+            # Get total photo count for "All Photos" - Schema v3.0.0: filter by project_id
+            cur.execute("SELECT COUNT(DISTINCT path) FROM photo_metadata WHERE project_id = ?", (project_id,))
             total_count = cur.fetchone()[0]
 
         # ensure 'all' exists and is first, with count
@@ -717,24 +740,39 @@ class ReferenceDB:
     def get_project_images(self, project_id: int, branch_key: str = None):
         """
         Return image paths for a given project.
-        - If branch_key is 'all' or None → return all images.
-        - If branch_key starts with 'face_' → filter by that branch.
+        - If branch_key is None → return all UNIQUE images (DISTINCT paths).
+        - If branch_key is 'all' or '__ALL__' → filter by branch_key='all' specifically.
+        - If branch_key starts with 'face_' or 'date:' → filter by that branch.
         - If branch_key does NOT match any branch → try matching by label (for face branches like 'Person A').
+
+        CRITICAL FIX: 'all' is now treated as a specific branch, not "return everything".
+        This prevents count inflation (e.g., showing 554 instead of 298).
         """
         with self._connect() as conn:
             cur = conn.cursor()
 
-            # 🟢 Case 1: all images (default view)
-            if branch_key is None or branch_key == "all" or branch_key == "__ALL__":
+            # 🟢 Case 1: No branch specified - return all UNIQUE images
+            if branch_key is None:
                 cur.execute(
-                    "SELECT image_path FROM project_images WHERE project_id = ?",
+                    "SELECT DISTINCT image_path FROM project_images WHERE project_id = ?",
                     (project_id,)
                 )
                 rows = cur.fetchall()
                 paths = [row[0] for row in rows]
                 return paths
 
-            # 🟠 Case 2: exact branch_key match (date-based or face_x)
+            # 🟢 Case 2: 'all' branch - filter specifically for branch_key='all'
+            # CRITICAL: This is the fix for count inflation bug
+            if branch_key == "all" or branch_key == "__ALL__":
+                cur.execute(
+                    "SELECT image_path FROM project_images WHERE project_id = ? AND branch_key = ?",
+                    (project_id, 'all')
+                )
+                rows = cur.fetchall()
+                paths = [row[0] for row in rows]
+                return paths
+
+            # 🟠 Case 3: exact branch_key match (date-based or face_x)
             cur.execute(
                 "SELECT image_path FROM project_images WHERE project_id = ? AND branch_key = ?",
                 (project_id, branch_key)
@@ -744,7 +782,7 @@ class ReferenceDB:
                 paths = [row[0] for row in rows]
                 return paths
 
-            # 🔎 Case 3: fallback — maybe user clicked "Person A" which is a label, not a branch_key
+            # 🔎 Case 4: fallback — maybe user clicked "Person A" which is a label, not a branch_key
             cur.execute(
                 "SELECT image_path FROM project_images WHERE project_id = ? AND label = ?",
                 (project_id, branch_key)
@@ -1071,11 +1109,20 @@ class ReferenceDB:
         conn.commit()
 
 
-    def scan_repository(self, repo_path: str):
-        """Recursively scan a photo repo and index in photo_folders and photo_metadata."""
+    def scan_repository(self, repo_path: str, project_id: int = None):
+        """Recursively scan a photo repo and index in photo_folders and photo_metadata.
+
+        Args:
+            repo_path: Path to repository to scan
+            project_id: Project ID (uses default if None)
+        """
         repo = Path(repo_path).resolve()
         if not repo.exists():
             raise FileNotFoundError(f"Repository not found: {repo}")
+
+        # Get or create default project
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
 
         supported_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.tif', '.tiff'}
 
@@ -1084,7 +1131,7 @@ class ReferenceDB:
             parent = folder_path.parent if folder_path.parent != folder_path else None
             if parent and parent.exists():
                 cur = conn.cursor()
-                cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(parent),))
+                cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (str(parent), project_id))
                 prow = cur.fetchone()
                 if prow:
                     parent_id = prow[0]
@@ -1092,13 +1139,13 @@ class ReferenceDB:
                     parent_id = get_or_create_folder(conn, parent)
 
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_folders WHERE path=?", (str(folder_path),))
+            cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (str(folder_path), project_id))
             row = cur.fetchone()
             if row:
                 return row[0]
             cur.execute(
-                "INSERT INTO photo_folders (parent_id, path, name) VALUES (?, ?, ?)",
-                (parent_id, str(folder_path), folder_path.name)
+                "INSERT INTO photo_folders (parent_id, path, name, project_id) VALUES (?, ?, ?, ?)",
+                (parent_id, str(folder_path), folder_path.name, project_id)
             )
             conn.commit()
             return cur.lastrowid
@@ -1133,33 +1180,32 @@ class ReferenceDB:
 
         Args:
             parent_id: Parent folder ID. Use None for root folders.
-            project_id: Filter folders to only those containing photos from this project.
+            project_id: Filter folders by project_id (Schema v3.0.0 direct column filtering).
                        If None, returns all folders (backward compatibility).
 
-        Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
+        Returns:
+            List of dicts with keys: id, name
+
+        Note: Use IS NULL for root folders, because `parent_id = NULL` returns nothing in SQL.
+              Schema v3.0.0 uses direct project_id column in photo_folders table.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter folders by project_id
-                # Only return child folders that contain photos from this project
+                # Schema v3.0.0: Direct project_id column filtering
                 if parent_id is None:
                     cur.execute("""
-                        SELECT DISTINCT pf.id, pf.name
-                        FROM photo_folders pf
-                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                        INNER JOIN project_images pi ON pm.path = pi.image_path
-                        WHERE pf.parent_id IS NULL AND pi.project_id = ?
-                        ORDER BY pf.name
+                        SELECT id, name
+                        FROM photo_folders
+                        WHERE parent_id IS NULL AND project_id = ?
+                        ORDER BY name
                     """, (project_id,))
                 else:
                     cur.execute("""
-                        SELECT DISTINCT pf.id, pf.name
-                        FROM photo_folders pf
-                        INNER JOIN photo_metadata pm ON pf.id = pm.folder_id
-                        INNER JOIN project_images pi ON pm.path = pi.image_path
-                        WHERE pf.parent_id = ? AND pi.project_id = ?
-                        ORDER BY pf.name
+                        SELECT id, name
+                        FROM photo_folders
+                        WHERE parent_id = ? AND project_id = ?
+                        ORDER BY name
                     """, (parent_id, project_id))
             else:
                 # No filter - return all folders (backward compatibility)
@@ -1179,38 +1225,54 @@ class ReferenceDB:
         return rows
 
 
-    def get_descendant_folder_ids(self, folder_id: int) -> list[int]:
+    def get_descendant_folder_ids(self, folder_id: int, project_id: int | None = None) -> list[int]:
         """
         Recursively get all descendant folder IDs for a given folder.
-        Returns a list including the folder_id itself and all nested subfolders.
+
+        Args:
+            folder_id: The root folder ID
+            project_id: Filter folders by project_id (Schema v3.0.0). If None, gets all descendants.
+
+        Returns:
+            List including the folder_id itself and all nested subfolders
+
+        Note: Schema v3.0.0 filters by direct project_id column in photo_folders table.
         """
         result = [folder_id]
         try:
             with self._connect() as conn:
                 cur = conn.cursor()
                 # Get immediate children
-                cur.execute("SELECT id FROM photo_folders WHERE parent_id = ?", (folder_id,))
+                if project_id is not None:
+                    # Schema v3.0.0: Filter by project_id
+                    cur.execute("SELECT id FROM photo_folders WHERE parent_id = ? AND project_id = ?", (folder_id, project_id))
+                else:
+                    # No project filter
+                    cur.execute("SELECT id FROM photo_folders WHERE parent_id = ?", (folder_id,))
                 children = [r[0] for r in cur.fetchall()]
 
                 # Recursively get descendants of each child
                 for child_id in children:
-                    result.extend(self.get_descendant_folder_ids(child_id))
+                    result.extend(self.get_descendant_folder_ids(child_id, project_id=project_id))
 
             return result
         except Exception as e:
             print(f"[DB ERROR] get_descendant_folder_ids failed: {e}")
             return [folder_id]  # Fallback to just the folder itself
 
-    def get_images_by_folder(self, folder_id: int, include_subfolders: bool = True):
+    def get_images_by_folder(self, folder_id: int, include_subfolders: bool = True, project_id: int | None = None):
         """
         Return list of image paths belonging to the given folder_id.
 
         Args:
             folder_id: The folder ID to query
             include_subfolders: If True (default), includes photos from all nested subfolders
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos in folder.
 
         Returns:
             List of photo paths
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
         """
         try:
             with self._connect() as conn:
@@ -1218,26 +1280,57 @@ class ReferenceDB:
 
                 if include_subfolders:
                     # Get folder and all descendant folder IDs
-                    folder_ids = self.get_descendant_folder_ids(folder_id)
+                    folder_ids = self.get_descendant_folder_ids(folder_id, project_id=project_id)
                     placeholders = ','.join('?' * len(folder_ids))
-                    query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) ORDER BY path"
-                    cur.execute(query, folder_ids)
+
+                    if project_id is not None:
+                        # Schema v3.0.0: Filter by project_id
+                        query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) AND project_id = ? ORDER BY path"
+                        cur.execute(query, folder_ids + [project_id])
+                    else:
+                        # No project filter
+                        query = f"SELECT path FROM photo_metadata WHERE folder_id IN ({placeholders}) ORDER BY path"
+                        cur.execute(query, folder_ids)
+
                     rows = [r[0] for r in cur.fetchall()]
-                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=True) -> {len(rows)} paths from {len(folder_ids)} folders")
+                    print(f"[DB] get_images_by_folder({folder_id}, subfolders=True, project={project_id}) -> {len(rows)} paths from {len(folder_ids)} folders")
                 else:
-                    # Original behavior: only this folder
-                    cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+                    # Only this folder
+                    if project_id is not None:
+                        # Schema v3.0.0: Filter by project_id
+                        cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? AND project_id = ? ORDER BY path", (folder_id, project_id))
+                    else:
+                        # No project filter
+                        cur.execute("SELECT path FROM photo_metadata WHERE folder_id = ? ORDER BY path", (folder_id,))
+
                     rows = [r[0] for r in cur.fetchall()]
-                    print(f"[DB] get_images_by_folder({folder_id}, include_subfolders=False) -> {len(rows)} paths")
+                    print(f"[DB] get_images_by_folder({folder_id}, subfolders=False, project={project_id}) -> {len(rows)} paths")
 
                 return rows
         except Exception as e:
             print(f"[DB ERROR] get_images_by_folder failed: {e}")
             return []
 
-    def count_photos_in_folder(self, folder_id: int) -> int:
+    def count_photos_in_folder(self, folder_id: int, project_id: int | None = None) -> int:
+        """
+        Count photos in a folder.
+
+        Args:
+            folder_id: The folder ID
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=? AND project_id=?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
             return cur.fetchone()[0] or 0
 
     def update_folder_counts(self):
@@ -1251,10 +1344,26 @@ class ReferenceDB:
             """)
             conn.commit()
 
-    def get_folder_photo_count(self, folder_id):
-        """Get photo count for a specific folder."""
+    def get_folder_photo_count(self, folder_id, project_id: int | None = None):
+        """
+        Get photo count for a specific folder.
+
+        Args:
+            folder_id: The folder ID
+            project_id: Filter by project_id (Schema v3.0.0). If None, counts all photos.
+
+        Returns:
+            Number of photos in the folder
+
+        Note: Schema v3.0.0 uses direct project_id column in photo_metadata table.
+        """
         with self._connect() as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=? AND project_id=?", (folder_id, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id=?", (folder_id,))
             row = cur.fetchone()
             return row[0] if row else 0
 
@@ -1298,18 +1407,47 @@ class ReferenceDB:
                 print(f"[get_images_by_branch] Available branch_keys in DB: {existing_keys[:10]}")
             return results
 
-
-    def ensure_folder(self, path: str, name: str, parent_id: int | None):
-        """Return folder_id; create if not exists."""
+    def _get_or_create_default_project(self):
+        """Get or create default project for scans. Returns project_id."""
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_folders WHERE path=?", (path,))
+            # Try to get first project
+            cur.execute("SELECT id FROM projects ORDER BY id ASC LIMIT 1")
+            row = cur.fetchone()
+            if row:
+                return row[0]
+
+            # No projects exist - create default
+            cur.execute(
+                "INSERT INTO projects (name, folder, mode) VALUES (?, ?, ?)",
+                ("Default Project", ".", "date")
+            )
+            conn.commit()
+            return cur.lastrowid
+
+    def ensure_folder(self, path: str, name: str, parent_id: int | None, project_id: int = None):
+        """Return folder_id; create if not exists.
+
+        Args:
+            path: Full folder path
+            name: Folder name
+            parent_id: Parent folder ID (None for root)
+            project_id: Project ID (uses default if None)
+        """
+        # If no project_id provided, get or create default project
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+            # Check if folder exists for this project
+            cur.execute("SELECT id FROM photo_folders WHERE path=? AND project_id=?", (path, project_id))
             row = cur.fetchone()
             if row:
                 return row[0]
             cur.execute(
-                "INSERT INTO photo_folders (name, path, parent_id) VALUES (?,?,?)",
-                (name, path, parent_id)
+                "INSERT INTO photo_folders (name, path, parent_id, project_id) VALUES (?,?,?,?)",
+                (name, path, parent_id, project_id)
             )
             conn.commit()
             return cur.lastrowid
@@ -1348,6 +1486,34 @@ class ReferenceDB:
             cols = [d[0] for d in cur.description]
             return dict(zip(cols, row))
 
+    # --- 🎬 Video Methods (Phase 4.3) ---
+
+    def get_video_by_path(self, path: str, project_id: int):
+        """
+        Get video metadata by file path.
+
+        Args:
+            path: Video file path
+            project_id: Project ID
+
+        Returns:
+            Video metadata dict or None
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, path, folder_id, project_id, size_kb, modified,
+                       duration_seconds, width, height, fps, codec, bitrate,
+                       date_taken, created_ts, created_date, created_year,
+                       metadata_status, thumbnail_status
+                FROM video_metadata
+                WHERE path = ? AND project_id = ?
+            """, (path, project_id))
+            row = cur.fetchone()
+            if not row:
+                return None
+            cols = [d[0] for d in cur.description]
+            return dict(zip(cols, row))
 
     def upsert_photo_metadata_1st(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
         """
@@ -1387,10 +1553,10 @@ class ReferenceDB:
                     ))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1403,16 +1569,16 @@ class ReferenceDB:
                             created_date = COALESCE(excluded.created_date, created_date),
                             created_year = COALESCE(excluded.created_year, created_year)
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
             else:
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1423,12 +1589,12 @@ class ReferenceDB:
                             updated_at= excluded.updated_at,
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1437,7 +1603,7 @@ class ReferenceDB:
                             date_taken= excluded.date_taken,
                             tags      = excluded.tags,
                             updated_at= excluded.updated_at
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
             conn.commit()
 
     # ---------------------------
@@ -1579,13 +1745,20 @@ class ReferenceDB:
             return stats
 
     # Keep existing methods below mostly unchanged — but ensure upsert_photo_metadata sets metadata_status ok when metadata present.
-    def upsert_photo_metadata(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
+    def upsert_photo_metadata(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None, project_id=None):
         """
         Upsert row; if migration (created_* columns) exists, also write created_ts/date/year
         derived from date_taken (preferred) or modified (fallback). If not migrated yet,
         it safely uses the legacy column set.
         This updated version also sets metadata_status to 'ok' and metadata_fail_count=0 if width/height are provided.
+
+        Args:
+            project_id: Project ID (uses default if None)
         """
+        # Get or create default project if not provided
+        if project_id is None:
+            project_id = self._get_or_create_default_project()
+
         with self._connect() as conn:
             cur = conn.cursor()
             ok_meta = (width is not None and height is not None) or (date_taken is not None)
@@ -1594,10 +1767,10 @@ class ReferenceDB:
                 # When metadata is present, mark metadata_status ok
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1612,16 +1785,16 @@ class ReferenceDB:
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
                                                     created_ts, created_date, created_year)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1634,16 +1807,16 @@ class ReferenceDB:
                             created_date = COALESCE(excluded.created_date, created_date),
                             created_year = COALESCE(excluded.created_year, created_year)
                     """, (
-                        path, folder_id, size_kb, modified, width, height,
+                        path, folder_id, project_id, size_kb, modified, width, height,
                         date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
                         c_ts, c_date, c_year
                     ))
             else:
                 if ok_meta:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1654,12 +1827,12 @@ class ReferenceDB:
                             updated_at= excluded.updated_at,
                             metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
                             metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
                 else:
                     cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                        ON CONFLICT(path) DO UPDATE SET
+                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                        ON CONFLICT(path, project_id) DO UPDATE SET
                             folder_id = excluded.folder_id,
                             size_kb   = excluded.size_kb,
                             modified  = excluded.modified,
@@ -1668,7 +1841,7 @@ class ReferenceDB:
                             date_taken= excluded.date_taken,
                             tags      = excluded.tags,
                             updated_at= excluded.updated_at
-                    """, (path, folder_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
+                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
             conn.commit()
 
 
@@ -1763,15 +1936,15 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT pm.created_year, COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_year IS NOT NULL
-                    GROUP BY pm.created_year
-                    ORDER BY pm.created_year DESC
+                    SELECT created_year, COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_year IS NOT NULL
+                    GROUP BY created_year
+                    ORDER BY created_year DESC
                 """, (project_id,))
             else:
                 # No project filter - use all photos globally
@@ -1798,30 +1971,62 @@ class ReferenceDB:
             """, (year,))
             return cur.fetchall()
 
-    def get_images_by_year(self, year: int) -> list[str]:
-        """All paths for a year. Returns [] if migration not yet run."""
+    def get_images_by_year(self, year: int, project_id: int | None = None) -> list[str]:
+        """
+        All paths for a year. Returns [] if migration not yet run.
+
+        Args:
+            year: Year (e.g. 2024)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
+        """
         if not self._has_created_columns():
             return []
         with self._connect() as conn:
-            cur = conn.execute("""
-                SELECT path
-                FROM photo_metadata
-                WHERE created_year = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (year,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_year = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (year, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_year = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (year,))
             return [r[0] for r in cur.fetchall()]
 
-    def get_images_by_date(self, ymd: str) -> list[str]:
-        """All paths for a day (YYYY-MM-DD). Returns [] if migration not yet run."""
+    def get_images_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
+        """
+        All paths for a day (YYYY-MM-DD). Returns [] if migration not yet run.
+
+        Args:
+            ymd: Date string (YYYY-MM-DD)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
+        """
         if not self._has_created_columns():
             return []
         with self._connect() as conn:
-            cur = conn.execute("""
-                SELECT path
-                FROM photo_metadata
-                WHERE created_date = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (ymd,))
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_date = ? AND project_id = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd, project_id))
+            else:
+                # No project filter
+                cur = conn.execute("""
+                    SELECT path
+                    FROM photo_metadata
+                    WHERE created_date = ?
+                    ORDER BY created_ts ASC, path ASC
+                """, (ymd,))
             return [r[0] for r in cur.fetchall()]
 
 
@@ -1878,14 +2083,13 @@ class ReferenceDB:
     def _count_between_meta_dates(self, conn, start_iso: str, end_iso: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
         if project_id is not None:
-            # Filter by project_id using project_images junction table
+            # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
             cur.execute(
                 """
-                SELECT COUNT(DISTINCT pm.path)
-                FROM photo_metadata pm
-                INNER JOIN project_images pi ON pm.path = pi.image_path
-                WHERE pi.project_id = ?
-                  AND date(COALESCE(pm.date_taken, pm.modified)) BETWEEN ? AND ?
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE project_id = ?
+                  AND date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
                 """,
                 (project_id, start_iso, end_iso)
             )
@@ -1902,30 +2106,43 @@ class ReferenceDB:
         row = cur.fetchone()
         return int(row[0] or 0)
 
-    def _paths_between_meta_dates(self, conn, start_iso: str, end_iso: str) -> list[str]:
+    def _paths_between_meta_dates(self, conn, start_iso: str, end_iso: str, project_id: int | None = None) -> list[str]:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT path
-            FROM photo_metadata
-            WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
-            ORDER BY COALESCE(date_taken, modified) DESC, path
-            """,
-            (start_iso, end_iso)
-        )
+        if project_id is not None:
+            # Schema v3.0.0: Filter by project_id
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+                  AND project_id = ?
+                ORDER BY COALESCE(date_taken, modified) DESC, path
+                """,
+                (start_iso, end_iso, project_id)
+            )
+        else:
+            # No project filter
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE date(COALESCE(date_taken, modified)) BETWEEN ? AND ?
+                ORDER BY COALESCE(date_taken, modified) DESC, path
+                """,
+                (start_iso, end_iso)
+            )
         return [r[0] for r in cur.fetchall()]
 
     def _count_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> int:
         cur = conn.cursor()
         if project_id is not None:
-            # Filter by project_id using project_images junction table
+            # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
             cur.execute(
                 """
-                SELECT COUNT(DISTINCT pm.path)
-                FROM photo_metadata pm
-                INNER JOIN project_images pi ON pm.path = pi.image_path
-                WHERE pi.project_id = ?
-                  AND pm.updated_at >= ?
+                SELECT COUNT(*)
+                FROM photo_metadata
+                WHERE project_id = ?
+                  AND updated_at >= ?
                 """,
                 (project_id, start_ts)
             )
@@ -1942,17 +2159,30 @@ class ReferenceDB:
         row = cur.fetchone()
         return int(row[0] or 0)
 
-    def _paths_recent_updated(self, conn, start_ts: str) -> list[str]:
+    def _paths_recent_updated(self, conn, start_ts: str, project_id: int | None = None) -> list[str]:
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT path
-            FROM photo_metadata
-            WHERE updated_at >= ?
-            ORDER BY updated_at DESC, path
-            """,
-            (start_ts,)
-        )
+        if project_id is not None:
+            # Schema v3.0.0: Filter by project_id
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE updated_at >= ? AND project_id = ?
+                ORDER BY updated_at DESC, path
+                """,
+                (start_ts, project_id)
+            )
+        else:
+            # No project filter
+            cur.execute(
+                """
+                SELECT path
+                FROM photo_metadata
+                WHERE updated_at >= ?
+                ORDER BY updated_at DESC, path
+                """,
+                (start_ts,)
+            )
         return [r[0] for r in cur.fetchall()]
 
     def get_quick_date_counts(self, project_id: int | None = None) -> list[dict]:
@@ -1981,12 +2211,16 @@ class ReferenceDB:
                 out.append({"key": key, "label": label, "count": cnt})
         return out
 
-    def get_images_for_quick_key(self, key: str) -> list[str]:
+    def get_images_for_quick_key(self, key: str, project_id: int | None = None) -> list[str]:
         """
         Resolve a 'date:*' branch key (used in sidebar quick-date branches)
         to actual photo paths from photo_metadata.
         Supports date:today / date:this-week / date:this-month / date:last-30d /
         date:this-year / date:indexed-7d / date:YYYY / date:YYYY-MM-DD
+
+        Args:
+            key: Quick date key (e.g., "date:today", "date:2024", etc.)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         # Normalize and detect "date:YYYY" / "date:YYYY-MM-DD"
         k = key.strip()
@@ -1998,22 +2232,26 @@ class ReferenceDB:
         # direct date buckets (year/day) via created_* columns
         if len(val) == 4 and val.isdigit():
             y = int(val)
-            return self.get_images_by_year(y)
+            return self.get_images_by_year(y, project_id)
         if len(val) == 10 and val[4] == "-" and val[7] == "-":
-            return self.get_images_by_date(val)
+            return self.get_images_by_date(val, project_id)
 
         # otherwise treat as a "quick window" key
         start, end, mode = self._date_window_for_key(k)
         with self._connect() as conn:
             if mode == "updated":
-                return self._paths_recent_updated(conn, start) if start else []
+                return self._paths_recent_updated(conn, start, project_id) if start else []
             if start and end:
-                return self._paths_between_meta_dates(conn, start, end)
+                return self._paths_between_meta_dates(conn, start, end, project_id)
             return []
 
-    def get_images_by_month_str(self, ym: str):
+    def get_images_by_month_str(self, ym: str, project_id: int | None = None):
         """
         Accepts 'YYYY-MM' (or lenient 'YYYY-M') and normalizes internally.
+
+        Args:
+            ym: Month string in format YYYY-MM
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         import re
         ym = str(ym).strip()
@@ -2024,7 +2262,7 @@ class ReferenceDB:
         mo = int(m.group(2))
         if mo < 1 or mo > 12:
             return []
-        return self.get_images_by_month(y, mo)
+        return self.get_images_by_month(y, mo, project_id)
 
 
 # === END: Quick-date helpers ===============================================
@@ -2032,13 +2270,14 @@ class ReferenceDB:
 
     def build_date_branches(self, project_id: int):
         """
-        Build branches for each date_taken value in photo_metadata.
+        Build branches for each created_date value in photo_metadata.
         If they already exist, skip.
 
         Args:
             project_id: The project ID to associate photos with
 
-        NOTE: Uses date_taken field (populated during scan) instead of created_date.
+        NOTE: Uses created_date field (normalized YYYY-MM-DD format) for consistency.
+        This ensures date hierarchy and date branches use the same field.
         Also populates the 'all' branch with all photos.
         """
         print(f"[build_date_branches] Using project_id={project_id}")
@@ -2053,11 +2292,12 @@ class ReferenceDB:
                 print(f"[build_date_branches] ERROR: Project {project_id} not found!")
                 return 0
 
-            # CRITICAL: First, populate the 'all' branch with ALL photos
-            # This ensures the default view shows all photos
-            cur.execute("SELECT path FROM photo_metadata")
+            # CRITICAL: First, populate the 'all' branch with ALL photos from THIS project
+            # This ensures the default view shows all photos for the project
+            # Schema v3.0.0: Filter by project_id
+            cur.execute("SELECT path FROM photo_metadata WHERE project_id = ?", (project_id,))
             all_paths = [r[0] for r in cur.fetchall()]
-            print(f"[build_date_branches] Populating 'all' branch with {len(all_paths)} photos")
+            print(f"[build_date_branches] Populating 'all' branch with {len(all_paths)} photos for project {project_id}")
 
             # Ensure 'all' branch exists
             cur.execute(
@@ -2076,17 +2316,17 @@ class ReferenceDB:
                     all_inserted += 1
             print(f"[build_date_branches] Inserted {all_inserted}/{len(all_paths)} photos into 'all' branch")
 
-            # Now build date-specific branches
-            # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
-            # Extract just the date part (YYYY-MM-DD)
+            # Now build date-specific branches using created_date (normalized YYYY-MM-DD format)
+            # This is consistent with get_date_hierarchy() which also uses created_date
             cur.execute("""
-                SELECT DISTINCT substr(date_taken, 1, 10) as date_only
+                SELECT DISTINCT created_date
                 FROM photo_metadata
-                WHERE date_taken IS NOT NULL AND date_taken != ''
-                ORDER BY date_only
-            """)
+                WHERE created_date IS NOT NULL
+                  AND project_id = ?
+                ORDER BY created_date
+            """, (project_id,))
             dates = [r[0] for r in cur.fetchall()]
-            print(f"[build_date_branches] Found {len(dates)} unique dates")
+            print(f"[build_date_branches] Found {len(dates)} unique dates for project {project_id}")
 
             n_total = 0
             for d in dates:
@@ -2097,13 +2337,13 @@ class ReferenceDB:
                     "INSERT OR IGNORE INTO branches (project_id, branch_key, display_name) VALUES (?,?,?)",
                     (project_id, branch_key, branch_name),
                 )
-                # link photos - match on date part of date_taken
+                # link photos - match on created_date (Schema v3.0.0: filter by project_id)
                 cur.execute(
-                    "SELECT path FROM photo_metadata WHERE substr(date_taken, 1, 10) = ?",
-                    (d,)
+                    "SELECT path FROM photo_metadata WHERE created_date = ? AND project_id = ?",
+                    (d, project_id)
                 )
                 paths = [r[0] for r in cur.fetchall()]
-                print(f"[build_date_branches] Date {d}: found {len(paths)} photos")
+                print(f"[build_date_branches] Date {d}: found {len(paths)} photos for project {project_id}")
                 if len(paths) > 0:
                     print(f"[build_date_branches] Sample path: {paths[0]}")
 
@@ -2115,7 +2355,9 @@ class ReferenceDB:
                     )
                     if cur.rowcount > 0:
                         inserted += 1
-                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images")
+                # Note: inserted=0 is normal for incremental scans (photos already linked)
+                status = "new" if inserted > 0 else "already linked"
+                print(f"[build_date_branches] Date {d}: inserted {inserted}/{len(paths)} into project_images ({status})")
                 n_total += len(paths)
 
             conn.commit()
@@ -2150,14 +2392,14 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT DISTINCT pm.created_date
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date IS NOT NULL
-                    ORDER BY pm.created_date ASC
+                    SELECT DISTINCT created_date
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date IS NOT NULL
+                    ORDER BY created_date ASC
                 """, (project_id,))
             else:
                 # No project filter - use all photos globally
@@ -2187,13 +2429,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date LIKE ? || '-%'
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
                 """, (project_id, y))
             else:
                 # No project filter - count all photos globally
@@ -2219,13 +2461,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date LIKE ? || '-%'
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
                 """, (project_id, ym))
             else:
                 # No project filter - count all photos globally
@@ -2247,13 +2489,13 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # Filter by project_id using project_images junction table
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
-                    SELECT COUNT(DISTINCT pm.path)
-                    FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
-                    WHERE pi.project_id = ?
-                      AND pm.created_date = ?
+                    SELECT COUNT(*)
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                      AND created_date = ?
                 """, (project_id, day_yyyymmdd))
             else:
                 # No project filter - count all photos globally
@@ -2265,11 +2507,189 @@ class ReferenceDB:
             return int(row[0] if row and row[0] is not None else 0)
 
 
-    def get_images_by_month(self, year: int | str, month: int | str) -> list[str]:
+    # ===============================================
+    # 🎬 VIDEO DATE HIERARCHY + COUNTS
+    # ===============================================
+
+    def get_video_date_hierarchy(self, project_id: int | None = None) -> dict:
+        """
+        Return nested dict {year: {month: [days...]}} from video_metadata.created_date.
+        Assumes created_date is 'YYYY-MM-DD'.
+
+        Args:
+            project_id: Filter by project_id if provided, otherwise use all videos globally
+
+        Returns:
+            Nested dict {year: {month: [days...]}}
+        """
+        from collections import defaultdict
+        hier = defaultdict(lambda: defaultdict(list))
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id (video_metadata has project_id column)
+                cur.execute("""
+                    SELECT DISTINCT created_date
+                    FROM video_metadata
+                    WHERE project_id = ?
+                      AND created_date IS NOT NULL
+                    ORDER BY created_date ASC
+                """, (project_id,))
+            else:
+                # No project filter - use all videos globally
+                cur.execute("""
+                    SELECT DISTINCT created_date
+                    FROM video_metadata
+                    WHERE created_date IS NOT NULL
+                    ORDER BY created_date ASC
+                """)
+            for (ds,) in cur.fetchall():
+                try:
+                    y, m, d = str(ds).split("-", 2)
+                    hier[y][m].append(ds)
+                except Exception:
+                    pass
+        return {y: dict(m) for y, m in hier.items()}
+
+    def list_video_years_with_counts(self, project_id: int | None = None) -> list[tuple[int, int]]:
+        """
+        Get list of years with video counts.
+
+        Args:
+            project_id: Filter by project_id if provided, otherwise use all videos globally
+
+        Returns:
+            [(year, count)] newest first
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id
+                cur.execute("""
+                    SELECT created_year, COUNT(*)
+                    FROM video_metadata
+                    WHERE project_id = ?
+                      AND created_year IS NOT NULL
+                    GROUP BY created_year
+                    ORDER BY created_year DESC
+                """, (project_id,))
+            else:
+                # No project filter - count all videos globally
+                cur.execute("""
+                    SELECT created_year, COUNT(*)
+                    FROM video_metadata
+                    WHERE created_year IS NOT NULL
+                    GROUP BY created_year
+                    ORDER BY created_year DESC
+                """)
+            return cur.fetchall()
+
+    def count_videos_for_year(self, year: int | str, project_id: int | None = None) -> int:
+        """
+        Count videos for a given year.
+
+        Args:
+            year: Year to count (e.g., 2024)
+            project_id: Filter by project_id if provided, otherwise count all videos globally
+
+        Returns:
+            Count of videos in that year
+        """
+        y = str(year)
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id
+                cur.execute("""
+                    SELECT COUNT(*)
+                    FROM video_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
+                """, (project_id, y))
+            else:
+                # No project filter - count all videos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM video_metadata
+                    WHERE created_date LIKE ? || '-%'
+                """, (y,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_videos_for_month(self, year: int | str, month: int | str, project_id: int | None = None) -> int:
+        """
+        Count videos for a given year and month.
+
+        Args:
+            year: Year (e.g., 2024)
+            month: Month (1-12)
+            project_id: Filter by project_id if provided, otherwise count all videos globally
+
+        Returns:
+            Count of videos in that month
+        """
+        y = str(year)
+        m = f"{int(month):02d}" if str(month).isdigit() else str(month)
+        ym = f"{y}-{m}"
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id
+                cur.execute("""
+                    SELECT COUNT(*)
+                    FROM video_metadata
+                    WHERE project_id = ?
+                      AND created_date LIKE ? || '-%'
+                """, (project_id, ym))
+            else:
+                # No project filter - count all videos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM video_metadata
+                    WHERE created_date LIKE ? || '-%'
+                """, (ym,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+    def count_videos_for_day(self, day_yyyymmdd: str, project_id: int | None = None) -> int:
+        """
+        Count videos for a given day.
+
+        Args:
+            day_yyyymmdd: Date in YYYY-MM-DD format
+            project_id: Filter by project_id if provided, otherwise count all videos globally
+
+        Returns:
+            Count of videos on that day
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            if project_id is not None:
+                # Filter by project_id
+                cur.execute("""
+                    SELECT COUNT(*)
+                    FROM video_metadata
+                    WHERE project_id = ?
+                      AND created_date = ?
+                """, (project_id, day_yyyymmdd))
+            else:
+                # No project filter - count all videos globally
+                cur.execute("""
+                    SELECT COUNT(*) FROM video_metadata
+                    WHERE created_date = ?
+                """, (day_yyyymmdd,))
+            row = cur.fetchone()
+            return int(row[0] if row and row[0] is not None else 0)
+
+
+    def get_images_by_month(self, year: int | str, month: int | str, project_id: int | None = None) -> list[str]:
         """
         Return all photo paths for a given year + month (YYYY-MM).
         Auto-detects whether created_date exists, otherwise falls back to date_taken or modified.
         Works even if dates are stored with time parts (e.g. '2022-04-15 10:03:22').
+
+        Args:
+            year: Year (e.g. 2024)
+            month: Month (e.g. 1 or 01)
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         y = str(year)
         m = f"{int(month):02d}" if str(month).isdigit() else str(month)
@@ -2287,33 +2707,48 @@ class ReferenceDB:
             else:
                 date_col = "modified"
 
-            cur.execute(
-                f"""
-                SELECT path FROM photo_metadata
-                WHERE {date_col} LIKE ? || '%'
-                ORDER BY {date_col} ASC, path ASC
-                """,
-                (prefix,)
-            )
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                cur.execute(
+                    f"""
+                    SELECT path FROM photo_metadata
+                    WHERE {date_col} LIKE ? || '%' AND project_id = ?
+                    ORDER BY {date_col} ASC, path ASC
+                    """,
+                    (prefix, project_id)
+                )
+            else:
+                # No project filter
+                cur.execute(
+                    f"""
+                    SELECT path FROM photo_metadata
+                    WHERE {date_col} LIKE ? || '%'
+                    ORDER BY {date_col} ASC, path ASC
+                    """,
+                    (prefix,)
+                )
             return [r[0] for r in cur.fetchall()]
 
     # ======================================================
     # 🏷️ New Tagging System (normalized)
     # ======================================================
 
-    def _get_photo_id_by_path(self, path: str) -> int | None:
+    def _get_photo_id_by_path(self, path: str, project_id: int | None = None) -> int | None:
         with self._connect() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
+            if project_id is not None:
+                cur.execute("SELECT id FROM photo_metadata WHERE path = ? AND project_id = ?", (path, project_id))
+            else:
+                cur.execute("SELECT id FROM photo_metadata WHERE path = ?", (path,))
             row = cur.fetchone()
             return row[0] if row else None
 
-    def add_tag(self, path: str, tag_name: str):
+    def add_tag(self, path: str, tag_name: str, project_id: int | None = None):
         """Assign a tag to a photo by path. Creates the tag if needed."""
         tag_name = tag_name.strip()
         if not tag_name:
             return
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return
         with self._connect() as conn:
@@ -2326,9 +2761,9 @@ class ReferenceDB:
             cur.execute("INSERT OR IGNORE INTO photo_tags (photo_id, tag_id) VALUES (?, ?)", (photo_id, tag_id))
             conn.commit()
 
-    def remove_tag(self, path: str, tag_name: str):
+    def remove_tag(self, path: str, tag_name: str, project_id: int | None = None):
         """Remove a tag from a photo by path."""
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return
         with self._connect() as conn:
@@ -2340,9 +2775,9 @@ class ReferenceDB:
                 cur.execute("DELETE FROM photo_tags WHERE photo_id = ? AND tag_id = ?", (photo_id, tag_id))
                 conn.commit()
 
-    def get_tags_for_photo(self, path: str) -> list[str]:
+    def get_tags_for_photo(self, path: str, project_id: int | None = None) -> list[str]:
         """Return list of tags assigned to a specific photo path."""
-        photo_id = self._get_photo_id_by_path(path)
+        photo_id = self._get_photo_id_by_path(path, project_id)
         if not photo_id:
             return []
         with self._connect() as conn:
@@ -2591,7 +3026,7 @@ class ReferenceDB:
 
 
     # >>> FIX 1: get_tags_for_paths — chunked to avoid SQLite 999 param cap
-    def get_tags_for_paths(self, paths: list[str]) -> dict[str, list[str]]:
+    def get_tags_for_paths(self, paths: list[str], project_id: int | None = None) -> dict[str, list[str]]:
         if not paths:
             return {}
         import os
@@ -2612,14 +3047,25 @@ class ReferenceDB:
             cur = conn.cursor()
             for i in range(0, len(npaths), CHUNK):
                 chunk = npaths[i:i+CHUNK]
-                q = f"""
-                    SELECT pm.path, t.name
-                    FROM photo_metadata pm
-                    JOIN photo_tags pt ON pt.photo_id = pm.id
-                    JOIN tags t       ON t.id = pt.tag_id
-                    WHERE pm.path IN ({','.join(['?']*len(chunk))})
-                """
-                cur.execute(q, chunk)
+                if project_id is not None:
+                    q = f"""
+                        SELECT pm.path, t.name
+                        FROM photo_metadata pm
+                        JOIN photo_tags pt ON pt.photo_id = pm.id
+                        JOIN tags t       ON t.id = pt.tag_id
+                        WHERE pm.path IN ({','.join(['?']*len(chunk))})
+                          AND pm.project_id = ?
+                    """
+                    cur.execute(q, chunk + [project_id])
+                else:
+                    q = f"""
+                        SELECT pm.path, t.name
+                        FROM photo_metadata pm
+                        JOIN photo_tags pt ON pt.photo_id = pm.id
+                        JOIN tags t       ON t.id = pt.tag_id
+                        WHERE pm.path IN ({','.join(['?']*len(chunk))})
+                    """
+                    cur.execute(q, chunk)
                 for row in cur.fetchall():
                     npath, tagname = row[0], row[1]
                     original = nmap.get(norm(npath))
@@ -2629,20 +3075,229 @@ class ReferenceDB:
     # <<< FIX 1
 
 
-    def get_image_paths_for_tag(self, tag_name: str) -> list[str]:
+    def get_image_paths_for_tag(self, tag_name: str, project_id: int | None = None) -> list[str]:
         """
         Return a list of image file paths for the given tag name using photo_tags table.
+
+        Args:
+            tag_name: Name of the tag to filter by
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all photos.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-            rows = cur.execute("""
-                SELECT DISTINCT p.path
-                FROM photo_metadata AS p
-                JOIN photo_tags AS pt ON p.id = pt.photo_id
-                JOIN tags AS tg ON tg.id = pt.tag_id
-                WHERE tg.name = ?
-            """, (tag_name,)).fetchall()
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id
+                rows = cur.execute("""
+                    SELECT DISTINCT p.path
+                    FROM photo_metadata AS p
+                    JOIN photo_tags AS pt ON p.id = pt.photo_id
+                    JOIN tags AS tg ON tg.id = pt.tag_id
+                    WHERE tg.name = ? AND p.project_id = ?
+                """, (tag_name, project_id)).fetchall()
+            else:
+                # No project filter
+                rows = cur.execute("""
+                    SELECT DISTINCT p.path
+                    FROM photo_metadata AS p
+                    JOIN photo_tags AS pt ON p.id = pt.photo_id
+                    JOIN tags AS tg ON tg.id = pt.tag_id
+                    WHERE tg.name = ?
+                """, (tag_name,)).fetchall()
             return [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+    def get_images_by_branch_and_tag(self, project_id: int, branch_key: str, tag_name: str) -> list[str]:
+        """
+        Get image paths that match BOTH a branch AND a tag in a single efficient query.
+
+        This method fixes the UI freeze issue caused by loading all branch photos (2856)
+        then filtering in memory. Instead, it uses SQL JOIN to get only matching photos.
+
+        Args:
+            project_id: Project ID to filter by
+            branch_key: Branch key (e.g., 'all', 'date:2024-01-15')
+            tag_name: Tag name to filter by
+
+        Returns:
+            List of image paths that are in the branch AND have the tag
+
+        Example:
+            # Get photos in 'all' branch with tag 'Himmel' (returns 2 photos, not 2856!)
+            paths = db.get_images_by_branch_and_tag(1, 'all', 'Himmel')
+            # Result: 2 photos instead of loading 2856 and filtering in memory
+
+        Performance:
+            - OLD: Load 2856 photos → filter in memory → UI freezes for minutes
+            - NEW: SQL JOIN returns 2 photos → UI responds instantly
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Efficient query: JOIN branch + tag in single pass
+            # Only returns photos that match BOTH conditions
+            rows = cur.execute("""
+                SELECT DISTINCT pm.path
+                FROM photo_metadata pm
+                JOIN project_images pi ON pm.path = pi.image_path AND pm.project_id = pi.project_id
+                JOIN photo_tags pt ON pm.id = pt.photo_id
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pm.project_id = ?
+                  AND pi.branch_key = ?
+                  AND t.name = ?
+                  AND t.project_id = ?
+                ORDER BY pm.path
+            """, (project_id, branch_key, tag_name, project_id)).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_branch_and_tag(project={project_id}, branch={branch_key}, tag={tag_name}) "
+                f"→ {len(paths)} photos (efficient JOIN query)"
+            )
+
+            return paths
+
+    def get_images_by_folder_and_tag(self, project_id: int, folder_id: int, tag_name: str, include_subfolders: bool = True) -> list[str]:
+        """
+        Get image paths in a folder (optionally including subfolders) that have a specific tag.
+
+        Efficient query using SQL JOIN instead of loading all folder photos then filtering.
+
+        Args:
+            project_id: Project ID to filter by
+            folder_id: Folder ID
+            tag_name: Tag name to filter by
+            include_subfolders: If True, include photos from nested subfolders
+
+        Returns:
+            List of image paths that are in the folder AND have the tag
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            if include_subfolders:
+                # Get all descendant folder IDs
+                folder_ids = self.get_descendant_folder_ids(folder_id, project_id=project_id)
+                placeholders = ','.join('?' * len(folder_ids))
+
+                rows = cur.execute(f"""
+                    SELECT DISTINCT pm.path
+                    FROM photo_metadata pm
+                    JOIN photo_tags pt ON pm.id = pt.photo_id
+                    JOIN tags t ON pt.tag_id = t.id
+                    WHERE pm.project_id = ?
+                      AND pm.folder_id IN ({placeholders})
+                      AND t.name = ?
+                      AND t.project_id = ?
+                    ORDER BY pm.path
+                """, [project_id] + folder_ids + [tag_name, project_id]).fetchall()
+            else:
+                rows = cur.execute("""
+                    SELECT DISTINCT pm.path
+                    FROM photo_metadata pm
+                    JOIN photo_tags pt ON pm.id = pt.photo_id
+                    JOIN tags t ON pt.tag_id = t.id
+                    WHERE pm.project_id = ?
+                      AND pm.folder_id = ?
+                      AND t.name = ?
+                      AND t.project_id = ?
+                    ORDER BY pm.path
+                """, (project_id, folder_id, tag_name, project_id)).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_folder_and_tag(project={project_id}, folder={folder_id}, tag={tag_name}, subfolders={include_subfolders}) "
+                f"→ {len(paths)} photos"
+            )
+
+            return paths
+
+    def get_images_by_date_and_tag(self, project_id: int, date_key: str, tag_name: str) -> list[str]:
+        """
+        Get image paths for a date (year/month/day) that have a specific tag.
+
+        Args:
+            project_id: Project ID to filter by
+            date_key: Date key (YYYY, YYYY-MM, YYYY-MM-DD, or special keys like 'this-year', 'this-month', 'today')
+            tag_name: Tag name to filter by
+
+        Returns:
+            List of image paths that match the date AND have the tag
+        """
+        from datetime import datetime, timedelta
+
+        # Handle special date keys (this-year, this-month, today, etc.)
+        if date_key in ('this-year', 'this-month', 'this-week', 'today', 'last-30d'):
+            today = datetime.now().date()
+
+            if date_key == 'this-year':
+                # Photos from start of this year to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = today.replace(month=1, day=1).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'this-month':
+                # Photos from start of this month to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = today.replace(day=1).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'this-week':
+                # Photos from Monday to today
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = (today - timedelta(days=today.weekday())).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+            elif date_key == 'today':
+                # Photos from today only
+                date_where = "pm.created_date = ?"
+                date_params = [today.isoformat()]
+            elif date_key == 'last-30d':
+                # Photos from last 30 days
+                date_where = "pm.created_date >= ? AND pm.created_date <= ?"
+                start = (today - timedelta(days=29)).isoformat()
+                end = today.isoformat()
+                date_params = [start, end]
+        # Handle concrete date formats
+        elif len(date_key) == 4:  # Year (YYYY)
+            date_where = "pm.created_year = ?"
+            date_params = [int(date_key)]
+        elif len(date_key) == 7:  # Year-Month (YYYY-MM)
+            date_where = "pm.created_date LIKE ?"
+            date_params = [f"{date_key}%"]
+        elif len(date_key) == 10:  # Year-Month-Day (YYYY-MM-DD)
+            date_where = "pm.created_date = ?"
+            date_params = [date_key]
+        else:
+            self.logger.warning(f"Invalid date_key format: {date_key}")
+            return []
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            query = f"""
+                SELECT DISTINCT pm.path
+                FROM photo_metadata pm
+                JOIN photo_tags pt ON pm.id = pt.photo_id
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pm.project_id = ?
+                  AND {date_where}
+                  AND t.name = ?
+                  AND t.project_id = ?
+                ORDER BY pm.path
+            """
+
+            params = [project_id] + date_params + [tag_name, project_id]
+            rows = cur.execute(query, params).fetchall()
+
+            paths = [os.path.abspath(r[0]) for r in rows if r and r[0]]
+
+            self.logger.debug(
+                f"get_images_by_date_and_tag(project={project_id}, date={date_key}, tag={tag_name}) "
+                f"→ {len(paths)} photos"
+            )
+
+            return paths
 
 
     def get_image_count_recursive(self, folder_id: int, project_id: int | None = None) -> int:
@@ -2654,27 +3309,30 @@ class ReferenceDB:
             project_id: Filter count to only photos from this project.
                        If None, counts all photos (backward compatibility).
 
-        Uses recursive CTE for performance. Corrected to use photo_metadata table.
+        Uses recursive CTE for performance. Schema v3.2.0 uses direct project_id column.
+
+        Performance: Uses compound index idx_photo_metadata_project_folder for fast filtering.
         """
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # CRITICAL FIX: Filter count by project_id
-                # Only count photos that belong to this project
+                # PERFORMANCE: Use direct project_id column (no JOIN to project_images needed)
+                # Schema v3.2.0 has project_id directly in photo_metadata and photo_folders
                 cur.execute("""
                     WITH RECURSIVE subfolders(id) AS (
-                        SELECT id FROM photo_folders WHERE id = ?
+                        SELECT id FROM photo_folders
+                        WHERE id = ? AND project_id = ?
                         UNION ALL
                         SELECT f.id
                         FROM photo_folders f
                         JOIN subfolders s ON f.parent_id = s.id
+                        WHERE f.project_id = ?
                     )
-                    SELECT COUNT(DISTINCT pm.path)
+                    SELECT COUNT(*)
                     FROM photo_metadata pm
-                    INNER JOIN project_images pi ON pm.path = pi.image_path
                     WHERE pm.folder_id IN (SELECT id FROM subfolders)
-                      AND pi.project_id = ?
-                """, (folder_id, project_id))
+                      AND pm.project_id = ?
+                """, (folder_id, project_id, project_id, project_id))
             else:
                 # No filter - count all photos (backward compatibility)
                 cur.execute("""
@@ -2690,6 +3348,68 @@ class ReferenceDB:
                 """, (folder_id,))
             row = cur.fetchone()
             return row[0] if row else 0
+
+    def get_folder_counts_batch(self, project_id: int) -> dict[int, int]:
+        """
+        Get photo counts for ALL folders in ONE query (fixes N+1 problem).
+
+        This is dramatically faster than calling get_image_count_recursive() for each folder.
+        Used by sidebar folder tree to display counts efficiently.
+
+        Args:
+            project_id: Project ID to count photos for
+
+        Returns:
+            dict mapping folder_id -> photo_count (including subfolders)
+
+        Performance:
+            Before: N+1 queries (1 to get folders + 1 per folder for count)
+            After: 1 query (get all counts at once)
+
+        Example:
+            counts = db.get_folder_counts_batch(project_id=1)
+            # counts = {1: 150, 2: 75, 3: 0, ...}
+
+        Note: Uses compound index idx_photo_metadata_project_folder for optimal performance.
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # OPTIMIZATION: Get counts for ALL folders at once using recursive CTE
+            # This replaces N individual queries with ONE query
+            cur.execute("""
+                WITH RECURSIVE folder_tree AS (
+                    -- Start with all folders in this project
+                    SELECT id, parent_id, id as root_id
+                    FROM photo_folders
+                    WHERE project_id = ?
+
+                    UNION ALL
+
+                    -- Recursively include child folders, remembering the root ancestor
+                    SELECT f.id, f.parent_id, ft.root_id
+                    FROM photo_folders f
+                    JOIN folder_tree ft ON f.parent_id = ft.id
+                    WHERE f.project_id = ?
+                )
+                SELECT
+                    ft.root_id as folder_id,
+                    COUNT(pm.id) as photo_count
+                FROM folder_tree ft
+                LEFT JOIN photo_metadata pm
+                    ON pm.folder_id = ft.id
+                    AND pm.project_id = ?
+                GROUP BY ft.root_id
+            """, (project_id, project_id, project_id))
+
+            # Convert to dict: folder_id -> count
+            counts = {}
+            for row in cur.fetchall():
+                folder_id = row[0]
+                photo_count = row[1] or 0
+                counts[folder_id] = photo_count
+
+            return counts
 
 
 # --- Maintenance / Diagnostics ------------------------------------------------

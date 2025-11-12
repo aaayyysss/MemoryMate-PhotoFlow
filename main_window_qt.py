@@ -43,7 +43,7 @@
 #  Store a hash or last_modified so we can incrementally update later.
 
 from splash_qt import SplashScreen, StartupWorker
-import os, traceback, time as _time, logging
+import os, platform, traceback, time as _time, logging
 from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
@@ -54,7 +54,7 @@ from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
 
 # Add imports near top if not present:
 
-from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer
+from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer, QProcess
 
 from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QActionGroup, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
@@ -66,7 +66,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QComboBox as QSortComboBox,
     QProgressDialog, QProgressBar, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
-    QSlider, QFormLayout, QTextEdit, QButtonGroup
+    QSlider, QFormLayout, QTextEdit, QButtonGroup, QLineEdit
 )
 
 
@@ -86,6 +86,10 @@ except Exception:
 from sidebar_qt import SidebarQt
 
 from thumbnail_grid_qt import ThumbnailGridQt
+
+# 🎬 Phase 4.4: Video player support
+from video_player_qt import VideoPlayerPanel
+from thumbnail_grid_qt import is_video_file
 
 from app_services import (
     list_projects, get_default_project_id, 
@@ -109,6 +113,9 @@ from preview_panel_qt import LightboxDialog
 
 # --- Search UI imports ---
 from search_widget_qt import SearchBarWidget, AdvancedSearchDialog
+
+# --- Video backfill dialog ---
+from video_backfill_dialog import VideoBackfillDialog
 
 # --- Backfill / process management imports ---
 import subprocess, shlex, sys
@@ -139,6 +146,27 @@ def _clamp_pct(v):
     except Exception:
         return 0
 
+
+def _get_default_ignore_folders():
+    """
+    Get platform-specific default ignore folders for scanning.
+    Returns a list of folder names to skip during repository scans.
+    """
+    common = ["__pycache__", "node_modules", ".git", ".svn", ".hg",
+              "venv", ".venv", "env", ".env"]
+
+    if platform.system() == "Windows":
+        return common + [
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        ]
+    elif platform.system() == "Darwin":  # macOS
+        return common + ["Library", ".Trash", "Caches", "Logs",
+                        "Application Support"]
+    else:  # Linux and others
+        return common + [".cache", ".local/share/Trash", "tmp"]
 
 
 # ---------------------------
@@ -215,7 +243,44 @@ class ScanController:
             self.thread = QThread(self.main)
             print(f"[ScanController] QThread created")
 
-            self.worker = ScanWorker(folder, current_project_id, incremental, self.main.settings, db_writer=self.db_writer)
+            # CRITICAL: Define callback for video metadata extraction completion
+            # This will refresh the sidebar counts after metadata extraction finishes
+            def on_video_metadata_finished(success, failed):
+                """Refresh sidebar video counts after metadata extraction completes."""
+                self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
+
+                # Check if auto-backfill is enabled
+                auto_backfill = self.main.settings.get("auto_run_backfill_after_scan", False)
+                if auto_backfill and success > 0:
+                    self.logger.info("Auto-running video metadata backfill...")
+                    # Run backfill in background to populate date fields
+                    from backfill_video_dates import backfill_video_dates
+                    try:
+                        stats = backfill_video_dates(
+                            project_id=current_project_id,
+                            dry_run=False,
+                            progress_callback=lambda c, t, m: self.logger.info(f"[Backfill] {c}/{t}: {m}")
+                        )
+                        self.logger.info(f"✓ Video backfill complete: {stats['updated']} videos updated")
+                    except Exception as e:
+                        self.logger.error(f"Video backfill failed: {e}", exc_info=True)
+
+                # Schedule sidebar refresh in main thread
+                self.logger.info("Refreshing sidebar to update video filter counts...")
+                from PySide6.QtCore import QTimer
+                def refresh_sidebar_videos():
+                    try:
+                        if hasattr(self.main, 'sidebar') and hasattr(self.main.sidebar, "refresh_all"):
+                            self.main.sidebar.refresh_all(force=True)
+                            self.logger.info("✓ Sidebar refreshed after video metadata extraction")
+                    except Exception as e:
+                        self.logger.error(f"Error refreshing sidebar after metadata extraction: {e}")
+
+                QTimer.singleShot(0, refresh_sidebar_videos)
+
+            self.worker = ScanWorker(folder, current_project_id, incremental, self.main.settings,
+                                    db_writer=self.db_writer,
+                                    on_video_metadata_finished=on_video_metadata_finished)
             print(f"[ScanController] ScanWorker instance created with project_id={current_project_id}")
 
             self.worker.moveToThread(self.thread)
@@ -226,7 +291,7 @@ class ScanController:
             self.worker.error.connect(self._on_error)
             self.thread.started.connect(lambda: print("[ScanController] QThread STARTED!"))
             self.thread.started.connect(self.worker.run)
-            self.worker.finished.connect(lambda f, p: self.thread.quit())
+            self.worker.finished.connect(lambda f, p, v=0: self.thread.quit())
             self.thread.finished.connect(self._cleanup)
             print(f"[ScanController] Signals connected")
 
@@ -276,9 +341,9 @@ class ScanController:
         if self.main._scan_progress.wasCanceled():
             self.cancel()
 
-    def _on_finished(self, folders, photos):
-        print(f"[ScanController] scan finished: {folders} folders, {photos} photos")
-        self.main._scan_result = (folders, photos)
+    def _on_finished(self, folders, photos, videos=0):
+        print(f"[ScanController] scan finished: {folders} folders, {photos} photos, {videos} videos")
+        self.main._scan_result = (folders, photos, videos)
 
     def _on_error(self, err_text: str):
         try:
@@ -377,8 +442,12 @@ class ScanController:
                 self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
             # summary
-            f, p = self.main._scan_result
-            QMessageBox.information(self.main, "Scan Complete", f"Indexed {p} photos in {f} folders.\nCommitted: {self.main._committed_total} rows.")
+            f, p, v = self.main._scan_result if len(self.main._scan_result) == 3 else (*self.main._scan_result, 0)
+            msg = f"Indexed {p} photos"
+            if v > 0:
+                msg += f" and {v} videos"
+            msg += f" in {f} folders.\nCommitted: {self.main._committed_total} rows."
+            QMessageBox.information(self.main, "Scan Complete", msg)
 
         # Schedule refresh in main thread's event loop
         if sidebar_was_updated:
@@ -388,6 +457,9 @@ class ScanController:
             # Immediate refresh (next event loop iteration)
             QTimer.singleShot(0, refresh_ui)
 
+        # Note: Video metadata worker callback is now connected at worker creation time
+        # in start_scan() to avoid race conditions with worker finishing before cleanup runs
+
 
 class SidebarController:
     """Encapsulates folder/branch event handling & thumbnail refresh."""
@@ -396,26 +468,42 @@ class SidebarController:
 
     def on_folder_selected(self, folder_id: int):
         self.main.grid.set_folder(folder_id)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
     def on_branch_selected(self, branch_key: str):
         self.main.grid.set_branch(branch_key)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if hasattr(self.main.grid, "_on_slider_changed"):
             self.main.grid._on_slider_changed(self.main.grid.zoom_slider.value())
-            
+
         if hasattr(self.main.grid, "list_view"):
             self.main.grid.list_view.scrollToTop()
-            
+
+        if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
+            self.main.thumbnails.clear()
+            self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+
+    def on_videos_selected(self):
+        """Handle videos tab selection - show all videos for current project"""
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.main.grid, "set_videos"):
+            self.main.grid.set_videos()
+
+        if getattr(self.main, "active_tag_filter", "all") != "all":
+            self.main._apply_tag_filter(self.main.active_tag_filter)
+
+        if hasattr(self.main.grid, "list_view"):
+            self.main.grid.list_view.scrollToTop()
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
@@ -698,12 +786,8 @@ class PreferencesDialog(QDialog):
         ignore_layout = QVBoxLayout(ignore_group)
         self.txt_ignore_folders = QTextEdit()
         self.txt_ignore_folders.setPlaceholderText("One folder name per line (case-sensitive)...")
-        current_ignore = settings.get("ignore_folders", [
-            "AppData", "Program Files", "Program Files (x86)", "Windows",
-            "$Recycle.Bin", "System Volume Information", "__pycache__",
-            "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-            "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
-        ])
+        # Use platform-specific defaults
+        current_ignore = settings.get("ignore_folders", _get_default_ignore_folders())
         self.txt_ignore_folders.setText("\n".join(current_ignore))
         ignore_layout.addWidget(self.txt_ignore_folders)
         layout.addWidget(ignore_group)
@@ -975,6 +1059,116 @@ class PreferencesDialog(QDialog):
 
         layout.addWidget(meta_group)
 
+        # --- Video Settings (FFmpeg/FFprobe Configuration) ---
+        video_group = QGroupBox("🎬 Video Settings")
+        video_layout = QVBoxLayout(video_group)
+        video_layout.setSpacing(8)
+
+        # FFprobe path configuration
+        ffprobe_row = QWidget()
+        ffprobe_layout = QHBoxLayout(ffprobe_row)
+        ffprobe_layout.setContentsMargins(0, 0, 0, 0)
+
+        ffprobe_label = QLabel("FFprobe Path:")
+        ffprobe_label.setToolTip(
+            "Path to ffprobe executable for video metadata extraction.\n"
+            "Leave empty to use system PATH.\n"
+            "Required for video thumbnails, duration, and date filtering."
+        )
+
+        self.txt_ffprobe_path = QLineEdit()
+        self.txt_ffprobe_path.setPlaceholderText("Leave empty to use system PATH")
+        current_ffprobe = settings.get("ffprobe_path", "")
+        self.txt_ffprobe_path.setText(current_ffprobe)
+
+        btn_browse_ffprobe = QPushButton("Browse...")
+        btn_browse_ffprobe.setMaximumWidth(80)
+
+        def browse_ffprobe():
+            from PySide6.QtWidgets import QFileDialog
+            import platform
+            if platform.system() == "Windows":
+                filter_str = "Executable Files (*.exe);;All Files (*.*)"
+            else:
+                filter_str = "All Files (*)"
+
+            path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select FFprobe Executable",
+                "",
+                filter_str
+            )
+            if path:
+                self.txt_ffprobe_path.setText(path)
+
+        btn_browse_ffprobe.clicked.connect(browse_ffprobe)
+
+        btn_test_ffprobe = QPushButton("Test")
+        btn_test_ffprobe.setMaximumWidth(60)
+
+        def test_ffprobe():
+            import subprocess
+            from pathlib import Path
+
+            path = self.txt_ffprobe_path.text().strip()
+            if not path:
+                path = "ffprobe"  # Test system PATH
+
+            try:
+                result = subprocess.run(
+                    [path, '-version'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    version_line = result.stdout.split('\n')[0] if result.stdout else 'Version info unavailable'
+                    QMessageBox.information(
+                        self,
+                        "FFprobe Test - Success",
+                        f"✓ FFprobe is working!\n\n{version_line}\n\n"
+                        f"💡 Remember to click OK to save settings, then restart the app."
+                    )
+                else:
+                    QMessageBox.warning(
+                        self,
+                        "FFprobe Test - Failed",
+                        f"✗ FFprobe returned error code {result.returncode}\n\n{result.stderr}"
+                    )
+            except FileNotFoundError:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Not Found",
+                    f"✗ FFprobe not found at:\n{path}\n\n"
+                    "Please install FFmpeg or specify the correct path."
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Error",
+                    f"✗ Error testing ffprobe:\n{str(e)}"
+                )
+
+        btn_test_ffprobe.clicked.connect(test_ffprobe)
+
+        ffprobe_layout.addWidget(ffprobe_label)
+        ffprobe_layout.addWidget(self.txt_ffprobe_path, 1)
+        ffprobe_layout.addWidget(btn_browse_ffprobe)
+        ffprobe_layout.addWidget(btn_test_ffprobe)
+
+        video_layout.addWidget(ffprobe_row)
+
+        # Help text
+        help_label = QLabel(
+            "💡 <b>Note:</b> FFmpeg/FFprobe is required for video support.<br>"
+            "Without it, videos won't have thumbnails or date information."
+        )
+        help_label.setWordWrap(True)
+        help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
+        video_layout.addWidget(help_label)
+
+        layout.addWidget(video_group)
+
         # --- Buttons ---
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         layout.addWidget(buttons)
@@ -1022,6 +1216,46 @@ class PreferencesDialog(QDialog):
         ignore_list = [x.strip() for x in self.txt_ignore_folders.toPlainText().splitlines() if x.strip()]
         self.settings.set("ignore_folders", ignore_list)
 
+        # Save video settings
+        ffprobe_path = self.txt_ffprobe_path.text().strip()
+        old_ffprobe_path = self.settings.get("ffprobe_path", "")
+        self.settings.set("ffprobe_path", ffprobe_path)
+
+        # If FFprobe path changed, delete flag file so check runs on next startup
+        ffprobe_path_changed = (ffprobe_path != old_ffprobe_path)
+        if ffprobe_path_changed:
+            from pathlib import Path
+            flag_file = Path('.ffmpeg_check_done')
+            if flag_file.exists():
+                try:
+                    flag_file.unlink()
+                    print("🔄 FFmpeg check flag cleared - will re-check on next startup")
+                except Exception as e:
+                    print(f"⚠️ Failed to clear FFmpeg check flag: {e}")
+
+            print(f"🎬 FFprobe path configured: {ffprobe_path or '(using system PATH)'}")
+
+            # Offer to restart app immediately
+            reply = QMessageBox.question(
+                self,
+                "Restart Required - FFmpeg Configuration",
+                "FFmpeg/FFprobe configuration has been updated.\n\n"
+                "The application needs to restart for the changes to take effect.\n"
+                "The FFmpeg availability check will run on next startup.\n\n"
+                "Would you like to restart now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes  # Default button
+            )
+
+            if reply == QMessageBox.Yes:
+                # Accept the dialog first to save all settings
+                self.accept()
+
+                # Restart the application
+                print("🔄 Restarting application...")
+                QProcess.startDetached(sys.executable, sys.argv)
+                QGuiApplication.quit()
+                return  # Don't call self.accept() again
 
         self.accept()
 
@@ -2347,12 +2581,16 @@ class MainWindow(QMainWindow):
         # Metadata Backfill submenu
         menu_backfill = menu_tools.addMenu("Metadata Backfill")
 
-        act_meta_start = menu_backfill.addAction("Start Background Backfill")
-        act_meta_single = menu_backfill.addAction("Run Foreground Backfill")
+        act_meta_start = menu_backfill.addAction("Start Background Backfill (Photos)")
+        act_meta_single = menu_backfill.addAction("Run Foreground Backfill (Photos)")
         menu_backfill.addSeparator()
-        act_meta_auto = menu_backfill.addAction("Auto-run after scan")
+        act_video_backfill = menu_backfill.addAction("🎬 Video Metadata Backfill...")
+        act_video_backfill.setToolTip("Re-extract metadata (dates, duration, resolution) for all videos")
+        menu_backfill.addSeparator()
+        act_meta_auto = menu_backfill.addAction("Auto-run after scan (Photos & Videos)")
         act_meta_auto.setCheckable(True)
         act_meta_auto.setChecked(self.settings.get("auto_run_backfill_after_scan", False))
+        act_meta_auto.setToolTip("Automatically backfill metadata for both photos and videos after scanning")
 
         act_clear_cache = QAction("Clear Thumbnail Cache…", self)
         menu_tools.addAction(act_clear_cache)
@@ -2426,6 +2664,7 @@ class MainWindow(QMainWindow):
 
         act_meta_start.triggered.connect(lambda: self.backfill_panel._on_start_background())
         act_meta_single.triggered.connect(lambda: self.backfill_panel._on_run_foreground())
+        act_video_backfill.triggered.connect(self._on_video_backfill)
         act_meta_auto.toggled.connect(lambda v: self.settings.set("auto_run_backfill_after_scan", bool(v)))
 
         act_db_fresh.triggered.connect(self._db_fresh_start)
@@ -2622,7 +2861,10 @@ class MainWindow(QMainWindow):
 
         self.sidebar.on_branch_selected = self.sidebar_controller.on_branch_selected
         self.sidebar.folderSelected.connect(self.sidebar_controller.on_folder_selected)
-        
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.sidebar, 'selectVideos'):
+            self.sidebar.selectVideos.connect(self.sidebar_controller.on_videos_selected)
+
         self.splitter.addWidget(self.sidebar)
 
         # Phase 2.3: Grid container with selection toolbar
@@ -2638,6 +2880,12 @@ class MainWindow(QMainWindow):
         # Thumbnail grid
         self.grid = ThumbnailGridQt(project_id=default_pid)
         grid_layout.addWidget(self.grid)
+
+        # 🎬 Phase 4.4: Video player panel (hidden by default)
+        self.video_player = VideoPlayerPanel(self)
+        self.video_player.hide()
+        self.video_player.closed.connect(self._on_video_player_closed)
+        grid_layout.addWidget(self.video_player)
 
         self.splitter.addWidget(self.grid_container)
 
@@ -2864,6 +3112,51 @@ class MainWindow(QMainWindow):
             logging.getLogger(__name__).error(f"Advanced search failed: {e}")
             QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
 
+
+    def _on_video_backfill(self):
+        """Open the video metadata backfill dialog."""
+        try:
+            # Get project_id from grid or sidebar
+            project_id = None
+            if hasattr(self, 'grid') and hasattr(self.grid, 'project_id'):
+                project_id = self.grid.project_id
+            elif hasattr(self, 'sidebar') and hasattr(self.sidebar, 'project_id'):
+                project_id = self.sidebar.project_id
+
+            # Fallback to default project if not found
+            if project_id is None:
+                from app_services import get_default_project_id
+                project_id = get_default_project_id()
+
+            if project_id is None:
+                QMessageBox.warning(
+                    self,
+                    "No Project",
+                    "No project is currently active.\n"
+                    "Please create a project or scan a folder first."
+                )
+                return
+
+            dialog = VideoBackfillDialog(self, project_id=project_id)
+            result = dialog.exec()
+
+            # If backfill completed successfully, refresh sidebar to update video counts
+            if result == QDialog.Accepted and dialog.stats:
+                if dialog.stats.get('updated', 0) > 0:
+                    print(f"✓ Video backfill completed: {dialog.stats['updated']} videos updated")
+                    # Refresh sidebar to show updated video date counts
+                    if hasattr(self, 'sidebar') and hasattr(self.sidebar, 'refresh_sidebar'):
+                        self.sidebar.refresh_sidebar()
+                        print("✓ Sidebar refreshed with new video metadata")
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Video Backfill Error",
+                f"Failed to open video backfill dialog:\n{str(e)}"
+            )
+            print(f"✗ Video backfill error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _on_clear_thumbnail_cache(self):
         if QMessageBox.question(
@@ -3204,12 +3497,25 @@ class MainWindow(QMainWindow):
         Updates the sidebar and grid to show the selected project.
         """
         try:
-            # Update grid and sidebar
+            # CRITICAL: Check if already on this project to prevent redundant reloads and crashes
+            current_project_id = getattr(self.grid, 'project_id', None) if hasattr(self, 'grid') else None
+            if current_project_id == project_id:
+                print(f"[MainWindow] Already on project {project_id}, skipping switch")
+                return
+
+            # CRITICAL ORDER: Update grid FIRST before sidebar to prevent race condition
+            # Sidebar.set_project() triggers callbacks that reload grid, so grid.project_id
+            # must be set BEFORE those callbacks fire
+            if hasattr(self, "grid") and self.grid:
+                self.grid.project_id = project_id
+                print(f"[MainWindow] Set grid.project_id = {project_id}")
+
+            # Now update sidebar (this triggers reload which will use the new grid.project_id)
             if hasattr(self, "sidebar") and self.sidebar:
                 self.sidebar.set_project(project_id)
 
+            # Finally, explicitly reload grid to show all photos
             if hasattr(self, "grid") and self.grid:
-                self.grid.project_id = project_id
                 self.grid.set_branch("all")  # Reset to show all photos
 
             # Update breadcrumb
@@ -3421,7 +3727,7 @@ class MainWindow(QMainWindow):
         db = ReferenceDB()
         has_favorite = False
         for path in paths:
-            tags = db.get_tags_for_paths([path]).get(path, [])
+            tags = db.get_tags_for_paths([path], self.grid.project_id).get(path, [])
             if "favorite" in tags:
                 has_favorite = True
                 break
@@ -3430,12 +3736,12 @@ class MainWindow(QMainWindow):
         if has_favorite:
             # Unfavorite all
             for path in paths:
-                db.remove_tag(path, "favorite")
+                db.remove_tag(path, "favorite", self.grid.project_id)
             msg = f"Removed favorite from {len(paths)} photo(s)"
         else:
             # Favorite all
             for path in paths:
-                db.add_tag(path, "favorite")
+                db.add_tag(path, "favorite", self.grid.project_id)
             msg = f"Added {len(paths)} photo(s) to favorites"
 
         # Refresh grid to show updated tag icons
@@ -3534,7 +3840,8 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] folder_id={folder_id}")
         if folder_id is not None:
             try:
-                paths = db.get_images_by_folder(folder_id)
+                project_id = getattr(self.grid, "project_id", None)
+                paths = db.get_images_by_folder(folder_id, project_id=project_id)
                 context = f"folder({folder_id})"
                 
             except Exception as e:
@@ -3608,12 +3915,88 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 3) Launch dialog
+        # 🎬 Phase 4.4: Check if this is a video file
+        if is_video_file(path):
+            print(f"[VideoPlayer] Opening video: {path}")
+            # BUG FIX: Filter paths to only include videos for navigation
+            video_paths = [p for p in paths if is_video_file(p)]
+            try:
+                video_idx = video_paths.index(path)
+            except ValueError:
+                # Normalization fallback
+                try:
+                    norm = lambda p: os.path.normcase(os.path.normpath(p))
+                    video_idx = [norm(p) for p in video_paths].index(norm(path))
+                except Exception:
+                    video_idx = 0
+            self._open_video_player(path, video_paths, video_idx)
+            return
+
+        # 3) Launch dialog for photos - BUG FIX: Filter to photos only
+        photo_paths = [p for p in paths if not is_video_file(p)]
+        try:
+            photo_idx = photo_paths.index(path)
+        except ValueError:
+            # Normalization fallback
+            try:
+                norm = lambda p: os.path.normcase(os.path.normpath(p))
+                photo_idx = [norm(p) for p in photo_paths].index(norm(path))
+            except Exception:
+                photo_idx = 0
+
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev
+        dlg.set_image_list(photo_paths, photo_idx)   # <-- THIS ENABLES next/prev
         dlg.resize(900, 700)
         dlg.exec()
 
+    def _open_video_player(self, video_path: str, video_list: list = None, start_index: int = 0):
+        """
+        Open video player for the given video path with navigation support.
+        🎬 Phase 4.4: Video playback support
+        🎬 Enhanced: Added video list and navigation support
+
+        Args:
+            video_path: Path to the video file
+            video_list: List of video paths for navigation (optional)
+            start_index: Index of current video in the list (optional)
+        """
+        if not video_path:
+            return
+
+        # Get video metadata from database
+        metadata = None
+        try:
+            from reference_db import ReferenceDB
+            db = ReferenceDB()
+            project_id = getattr(self.grid, 'project_id', None)
+            if project_id:
+                metadata = db.get_video_by_path(video_path, project_id)
+        except Exception as e:
+            print(f"[VideoPlayer] Failed to load metadata: {e}")
+
+        # Hide grid, show video player
+        self.grid.hide()
+        self.video_player.show()
+
+        # Load and play video with navigation support
+        # BUG FIX #5: Pass project_id explicitly to support tagging
+        self.video_player.load_video(video_path, metadata, project_id=project_id)
+
+        # BUG FIX: Set video list for next/previous navigation
+        if video_list:
+            self.video_player.set_video_list(video_list, start_index)
+            print(f"[VideoPlayer] Opened: {video_path} ({start_index+1}/{len(video_list)})")
+        else:
+            print(f"[VideoPlayer] Opened: {video_path}")
+
+    def _on_video_player_closed(self):
+        """
+        Handle video player close event.
+        🎬 Phase 4.4: Return to grid view when player closes
+        """
+        self.video_player.hide()
+        self.grid.show()
+        print("[VideoPlayer] Closed, returning to grid")
 
     def resizeEvent(self, event):
         """
@@ -3708,9 +4091,20 @@ class MainWindow(QMainWindow):
             if self.grid.navigation_mode == "folder" and hasattr(self.grid, "navigation_key"):
                 # For folder mode, show folder path
                 folder_id = self.grid.navigation_key
-                # TODO: Get folder name from DB
+                # Get folder name from DB
+                folder_name = f"Folder #{folder_id}"  # Fallback
+                try:
+                    with self.db._connect() as conn:
+                        cur = conn.cursor()
+                        cur.execute("SELECT name FROM photo_folders WHERE id = ?", (folder_id,))
+                        row = cur.fetchone()
+                        if row:
+                            folder_name = row[0]
+                except Exception as e:
+                    self.logger.warning(f"Failed to get folder name for ID {folder_id}: {e}")
+
                 segments.append(("Folder View", lambda: self.grid.set_branch("all")))
-                segments.append((f"Folder #{folder_id}", None))
+                segments.append((folder_name, None))
             elif self.grid.navigation_mode == "date" and hasattr(self.grid, "navigation_key"):
                 # For date mode, show date path
                 date_key = str(self.grid.navigation_key)

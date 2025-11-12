@@ -434,6 +434,14 @@ class ThumbnailService:
         """
         ext = os.path.splitext(path)[1].lower()
 
+        # 🎬 Skip video files - they need special thumbnail generation
+        video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                      '.asf', '.avi', '.mkv', '.webm', '.flv', '.f4v', '.3gp',
+                      '.3g2', '.ogv', '.ts', '.mts', '.m2ts'}
+        if ext in video_exts:
+            logger.debug(f"Skipping video file (use VideoThumbnailService): {path}")
+            return QPixmap()
+
         # Use PIL directly for formats known to have Qt compatibility issues
         if ext in PIL_PREFERRED_FORMATS:
             logger.debug(f"Using PIL for {ext} format: {path}")

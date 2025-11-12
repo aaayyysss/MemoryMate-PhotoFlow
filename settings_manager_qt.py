@@ -21,6 +21,12 @@ DEFAULT_SETTINGS = {
     "show_sql_queries": False,
     "use_cache_warmup": True,   # 👈 new toggle, on by default
     "cache_auto_cleanup": True,  # 👈 added new default
+    "ffprobe_path": "",  # Custom path to ffprobe executable (empty = use system PATH)
+
+    # Scan exclusions (folders to skip during photo scanning)
+    # Empty list = use platform-specific defaults from PhotoScanService
+    # Non-empty list = override defaults with custom exclusions
+    "scan_exclude_folders": [],  # Example: ["node_modules", ".git", "my_private_folder"]
 
 }
 
@@ -81,3 +87,11 @@ class SettingsManager:
     def set(self, key, value):
         self._data[key] = value
         self.save()
+
+    def get_setting(self, key, default=None):
+        """Alias for get() for compatibility."""
+        return self.get(key, default)
+
+    def set_setting(self, key, value):
+        """Alias for set() for compatibility."""
+        self.set(key, value)

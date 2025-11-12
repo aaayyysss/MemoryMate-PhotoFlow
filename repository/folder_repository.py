@@ -23,6 +23,8 @@ class FolderRepository(BaseRepository):
         """
         Get folder by file system path and project.
 
+        Uses case-insensitive matching on Windows to handle path casing variations.
+
         Args:
             path: File system path
             project_id: Project ID
@@ -32,10 +34,30 @@ class FolderRepository(BaseRepository):
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT * FROM photo_folders WHERE path = ? AND project_id = ?",
-                (path, project_id)
-            )
+
+            # CRITICAL FIX: Use case-insensitive matching on Windows
+            # Windows file paths are case-insensitive but can be stored with different casing
+            # SQLite's = operator is case-sensitive, so we normalize paths for comparison
+            import platform
+            if platform.system() == 'Windows':
+                # Normalize both stored and query paths to lowercase for comparison
+                # Also normalize slashes for consistency
+                normalized_path = path.lower().replace('/', '\\')
+                cur.execute(
+                    """
+                    SELECT * FROM photo_folders
+                    WHERE LOWER(REPLACE(path, '/', '\\')) = ?
+                    AND project_id = ?
+                    """,
+                    (normalized_path, project_id)
+                )
+            else:
+                # Unix-like systems: use exact match (case-sensitive)
+                cur.execute(
+                    "SELECT * FROM photo_folders WHERE path = ? AND project_id = ?",
+                    (path, project_id)
+                )
+
             return cur.fetchone()
 
     def get_children(self, parent_id: Optional[int], project_id: int) -> List[Dict[str, Any]]:
@@ -93,7 +115,11 @@ class FolderRepository(BaseRepository):
 
     def ensure_folder(self, path: str, name: str, parent_id: Optional[int], project_id: int) -> int:
         """
-        Ensure a folder exists in the database for a project.
+        Ensure a folder exists in the database for a project (thread-safe).
+
+        This method is safe for concurrent calls from multiple threads.
+        It handles race conditions where multiple threads try to create
+        the same folder simultaneously.
 
         Args:
             path: Full file system path
@@ -103,26 +129,45 @@ class FolderRepository(BaseRepository):
 
         Returns:
             Folder ID
-        """
-        # Check if exists for this project
-        existing = self.get_by_path(path, project_id)
-        if existing:
-            return existing['id']
 
-        # Insert new folder
-        sql = """
-            INSERT INTO photo_folders (path, name, parent_id, project_id)
+        Thread Safety:
+            Uses INSERT OR IGNORE + SELECT to handle concurrent insertions.
+            If another thread creates the folder between check and insert,
+            we simply query and return the existing folder ID.
+        """
+        # Try to insert, ignoring if it already exists (handles race condition)
+        sql_insert = """
+            INSERT OR IGNORE INTO photo_folders (path, name, parent_id, project_id)
             VALUES (?, ?, ?, ?)
         """
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute(sql, (path, name, parent_id, project_id))
-            conn.commit()
-            folder_id = cur.lastrowid
+            cur.execute(sql_insert, (path, name, parent_id, project_id))
 
-        self.logger.debug(f"Created folder: {path} (id={folder_id}, project={project_id})")
-        return folder_id
+            # If we inserted a new row, lastrowid will be set
+            if cur.lastrowid:
+                conn.commit()
+                folder_id = cur.lastrowid
+                self.logger.debug(f"Created folder: {path} (id={folder_id}, project={project_id})")
+                return folder_id
+
+            # Folder already existed (inserted by us earlier or another thread)
+            # Query to get the existing folder ID
+            sql_select = """
+                SELECT id FROM photo_folders
+                WHERE path = ? AND project_id = ?
+            """
+            cur.execute(sql_select, (path, project_id))
+            row = cur.fetchone()
+
+            if row:
+                folder_id = row[0]
+                self.logger.debug(f"Folder already exists: {path} (id={folder_id}, project={project_id})")
+                return folder_id
+
+            # This should never happen, but handle it gracefully
+            raise RuntimeError(f"Failed to create or find folder: {path} (project={project_id})")
 
     def get_folder_tree(self) -> List[Dict[str, Any]]:
         """

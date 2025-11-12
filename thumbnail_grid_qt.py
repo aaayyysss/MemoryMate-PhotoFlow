@@ -254,10 +254,36 @@ class ThumbWorker(QRunnable):
             print(f"[ThumbWorker] Error for {self.path}: {e}")
 
 
+def is_video_file(path: str) -> bool:
+    """Check if file is a video based on extension."""
+    if not path:
+        return False
+    ext = os.path.splitext(path)[1].lower()
+    video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                  '.asf', '.avi', '.mkv', '.webm', '.flv', '.f4v', '.3gp',
+                  '.3g2', '.ogv', '.ts', '.mts', '.m2ts'}
+    return ext in video_exts
+
+
+def format_duration(seconds: float) -> str:
+    """Format duration in seconds to MM:SS or H:MM:SS format."""
+    if seconds is None or seconds < 0:
+        return "0:00"
+
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+    else:
+        return f"{minutes}:{secs:02d}"
+
+
 class CenteredThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+
 
 
     def paint(self, painter: QPainter, option, index):
@@ -321,9 +347,45 @@ class CenteredThumbnailDelegate(QStyledItemDelegate):
                 x = rect.x() + (rect.width() - scaled.width()) // 2
                 y = rect.y() + (rect.height() - scaled.height()) // 2
                 painter.drawPixmap(QRect(x, y, scaled.width(), scaled.height()), scaled)
-                
 
-                                
+                # 🎬 Video duration badge (Phase 4.3)
+                file_path = index.data(Qt.UserRole)
+                if file_path and is_video_file(file_path):
+                    # Get duration from video metadata (stored in UserRole + 3)
+                    duration_seconds = index.data(Qt.UserRole + 3)
+
+                    # Draw semi-transparent background for badge
+                    painter.save()
+                    badge_width = 50
+                    badge_height = 20
+                    badge_rect = QRect(
+                        x + scaled.width() - badge_width - 4,
+                        y + scaled.height() - badge_height - 4,
+                        badge_width,
+                        badge_height
+                    )
+
+                    # Draw rounded background
+                    painter.setPen(Qt.NoPen)
+                    painter.setBrush(QColor(0, 0, 0, 180))
+                    painter.drawRoundedRect(badge_rect, 3, 3)
+
+                    # Draw duration text or play icon
+                    painter.setPen(QPen(Qt.white))
+                    font = QFont()
+                    font.setPointSize(9)
+                    font.setBold(True)
+                    painter.setFont(font)
+
+                    if duration_seconds and duration_seconds > 0:
+                        duration_text = format_duration(duration_seconds)
+                    else:
+                        duration_text = "🎬"  # Show play icon if no duration
+
+                    painter.drawText(badge_rect, Qt.AlignCenter, duration_text)
+                    painter.restore()
+
+
         # 🟢 Focus glow
         if option.state & QStyle.State_HasFocus:
             painter.save()
@@ -699,12 +761,32 @@ class ThumbnailGridQt(QWidget):
         return None
 
 
-    def load_custom_paths(self, paths):
-        """Directly load an arbitrary list of image paths (used by tag filters)."""
+    def load_custom_paths(self, paths, content_type="auto"):
+        """
+        Directly load an arbitrary list of image/video paths (used by tag filters and video filters).
+
+        Args:
+            paths: List of file paths to display
+            content_type: "auto" (detect from paths), "photos", or "videos"
+        """
         import os
 
-        # ✅ Force the grid into tag mode so status/log reflects it and doesn't revert to date/folder/branch
-        self.load_mode = "tag"
+        # Auto-detect content type if not specified
+        if content_type == "auto" and paths:
+            # Check first few paths to determine content type
+            sample_size = min(10, len(paths))
+            video_count = sum(1 for p in paths[:sample_size] if is_video_file(p))
+            if video_count > sample_size / 2:
+                content_type = "videos"
+            else:
+                content_type = "photos"
+
+        # Set appropriate mode based on content type
+        if content_type == "videos":
+            self.load_mode = "videos"
+        else:
+            self.load_mode = "tag"
+
         self.branch_key = None
         self.current_folder_id = None
         self.date_key = None
@@ -717,8 +799,13 @@ class ThumbnailGridQt(QWidget):
         # ✅ normalize paths to match how they're stored in DB
         self._paths = [norm(p) for p in (paths or [])]
 
-        # tag map (for overlays)
-        tag_map = self.db.get_tags_for_paths(self._paths)
+        # tag map (for overlays) - only for photos
+        tag_map = {}
+        if content_type != "videos":
+            try:
+                tag_map = self.db.get_tags_for_paths(self._paths)
+            except Exception as e:
+                print(f"[GRID] Warning: Could not fetch tags: {e}")
 
         # Use current reload token snapshot so workers can be tied to this load
         token = self._reload_token
@@ -736,14 +823,17 @@ class ThumbnailGridQt(QWidget):
 
             self.model.appendRow(item)
             thumb_h = int(self._thumb_base * self._zoom_factor)
-            worker = ThumbWorker(p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, self._placeholder_pixmap)
+            # ThumbWorker signature: real_path, norm_path, height, row, signal_obj, cache, reload_token, placeholder
+            worker = ThumbWorker(p, p, thumb_h, i, self.thumb_signal, self._thumb_cache, token, self._placeholder_pixmap)
 
             self.thread_pool.start(worker)
 
         self._apply_zoom_geometry()
         self.list_view.doItemsLayout()
         self.list_view.viewport().update()
-        print(f"[GRID] Loaded {len(self._paths)} thumbnails in tag-mode.")
+
+        mode_label = "videos" if content_type == "videos" else "tag"
+        print(f"[GRID] Loaded {len(self._paths)} thumbnails in {mode_label}-mode.")
 
 
     def shutdown_threads(self):
@@ -893,7 +983,7 @@ class ThumbnailGridQt(QWidget):
         try:
             from services.tag_service import get_tag_service
             tag_service = get_tag_service()
-            present_map = tag_service.get_tags_for_paths(paths)
+            present_map = tag_service.get_tags_for_paths(paths, self.project_id)
             print(f"[ContextMenu] Got tags for {len(paths)} path(s): {present_map}")
         except Exception as e:
             print(f"[ContextMenu] Error getting tags: {e}")
@@ -988,29 +1078,43 @@ class ThumbnailGridQt(QWidget):
             if "favorite" in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, "favorite")
+                    tag_service.remove_tag(p, "favorite", self.project_id)
                 print(f"[Tag] Removed 'favorite' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, "favorite")
+                count = tag_service.assign_tags_bulk(paths, "favorite", self.project_id)
                 print(f"[Tag] Added 'favorite' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if "favorite" in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == "favorite":
                     print(f"[Tag] Reloading grid - removed tag matches active filter 'favorite'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen is act_face:
             # Check if any photos are selected
@@ -1027,29 +1131,43 @@ class ThumbnailGridQt(QWidget):
             if "face" in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, "face")
+                    tag_service.remove_tag(p, "face", self.project_id)
                 print(f"[Tag] Removed 'face' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, "face")
+                count = tag_service.assign_tags_bulk(paths, "face", self.project_id)
                 print(f"[Tag] Added 'face' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if "face" in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == "face":
                     print(f"[Tag] Reloading grid - removed tag matches active filter 'face'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen in toggle_actions:
             # Check if any photos are selected
@@ -1068,29 +1186,43 @@ class ThumbnailGridQt(QWidget):
             if tagname in present_tags:
                 # Remove from all selected photos
                 for p in paths:
-                    tag_service.remove_tag(p, tagname)
+                    tag_service.remove_tag(p, tagname, self.project_id)
                 print(f"[Tag] Removed '{tagname}' → {len(paths)} photo(s)")
             else:
                 # Add to all selected photos
-                count = tag_service.assign_tags_bulk(paths, tagname)
+                count = tag_service.assign_tags_bulk(paths, tagname, self.project_id)
                 print(f"[Tag] Added '{tagname}' → {count} photo(s)")
 
-            self._refresh_tags_for_paths(paths)
+            # CRITICAL: Wrap post-tag operations in try/except to prevent crashes
+            try:
+                self._refresh_tags_for_paths(paths)
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to refresh tag overlays: {e}")
 
             # 🪄 Refresh sidebar tags
-            mw = self.window()
-            if hasattr(mw, "sidebar"):
-                if hasattr(mw.sidebar, "reload_tags_only"):
-                    mw.sidebar.reload_tags_only()
-                else:
-                    mw.sidebar.reload()
+            try:
+                mw = self.window()
+                if hasattr(mw, "sidebar"):
+                    if hasattr(mw.sidebar, "reload_tags_only"):
+                        mw.sidebar.reload_tags_only()
+                    else:
+                        mw.sidebar.reload()
+            except Exception as e:
+                print(f"[Tag] Warning: Failed to reload sidebar tags: {e}")
 
             # 🔄 Reload grid if we removed the active tag filter
             if tagname in present_tags:
                 active_tag = getattr(self, "context", {}).get("tag_filter")
                 if active_tag and active_tag.lower() == tagname.lower():
                     print(f"[Tag] Reloading grid - removed tag matches active filter '{active_tag}'")
-                    self.reload()
+                    try:
+                        self.reload()
+                    except Exception as e:
+                        print(f"[Tag] Warning: Failed to reload grid: {e}")
+                        # Clear the tag filter to prevent showing stale data
+                        if hasattr(self, "context") and "tag_filter" in self.context:
+                            self.context["tag_filter"] = None
+                            self.reload()  # Try again without filter
 
         elif chosen is act_new_tag:
             # Check if any photos are selected
@@ -1108,9 +1240,9 @@ class ThumbnailGridQt(QWidget):
             if ok and name.strip():
                 tname = name.strip()
                 tag_service = get_tag_service()
-                # Ensure tag exists and assign to photos
-                tag_service.ensure_tag_exists(tname)
-                count = tag_service.assign_tags_bulk(paths, tname)
+                # Ensure tag exists and assign to photos (Schema v3.1.0)
+                tag_service.ensure_tag_exists(tname, self.project_id)
+                count = tag_service.assign_tags_bulk(paths, tname, self.project_id)
                 print(f"[Tag] Created and assigned '{tname}' → {count} photo(s)")
                 self._refresh_tags_for_paths(paths)
 
@@ -1128,7 +1260,7 @@ class ThumbnailGridQt(QWidget):
             tag_service = get_tag_service()
             for p in paths:
                 for t in list(present_tags):
-                    tag_service.remove_tag(p, t)
+                    tag_service.remove_tag(p, t, self.project_id)
             print(f"[Tag] Cleared all tags → {len(paths)} photo(s)")
             self._refresh_tags_for_paths(paths)
 
@@ -1159,7 +1291,7 @@ class ThumbnailGridQt(QWidget):
         try:
             # Use TagService for proper layered architecture
             tag_service = get_tag_service()
-            tags_map = tag_service.get_tags_for_paths(paths)
+            tags_map = tag_service.get_tags_for_paths(paths, self.project_id)
         except Exception:
             return
         # normalize to the same format used in load()
@@ -1468,6 +1600,18 @@ class ThumbnailGridQt(QWidget):
         self.date_key = date_key
         self.reload()
 
+    def set_videos(self):
+        """
+        Called when Videos tab is selected - show all videos for current project.
+        🎬 Phase 4.3: Video support
+        """
+        self.navigation_mode = "videos"
+        self.navigation_key = None
+        self.active_tag_filter = None
+
+        self.load_mode = "videos"
+        self.reload()
+
     def load_paths(self, paths: list[str]):
         """
         Load arbitrary list of photo paths (e.g., from search results).
@@ -1569,24 +1713,24 @@ class ThumbnailGridQt(QWidget):
         elif self.load_mode == "folder":
             if not self.current_folder_id:
                 return
-            paths = self.db.get_images_by_folder(self.current_folder_id)
+            paths = self.db.get_images_by_folder(self.current_folder_id, project_id=self.project_id)
 
         elif self.load_mode == "date":
             if not self.date_key:
                 return
             dk = self.date_key  # already normalized to YYYY / YYYY-MM / YYYY-MM-DD
             if len(dk) == 4 and dk.isdigit():
-                paths = self.db.get_images_by_year(int(dk))
+                paths = self.db.get_images_by_year(int(dk), self.project_id)
 
             elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
                 year, month = dk.split("-", 1)
-                paths = self.db.get_images_by_month(year, month)
+                paths = self.db.get_images_by_month(year, month, self.project_id)
                 # fallback: if no results, maybe dates have timestamps—try prefix search
                 if not paths:
-                    paths = self.db.get_images_for_quick_key(f"date:{dk}")     
-                
+                    paths = self.db.get_images_for_quick_key(f"date:{dk}")
+
             elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                paths = self.db.get_images_by_date(dk)
+                paths = self.db.get_images_by_date(dk, self.project_id)
             else:
                 # fallback for quick keys (rare)
                 paths = self.db.get_images_for_quick_key(f"date:{dk}")
@@ -1658,109 +1802,128 @@ class ThumbnailGridQt(QWidget):
         Centralized reload logic combining navigation context + optional tag overlay.
         Includes user feedback via status bar and detailed console logs.
         """
-        import os
-        from PySide6.QtCore import QSize
-        from PySide6.QtGui import QStandardItem
+        # CRITICAL: Prevent concurrent reloads that cause crashes
+        # Similar to sidebar._refreshing flag pattern
+        if getattr(self, '_reloading', False):
+            print("[GRID] reload() blocked - already reloading (prevents concurrent reload crash)")
+            return
 
-        db = self.db
-        ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
-        mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
+        try:
+            self._reloading = True
 
-        # --- 1️: Determine base photo paths by navigation mode ---
-        if mode == "folder" and key:
-            paths = db.get_images_by_folder(key)
-        elif mode == "branch" and key:
-            paths = db.get_images_by_branch(self.project_id, key)
-        elif mode == "date" and key:
-            dk = str(key)
-            if len(dk) == 4 and dk.isdigit():
-                paths = db.get_images_by_year(int(dk))
-            elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
-                paths = db.get_images_by_month_str(dk)
-            elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
-                paths = db.get_images_by_date(dk)
-            else:
-                # fallback for quick keys (e.g. date:this-week)
-                paths = db.get_images_for_quick_key(f"date:{dk}")
-        else:
-            paths = []
+            import os
+            from PySide6.QtCore import QSize
+            from PySide6.QtGui import QStandardItem
 
-        base_count = len(paths)
+            db = self.db
+            ctx = getattr(self, "context", {"mode": None, "key": None, "tag_filter": None})
+            mode, key, tag = ctx["mode"], ctx["key"], ctx["tag_filter"]
 
+            # CRITICAL FIX: Update load_mode to match context mode
+            # This ensures grid state stays synchronized when switching between photo/video navigation
+            if mode in ("folder", "branch", "date", "videos", "tag"):
+                self.load_mode = mode
+            elif mode is None and tag:
+                # Tag filter without specific navigation context
+                self.load_mode = "tag"
 
+            # --- 1️+2️: Determine base photo paths by navigation mode AND tag filter ---
+            # CRITICAL FIX: Use efficient database queries instead of in-memory intersection
+            # OLD (SLOW): Load all 2856 photos → filter in memory → UI freeze
+            # NEW (FAST): SQL JOIN returns only matching photos → instant response
 
-        # --- 2️: Overlay tag filter (if active) ---
-        if tag:
-            tagged_paths = db.get_image_paths_for_tag(tag)
-
-            def norm(p: str):
-                try:
-                    return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
-                except Exception:
-                    return str(p).strip().lower()
-
-            base_n = {norm(p): p for p in paths}
-            tag_n = {norm(p): p for p in tagged_paths}
-
-            if base_n and tag_n:
-                # intersection of context & tagged photos
-                selected = base_n.keys() & tag_n.keys()
-                paths = [base_n[k] for k in selected]
-                print(f"[TAG FILTER] Context intersected: {len(selected)}/{len(base_n)} matched (tag='{tag}')")
-
-                # if nothing matched but tag exists, fallback to show all tagged photos
-                if not paths and tagged_paths:
-                    paths = list(tag_n.values())
+            if tag:
+                # Tag filter is active - use efficient JOIN queries
+                if mode == "folder" and key:
+                    paths = db.get_images_by_folder_and_tag(self.project_id, key, tag, include_subfolders=True)
+                    print(f"[TAG FILTER] Folder {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "branch" and key:
+                    paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
+                    print(f"[TAG FILTER] Branch {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "date" and key:
+                    dk = str(key)
+                    paths = db.get_images_by_date_and_tag(self.project_id, dk, tag)
+                    print(f"[TAG FILTER] Date {dk} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                else:
+                    # No navigation context - show all tagged photos
+                    paths = db.get_image_paths_for_tag(tag, self.project_id)
                     self.context["mode"] = "tag"
-                    print(f"[TAG FILTER] No matches in context, fallback to all tagged ({len(paths)})")
-
-            elif not base_n and tag_n:
-                # no navigation context active → show all tagged photos
-                paths = list(tag_n.values())
-                self.context["mode"] = "tag"
-                print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
+                    print(f"[TAG FILTER] Showing all tagged photos for '{tag}' ({len(paths)})")
 
             else:
-                # No tagged photos exist for this tag - show empty grid
-                paths = []
-                print(f"[TAG FILTER] No tagged photos found for '{tag}' - showing empty grid")
-        
-        final_count = len(paths)
+                # No tag filter - use normal navigation queries
+                if mode == "folder" and key:
+                    paths = db.get_images_by_folder(key, project_id=self.project_id)
+                elif mode == "branch" and key:
+                    paths = db.get_images_by_branch(self.project_id, key)
+                elif mode == "date" and key:
+                    dk = str(key)
+                    if len(dk) == 4 and dk.isdigit():
+                        paths = db.get_images_by_year(int(dk), self.project_id)
+                    elif len(dk) == 7 and dk[4] == "-" and dk[5:7].isdigit():
+                        paths = db.get_images_by_month_str(dk, self.project_id)
+                    elif len(dk) == 10 and dk[4] == "-" and dk[7] == "-":
+                        paths = db.get_images_by_date(dk, self.project_id)
+                    else:
+                        # fallback for quick keys (e.g. date:this-week)
+                        paths = db.get_images_for_quick_key(f"date:{dk}", self.project_id)
+                elif mode == "videos":
+                    # 🎬 Phase 4.3: Load all videos for project
+                    try:
+                        from services.video_service import VideoService
+                        video_service = VideoService()
+                        videos = video_service.get_videos_by_project(self.project_id)
+                        paths = [v['path'] for v in videos]
+                        print(f"[GRID] Loaded {len(paths)} videos for project {self.project_id}")
+                    except Exception as e:
+                        print(f"[GRID] Failed to load videos: {e}")
+                        paths = []
+                else:
+                    paths = []
 
-        # --- 3️: Render grid ---
-        self._load_paths(paths)
+            final_count = len(paths)
+            base_count = final_count  # For status message compatibility
 
-        # --- 4️: User feedback ---
-        context_label = {
-            "folder": "Folder",
-            "branch": "Branch",
-            "date": "Date",
-            "tag": "Tag"
-        }.get(mode or "unknown", "Unknown")
+            # --- 3️: Render grid ---
+            self._load_paths(paths)
 
-        tag_label = f" [Tag: {tag}]" if tag else ""
-        status_msg = (
-            f"{context_label}: {key or '—'} → "
-            f"{final_count} photo(s) shown"
-            f"{' (filtered)' if tag else ''}"
-        )
+            # --- 4️: User feedback ---
+            context_label = {
+                "folder": "Folder",
+                "branch": "Branch",
+                "date": "Date",
+                "tag": "Tag",
+                "videos": "Videos"
+            }.get(mode or "unknown", "Unknown")
 
-        # Status bar update (if parent has one)
-        mw = self.window()
-        if hasattr(mw, "statusBar"):
-            try:
-                mw.statusBar().showMessage(status_msg)
-            except Exception:
-                pass
+            tag_label = f" [Tag: {tag}]" if tag else ""
+            media_label = "video(s)" if mode == "videos" else "photo(s)"
+            status_msg = (
+                f"{context_label}: {key or '—'} → "
+                f"{final_count} {media_label} shown"
+                f"{' (filtered)' if tag else ''}"
+            )
 
-        # Detailed console log
-        if tag:
-            print(f"[GRID] Reloaded {final_count}/{base_count} thumbnails in {mode}-mode (tag={tag})")
-        else:
-            print(f"[GRID] Reloaded {final_count} thumbnails in {mode}-mode (base={base_count})")
+            # Status bar update (if parent has one)
+            mw = self.window()
+            if hasattr(mw, "statusBar"):
+                try:
+                    mw.statusBar().showMessage(status_msg)
+                except Exception:
+                    pass
 
-        # Phase 2.3: Emit signal for status bar update
-        self.gridReloaded.emit()
+            # Detailed console log
+            if tag:
+                print(f"[GRID] Reloaded {final_count}/{base_count} thumbnails in {mode}-mode (tag={tag})")
+            else:
+                print(f"[GRID] Reloaded {final_count} thumbnails in {mode}-mode (base={base_count})")
+
+            # Phase 2.3: Emit signal for status bar update
+            self.gridReloaded.emit()
+
+        finally:
+            # Always reset flag even if exception occurs
+            self._reloading = False
 
     # ============================================================
     def _load_paths(self, paths: list[str]):
@@ -1806,6 +1969,17 @@ class ThumbnailGridQt(QWidget):
             item.setData(tag_map.get(p, []), Qt.UserRole + 2)
             item.setData(default_aspect, Qt.UserRole + 1)
             item.setData(False, Qt.UserRole + 5)   # not scheduled yet
+
+            # 🎬 Phase 4.3: Store video duration if this is a video file
+            if is_video_file(p):
+                try:
+                    # Try to get duration from video_metadata table
+                    video_meta = self.db.get_video_by_path(p, self.project_id)
+                    if video_meta and 'duration_seconds' in video_meta:
+                        item.setData(video_meta['duration_seconds'], Qt.UserRole + 3)
+                except Exception:
+                    # If no metadata available, set None (will show play icon instead)
+                    item.setData(None, Qt.UserRole + 3)
 
             # 🖼 initial placeholder size & icon
             item.setSizeHint(placeholder_size)

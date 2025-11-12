@@ -1320,6 +1320,24 @@ class SidebarQt(QWidget):
             if mode in ("folder", "branch", "date") and hasattr(mw, "_clear_tag_filter"):
                 mw._clear_tag_filter()
 
+        def _ensure_video_paths_only(paths):
+            """
+            CRITICAL: Ensure strict media type separation - filter out any photos from video paths.
+            Returns tuple: (filtered_paths, photo_count, video_count)
+            """
+            from main_window_qt import is_video_file
+            photo_count = sum(1 for p in paths if not is_video_file(p))
+            video_count = sum(1 for p in paths if is_video_file(p))
+
+            if photo_count > 0:
+                print(f"[MediaTypeSeparation] ⚠️ WARNING: Found {photo_count} photos mixed with {video_count} videos!")
+                paths = [p for p in paths if is_video_file(p)]
+                print(f"[MediaTypeSeparation] ✅ Filtered to {len(paths)} videos only")
+            else:
+                print(f"[MediaTypeSeparation] ✅ VERIFIED: All {video_count} items are videos")
+
+            return paths, photo_count, video_count
+
         if mode == "folder" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("folder", value)
@@ -1365,11 +1383,15 @@ class SidebarQt(QWidget):
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
                 paths = [v['path'] for v in videos]
+
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     # Clear grid first to avoid showing stale content
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(videos)} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} videos")
                 else:
                     print(f"[Sidebar] Unable to display videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1398,11 +1420,15 @@ class SidebarQt(QWidget):
                     label = value
 
                 paths = [v['path'] for v in filtered]
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1431,14 +1457,17 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 quality_labels = {'sd': 'SD (< 720p)', 'hd': 'HD (720p)', 'fhd': 'Full HD (1080p)', '4k': '4K (2160p+)'}
                 label = quality_labels.get(value, value)
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎬 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎬 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1466,6 +1495,9 @@ class SidebarQt(QWidget):
                 filtered = video_service.filter_by_codec(videos, codecs=codecs_to_filter)
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 codec_labels = {
                     'h264': 'H.264 / AVC',
                     'hevc': 'H.265 / HEVC',
@@ -1475,11 +1507,11 @@ class SidebarQt(QWidget):
                 }
                 label = codec_labels.get(value, value.upper())
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"🎞️ Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"🎞️ Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1496,6 +1528,9 @@ class SidebarQt(QWidget):
                 filtered = video_service.filter_by_file_size(videos, size_range=value)
                 paths = [v['path'] for v in filtered]
 
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
                 size_labels = {
                     'small': 'Small (< 100MB)',
                     'medium': 'Medium (100MB - 1GB)',
@@ -1504,11 +1539,11 @@ class SidebarQt(QWidget):
                 }
                 label = size_labels.get(value, value)
 
-                print(f"[Sidebar] Showing {len(filtered)} {label} videos")
+                print(f"[Sidebar] Showing {len(paths)} {label} videos")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📦 Showing {len(filtered)} {label} videos")
+                    mw.statusBar().showMessage(f"📦 Showing {len(paths)} {label} videos")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1529,11 +1564,14 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
-                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
+                    mw.statusBar().showMessage(f"📅 Showing {len(paths)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1554,11 +1592,14 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
-                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
+                    mw.statusBar().showMessage(f"📅 Showing {len(paths)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -1578,11 +1619,14 @@ class SidebarQt(QWidget):
 
                 paths = [v['path'] for v in filtered]
 
-                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
+                # Ensure strict media type separation
+                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+
+                print(f"[Sidebar] Showing {len(paths)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
+                    mw.statusBar().showMessage(f"📅 Showing {len(paths)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
@@ -2037,14 +2081,22 @@ class SidebarQt(QWidget):
                     date_parent.setEditable(False)
 
                     # Get video date hierarchy: {year: {month: [days]}}
+                    print(f"[VideoDateHierarchy] 🔍 DIAGNOSTIC: Fetching video date hierarchy for project_id={self.project_id}")
                     video_hier = self.db.get_video_date_hierarchy(self.project_id) or {}
+                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_hier = {video_hier}")
+                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_hier has {len(video_hier)} years")
+
                     video_years = self.db.list_video_years_with_counts(self.project_id) or []
+                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: video_years = {video_years}")
                     total_dated_videos = sum(count for _, count in video_years)
+                    print(f"[VideoDateHierarchy] 📊 DIAGNOSTIC: total_dated_videos = {total_dated_videos}")
                     year_counts = {str(y): c for y, c in video_years}
 
                     # Build expandable hierarchy: Year → Month → Day
+                    print(f"[VideoDateHierarchy] 🏗️ DIAGNOSTIC: Building hierarchy for {len(video_hier)} years")
                     for year in sorted(video_hier.keys(), reverse=True):
                         year_count = year_counts.get(str(year), 0)
+                        print(f"[VideoDateHierarchy] 📅 DIAGNOSTIC: Processing year {year} with count {year_count}")
 
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
@@ -2057,13 +2109,16 @@ class SidebarQt(QWidget):
                         year_cnt.setForeground(QColor("#888888"))
 
                         date_parent.appendRow([year_item, year_cnt])
+                        print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added year {year} to date_parent")
 
                         # Months (children of year)
                         months_dict = video_hier[year]
+                        print(f"[VideoDateHierarchy] 🗓️ DIAGNOSTIC: Year {year} has {len(months_dict)} months")
                         month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
                         for month_num in sorted(months_dict.keys(), reverse=True):
+                            print(f"[VideoDateHierarchy] 🗓️ DIAGNOSTIC: Processing month {month_num} in year {year}")
                             try:
                                 month_int = int(month_num)
                                 month_label = month_names[month_int] if 1 <= month_int <= 12 else month_num
@@ -2089,9 +2144,11 @@ class SidebarQt(QWidget):
                             month_cnt.setForeground(QColor("#888888"))
 
                             year_item.appendRow([month_item, month_cnt])
+                            print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added month {month_label} to year {year}")
 
                             # Days (children of month)
                             days_list = months_dict[month_num]
+                            print(f"[VideoDateHierarchy] 📆 DIAGNOSTIC: Month {month_num} has {len(days_list)} days")
                             for day_str in sorted(days_list, reverse=True):
                                 try:
                                     # Extract day number from date string (YYYY-MM-DD)
@@ -2114,7 +2171,9 @@ class SidebarQt(QWidget):
                                     day_cnt.setForeground(QColor("#888888"))
 
                                     month_item.appendRow([day_item, day_cnt])
+                                    print(f"[VideoDateHierarchy] ✅ DIAGNOSTIC: Added day {day_num} to month {month_num}")
                                 except (IndexError, ValueError):
+                                    print(f"[VideoDateHierarchy] ⚠️ DIAGNOSTIC: Skipped malformed date: {day_str}")
                                     pass  # Skip malformed dates
 
                     # Set total count on date parent
@@ -2123,6 +2182,7 @@ class SidebarQt(QWidget):
                     date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     date_count.setForeground(QColor("#888888"))
                     root_name_item.appendRow([date_parent, date_count])
+                    print(f"[VideoDateHierarchy] 🎉 DIAGNOSTIC: Completed building date hierarchy with {total_dated_videos} total videos")
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

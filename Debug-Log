@@ -1,33 +1,33 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\MemoryMate-PhotoFlow-main>[Startup] pillow_heif available — HEIC/HEIF support enabled.
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main>[Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-12 11:43:22,880 [INFO] ================================================================================
-2025-11-12 11:43:22,881 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-12 11:43:22,881 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\MemoryMate-PhotoFlow-main\app_log.txt
-2025-11-12 11:43:22,882 [INFO] ================================================================================
-2025-11-12 11:43:22,915 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-12 11:43:22,915 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-12 11:43'}
+2025-11-12 12:22:34,294 [INFO] ================================================================================
+2025-11-12 12:22:34,294 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-12 12:22:34,294 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\MemoryMate-PhotoFlow-main\app_log.txt
+2025-11-12 12:22:34,294 [INFO] ================================================================================
+2025-11-12 12:22:34,331 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-12 12:22:34,331 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-04\\MemoryMate-PhotoFlow-main\\thumbnails_cache.db', 'last_updated': '2025-11-12 12:22'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-12 11:43:23,201 [INFO] SearchService initialized
-[11:43:23.313] [Tabs] __init__ started
-[11:43:23.400] [Tabs] _build_tabs → building tab widgets
-[11:43:23.403] [Tabs] _on_tab_changed(idx=0)
-[11:43:23.403] [Tabs] _start_timeout idx=0 type=branches
-[11:43:23.407] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:43:23.408] [Tabs]   populated=False, loading=False
-[11:43:23.409] [Tabs]   Starting load for branches
-[11:43:23.409] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:43:23.409] [Tabs] _clear_tab idx=0
-[11:43:23.410] [Tabs] _on_tab_changed → tab_type=branches
-[11:43:23.411] [Tabs] _build_tabs → added 6 tabs
-[11:43:23.411] [Tabs] __init__ completed
+2025-11-12 12:22:34,523 [INFO] SearchService initialized
+[12:22:35.024] [Tabs] __init__ started
+[12:22:35.106] [Tabs] _build_tabs → building tab widgets
+[12:22:35.119] [Tabs] _on_tab_changed(idx=0)
+[12:22:35.138] [Tabs] _start_timeout idx=0 type=branches
+[12:22:35.145] [Tabs] _populate_tab(branches, idx=0, force=False)
+[12:22:35.150] [Tabs]   populated=False, loading=False
+[12:22:35.150] [Tabs]   Starting load for branches
+[12:22:35.150] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:22:35.150] [Tabs] _clear_tab idx=0
+[12:22:35.163] [Tabs] _on_tab_changed → tab_type=branches
+[12:22:35.165] [Tabs] _build_tabs → added 6 tabs
+[12:22:35.166] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[11:43:23.429] [Tabs] hide_tabs() called - canceling pending workers
+[12:22:35.170] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -36,64 +36,64 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
 [SidebarQt] _build_tree_model() completed
-2025-11-12 11:43:23,441 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-12 11:43:23,441 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-12 11:43:23,441 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-12 12:22:35,182 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-12 12:22:35,182 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-12 12:22:35,182 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-[11:43:30.254] [Tabs] _finish_branches (stale gen=1) — ignoring
-[11:43:30.254] [Tabs] _on_tab_changed(idx=0)
-[11:43:30.256] [Tabs] _start_timeout idx=0 type=branches
-[11:43:30.256] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:43:30.256] [Tabs]   populated=False, loading=False
-[11:43:30.256] [Tabs]   Starting load for branches
-[11:43:30.256] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:43:30.256] [Tabs] _clear_tab idx=0
-[11:43:30.257] [Tabs] _on_tab_changed → tab_type=branches
-[11:43:30.267] [Tabs] _clear_tab idx=0
+[12:22:37.337] [Tabs] _finish_branches (stale gen=1) — ignoring
+[12:22:37.337] [Tabs] _on_tab_changed(idx=0)
+[12:22:37.337] [Tabs] _start_timeout idx=0 type=branches
+[12:22:37.337] [Tabs] _populate_tab(branches, idx=0, force=False)
+[12:22:37.337] [Tabs]   populated=False, loading=False
+[12:22:37.337] [Tabs]   Starting load for branches
+[12:22:37.337] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:22:37.337] [Tabs] _clear_tab idx=0
+[12:22:37.337] [Tabs] _on_tab_changed → tab_type=branches
+[12:22:37.349] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
-[11:43:37.573] [Tabs] refresh_all(force=True) called
-[11:43:37.573] [Tabs] refresh_all: key=branches, idx=0, force=True
-[11:43:37.573] [Tabs] _populate_tab(branches, idx=0, force=True)
-[11:43:37.573] [Tabs]   populated=True, loading=False
-[11:43:37.573] [Tabs]   Force refresh: removing branches from populated set
-[11:43:37.574] [Tabs]   Starting load for branches
-[11:43:37.574] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:43:37.574] [Tabs] _clear_tab idx=0
-[11:43:37.575] [Tabs] refresh_all: key=folders, idx=1, force=True
-[11:43:37.576] [Tabs] _populate_tab(folders, idx=1, force=True)
-[11:43:37.576] [Tabs]   populated=False, loading=False
-[11:43:37.576] [Tabs]   Starting load for folders
-[11:43:37.576] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[11:43:37.576] [Tabs] _clear_tab idx=1
-[11:43:37.577] [Tabs] refresh_all: key=dates, idx=2, force=True
-[11:43:37.577] [Tabs] _populate_tab(dates, idx=2, force=True)
-[11:43:37.578] [Tabs]   populated=False, loading=False
-[11:43:37.578] [Tabs]   Starting load for dates
-[11:43:37.578] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[11:43:37.578] [Tabs] _clear_tab idx=2
-[11:43:37.579] [Tabs] _load_folders → got 0 rows for project_id=1
-[11:43:37.580] [Tabs] refresh_all: key=tags, idx=3, force=True
-[11:43:37.580] [Tabs] _populate_tab(tags, idx=3, force=True)
-[11:43:37.580] [Tabs]   populated=False, loading=False
-[11:43:37.580] [Tabs]   Starting load for tags
-[11:43:37.580] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[11:43:37.580] [Tabs] _clear_tab idx=3
-[11:43:37.582] [Tabs] refresh_all: key=quick, idx=5, force=True
-[11:43:37.582] [Tabs] _populate_tab(quick, idx=5, force=True)
-[11:43:37.582] [Tabs]   populated=False, loading=False
-[11:43:37.583] [Tabs]   Starting load for quick
-[11:43:37.583] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[11:43:37.584] [Tabs] _load_dates → got hierarchy data for project_id=1
-[11:43:37.584] [Tabs] _clear_tab idx=5
-[11:43:37.585] [Tabs] _load_tags → got 0 rows for project_id=1
-[11:43:37.585] [Tabs] refresh_all(force=True) completed
+[12:22:59.256] [Tabs] refresh_all(force=True) called
+[12:22:59.256] [Tabs] refresh_all: key=branches, idx=0, force=True
+[12:22:59.258] [Tabs] _populate_tab(branches, idx=0, force=True)
+[12:22:59.258] [Tabs]   populated=True, loading=False
+[12:22:59.258] [Tabs]   Force refresh: removing branches from populated set
+[12:22:59.258] [Tabs]   Starting load for branches
+[12:22:59.258] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:22:59.258] [Tabs] _clear_tab idx=0
+[12:22:59.258] [Tabs] refresh_all: key=folders, idx=1, force=True
+[12:22:59.259] [Tabs] _populate_tab(folders, idx=1, force=True)
+[12:22:59.259] [Tabs]   populated=False, loading=False
+[12:22:59.259] [Tabs]   Starting load for folders
+[12:22:59.259] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[12:22:59.259] [Tabs] _clear_tab idx=1
+[12:22:59.260] [Tabs] refresh_all: key=dates, idx=2, force=True
+[12:22:59.261] [Tabs] _load_folders → got 0 rows for project_id=1
+[12:22:59.261] [Tabs] _populate_tab(dates, idx=2, force=True)
+[12:22:59.261] [Tabs]   populated=False, loading=False
+[12:22:59.263] [Tabs]   Starting load for dates
+[12:22:59.264] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[12:22:59.264] [Tabs] _clear_tab idx=2
+[12:22:59.271] [Tabs] refresh_all: key=tags, idx=3, force=True
+[12:22:59.273] [Tabs] _populate_tab(tags, idx=3, force=True)
+[12:22:59.273] [Tabs]   populated=False, loading=False
+[12:22:59.273] [Tabs]   Starting load for tags
+[12:22:59.273] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[12:22:59.273] [Tabs] _clear_tab idx=3
+[12:22:59.274] [Tabs] refresh_all: key=quick, idx=5, force=True
+[12:22:59.276] [Tabs] _populate_tab(quick, idx=5, force=True)
+[12:22:59.276] [Tabs]   populated=False, loading=False
+[12:22:59.276] [Tabs]   Starting load for quick
+[12:22:59.277] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[12:22:59.277] [Tabs] _clear_tab idx=5
+[12:22:59.277] [Tabs] _load_tags → got 0 rows for project_id=1
+[12:22:59.278] [Tabs] refresh_all(force=True) completed
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
-[11:43:37.586] [Tabs] _clear_tab idx=0
-[11:43:37.586] [Tabs] _load_quick → got 6 rows
+[12:22:59.279] [Tabs] _load_quick → got 6 rows
+[12:22:59.279] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
+[12:22:59.280] [Tabs] _load_dates → got hierarchy data for project_id=1
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
@@ -101,11 +101,11 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoF
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[11:43:37.597] [Tabs] _clear_tab idx=1
-[11:43:37.599] [Tabs] _clear_tab idx=2
-[11:43:37.600] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[11:43:37.600] [Tabs] _clear_tab idx=3
-[11:43:37.603] [Tabs] _clear_tab idx=5
+[12:22:59.304] [Tabs] _clear_tab idx=1
+[12:22:59.304] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[12:22:59.304] [Tabs] _clear_tab idx=3
+[12:22:59.313] [Tabs] _clear_tab idx=5
+[12:22:59.316] [Tabs] _clear_tab idx=2
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -124,208 +124,207 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoF
 [MainWindow] Refreshed project list: 1 projects
 [Schema] Database schema initialized successfully
 [ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Desktop
+2025-11-12 12:23:08,972 [INFO] DBWriter timer started in worker thread
 [ScanController] ScanWorker imported successfully
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
 [ScanController] Worker moved to thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
-2025-11-12 11:43:48,594 [INFO] DBWriter timer started in worker thread
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
 [ScanWorkerAdapter] folder=C:/Users/suleimaa/Desktop, incremental=True
-2025-11-12 11:43:48,597 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
+2025-11-12 12:23:09,004 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
 [ScanWorkerAdapter] Starting scan...
-2025-11-12 11:43:48,598 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
+2025-11-12 12:23:09,008 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
 [ScanController] QThread STARTED!
-2025-11-12 11:43:48,645 [INFO] Discovered 166 candidate image files and 3 video files
-2025-11-12 11:43:48,707 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\1.png: 0
-2025-11-12 11:43:48,719 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\20241127-lastminutes.png: 0
-2025-11-12 11:43:48,731 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\20250122_G+D GenAI Cheat Sheet 1.jpg: 0
-2025-11-12 11:43:48,749 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\GvK28dRWkAAhxiK.jfif: 0
-2025-11-12 11:43:48,754 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\LufthansaInternet.png: 0
-2025-11-12 11:43:48,766 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Schwartz.png: 0
-2025-11-12 11:43:48,786 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SuleimanAmmar-BusinessCard.jpg: 0
-2025-11-12 11:43:48,805 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SuleimanAmmar-DEAusweis.jpg: 0
-2025-11-12 11:43:48,818 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SYR.png: 0
-2025-11-12 11:43:48,823 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\AlyaYasserAhmad-Oman-ID-RS.jpg: 0
-2025-11-12 11:43:48,827 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\AlyaYasserAhmad-Oman-ID-VS.jpg: 0
-2025-11-12 11:43:48,831 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.jpeg: 0
-2025-11-12 11:43:48,837 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.jpg: 0
-2025-11-12 11:43:48,866 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.png: 0
-2025-11-12 11:43:48,903 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\output_1746715144678.png: 0
-2025-11-12 11:43:48,930 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\output_1746715748246.png: 0
-2025-11-12 11:43:48,964 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Sailor Moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png: 0
-2025-11-12 11:43:48,966 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\2\PHOTO-2025-04-08-11-45-49.jpg: 0
-2025-11-12 11:43:48,969 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\2\PHOTO-2025-04-08-11-46-14.jpg: 0
-2025-11-12 11:43:48,981 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Aufenthalt\04-FrauAlyaAhmad--PHOTO.jpg: 0
-2025-11-12 11:43:48,993 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya.jpeg: 0
-2025-11-12 11:43:49,025 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya1.jpeg: 0
-2025-11-12 11:43:49,030 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya2.jpeg: 0
-2025-11-12 11:43:49,032 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya3.jpeg: 0
-2025-11-12 11:43:49,034 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya4.jpeg: 0
-2025-11-12 11:43:49,049 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya5.jpeg: 0
-2025-11-12 11:43:49,059 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya6.jpeg: 0
-2025-11-12 11:43:49,078 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar-Ref.png: 0
-2025-11-12 11:43:49,096 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar1.jpeg: 0
-2025-11-12 11:43:49,098 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar2.jpeg: 0
-2025-11-12 11:43:49,109 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar3.jpeg: 0
-2025-11-12 11:43:49,126 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6850.jpeg: 0
-2025-11-12 11:43:49,141 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6934.jpeg: 0
-2025-11-12 11:43:49,156 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6995.jpeg: 0
-2025-11-12 11:43:49,170 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Ref\1\Ammar-Ref.png: 0
-2025-11-12 11:43:49,183 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Ref\2\Alya.jpeg: 0
-2025-11-12 11:43:49,185 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\1.jpg: 0
-2025-11-12 11:43:49,187 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\2.jpg: 0
-2025-11-12 11:43:49,190 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\3.jpg: 0
-2025-11-12 11:43:49,193 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\4.jpg: 0
-2025-11-12 11:43:49,195 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\5.jpg: 0
-2025-11-12 11:43:49,199 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\6.jpg: 0
-2025-11-12 11:43:49,202 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\7.jpg: 0
-2025-11-12 11:43:49,219 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ChatGPT_files\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png: 0
-2025-11-12 11:43:49,240 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ChatGPT_files\AutoExpertChat.jpg: 0
-2025-11-12 11:43:49,242 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg: 0
-2025-11-12 11:43:49,245 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg: 0
-2025-11-12 11:43:49,248 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg: 0
-2025-11-12 11:43:49,250 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg: 0
-2025-11-12 11:43:49,253 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg: 0
-2025-11-12 11:43:49,255 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg: 0
-2025-11-12 11:43:49,257 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg: 0
-2025-11-12 11:43:49,259 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg: 0
-2025-11-12 11:43:49,270 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\1-Wohnzimmer.jpeg: 0
-2025-11-12 11:43:49,282 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\1-Wohnzimmer.jpg: 0
-2025-11-12 11:43:49,293 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\2-KleinSchlaffzimmer.jpeg: 0
-2025-11-12 11:43:49,308 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\2-KleinSchlaffzimmer.jpg: 0
-2025-11-12 11:43:49,321 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\3-Schlaffzimmer.jpeg: 0
-2025-11-12 11:43:49,332 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\3-Schlaffzimmer.jpg: 0
-2025-11-12 11:43:49,344 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\4-Kuche.jpeg: 0
-2025-11-12 11:43:49,355 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\4-Kuche.jpg: 0
-2025-11-12 11:43:49,367 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\5-Bad.jpeg: 0
-2025-11-12 11:43:49,381 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\5-Bad.jpg: 0
-2025-11-12 11:43:49,393 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Kalt.jpeg: 0
-2025-11-12 11:43:49,406 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Kalt.jpg: 0
-2025-11-12 11:43:49,421 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Warm.jpeg: 0
-2025-11-12 11:43:49,434 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Warm.jpg: 0
-2025-11-12 11:43:49,451 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\RundV-MietskautionsBürgerschaft\RundV-MietkautionsBürgerschaft-20241004.png: 0
-2025-11-12 11:43:49,465 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Möbel\Waschmaschine.png: 0
-2025-11-12 11:43:49,467 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\11.jpg: 0
-2025-11-12 11:43:49,470 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\20201119-20301118-SuleimanAmmar_DE_ePass_P3.jpg: 0
-2025-11-12 11:43:49,472 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\22.jpg: 0
-2025-11-12 11:43:49,474 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\MTCN-379-925-3908-AppScreenshot.jpeg: 0
-2025-11-12 11:43:49,476 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SRO-KMMF-0123111311170.jpg: 0
-2025-11-12 11:43:49,480 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar - Kopie.jpg: 0
-2025-11-12 11:43:49,482 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar-Revised.jpg: 0
-2025-11-12 11:43:49,483 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar.jpg: 0
-2025-11-12 11:43:49,495 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Shaimaa\N8N\IMG-20250526-WA0000.jpg: 0
-2025-11-12 11:43:49,498 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\1.jpg: 0
-2025-11-12 11:43:49,499 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\2.jpg: 0
-2025-11-12 11:43:49,501 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\3.jpg: 0
-2025-11-12 11:43:49,503 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\4.jpg: 0
-2025-11-12 11:43:49,550 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\ChatGPT Image 6. Mai 2025, 16_50_55.png: 0
-2025-11-12 11:43:49,561 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4: 0
-2025-11-12 11:43:49,575 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4: 0
-2025-11-12 11:43:49,588 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4: 0
-2025-11-12 11:43:49,603 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\1.jpeg: 0
-2025-11-12 11:43:49,623 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\10.png: 0
-2025-11-12 11:43:49,640 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\11.jpg: 0
-2025-11-12 11:43:49,654 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\13.jpg: 0
-2025-11-12 11:43:49,665 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\14.jpg: 0
-2025-11-12 11:43:49,676 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\16.jpg: 0
-2025-11-12 11:43:49,691 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\18.jpg: 0
-2025-11-12 11:43:49,705 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\2.jpg: 0
-2025-11-12 11:43:49,735 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\3.png: 0
-2025-11-12 11:43:49,747 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\4.jpg: 0
-2025-11-12 11:43:49,757 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\5.jpg: 0
-2025-11-12 11:43:49,771 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\6.jpg: 0
-2025-11-12 11:43:49,786 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\7.jpg: 0
-2025-11-12 11:43:49,813 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\8.png: 0
-2025-11-12 11:43:49,836 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\9.png: 0
-2025-11-12 11:43:49,840 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SuleimanAmmar-QRC.png: 0
-2025-11-12 11:43:49,867 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Estonia\output.png: 0
-2025-11-12 11:43:49,893 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Projekt-Tracking und -Rollup.png: 0
-2025-11-12 11:43:49,908 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Telco-ABIS-20240801.png: 0
-2025-11-12 11:43:49,940 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\20241028-Kick-Off Workshop\20241028.png: 0
-2025-11-12 11:43:49,956 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Finals\HTI-Project-OrganiGram.png: 0
-2025-11-12 11:43:49,986 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\1.png: 0
-2025-11-12 11:43:50,001 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\1111.png: 0
-2025-11-12 11:43:50,010 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\2.png: 0
-2025-11-12 11:43:50,029 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240812at1000h-Telco.png: 0
-2025-11-12 11:43:50,057 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240821at1500-Workhop.png: 0
-2025-11-12 11:43:50,089 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240826at1100-Workhop-Preparation.png: 0
-2025-11-12 11:43:50,132 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240828at1500-Workhop-Preparation-Part02-R.png: 0
-2025-11-12 11:43:50,173 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240828at1500-Workhop-Preparation-Part02.png: 0
-2025-11-12 11:43:50,200 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240903at1700-HTI-Intro.png: 0
-2025-11-12 11:43:50,215 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\22222.png: 0
-2025-11-12 11:43:50,228 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\3333.png: 0
-2025-11-12 11:43:50,236 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\4444.png: 0
-2025-11-12 11:43:50,245 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\5555.png: 0
-2025-11-12 11:43:50,262 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Backend-CheckandClearanceWF.png: 0
-2025-11-12 11:43:50,278 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\BorderControlSystem.png: 0
-2025-11-12 11:43:50,292 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr1.png: 0
-2025-11-12 11:43:50,311 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr2.png: 0
-2025-11-12 11:43:50,324 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr3.png: 0
-2025-11-12 11:43:50,337 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr4.png: 0
-2025-11-12 11:43:50,350 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr5.png: 0
-2025-11-12 11:43:50,367 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\generalePP-Workflow.png: 0
-2025-11-12 11:43:50,378 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Stop-List.png: 0
-2025-11-12 11:43:50,407 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20241105-VeriCORE-EISat1500\1.png: 0
-2025-11-12 11:43:50,415 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\1.png: 0
-2025-11-12 11:43:50,419 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\2.png: 0
-2025-11-12 11:43:50,424 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\3.png: 0
-2025-11-12 11:43:50,460 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Meeting\Status-Meeting-20250203.png: 0
-2025-11-12 11:43:50,541 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Project-Implementation\Revised\Kenya_Gantt_Chart_Phase1.png: 0
-2025-11-12 11:43:50,547 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\1.png: 0
-2025-11-12 11:43:50,553 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\2.png: 0
-2025-11-12 11:43:50,561 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\3.png: 0
-2025-11-12 11:43:50,588 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20240923\Vmeet-1.png: 0
-2025-11-12 11:43:50,612 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20240923\Vmeet-2.png: 0
-2025-11-12 11:43:50,646 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20241010-HL-Report\Screenshot1.png: 0
-2025-11-12 11:43:50,665 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Deployment HighLevelOverview.png: 0
-2025-11-12 11:43:50,685 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\MoVE5.png: 0
-2025-11-12 11:43:50,704 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Platform components.png: 0
-2025-11-12 11:43:50,719 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\User Authentication.png: 0
-2025-11-12 11:43:50,742 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Vericore EIS - Main requirements.png: 0
-2025-11-12 11:43:50,771 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Vericore EIS Platform - Source Code.png: 0
-2025-11-12 11:43:50,796 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250206-SoftAlliance\Screenshot1.png: 0
-2025-11-12 11:43:50,830 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250304-NPL-DL-Entrust-Telco\Screenshot.png: 0
-2025-11-12 11:43:50,875 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\PM-Department-Meeting\KW28-2024\Screen-Shot.png: 0
-2025-11-12 11:43:50,899 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Proposal-2025\Kenya\20250121-Kickoff-Proposal.png: 0
-2025-11-12 11:43:50,902 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\CRS Detailed Component Diagram - v2.1.jpg: 0
-2025-11-12 11:43:50,904 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\Infrastructure Diagram.jpg: 0
-2025-11-12 11:43:50,927 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\2022_0144_UGA_L_BDAR\04_Proposal\01_Draft_Proposal\Input_MaHo\UGA_BDAR System Overview_26April2022_MH.png: 0
-2025-11-12 11:43:50,961 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Lichtenstein\20241108-um1500-Telco.png: 0
-2025-11-12 11:43:50,993 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Lichtenstein\20241112-um0930-1000.png: 0
-2025-11-12 11:43:51,028 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Tunisia\20241113-at1600-1700-Meeting.png: 0
-2025-11-12 11:43:51,052 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Tunisia\Tunisia eVisa HL Architecture.png: 0
-2025-11-12 11:43:51,084 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Turks&Caicos\20241017-JF-at0900-Meeting.png: 0
-2025-11-12 11:43:51,107 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\THA_MMR_ePP\Flag_of_Myanmar.svg.png: 0
-2025-11-12 11:43:51,130 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\THA_MMR_ePP\WBS THA MMR v 0.6.drawio.png: 0
-2025-11-12 11:43:51,186 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\Finance_Controlling-Intro\20240705-ScreenShot.png: 0
-2025-11-12 11:43:51,227 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\Intro-Business-Management\Screen-Shot.png: 0
-2025-11-12 11:43:51,261 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\OrderCenter-VDOC\1.png: 0
-2025-11-12 11:43:51,328 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\OrderCenter-VDOC\20240704-ProjectBoardMeeting-1600H.png: 0
-2025-11-12 11:43:51,334 [INFO] Bulk upserted 1 photos for project 1
-2025-11-12 11:43:51,334 [INFO] Processing 3 videos...
-2025-11-12 11:43:51,337 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4: 0
-2025-11-12 11:43:51,338 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4: 0
-2025-11-12 11:43:51,340 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4: 0
-2025-11-12 11:43:51,345 [INFO] Indexed 0 videos (metadata extraction pending)
-2025-11-12 11:43:51,351 [INFO] Scan complete: 1 photos indexed, 0 videos indexed, 0 skipped, 165 failed in 2.8s
-2025-11-12 11:43:51,351 [INFO] Scan completed: 1 photos, 0 videos, 2 folders in 2.8s
-[ScanController] scan finished: 2 folders, 1 photos, 0 videos
+2025-11-12 12:23:09,057 [INFO] Discovered 166 candidate image files and 3 video files
+2025-11-12 12:23:09,100 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\71c1e57b-bf43-454d-9a1b-6a5d92851553.jpg: 0
+2025-11-12 12:23:09,122 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\1.png: 0
+2025-11-12 12:23:09,138 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\20241127-lastminutes.png: 0
+2025-11-12 12:23:09,165 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\20250122_G+D GenAI Cheat Sheet 1.jpg: 0
+2025-11-12 12:23:09,230 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\GvK28dRWkAAhxiK.jfif: 0
+2025-11-12 12:23:09,252 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\LufthansaInternet.png: 0
+2025-11-12 12:23:09,268 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Schwartz.png: 0
+2025-11-12 12:23:09,284 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SuleimanAmmar-BusinessCard.jpg: 0
+2025-11-12 12:23:09,298 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SuleimanAmmar-DEAusweis.jpg: 0
+2025-11-12 12:23:09,311 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\SYR.png: 0
+2025-11-12 12:23:09,317 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\AlyaYasserAhmad-Oman-ID-RS.jpg: 0
+2025-11-12 12:23:09,319 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\AlyaYasserAhmad-Oman-ID-VS.jpg: 0
+2025-11-12 12:23:09,328 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.jpeg: 0
+2025-11-12 12:23:09,332 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.jpg: 0
+2025-11-12 12:23:09,355 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\MTCN-379-925-3908-AppScreenshot.png: 0
+2025-11-12 12:23:09,405 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\output_1746715144678.png: 0
+2025-11-12 12:23:09,441 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\output_1746715748246.png: 0
+2025-11-12 12:23:09,485 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Sailor Moon-f48d04b5-89cd-49fa-aa16-94c2437dfa3b.png: 0
+2025-11-12 12:23:09,485 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\2\PHOTO-2025-04-08-11-45-49.jpg: 0
+2025-11-12 12:23:09,496 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\2\PHOTO-2025-04-08-11-46-14.jpg: 0
+2025-11-12 12:23:09,517 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Aufenthalt\04-FrauAlyaAhmad--PHOTO.jpg: 0
+2025-11-12 12:23:09,533 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya.jpeg: 0
+2025-11-12 12:23:09,581 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya1.jpeg: 0
+2025-11-12 12:23:09,587 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya2.jpeg: 0
+2025-11-12 12:23:09,594 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya3.jpeg: 0
+2025-11-12 12:23:09,600 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya4.jpeg: 0
+2025-11-12 12:23:09,613 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya5.jpeg: 0
+2025-11-12 12:23:09,629 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Alya6.jpeg: 0
+2025-11-12 12:23:09,650 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar-Ref.png: 0
+2025-11-12 12:23:09,672 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar1.jpeg: 0
+2025-11-12 12:23:09,675 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar2.jpeg: 0
+2025-11-12 12:23:09,693 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\Ammar3.jpeg: 0
+2025-11-12 12:23:09,708 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6850.jpeg: 0
+2025-11-12 12:23:09,730 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6934.jpeg: 0
+2025-11-12 12:23:09,745 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Inbox\IMG_6995.jpeg: 0
+2025-11-12 12:23:09,765 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Ref\1\Ammar-Ref.png: 0
+2025-11-12 12:23:09,781 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Alya\Photos\Ref\2\Alya.jpeg: 0
+2025-11-12 12:23:09,787 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\1.jpg: 0
+2025-11-12 12:23:09,792 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\2.jpg: 0
+2025-11-12 12:23:09,800 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\3.jpg: 0
+2025-11-12 12:23:09,806 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\4.jpg: 0
+2025-11-12 12:23:09,809 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\5.jpg: 0
+2025-11-12 12:23:09,817 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\6.jpg: 0
+2025-11-12 12:23:09,822 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Chatgpt\7.jpg: 0
+2025-11-12 12:23:09,847 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ChatGPT_files\a4a32752-25bd-4ca2-b626-79cd20fad1a8.png: 0
+2025-11-12 12:23:09,874 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ChatGPT_files\AutoExpertChat.jpg: 0
+2025-11-12 12:23:09,881 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_1.jpg: 0
+2025-11-12 12:23:09,888 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_2.jpg: 0
+2025-11-12 12:23:09,892 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_3.jpg: 0
+2025-11-12 12:23:09,897 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_4.jpg: 0
+2025-11-12 12:23:09,905 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_5.jpg: 0
+2025-11-12 12:23:09,911 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_6.jpg: 0
+2025-11-12 12:23:09,916 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_7.jpg: 0
+2025-11-12 12:23:09,922 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Leasing\Ihre Anfrage (Renault Koleos 2.0 DCI 185 INITALE PARIS 4x4 AUTOMATIK) [O-RRG-89647]\Leasingvertrag Renault Koleos Initiale Paris schwarz 279 €\1742469222089-2e20e4c4-7f2b-44c8-bab9-de675123abb0_8.jpg: 0
+2025-11-12 12:23:09,936 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\1-Wohnzimmer.jpeg: 0
+2025-11-12 12:23:09,952 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\1-Wohnzimmer.jpg: 0
+2025-11-12 12:23:09,969 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\2-KleinSchlaffzimmer.jpeg: 0
+2025-11-12 12:23:09,980 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\2-KleinSchlaffzimmer.jpg: 0
+2025-11-12 12:23:09,998 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\3-Schlaffzimmer.jpeg: 0
+2025-11-12 12:23:10,017 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\3-Schlaffzimmer.jpg: 0
+2025-11-12 12:23:10,040 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\4-Kuche.jpeg: 0
+2025-11-12 12:23:10,054 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\4-Kuche.jpg: 0
+2025-11-12 12:23:10,070 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\5-Bad.jpeg: 0
+2025-11-12 12:23:10,087 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\5-Bad.jpg: 0
+2025-11-12 12:23:10,103 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Kalt.jpeg: 0
+2025-11-12 12:23:10,123 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Kalt.jpg: 0
+2025-11-12 12:23:10,135 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Warm.jpeg: 0
+2025-11-12 12:23:10,163 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\Warm.jpg: 0
+2025-11-12 12:23:10,166 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Mietwohnung\RundV-MietskautionsBürgerschaft\RundV-MietkautionsBürgerschaft-20241004.png: 0
+2025-11-12 12:23:10,181 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Möbel\Waschmaschine.png: 0
+2025-11-12 12:23:10,197 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\11.jpg: 0
+2025-11-12 12:23:10,200 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\20201119-20301118-SuleimanAmmar_DE_ePass_P3.jpg: 0
+2025-11-12 12:23:10,200 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\22.jpg: 0
+2025-11-12 12:23:10,214 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\MTCN-379-925-3908-AppScreenshot.jpeg: 0
+2025-11-12 12:23:10,221 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SRO-KMMF-0123111311170.jpg: 0
+2025-11-12 12:23:10,230 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar - Kopie.jpg: 0
+2025-11-12 12:23:10,230 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar-Revised.jpg: 0
+2025-11-12 12:23:10,241 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\ReisePass\SuleimanAmmar.jpg: 0
+2025-11-12 12:23:10,257 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Shaimaa\N8N\IMG-20250526-WA0000.jpg: 0
+2025-11-12 12:23:10,260 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\1.jpg: 0
+2025-11-12 12:23:10,266 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\2.jpg: 0
+2025-11-12 12:23:10,269 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\3.jpg: 0
+2025-11-12 12:23:10,280 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\4.jpg: 0
+2025-11-12 12:23:10,339 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\ChatGPT Image 6. Mai 2025, 16_50_55.png: 0
+2025-11-12 12:23:10,355 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4: 0
+2025-11-12 12:23:10,376 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4: 0
+2025-11-12 12:23:10,391 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4: 0
+2025-11-12 12:23:10,408 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\1.jpeg: 0
+2025-11-12 12:23:10,439 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\10.png: 0
+2025-11-12 12:23:10,459 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\11.jpg: 0
+2025-11-12 12:23:10,474 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\13.jpg: 0
+2025-11-12 12:23:10,494 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\14.jpg: 0
+2025-11-12 12:23:10,513 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\16.jpg: 0
+2025-11-12 12:23:10,530 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\18.jpg: 0
+2025-11-12 12:23:10,546 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\2.jpg: 0
+2025-11-12 12:23:10,588 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\3.png: 0
+2025-11-12 12:23:10,601 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\4.jpg: 0
+2025-11-12 12:23:10,618 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\5.jpg: 0
+2025-11-12 12:23:10,630 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\6.jpg: 0
+2025-11-12 12:23:10,646 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\7.jpg: 0
+2025-11-12 12:23:10,674 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\8.png: 0
+2025-11-12 12:23:10,701 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\eigen\Syria\CNN\9.png: 0
+2025-11-12 12:23:10,709 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SuleimanAmmar-QRC.png: 0
+2025-11-12 12:23:10,746 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Estonia\output.png: 0
+2025-11-12 12:23:10,780 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Projekt-Tracking und -Rollup.png: 0
+2025-11-12 12:23:10,802 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Telco-ABIS-20240801.png: 0
+2025-11-12 12:23:10,846 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\20241028-Kick-Off Workshop\20241028.png: 0
+2025-11-12 12:23:10,864 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Finals\HTI-Project-OrganiGram.png: 0
+2025-11-12 12:23:10,896 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\1.png: 0
+2025-11-12 12:23:10,930 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\1111.png: 0
+2025-11-12 12:23:10,943 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\2.png: 0
+2025-11-12 12:23:10,976 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240812at1000h-Telco.png: 0
+2025-11-12 12:23:11,007 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240821at1500-Workhop.png: 0
+2025-11-12 12:23:11,054 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240826at1100-Workhop-Preparation.png: 0
+2025-11-12 12:23:11,102 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240828at1500-Workhop-Preparation-Part02-R.png: 0
+2025-11-12 12:23:11,167 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240828at1500-Workhop-Preparation-Part02.png: 0
+2025-11-12 12:23:11,198 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20240903at1700-HTI-Intro.png: 0
+2025-11-12 12:23:11,219 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\22222.png: 0
+2025-11-12 12:23:11,247 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\3333.png: 0
+2025-11-12 12:23:11,263 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\4444.png: 0
+2025-11-12 12:23:11,269 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\5555.png: 0
+2025-11-12 12:23:11,296 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Backend-CheckandClearanceWF.png: 0
+2025-11-12 12:23:11,326 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\BorderControlSystem.png: 0
+2025-11-12 12:23:11,347 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr1.png: 0
+2025-11-12 12:23:11,369 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr2.png: 0
+2025-11-12 12:23:11,389 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr3.png: 0
+2025-11-12 12:23:11,407 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr4.png: 0
+2025-11-12 12:23:11,421 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Enr5.png: 0
+2025-11-12 12:23:11,453 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\generalePP-Workflow.png: 0
+2025-11-12 12:23:11,468 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\Stop-List.png: 0
+2025-11-12 12:23:11,499 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\HTI\Meetings\20241105-VeriCORE-EISat1500\1.png: 0
+2025-11-12 12:23:11,515 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\1.png: 0
+2025-11-12 12:23:11,520 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\2.png: 0
+2025-11-12 12:23:11,531 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\3.png: 0
+2025-11-12 12:23:11,580 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Meeting\Status-Meeting-20250203.png: 0
+2025-11-12 12:23:11,678 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Project-Implementation\Revised\Kenya_Gantt_Chart_Phase1.png: 0
+2025-11-12 12:23:11,686 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\1.png: 0
+2025-11-12 12:23:11,697 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\2.png: 0
+2025-11-12 12:23:11,709 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\KEN\Travel\3.png: 0
+2025-11-12 12:23:11,746 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20240923\Vmeet-1.png: 0
+2025-11-12 12:23:11,777 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20240923\Vmeet-2.png: 0
+2025-11-12 12:23:11,820 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20241010-HL-Report\Screenshot1.png: 0
+2025-11-12 12:23:11,868 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Deployment HighLevelOverview.png: 0
+2025-11-12 12:23:11,886 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\MoVE5.png: 0
+2025-11-12 12:23:11,900 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Platform components.png: 0
+2025-11-12 12:23:11,933 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\User Authentication.png: 0
+2025-11-12 12:23:11,965 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Vericore EIS - Main requirements.png: 0
+2025-11-12 12:23:12,002 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250121-MoVE5-Workshop\Vericore EIS Platform - Source Code.png: 0
+2025-11-12 12:23:12,030 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250206-SoftAlliance\Screenshot1.png: 0
+2025-11-12 12:23:12,076 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Meetings\20250304-NPL-DL-Entrust-Telco\Screenshot.png: 0
+2025-11-12 12:23:12,136 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\PM-Department-Meeting\KW28-2024\Screen-Shot.png: 0
+2025-11-12 12:23:12,168 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Proposal-2025\Kenya\20250121-Kickoff-Proposal.png: 0
+2025-11-12 12:23:12,178 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\CRS Detailed Component Diagram - v2.1.jpg: 0
+2025-11-12 12:23:12,186 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\Infrastructure Diagram.jpg: 0
+2025-11-12 12:23:12,214 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\SSD-L-CVRS\2022_0144_UGA_L_BDAR\04_Proposal\01_Draft_Proposal\Input_MaHo\UGA_BDAR System Overview_26April2022_MH.png: 0
+2025-11-12 12:23:12,263 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Lichtenstein\20241108-um1500-Telco.png: 0
+2025-11-12 12:23:12,308 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Lichtenstein\20241112-um0930-1000.png: 0
+2025-11-12 12:23:12,355 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Tunisia\20241113-at1600-1700-Meeting.png: 0
+2025-11-12 12:23:12,389 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Tunisia\Tunisia eVisa HL Architecture.png: 0
+2025-11-12 12:23:12,430 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\Tender-2024\Turks&Caicos\20241017-JF-at0900-Meeting.png: 0
+2025-11-12 12:23:12,466 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\THA_MMR_ePP\Flag_of_Myanmar.svg.png: 0
+2025-11-12 12:23:12,482 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Projects\THA_MMR_ePP\WBS THA MMR v 0.6.drawio.png: 0
+2025-11-12 12:23:12,568 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\Finance_Controlling-Intro\20240705-ScreenShot.png: 0
+2025-11-12 12:23:12,625 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\Intro-Business-Management\Screen-Shot.png: 0
+2025-11-12 12:23:12,671 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\OrderCenter-VDOC\1.png: 0
+2025-11-12 12:23:12,751 [ERROR] Failed to create folder hierarchy for C:\Users\suleimaa\Desktop\Trainings\OrderCenter-VDOC\20240704-ProjectBoardMeeting-1600H.png: 0
+2025-11-12 12:23:12,751 [INFO] Processing 3 videos...
+2025-11-12 12:23:12,767 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4: 0
+2025-11-12 12:23:12,773 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4: 0
+2025-11-12 12:23:12,776 [WARNING] Failed to index video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4: 0
+2025-11-12 12:23:12,780 [INFO] Indexed 0 videos (metadata extraction pending)
+2025-11-12 12:23:12,785 [INFO] Scan complete: 0 photos indexed, 0 videos indexed, 0 skipped, 166 failed in 3.8s
+2025-11-12 12:23:12,785 [INFO] Scan completed: 0 photos, 0 videos, 1 folders in 3.8s
+[ScanController] scan finished: 1 folders, 0 photos, 0 videos
 [ScanController] cleanup after scan
-2025-11-12 11:43:51,419 [INFO] Building date branches...
-2025-11-12 11:43:51,421 [INFO] Building date branches for project_id=1
+2025-11-12 12:23:12,878 [INFO] Building date branches...
+2025-11-12 12:23:12,878 [INFO] Building date branches for project_id=1
 [build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 1 photos for project 1
-[build_date_branches] Inserted 1/1 photos into 'all' branch
+[build_date_branches] Populating 'all' branch with 0 photos for project 1
+[build_date_branches] Inserted 0/0 photos into 'all' branch
 [build_date_branches] Found 0 unique dates for project 1
 [build_date_branches] Total entries processed: 0
-[build_date_branches] project_images table has 1 rows for project 1
-2025-11-12 11:43:51,442 [INFO] Created 0 date branch entries for project 1
-2025-11-12 11:43:51,443 [INFO] Backfilling created_date fields...
-2025-11-12 11:43:51,452 [INFO] Backfilled 1 rows with created_date
-2025-11-12 11:43:51,455 [INFO] Reloading sidebar after date branches built...
+[build_date_branches] project_images table has 0 rows for project 1
+2025-11-12 12:23:12,885 [INFO] Created 0 date branch entries for project 1
+2025-11-12 12:23:12,885 [INFO] Backfilling created_date fields...
+2025-11-12 12:23:12,888 [INFO] Reloading sidebar after date branches built...
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
@@ -338,15 +337,7 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar][counts worker gen=6] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
 [Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 1 photos
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in branch-mode (base=1)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Queued 1 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)

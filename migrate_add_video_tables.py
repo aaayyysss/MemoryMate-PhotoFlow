@@ -159,6 +159,10 @@ def migrate_database(db_path: str, dry_run: bool = False):
             ("idx_video_metadata_date", "CREATE INDEX IF NOT EXISTS idx_video_metadata_date ON video_metadata(date_taken)"),
             ("idx_video_metadata_year", "CREATE INDEX IF NOT EXISTS idx_video_metadata_year ON video_metadata(created_year)"),
             ("idx_video_metadata_status", "CREATE INDEX IF NOT EXISTS idx_video_metadata_status ON video_metadata(metadata_status)"),
+            # UNIFIED MEDIA FIX: Add compound index for project_id + created_date (mirrors photo_metadata)
+            ("idx_video_project_date", "CREATE INDEX IF NOT EXISTS idx_video_project_date ON video_metadata(project_id, created_date)"),
+            # UNIFIED MEDIA FIX: Add index for created_ts for timestamp-based queries
+            ("idx_video_created_ts", "CREATE INDEX IF NOT EXISTS idx_video_created_ts ON video_metadata(created_ts)"),
             ("idx_project_videos_project", "CREATE INDEX IF NOT EXISTS idx_project_videos_project ON project_videos(project_id)"),
             ("idx_project_videos_branch", "CREATE INDEX IF NOT EXISTS idx_project_videos_branch ON project_videos(project_id, branch_key)"),
             ("idx_project_videos_path", "CREATE INDEX IF NOT EXISTS idx_project_videos_path ON project_videos(video_path)"),

@@ -406,6 +406,8 @@ class BaseRepository(ABC):
             where_clause: Optional WHERE clause
             params: Parameters for where clause
             order_by: Optional ORDER BY clause (e.g., "created_at DESC")
+                     WARNING: Not parameterized - only pass trusted/validated strings
+                     Never pass user input directly to prevent SQL injection
             limit: Optional maximum number of rows
             offset: Optional number of rows to skip
 
@@ -483,11 +485,17 @@ class TransactionContext:
                 logger.debug("Transaction committed successfully")
             except Exception as e:
                 logger.error(f"Commit failed: {e}", exc_info=True)
-                self.conn.rollback()
+                try:
+                    self.conn.rollback()
+                except Exception as rollback_err:
+                    logger.warning(f"Rollback after commit failure failed: {rollback_err}")
                 raise
         else:
             logger.warning(f"Transaction rolled back due to: {exc_val}")
-            self.conn.rollback()
+            try:
+                self.conn.rollback()
+            except Exception as rollback_err:
+                logger.warning(f"Rollback failed: {rollback_err}")
 
         try:
             self.conn.close()

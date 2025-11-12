@@ -24,7 +24,9 @@ from datetime import datetime
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-DB_FILE = "reference_data.db"
+from db_config import get_db_filename
+
+DB_FILE = get_db_filename()
 
 
 class ReferenceDB:
@@ -2268,13 +2270,14 @@ class ReferenceDB:
 
     def build_date_branches(self, project_id: int):
         """
-        Build branches for each date_taken value in photo_metadata.
+        Build branches for each created_date value in photo_metadata.
         If they already exist, skip.
 
         Args:
             project_id: The project ID to associate photos with
 
-        NOTE: Uses date_taken field (populated during scan) instead of created_date.
+        NOTE: Uses created_date field (normalized YYYY-MM-DD format) for consistency.
+        This ensures date hierarchy and date branches use the same field.
         Also populates the 'all' branch with all photos.
         """
         print(f"[build_date_branches] Using project_id={project_id}")
@@ -2313,17 +2316,17 @@ class ReferenceDB:
                     all_inserted += 1
             print(f"[build_date_branches] Inserted {all_inserted}/{len(all_paths)} photos into 'all' branch")
 
-            # Now build date-specific branches
-            # get unique dates from date_taken field (format: "YYYY-MM-DD HH:MM:SS")
-            # Extract just the date part (YYYY-MM-DD)
+            # Now build date-specific branches using created_date (normalized YYYY-MM-DD format)
+            # This is consistent with get_date_hierarchy() which also uses created_date
             cur.execute("""
-                SELECT DISTINCT substr(date_taken, 1, 10) as date_only
+                SELECT DISTINCT created_date
                 FROM photo_metadata
-                WHERE date_taken IS NOT NULL AND date_taken != ''
-                ORDER BY date_only
-            """)
+                WHERE created_date IS NOT NULL
+                  AND project_id = ?
+                ORDER BY created_date
+            """, (project_id,))
             dates = [r[0] for r in cur.fetchall()]
-            print(f"[build_date_branches] Found {len(dates)} unique dates")
+            print(f"[build_date_branches] Found {len(dates)} unique dates for project {project_id}")
 
             n_total = 0
             for d in dates:
@@ -2334,9 +2337,9 @@ class ReferenceDB:
                     "INSERT OR IGNORE INTO branches (project_id, branch_key, display_name) VALUES (?,?,?)",
                     (project_id, branch_key, branch_name),
                 )
-                # link photos - match on date part of date_taken (Schema v3.0.0: filter by project_id)
+                # link photos - match on created_date (Schema v3.0.0: filter by project_id)
                 cur.execute(
-                    "SELECT path FROM photo_metadata WHERE substr(date_taken, 1, 10) = ? AND project_id = ?",
+                    "SELECT path FROM photo_metadata WHERE created_date = ? AND project_id = ?",
                     (d, project_id)
                 )
                 paths = [r[0] for r in cur.fetchall()]

@@ -11,16 +11,14 @@ from queue import Queue
 
 from pathlib import Path
 from typing import Optional
-from reference_db import ReferenceDB
 from PIL import Image, ImageOps, ExifTags
 from io import BytesIO
-from PySide6.QtGui import QPixmap, QImageReader, QImage
-from PySide6.QtCore import QSize, Qt, Signal, QObject
+
+# NOTE: Qt imports are lazy-loaded in functions that need them
+# This allows app_services to be imported in headless/CLI environments
+# ThumbnailService is also lazy-loaded since it requires Qt
 
 from reference_db import ReferenceDB
-from services import get_thumbnail_service
-
-DB_PATH = "photo_app.db"
 
 # Image file extensions
 SUPPORTED_EXT = {
@@ -126,9 +124,8 @@ def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
 
 _db = ReferenceDB()
 
-# Get global thumbnail service (replaces old _thumbnail_cache and disk cache)
-_thumbnail_service = get_thumbnail_service(l1_capacity=500)
-_enable_thumbnail_cache = True  # toggle caching on/off
+# Toggle for thumbnail caching
+_enable_thumbnail_cache = True
 
 
 
@@ -138,7 +135,9 @@ def clear_disk_thumbnail_cache():
     Now delegates to ThumbnailService.clear_all().
     """
     try:
-        _thumbnail_service.clear_all()
+        from services import get_thumbnail_service
+        svc = get_thumbnail_service(l1_capacity=500)
+        svc.clear_all()
         print("[Cache] All thumbnail caches cleared (L1 + L2)")
         return True
     except Exception as e:
@@ -177,7 +176,7 @@ def list_branches(project_id: int):
             return [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
 
-def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixmap:
+def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixmap":
     """
     Get thumbnail for an image or video file.
 
@@ -192,6 +191,9 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
     Returns:
         QPixmap thumbnail
     """
+    from PySide6.QtGui import QPixmap, QPainter, QFont, QColor
+    from PySide6.QtCore import Qt
+
     if not path:
         return QPixmap()
 
@@ -217,7 +219,6 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
         placeholder = QPixmap(int(height * 4/3), height)
         placeholder.fill(QColor(40, 40, 40))
 
-        from PySide6.QtGui import QPainter, QFont, QColor
         painter = QPainter(placeholder)
         painter.setPen(QColor(180, 180, 180))
         font = QFont("Arial", int(height / 4))
@@ -227,14 +228,17 @@ def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixma
 
         return placeholder
 
-    # For images, use ThumbnailService
+    # For images, use ThumbnailService (lazy-loaded)
+    from services import get_thumbnail_service
+    svc = get_thumbnail_service(l1_capacity=500)
+
     if not _enable_thumbnail_cache:
         # Caching disabled - generate directly without caching
         # This is rare but supported for debugging
-        return _thumbnail_service._generate_thumbnail(path, height, timeout=5.0)
+        return svc._generate_thumbnail(path, height, timeout=5.0)
 
     # Use ThumbnailService which handles L1 (memory) + L2 (database) caching
-    return _thumbnail_service.get_thumbnail(path, height)
+    return svc.get_thumbnail(path, height)
 
 
 def get_project_images(project_id: int, branch_key: Optional[str]):
@@ -283,13 +287,26 @@ def set_thumbnail_cache_enabled(flag: bool):
  
 
 
-      
 
 
-class ScanSignals(QObject):
-    progress = Signal(int, str)  # percent, message
 
-scan_signals = ScanSignals()
+# Qt-dependent scan signals (lazy-loaded to support headless environments)
+try:
+    from PySide6.QtCore import Signal, QObject
+
+    class ScanSignals(QObject):
+        progress = Signal(int, str)  # percent, message
+
+    scan_signals = ScanSignals()
+except ImportError:
+    # Headless mode - no Qt available
+    class ScanSignals:
+        class progress:
+            @staticmethod
+            def emit(*args):
+                pass  # No-op in headless mode
+
+    scan_signals = ScanSignals()
 
 def scan_repository(root_folder, incremental=False, cancel_callback=None):
     """

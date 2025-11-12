@@ -43,7 +43,7 @@
 #  Store a hash or last_modified so we can incrementally update later.
 
 from splash_qt import SplashScreen, StartupWorker
-import os, traceback, time as _time, logging
+import os, platform, traceback, time as _time, logging
 from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
@@ -146,6 +146,27 @@ def _clamp_pct(v):
     except Exception:
         return 0
 
+
+def _get_default_ignore_folders():
+    """
+    Get platform-specific default ignore folders for scanning.
+    Returns a list of folder names to skip during repository scans.
+    """
+    common = ["__pycache__", "node_modules", ".git", ".svn", ".hg",
+              "venv", ".venv", "env", ".env"]
+
+    if platform.system() == "Windows":
+        return common + [
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        ]
+    elif platform.system() == "Darwin":  # macOS
+        return common + ["Library", ".Trash", "Caches", "Logs",
+                        "Application Support"]
+    else:  # Linux and others
+        return common + [".cache", ".local/share/Trash", "tmp"]
 
 
 # ---------------------------
@@ -765,12 +786,8 @@ class PreferencesDialog(QDialog):
         ignore_layout = QVBoxLayout(ignore_group)
         self.txt_ignore_folders = QTextEdit()
         self.txt_ignore_folders.setPlaceholderText("One folder name per line (case-sensitive)...")
-        current_ignore = settings.get("ignore_folders", [
-            "AppData", "Program Files", "Program Files (x86)", "Windows",
-            "$Recycle.Bin", "System Volume Information", "__pycache__",
-            "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-            "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
-        ])
+        # Use platform-specific defaults
+        current_ignore = settings.get("ignore_folders", _get_default_ignore_folders())
         self.txt_ignore_folders.setText("\n".join(current_ignore))
         ignore_layout.addWidget(self.txt_ignore_folders)
         layout.addWidget(ignore_group)
@@ -3898,19 +3915,50 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 🎬 UNIFIED MEDIA PREVIEW: LightboxDialog now handles both photos AND videos
-        # Previous separate video player logic has been replaced with unified viewer
+        # 🎬 Phase 4.4: Check if this is a video file
+        if is_video_file(path):
+            print(f"[VideoPlayer] Opening video: {path}")
+            # BUG FIX: Filter paths to only include videos for navigation
+            video_paths = [p for p in paths if is_video_file(p)]
+            try:
+                video_idx = video_paths.index(path)
+            except ValueError:
+                # Normalization fallback
+                try:
+                    norm = lambda p: os.path.normcase(os.path.normpath(p))
+                    video_idx = [norm(p) for p in video_paths].index(norm(path))
+                except Exception:
+                    video_idx = 0
+            self._open_video_player(path, video_paths, video_idx)
+            return
 
-        # 3) Launch unified media preview dialog (supports both photos and videos)
+        # 3) Launch dialog for photos - BUG FIX: Filter to photos only
+        photo_paths = [p for p in paths if not is_video_file(p)]
+        try:
+            photo_idx = photo_paths.index(path)
+        except ValueError:
+            # Normalization fallback
+            try:
+                norm = lambda p: os.path.normcase(os.path.normpath(p))
+                photo_idx = [norm(p) for p in photo_paths].index(norm(path))
+            except Exception:
+                photo_idx = 0
+
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev navigation
+        dlg.set_image_list(photo_paths, photo_idx)   # <-- THIS ENABLES next/prev
         dlg.resize(900, 700)
         dlg.exec()
 
-    def _open_video_player(self, video_path: str):
+    def _open_video_player(self, video_path: str, video_list: list = None, start_index: int = 0):
         """
-        Open video player for the given video path.
+        Open video player for the given video path with navigation support.
         🎬 Phase 4.4: Video playback support
+        🎬 Enhanced: Added video list and navigation support
+
+        Args:
+            video_path: Path to the video file
+            video_list: List of video paths for navigation (optional)
+            start_index: Index of current video in the list (optional)
         """
         if not video_path:
             return
@@ -3930,10 +3978,16 @@ class MainWindow(QMainWindow):
         self.grid.hide()
         self.video_player.show()
 
-        # Load and play video
+        # Load and play video with navigation support
         # BUG FIX #5: Pass project_id explicitly to support tagging
         self.video_player.load_video(video_path, metadata, project_id=project_id)
-        print(f"[VideoPlayer] Opened: {video_path}")
+
+        # BUG FIX: Set video list for next/previous navigation
+        if video_list:
+            self.video_player.set_video_list(video_list, start_index)
+            print(f"[VideoPlayer] Opened: {video_path} ({start_index+1}/{len(video_list)})")
+        else:
+            print(f"[VideoPlayer] Opened: {video_path}")
 
     def _on_video_player_closed(self):
         """
@@ -4037,9 +4091,20 @@ class MainWindow(QMainWindow):
             if self.grid.navigation_mode == "folder" and hasattr(self.grid, "navigation_key"):
                 # For folder mode, show folder path
                 folder_id = self.grid.navigation_key
-                # TODO: Get folder name from DB
+                # Get folder name from DB
+                folder_name = f"Folder #{folder_id}"  # Fallback
+                try:
+                    with self.db._connect() as conn:
+                        cur = conn.cursor()
+                        cur.execute("SELECT name FROM photo_folders WHERE id = ?", (folder_id,))
+                        row = cur.fetchone()
+                        if row:
+                            folder_name = row[0]
+                except Exception as e:
+                    self.logger.warning(f"Failed to get folder name for ID {folder_id}: {e}")
+
                 segments.append(("Folder View", lambda: self.grid.set_branch("all")))
-                segments.append((f"Folder #{folder_id}", None))
+                segments.append((folder_name, None))
             elif self.grid.navigation_mode == "date" and hasattr(self.grid, "navigation_key"):
                 # For date mode, show date path
                 date_key = str(self.grid.navigation_key)

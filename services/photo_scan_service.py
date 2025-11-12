@@ -3,6 +3,7 @@
 # Photo scanning service - Uses MetadataService for extraction
 
 import os
+import platform
 import time
 from pathlib import Path
 from typing import Optional, List, Tuple, Callable, Dict, Any, Set
@@ -55,6 +56,12 @@ class PhotoScanService:
     - Advanced EXIF parsing (use MetadataService)
     - Thumbnail generation (use ThumbnailService)
     - Face detection (separate service)
+
+    Metadata Extraction Approach:
+    - Uses MetadataService.extract_basic_metadata() for ALL photos (BUG FIX #8)
+    - This avoids hangs from corrupted/malformed images
+    - created_ts/created_date/created_year are computed inline from date_taken
+    - Consistent across entire service - do not mix with extract_metadata()
     """
 
     # Supported image extensions
@@ -114,13 +121,30 @@ class PhotoScanService:
     # Combined: all supported media files (photos + videos)
     SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
 
-    # Default ignore patterns
-    DEFAULT_IGNORE_FOLDERS = {
-        "AppData", "Program Files", "Program Files (x86)", "Windows",
-        "$Recycle.Bin", "System Volume Information", "__pycache__",
-        "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-        "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
+    # Default ignore patterns (OS-specific to avoid irrelevant exclusions)
+    # Common folders to ignore across all platforms
+    _COMMON_IGNORE_FOLDERS = {
+        "__pycache__", "node_modules", ".git", ".svn", ".hg",
+        "venv", ".venv", "env", ".env"
     }
+
+    # Platform-specific ignore folders
+    if platform.system() == "Windows":
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        }
+    elif platform.system() == "Darwin":  # macOS
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            "Library", ".Trash", "Caches", "Logs",
+            "Application Support"
+        }
+    else:  # Linux and others
+        DEFAULT_IGNORE_FOLDERS = _COMMON_IGNORE_FOLDERS | {
+            ".cache", ".local/share/Trash", "tmp"
+        }
 
     def __init__(self,
                  photo_repo: Optional[PhotoRepository] = None,
@@ -137,8 +161,10 @@ class PhotoScanService:
             folder_repo: Folder repository (creates default if None)
             project_repo: Project repository (creates default if None)
             metadata_service: Metadata extraction service (creates default if None)
-            batch_size: Number of photos to batch before writing
-            stat_timeout: Timeout for os.stat calls (seconds)
+            batch_size: Number of photos to batch before writing (default: 200)
+                       NOTE: Could be made configurable via SettingsManager in the future
+            stat_timeout: Timeout for os.stat calls in seconds (default: 3.0)
+                         NOTE: Could be made configurable via SettingsManager in the future
         """
         self.photo_repo = photo_repo or PhotoRepository()
         self.folder_repo = folder_repo or FolderRepository()
@@ -200,7 +226,13 @@ class PhotoScanService:
 
         try:
             # Step 1: Discover all media files (photos + videos)
-            ignore_set = ignore_folders or self.DEFAULT_IGNORE_FOLDERS
+            # Priority: explicit parameter > settings > platform-specific defaults
+            if ignore_folders is not None:
+                ignore_set = ignore_folders
+            else:
+                # Check settings for custom exclusions
+                ignore_set = self._get_ignore_folders_from_settings()
+
             all_files = self._discover_files(root_path, ignore_set)
             all_videos = self._discover_videos(root_path, ignore_set)
 
@@ -377,6 +409,35 @@ class PhotoScanService:
 
         return video_files
 
+    def _get_ignore_folders_from_settings(self) -> Set[str]:
+        """
+        Get ignore folders from settings, with fallback to platform-specific defaults.
+
+        Returns:
+            Set of folder names to ignore during scanning
+
+        Priority:
+            1. Custom exclusions from settings (if non-empty)
+            2. Platform-specific defaults (DEFAULT_IGNORE_FOLDERS)
+        """
+        try:
+            from settings_manager_qt import SettingsManager
+            settings = SettingsManager()
+            custom_exclusions = settings.get("scan_exclude_folders", [])
+
+            if custom_exclusions:
+                # User has configured custom exclusions - use them
+                logger.info(f"Using custom scan exclusions from settings: {len(custom_exclusions)} folders")
+                return set(custom_exclusions)
+            else:
+                # No custom exclusions - use platform-specific defaults
+                logger.debug(f"Using platform-specific default exclusions ({platform.system()})")
+                return self.DEFAULT_IGNORE_FOLDERS
+        except Exception as e:
+            logger.warning(f"Could not load scan exclusions from settings: {e}")
+            logger.debug("Falling back to platform-specific default exclusions")
+            return self.DEFAULT_IGNORE_FOLDERS
+
     def _load_existing_metadata(self) -> Dict[str, str]:
         """
         Load existing file metadata for incremental scanning.
@@ -448,38 +509,55 @@ class PhotoScanService:
         # Step 4: Extract dimensions and EXIF date using MetadataService
         # CRITICAL FIX: Wrap metadata extraction with timeout to prevent hangs
         # PIL/Pillow can hang on corrupted images, malformed TIFF/EXIF, or files with infinite loops
-        # BUG FIX #7: Use full extract_metadata() to get created_* fields for date hierarchy
+        # BUG FIX #8: Use fast extract_basic_metadata() to avoid hangs, compute created_* inline
         width = height = date_taken = None
         created_ts = created_date = created_year = None
         metadata_timeout = 5.0  # 5 seconds per image
 
-        # Always use full metadata extraction to get created_* fields (BUG FIX #7)
-        try:
-            logger.debug(f"[Scan] Processing metadata for: {path_str}")
-            future = executor.submit(self.metadata_service.extract_metadata, str(file_path))
-            metadata = future.result(timeout=metadata_timeout)
-
-            if metadata.success:
-                width = metadata.width
-                height = metadata.height
-                if extract_exif_date:
-                    date_taken = metadata.date_taken
-                # BUG FIX #7: Extract created_* fields for date hierarchy queries
-                created_ts = metadata.created_timestamp
-                created_date = metadata.created_date
-                created_year = metadata.created_year
-
-            logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
-        except FuturesTimeoutError:
-            logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
-            # Continue without dimensions/EXIF - photo will still be indexed
+        if extract_exif_date:
+            # Use fast basic metadata extraction (BUG FIX #8: Reverted from extract_metadata)
             try:
-                future.cancel()
-            except Exception:
-                pass
-        except Exception as e:
-            logger.debug(f"Could not extract image metadata from {path_str}: {e}")
-            # Continue without dimensions/EXIF
+                logger.debug(f"[Scan] Processing metadata for: {path_str}")
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, date_taken = future.result(timeout=metadata_timeout)
+                logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
+            except FuturesTimeoutError:
+                logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")
+                # Continue without dimensions/EXIF - photo will still be indexed
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
+            except Exception as e:
+                logger.debug(f"Could not extract image metadata from {path_str}: {e}")
+                # Continue without dimensions/EXIF
+        else:
+            # Just get dimensions without EXIF (with timeout)
+            try:
+                future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
+                width, height, _ = future.result(timeout=metadata_timeout)
+            except FuturesTimeoutError:
+                logger.warning(f"Dimension extraction timeout for {path_str} (5s limit)")
+                try:
+                    future.cancel()
+                except Exception:
+                    pass
+            except Exception as e:
+                logger.debug(f"Could not extract dimensions from {path_str}: {e}")
+
+        # BUG FIX #7 + #8: Compute created_* fields from date_taken inline (no heavy extract_metadata call)
+        if date_taken:
+            try:
+                from datetime import datetime
+                # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+                date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
+                dt = datetime.strptime(date_str, '%Y-%m-%d')
+                created_ts = int(dt.timestamp())
+                created_date = date_str  # YYYY-MM-DD
+                created_year = dt.year
+            except (ValueError, AttributeError, IndexError) as e:
+                # If date parsing fails, these fields will remain NULL
+                logger.debug(f"[Scan] Failed to parse date_taken '{date_taken}': {e}")
 
         # Step 5: Ensure folder hierarchy exists
         try:

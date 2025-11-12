@@ -1793,17 +1793,21 @@ class LightboxDialog(QDialog):
     def _load_photo(self, path: str):
         """Load and display photo (renamed from _load_image for consistency)."""
         try:
+            print(f"[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: {path}")
             # Switch to image canvas page
             self.content_stack.setCurrentIndex(0)
 
             img = Image.open(path)
             img = ImageOps.exif_transpose(img).convert("RGBA")
             self._orig_pil = img.copy()
+            print(f"[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: {self._orig_pil.size}")
             qimg = ImageQt.ImageQt(img)
             pm = QPixmap.fromImage(qimg)
             self.canvas.set_pixmap(pm)
             self._update_info(pm)
         except Exception as e:
+            print(f"[PhotoLoad] ❌ DIAGNOSTIC: Failed to load photo: {e}")
+            self._orig_pil = None  # Ensure it's None on failure
             QMessageBox.warning(self, "Load failed", f"Couldn't load image: {e}")
 
     def _load_image(self, path: str):
@@ -2280,11 +2284,29 @@ class LightboxDialog(QDialog):
     # -------------------------------
     def _enter_edit_mode(self):
         """Switch UI to edit mode (reuse main canvas). Prepare edit staging but do not auto-open the panel."""
+        print(f"[EditMode] 🔍 DIAGNOSTIC: Entering edit mode, _orig_pil={'exists' if self._orig_pil else 'None'}")
+
+        # CRITICAL FIX: If _orig_pil is None, try to reload from current path
+        if not self._orig_pil and hasattr(self, 'current_path') and self.current_path:
+            print(f"[EditMode] 🔄 DIAGNOSTIC: _orig_pil is None, attempting to reload from {self.current_path}")
+            try:
+                img = Image.open(self.current_path)
+                img = ImageOps.exif_transpose(img).convert("RGBA")
+                self._orig_pil = img.copy()
+                print(f"[EditMode] ✅ DIAGNOSTIC: Successfully reloaded image, size: {self._orig_pil.size}")
+            except Exception as e:
+                print(f"[EditMode] ❌ DIAGNOSTIC: Failed to reload image: {e}")
+                QMessageBox.warning(self, "Edit Error", f"Cannot enter edit mode: Image not loaded.\n\nError: {e}")
+                return
+
         # Prepare edit staging
         if self._orig_pil:
             self._edit_base_pil = self._orig_pil.copy()
+            print(f"[EditMode] ✅ DIAGNOSTIC: Created _edit_base_pil copy")
         else:
-            self._edit_base_pil = None
+            print(f"[EditMode] ❌ DIAGNOSTIC: Cannot enter edit mode - no image loaded")
+            QMessageBox.warning(self, "Edit Error", "Cannot enter edit mode: No image loaded.")
+            return
         self._working_pil = self._edit_base_pil.copy() if self._edit_base_pil else None
 
         # Reset adjustments values & sliders

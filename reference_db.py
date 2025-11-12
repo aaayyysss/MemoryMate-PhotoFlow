@@ -2375,6 +2375,122 @@ class ReferenceDB:
 
         return n_total
 
+    def build_video_date_branches(self, project_id: int):
+        """
+        Build branches for each created_date value in video_metadata.
+        Similar to build_date_branches() but for videos.
+
+        Populates project_videos table with video paths organized by date.
+        This enables video date hierarchy in sidebar and date-based filtering.
+
+        Args:
+            project_id: The project ID to associate videos with
+
+        Returns:
+            Number of video paths processed
+
+        Note:
+            Videos must have created_date populated (either from modified date during scan
+            or from date_taken after background workers complete).
+        """
+        print(f"[build_video_date_branches] Using project_id={project_id}")
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Verify project exists
+            cur.execute("SELECT id FROM projects WHERE id = ?", (project_id,))
+            if not cur.fetchone():
+                print(f"[build_video_date_branches] ERROR: Project {project_id} not found!")
+                return 0
+
+            # Get all videos with dates
+            cur.execute("""
+                SELECT path FROM video_metadata
+                WHERE project_id = ? AND created_date IS NOT NULL
+            """, (project_id,))
+            all_video_paths = [r[0] for r in cur.fetchall()]
+            print(f"[build_video_date_branches] Found {len(all_video_paths)} videos with dates for project {project_id}")
+
+            if not all_video_paths:
+                print(f"[build_video_date_branches] No videos with dates found, skipping branch creation")
+                return 0
+
+            # Ensure 'all' branch exists for videos
+            cur.execute("""
+                INSERT OR IGNORE INTO branches (project_id, branch_key, display_name)
+                VALUES (?,?,?)
+            """, (project_id, "videos:all", "🎬 All Videos"))
+
+            # Insert all videos into 'all' branch
+            all_inserted = 0
+            for video_path in all_video_paths:
+                cur.execute("""
+                    INSERT OR IGNORE INTO project_videos (project_id, branch_key, video_path)
+                    VALUES (?,?,?)
+                """, (project_id, "videos:all", video_path))
+                if cur.rowcount > 0:
+                    all_inserted += 1
+            print(f"[build_video_date_branches] Inserted {all_inserted}/{len(all_video_paths)} videos into 'all' branch")
+
+            # Get unique dates from video_metadata
+            cur.execute("""
+                SELECT DISTINCT created_date
+                FROM video_metadata
+                WHERE project_id = ? AND created_date IS NOT NULL
+                ORDER BY created_date DESC
+            """, (project_id,))
+            dates = [r[0] for r in cur.fetchall()]
+            print(f"[build_video_date_branches] Found {len(dates)} unique video dates")
+
+            # Create branch for each date
+            n_total = 0
+            for date_str in dates:
+                branch_key = f"videos:by_date:{date_str}"
+
+                # Ensure branch exists
+                cur.execute("""
+                    INSERT OR IGNORE INTO branches (project_id, branch_key, display_name)
+                    VALUES (?,?,?)
+                """, (project_id, branch_key, f"📹 {date_str}"))
+
+                # Get videos for this date
+                cur.execute("""
+                    SELECT path FROM video_metadata
+                    WHERE project_id = ? AND created_date = ?
+                """, (project_id, date_str))
+                video_paths = [r[0] for r in cur.fetchall()]
+
+                # Insert videos into branch
+                inserted = 0
+                for video_path in video_paths:
+                    cur.execute("""
+                        INSERT OR IGNORE INTO project_videos (project_id, branch_key, video_path)
+                        VALUES (?,?,?)
+                    """, (project_id, branch_key, video_path))
+                    if cur.rowcount > 0:
+                        inserted += 1
+
+                status = "new" if inserted > 0 else "already linked"
+                print(f"[build_video_date_branches] Date {date_str}: inserted {inserted}/{len(video_paths)} ({status})")
+                n_total += len(video_paths)
+
+            conn.commit()
+            print(f"[build_video_date_branches] Total entries processed: {n_total}")
+
+            # Verify what's in project_videos table
+            cur.execute("SELECT COUNT(*) FROM project_videos WHERE project_id = ?", (project_id,))
+            count = cur.fetchone()[0]
+            print(f"[build_video_date_branches] project_videos table has {count} rows for project {project_id}")
+
+        # Ensure outer connection also flushes
+        try:
+            self._connect().commit()
+        except Exception:
+            pass
+
+        return n_total
+
 
     # ===============================================
     # 📅 Phase 1: Date hierarchy + counts + loaders

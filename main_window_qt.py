@@ -411,7 +411,12 @@ class ScanController:
 
             self.logger.info(f"Building date branches for project_id={current_project_id}")
             branch_count = db.build_date_branches(current_project_id)
-            self.logger.info(f"Created {branch_count} date branch entries for project {current_project_id}")
+            self.logger.info(f"Created {branch_count} photo date branch entries for project {current_project_id}")
+
+            # CRITICAL FIX: Build video date branches too (videos need branches like photos!)
+            self.logger.info(f"Building video date branches for project_id={current_project_id}")
+            video_branch_count = db.build_video_date_branches(current_project_id)
+            self.logger.info(f"Created {video_branch_count} video date branch entries for project {current_project_id}")
 
             progress.setLabelText("Backfilling photo metadata...")
             progress.setValue(2)

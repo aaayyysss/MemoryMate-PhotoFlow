@@ -539,6 +539,8 @@ class PhotoScanService:
             - Background workers will extract full metadata later
         """
         import subprocess
+        import json  # CRITICAL FIX: Import outside try block to avoid "referenced before assignment" error
+
         try:
             # Check if ffprobe is available
             if not shutil.which('ffprobe'):
@@ -563,7 +565,6 @@ class PhotoScanService:
                 return None
 
             # Parse JSON output
-            import json
             data = json.loads(result.stdout)
 
             # Extract creation_time from format tags

@@ -1,339 +1,209 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-11>python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-12 16:39:46,489 [INFO] ================================================================================
-2025-11-12 16:39:46,500 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-12 16:39:46,500 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-11\app_log.txt
-2025-11-12 16:39:46,500 [INFO] ================================================================================
-2025-11-12 16:39:46,521 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-12 16:39:46,521 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-11\\thumbnails_cache.db', 'last_updated': '2025-11-12 16:39'}
+2025-11-12 20:31:45,579 [INFO] ================================================================================
+2025-11-12 20:31:45,580 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-12 20:31:45,580 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\app_log.txt
+2025-11-12 20:31:45,580 [INFO] ================================================================================
+2025-11-12 20:31:45,616 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-12 20:31:45,617 [INFO] Qt message handler installed to suppress TIFF warnings
+[ThumbCacheDB] Purged 53 stale thumbnails (> 30 days).
+[Cache] {'entries': 59, 'size_mb': 0.22, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_26.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\thumbnails_cache.db', 'last_updated': '2025-11-12 20:31'}
+[ThumbCacheDB] Purged 6 stale thumbnails (> 7 days).
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-12 16:39:46,754 [INFO] SearchService initialized
-[16:39:47.238] [Tabs] __init__ started
-[16:39:47.269] [Tabs] _build_tabs → building tab widgets
-[16:39:47.288] [Tabs] _on_tab_changed(idx=0)
-[16:39:47.300] [Tabs] _start_timeout idx=0 type=branches
-[16:39:47.302] [Tabs] _populate_tab(branches, idx=0, force=False)
-[16:39:47.304] [Tabs]   populated=False, loading=False
-[16:39:47.304] [Tabs]   Starting load for branches
-[16:39:47.304] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:39:47.321] [Tabs] _clear_tab idx=0
-[16:39:47.321] [Tabs] _on_tab_changed → tab_type=branches
-[16:39:47.327] [Tabs] _build_tabs → added 6 tabs
-[16:39:47.327] [Tabs] __init__ completed
+2025-11-12 20:31:45,869 [INFO] SearchService initialized
+[20:31:46.340] [Tabs] __init__ started
+[20:31:46.341] [Tabs] _build_tabs → building tab widgets
+[20:31:46.341] [Tabs] _on_tab_changed(idx=0)
+[20:31:46.343] [Tabs] _start_timeout idx=0 type=branches
+[20:31:46.343] [Tabs] _populate_tab(branches, idx=0, force=False)
+[20:31:46.343] [Tabs]   populated=False, loading=False
+[20:31:46.343] [Tabs]   Starting load for branches
+[20:31:46.343] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[20:31:46.343] [Tabs] _clear_tab idx=0
+[20:31:46.344] [Tabs] _on_tab_changed → tab_type=branches
+[20:31:46.345] [Tabs] _build_tabs → added 6 tabs
+[20:31:46.345] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 37 folder counts in batch (performance optimization)
+[VideoDateHierarchy] Building: 6 years, 27 months, 66 videos
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=2] running for 1 targets...
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[16:39:47.348] [Tabs] hide_tabs() called - canceling pending workers
+[20:31:46.556] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
+[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
 [SidebarQt] Showing tree view
 [SidebarQt] Calling _build_tree_model()
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
+[Sidebar] Loaded 37 folder counts in batch (performance optimization)
+[VideoDateHierarchy] Building: 6 years, 27 months, 66 videos
+[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
-2025-11-12 16:39:47,427 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-12 16:39:47,438 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-12 16:39:47,438 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+2025-11-12 20:31:46,773 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-12 20:31:46,773 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-12 20:31:46,774 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-[16:39:50.211] [Tabs] _finish_branches (stale gen=1) — ignoring
-[16:39:50.211] [Tabs] _on_tab_changed(idx=0)
-[16:39:50.211] [Tabs] _start_timeout idx=0 type=branches
-[16:39:50.211] [Tabs] _populate_tab(branches, idx=0, force=False)
-[16:39:50.211] [Tabs]   populated=False, loading=False
-[16:39:50.211] [Tabs]   Starting load for branches
-[16:39:50.211] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:39:50.211] [Tabs] _clear_tab idx=0
-[16:39:50.214] [Tabs] _on_tab_changed → tab_type=branches
-[16:39:50.228] [Tabs] _clear_tab idx=0
-[MainWindow] Set grid.project_id = 1
-[16:41:49.912] [Tabs] refresh_all(force=True) called
-[16:41:49.912] [Tabs] refresh_all: key=branches, idx=0, force=True
-[16:41:49.912] [Tabs] _populate_tab(branches, idx=0, force=True)
-[16:41:49.912] [Tabs]   populated=True, loading=False
-[16:41:49.921] [Tabs]   Force refresh: removing branches from populated set
-[16:41:49.921] [Tabs]   Starting load for branches
-[16:41:49.921] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:41:49.921] [Tabs] _clear_tab idx=0
-[16:41:49.921] [Tabs] refresh_all: key=folders, idx=1, force=True
-[16:41:49.921] [Tabs] _populate_tab(folders, idx=1, force=True)
-[16:41:49.921] [Tabs]   populated=False, loading=False
-[16:41:49.921] [Tabs]   Starting load for folders
-[16:41:49.921] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[16:41:49.921] [Tabs] _clear_tab idx=1
-[16:41:49.928] [Tabs] refresh_all: key=dates, idx=2, force=True
-[16:41:49.928] [Tabs] _populate_tab(dates, idx=2, force=True)
-[16:41:49.928] [Tabs]   populated=False, loading=False
-[16:41:49.928] [Tabs]   Starting load for dates
-[16:41:49.928] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[16:41:49.928] [Tabs] _load_folders → got 0 rows for project_id=1
-[16:41:49.928] [Tabs] _clear_tab idx=2
-[16:41:49.931] [Tabs] refresh_all: key=tags, idx=3, force=True
-[16:41:49.931] [Tabs] _populate_tab(tags, idx=3, force=True)
-[16:41:49.931] [Tabs]   populated=False, loading=False
-[16:41:49.931] [Tabs]   Starting load for tags
-[16:41:49.931] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[16:41:49.931] [Tabs] _clear_tab idx=3
-[16:41:49.931] [Tabs] refresh_all: key=quick, idx=5, force=True
-[16:41:49.931] [Tabs] _populate_tab(quick, idx=5, force=True)
-[16:41:49.931] [Tabs]   populated=False, loading=False
-[16:41:49.931] [Tabs]   Starting load for quick
-[16:41:49.931] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[16:41:49.931] [Tabs] _clear_tab idx=5
-[16:41:49.936] [Tabs] _load_tags → got 0 rows for project_id=1
-[16:41:49.936] [Tabs] refresh_all(force=True) completed
-[16:41:49.936] [Tabs] _load_dates → got hierarchy data for project_id=1
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[Sidebar] Processing pending events before model clear
-[16:41:49.940] [Tabs] _clear_tab idx=0
+✅ FFmpeg and FFprobe detected - full video support enabled
+[20:31:47.266] [Tabs] _on_tab_changed(idx=0)
+[20:31:47.266] [Tabs] _start_timeout idx=0 type=branches
+[20:31:47.266] [Tabs] _populate_tab(branches, idx=0, force=False)
+[20:31:47.267] [Tabs]   populated=False, loading=False
+[20:31:47.267] [Tabs]   Starting load for branches
+[20:31:47.267] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[20:31:47.267] [Tabs] _clear_tab idx=0
+[20:31:47.269] [Tabs] _on_tab_changed → tab_type=branches
+[20:31:47.269] [Tabs] _finish_branches (stale gen=1) — ignoring
+[20:31:47.289] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
-[16:41:49.941] [Tabs] _load_quick → got 6 rows
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[16:41:49.959] [Tabs] _clear_tab idx=1
-[16:41:49.961] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[16:41:49.961] [Tabs] _clear_tab idx=3
-[16:41:49.961] [Tabs] _clear_tab idx=2
-[16:41:49.966] [Tabs] _clear_tab idx=5
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[MainWindow] Switched to project ID: 1
-[Breadcrumb] Switched to project ID: 1
-[MainWindow] Refreshed project list: 1 projects
-[Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Desktop
-[ScanController] ScanWorker imported successfully
-[ScanController] QThread created
-[ScanController] ScanWorker instance created with project_id=1
-[ScanController] Worker moved to thread
-[ScanController] Signals connected
-[ScanController] Starting scan thread...
-[ScanController] thread.start() called
-2025-11-12 16:42:00,152 [INFO] DBWriter timer started in worker thread
-[ScanWorkerAdapter] run() method called!
-[ScanWorkerAdapter] folder=C:/Users/suleimaa/Desktop, incremental=True
-[ScanController] QThread STARTED!
-2025-11-12 16:42:00,163 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
-[ScanWorkerAdapter] Starting scan...
-2025-11-12 16:42:00,163 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
-2025-11-12 16:42:00,212 [INFO] Discovered 166 candidate image files and 3 video files
-2025-11-12 16:42:05,394 [INFO] Bulk upserted 166 photos for project 1
-2025-11-12 16:42:05,394 [INFO] Processing 3 videos...
-2025-11-12 16:42:05,411 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4 (id=1, status=pending)
-2025-11-12 16:42:05,432 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4 (id=2, status=pending)
-2025-11-12 16:42:05,453 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4 (id=3, status=pending)
-2025-11-12 16:42:05,454 [INFO] Indexed 3 videos (metadata extraction pending)
-2025-11-12 16:42:05,458 [INFO] Launching background workers for 3 videos...
-2025-11-12 16:42:05,458 [INFO] Using ffprobe from settings: C:/ffmpeg/bin/ffprobe.exe
-2025-11-12 16:42:06,633 [INFO] ffprobe detected at 'C:/ffmpeg/bin/ffprobe.exe' - video metadata extraction enabled
-2025-11-12 16:42:06,633 [INFO] Connected metadata finished callback for sidebar refresh
-2025-11-12 16:42:06,633 [INFO] ✓ Video metadata extraction worker started
-2025-11-12 16:42:06,633 [INFO] Using ffmpeg from same directory as ffprobe: C:\ffmpeg\bin\ffmpeg.exe
-2025-11-12 16:42:06,637 [INFO] [VideoMetadataWorker] Starting for project_id=1
-2025-11-12 16:42:06,639 [INFO] [VideoMetadataWorker] Found 3 videos to process
-2025-11-12 16:42:06,695 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4: 76.0s
-2025-11-12 16:42:06,757 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4: 75.9s
-2025-11-12 16:42:06,821 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4: 76.0s
-2025-11-12 16:42:06,821 [INFO] [VideoMetadataWorker] Finished: 3 success, 0 failed
-2025-11-12 16:42:07,691 [INFO] ffmpeg detected at 'C:\ffmpeg\bin\ffmpeg.exe' - video thumbnail generation enabled
-2025-11-12 16:42:07,691 [INFO] ✓ Video thumbnail generation worker started
-2025-11-12 16:42:07,691 [INFO] [VideoThumbnailWorker] Starting for project_id=1
-2025-11-12 16:42:07,691 [INFO] 🎬 Processing 3 videos in background (check logs for progress)
-2025-11-12 16:42:07,691 [INFO] Scan complete: 166 photos indexed, 3 videos indexed, 0 skipped, 0 failed in 7.5s
-2025-11-12 16:42:07,691 [INFO] Scan completed: 166 photos, 3 videos, 45 folders in 7.5s
-[ScanController] scan finished: 45 folders, 166 photos, 3 videos
-[ScanController] cleanup after scan
-2025-11-12 16:42:07,696 [INFO] [VideoThumbnailWorker] Found 3 videos to process
-2025-11-12 16:42:07,771 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4 at .thumb_cache\qouzleh_mitsubtitles-ezgif.com-resize-video_mp4_thumb.jpg
-2025-11-12 16:42:07,805 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-2025-11-12 16:42:08,539 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4 at .thumb_cache\qouzleh_mitsubtitles_mp4_thumb.jpg
-2025-11-12 16:42:08,546 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
-2025-11-12 16:42:09,088 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4 at .thumb_cache\syria-song_mp4_thumb.jpg
-2025-11-12 16:42:09,093 [INFO] [VideoThumbnailWorker] ✓ Generated thumbnail: c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4
-2025-11-12 16:42:09,093 [INFO] [VideoThumbnailWorker] Finished: 3 success, 0 failed
-2025-11-12 16:42:09,821 [INFO] Building date branches...
-2025-11-12 16:42:09,941 [INFO] Building date branches for project_id=1
-[build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 166 photos for project 1
-[build_date_branches] Inserted 166/166 photos into 'all' branch
-[build_date_branches] Found 11 unique dates for project 1
-[build_date_branches] Date 2024-08-11: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar1.jpeg
-[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-10-07: found 7 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/mietwohnung/1-wohnzimmer.jpeg
-[build_date_branches] Date 2024-10-07: inserted 7/7 into project_images (new)
-[build_date_branches] Date 2024-11-18: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/ammar2.jpeg
-[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-29: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya1.jpeg
-[build_date_branches] Date 2024-11-29: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-12-02: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya2.jpeg
-[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-12-16: found 2 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/1.jpeg
-[build_date_branches] Date 2024-12-16: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2025-03-07: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/6.jpg
-[build_date_branches] Date 2025-03-07: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-04: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya5.jpeg
-[build_date_branches] Date 2025-07-04: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-06: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya6.jpeg
-[build_date_branches] Date 2025-07-06: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-30: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6850.jpeg
-[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-08-09: found 2 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/img_6934.jpeg
-[build_date_branches] Date 2025-08-09: inserted 2/2 into project_images (new)
-[build_date_branches] Total entries processed: 19
-[build_date_branches] project_images table has 185 rows for project 1
-2025-11-12 16:42:09,972 [INFO] Created 19 date branch entries for project 1
-2025-11-12 16:42:09,975 [INFO] Backfilling created_date fields...
-2025-11-12 16:42:09,986 [INFO] Backfilled 147 rows with created_date
-2025-11-12 16:42:09,988 [INFO] Reloading sidebar after date branches built...
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 59 folder counts in batch (performance optimization)
-[Sidebar] Added 🎬 Videos section with 3 videos and filters.
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=6] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 166 photos
-[GRID] Loaded 166 thumbnails.
-[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Queued 57 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
-[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
-[GRID] Loading viewport range: 0-56 of 166
+[get_images_by_branch] Found 408 photos
+[GRID] Loaded 408 thumbnails.
+[GRID] Reloaded 408 thumbnails in branch-mode (base=408)
+[GRID] Using scroll-based start position: 0 (scroll: 0/7989)
+[GRID] Loading viewport range: 0-50 of 408
+[GRID] Queued 51 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/8010)
+[GRID] Loading viewport range: 0-50 of 408
+[Sidebar] Filtering videos by year: 2014
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2014
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by day: 2014-08-13
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2014-08-13
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2017
+[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
+[Sidebar] Showing 2 videos from 2017
+[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2018
+[MediaTypeSeparation] ✅ VERIFIED: All 16 items are videos
+[Sidebar] Showing 16 videos from 2018
+[GRID] Loaded 16 thumbnails in videos-mode.
+[Sidebar] Filtering videos by month: 2018-11
+[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
+[Sidebar] Filtering videos by day: 2018-11-28
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2018-11-28
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by month: 2018-11
+[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
+[Sidebar] Filtering videos by month: 2018-11
+[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
+[Sidebar] Filtering videos by day: 2018-11-28
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2018-11-28
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by day: 2018-11-10
+[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
+[Sidebar] Showing 2 videos from 2018-11-10
+[GRID] Loaded 2 thumbnails in videos-mode.
+[Sidebar] Filtering videos by day: 2018-11-03
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 videos from 2018-11-03
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by month: 2018-10
+[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
+[Sidebar] Filtering videos by month: 2018-10
+[Sidebar] Failed to filter videos by month: VideoService.filter_by_date() got an unexpected keyword argument 'month'
+[Sidebar] Filtering videos by year: 2019
+[MediaTypeSeparation] ✅ VERIFIED: All 32 items are videos
+[Sidebar] Showing 32 videos from 2019
+[GRID] Loaded 32 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2020
+[MediaTypeSeparation] ✅ VERIFIED: All 13 items are videos
+[Sidebar] Showing 13 videos from 2020
+[GRID] Loaded 13 thumbnails in videos-mode.
+[Sidebar] Filtering videos by year: 2021
+[MediaTypeSeparation] ✅ VERIFIED: All 2 items are videos
+[Sidebar] Showing 2 videos from 2021
+[GRID] Loaded 2 thumbnails in videos-mode.
 [Sidebar] Filtering videos by file size: small
-[MediaTypeSeparation] ✅ VERIFIED: All 3 items are videos
-[Sidebar] Showing 3 Small (< 100MB) videos
-[GRID] Loaded 3 thumbnails in videos-mode.
-[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000022DD88A1500>
-[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x22dcfc23ac0) at 0x0000022DD1A20640>
-[open_lightbox] folder_id=None
-[open_lightbox] paths=[]
-[open_lightbox] branch_key=None
-[open_lightbox] date_key=None
-[open_lightbox] paths=[]
-[open_lightbox] context=visible_paths, total=3
-[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4']
-[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[UnifiedPreview] Media type: video
-[LightboxDialog] Video player signals connected successfully
-[LightboxDialog] Loading video: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[LightboxDialog] Switched to video widget (index 1)
-[LightboxDialog] Video URL: file:///c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[LightboxDialog] Video playback started
-[LightboxDialog] Loading video: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[LightboxDialog] Switched to video widget (index 1)
-[LightboxDialog] Video URL: file:///c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
-[LightboxDialog] Video playback started
-Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4':
-  Metadata:
-    major_brand     : isom
-    minor_version   : 512
-    compatible_brands: isomiso2avc1mp41
-    encoder         : Lavf60.16.100
-    comment         : MP4 resized with https://ezgif.com/resize-video
-  Duration: 00:01:15.95, start: 0.000000, bitrate: 1411 kb/s
-  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuvj420p(pc, bt709, progressive), 640x360 [SAR 1:1 DAR 16:9], 1274 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
-      Metadata:
-        handler_name    : VideoHandler
-        vendor_id       : [0][0][0][0]
-        encoder         : Lavc60.31.102 libx264
-  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 127 kb/s (default)
-      Metadata:
-        handler_name    : SoundHandler
-        vendor_id       : [0][0][0][0]
-[LightboxDialog] Video duration: 1:15
-[LightboxDialog] Video playback state: Playing
-[LightboxDialog] Volume set to 23%
-[LightboxDialog] Video playback state: Stopped
-[LightboxDialog] Video playback stopped and resources released
+[MediaTypeSeparation] ✅ VERIFIED: All 88 items are videos
+[Sidebar] Showing 88 Small (< 100MB) videos
+[GRID] Loaded 88 thumbnails in videos-mode.
+[Sidebar] Filtering videos by file size: medium
+[MediaTypeSeparation] ✅ VERIFIED: All 9 items are videos
+[Sidebar] Showing 9 Medium (100MB - 1GB) videos
+[GRID] Loaded 9 thumbnails in videos-mode.
+[Sidebar] Filtering videos by codec: h264
+[MediaTypeSeparation] ✅ VERIFIED: All 97 items are videos
+[Sidebar] Showing 97 H.264 / AVC videos
+[GRID] Loaded 97 thumbnails in videos-mode.
+[Sidebar] Filtering videos by resolution: sd
+[MediaTypeSeparation] ✅ VERIFIED: All 96 items are videos
+[Sidebar] Showing 96 SD (< 720p) videos
+[GRID] Loaded 96 thumbnails in videos-mode.
+[Sidebar] Filtering videos by resolution: hd
+[MediaTypeSeparation] ✅ VERIFIED: All 1 items are videos
+[Sidebar] Showing 1 HD (720p) videos
+[GRID] Loaded 1 thumbnails in videos-mode.
+[Sidebar] Filtering videos by duration: medium
+[MediaTypeSeparation] ✅ VERIFIED: All 54 items are videos
+[Sidebar] Showing 54 medium (30s - 5min) videos
+[GRID] Loaded 54 thumbnails in videos-mode.
+[Sidebar] Filtering videos by duration: long
+[MediaTypeSeparation] ✅ VERIFIED: All 43 items are videos
+[Sidebar] Showing 43 long (> 5min) videos
+[GRID] Loaded 43 thumbnails in videos-mode.
+[Sidebar] Displaying all videos for project 1
+[MediaTypeSeparation] ✅ VERIFIED: All 97 items are videos
+[GRID] Loaded 97 thumbnails in videos-mode.
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 166 photos
-[GRID] Loaded 166 thumbnails.
-[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in date-mode (base=3)
+[get_images_by_branch] Found 408 photos
+[GRID] Loaded 408 thumbnails.
+[GRID] Reloaded 408 thumbnails in branch-mode (base=408)
+[GRID] Loaded 51 thumbnails.
+[GRID] Reloaded 51 thumbnails in date-mode (base=51)
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-50 of 51
+[GRID] Queued 51 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/458)
+[GRID] Loading viewport range: 0-50 of 51
+[GRID] Loaded 51 thumbnails.
+[GRID] Reloaded 51 thumbnails in date-mode (base=51)
+[GRID] Loaded 13 thumbnails.
+[GRID] Reloaded 13 thumbnails in date-mode (base=13)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
+[GRID] Loading viewport range: 0-12 of 13
+[GRID] Queued 13 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in date-mode (base=3)
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
+[GRID] Loading viewport range: 0-12 of 13
+[GRID] Loaded 13 thumbnails.
+[GRID] Reloaded 13 thumbnails in date-mode (base=13)
+[GRID] Loaded 10 thumbnails.
+[GRID] Reloaded 10 thumbnails in date-mode (base=10)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Queued 1 new thumbnail workers
+[GRID] Loading viewport range: 0-9 of 10
+[GRID] Queued 10 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000022DD1A7E5C0>
-[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x22dcfc23ac0) at 0x0000022DD1A20640>
-[open_lightbox] folder_id=None
-[open_lightbox] paths=[]
-[open_lightbox] branch_key=None
-[open_lightbox] date_key=None
-[open_lightbox] paths=[]
-[open_lightbox] context=visible_paths, total=1
-[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\projects\\ssd-l-cvrs\\2022_0144_uga_l_bdar\\04_proposal\\01_draft_proposal\\input_maho\\uga_bdar system overview_26april2022_mh.png']
-[open_lightbox] path=c:\users\suleimaa\desktop\projects\ssd-l-cvrs\2022_0144_uga_l_bdar\04_proposal\01_draft_proposal\input_maho\uga_bdar system overview_26april2022_mh.png
-[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\desktop\projects\ssd-l-cvrs\2022_0144_uga_l_bdar\04_proposal\01_draft_proposal\input_maho\uga_bdar system overview_26april2022_mh.png
-[UnifiedPreview] Media type: photo
-[LightboxDialog] Video player signals connected successfully
-[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\desktop\projects\ssd-l-cvrs\2022_0144_uga_l_bdar\04_proposal\01_draft_proposal\input_maho\uga_bdar system overview_26april2022_mh.png
-[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (3392, 1976)
-[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\desktop\projects\ssd-l-cvrs\2022_0144_uga_l_bdar\04_proposal\01_draft_proposal\input_maho\uga_bdar system overview_26april2022_mh.png
-[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (3392, 1976)
-[EditMode] 🔍 DIAGNOSTIC: Entering edit mode, _orig_pil=exists
-[EditMode] ✅ DIAGNOSTIC: Created _edit_base_pil copy
+[GRID] Loading viewport range: 0-9 of 10
+[GRID] Loaded 10 thumbnails.
+[GRID] Reloaded 10 thumbnails in date-mode (base=10)
+[GRID] Loaded 236 thumbnails.
+[GRID] Reloaded 236 thumbnails in date-mode (base=236)
+[GRID] Using scroll-based start position: 0 (scroll: 0/3284)
+[GRID] Loading viewport range: 0-64 of 236
+[GRID] Queued 65 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/3284)
+[GRID] Loading viewport range: 0-64 of 236
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.27.01.01-Photo-App\MemoryMate-PhotoFlow-main-11>
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_26.01.01-Photo-App\MemoryMate-PhotoFlow-main-02>

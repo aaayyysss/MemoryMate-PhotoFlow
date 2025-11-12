@@ -292,8 +292,13 @@ class PhotoScanService:
                         self._write_batch(batch_rows, project_id)
                         batch_rows.clear()
 
-                    # Report progress
+                    # Report progress (check cancellation here too for responsiveness)
                     if progress_callback and (i % 10 == 0 or i == total_files):
+                        # RESPONSIVE CANCEL: Check during progress reporting
+                        if self._cancelled:
+                            logger.info("Scan cancelled during progress reporting")
+                            break
+
                         progress = ScanProgress(
                             current=i,
                             total=total_files,
@@ -304,11 +309,16 @@ class PhotoScanService:
                         progress_callback(progress)
 
                 # Final batch flush
-                if batch_rows:
+                if batch_rows and not self._cancelled:
                     self._write_batch(batch_rows, project_id)
 
             finally:
-                executor.shutdown(wait=False)
+                # Properly shutdown executor to prevent Qt timer warnings
+                # Don't wait if cancelled to exit quickly
+                try:
+                    executor.shutdown(wait=not self._cancelled, cancel_futures=True)
+                except Exception as e:
+                    logger.debug(f"Executor shutdown error (ignored): {e}")
 
             # Step 4: Process videos
             if total_videos > 0 and not self._cancelled:
@@ -369,6 +379,11 @@ class PhotoScanService:
         image_files = []
 
         for dirpath, dirnames, filenames in os.walk(root_path):
+            # Check cancellation during discovery (responsive cancel)
+            if self._cancelled:
+                logger.info("File discovery cancelled by user")
+                return image_files
+
             # Filter ignored directories in-place
             dirnames[:] = [
                 d for d in dirnames
@@ -396,6 +411,11 @@ class PhotoScanService:
         video_files = []
 
         for dirpath, dirnames, filenames in os.walk(root_path):
+            # Check cancellation during discovery (responsive cancel)
+            if self._cancelled:
+                logger.info("Video discovery cancelled by user")
+                return video_files
+
             # Filter ignored directories in-place
             dirnames[:] = [
                 d for d in dirnames
@@ -469,6 +489,10 @@ class PhotoScanService:
         Returns:
             Tuple for database insert, or None if skipped/failed
         """
+        # RESPONSIVE CANCEL: Check before processing each file
+        if self._cancelled:
+            return None
+
         path_str = str(file_path)
 
         # Step 1: Get file stats with timeout protection
@@ -504,6 +528,10 @@ class PhotoScanService:
         # Step 3: Skip if unchanged (incremental scan)
         if skip_unchanged and existing_metadata.get(path_str) == mtime:
             self._stats['photos_skipped'] += 1
+            return None
+
+        # RESPONSIVE CANCEL: Check before expensive metadata extraction
+        if self._cancelled:
             return None
 
         # Step 4: Extract dimensions and EXIF date using MetadataService
@@ -640,6 +668,11 @@ class PhotoScanService:
             project_id: Project ID for photo ownership
         """
         if not rows:
+            return
+
+        # RESPONSIVE CANCEL: Check before database write
+        if self._cancelled:
+            logger.info("Batch write skipped due to cancellation")
             return
 
         try:

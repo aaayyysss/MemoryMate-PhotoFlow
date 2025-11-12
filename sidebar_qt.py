@@ -1737,14 +1737,19 @@ class SidebarQt(QWidget):
                     # 🎯 Filter by Duration
                     duration_parent = QStandardItem("⏱️ By Duration")
                     duration_parent.setEditable(False)
-                    duration_count = QStandardItem("")
-                    duration_count.setEditable(False)
-                    root_name_item.appendRow([duration_parent, duration_count])
 
                     # Count videos by duration
                     short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
                     medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
                     long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
+
+                    # CRITICAL FIX: Show sum count for Duration section
+                    total_duration_videos = len(short_videos) + len(medium_videos) + len(long_videos)
+                    duration_count = QStandardItem(str(total_duration_videos))
+                    duration_count.setEditable(False)
+                    duration_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    duration_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([duration_parent, duration_count])
 
                     # Short videos (< 30s)
                     short_item = QStandardItem("Short (< 30s)")
@@ -1782,15 +1787,20 @@ class SidebarQt(QWidget):
                     # 📺 Filter by Resolution
                     res_parent = QStandardItem("📺 By Resolution")
                     res_parent.setEditable(False)
-                    res_count = QStandardItem("")
-                    res_count.setEditable(False)
-                    root_name_item.appendRow([res_parent, res_count])
 
                     # Count videos by resolution (require both width and height metadata)
                     sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
                     hd_videos = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
                     fhd_videos = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
                     uhd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
+
+                    # CRITICAL FIX: Show sum count for Resolution section
+                    total_res_videos = len(sd_videos) + len(hd_videos) + len(fhd_videos) + len(uhd_videos)
+                    res_count = QStandardItem(str(total_res_videos))
+                    res_count.setEditable(False)
+                    res_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    res_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([res_parent, res_count])
 
                     # SD videos (< 720p)
                     sd_item = QStandardItem("SD (< 720p)")
@@ -1839,9 +1849,6 @@ class SidebarQt(QWidget):
                     # 🎞️ Filter by Codec (Option 7)
                     codec_parent = QStandardItem("🎞️ By Codec")
                     codec_parent.setEditable(False)
-                    codec_count = QStandardItem("")
-                    codec_count.setEditable(False)
-                    root_name_item.appendRow([codec_parent, codec_count])
 
                     # Count videos by codec
                     h264_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['h264', 'avc']]
@@ -1849,6 +1856,14 @@ class SidebarQt(QWidget):
                     vp9_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'vp9']
                     av1_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'av1']
                     mpeg4_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['mpeg4', 'xvid', 'divx']]
+
+                    # CRITICAL FIX: Show sum count for Codec section
+                    total_codec_videos = len(h264_videos) + len(hevc_videos) + len(vp9_videos) + len(av1_videos) + len(mpeg4_videos)
+                    codec_count = QStandardItem(str(total_codec_videos))
+                    codec_count.setEditable(False)
+                    codec_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    codec_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([codec_parent, codec_count])
 
                     # H.264
                     h264_item = QStandardItem("H.264 / AVC")
@@ -1908,15 +1923,20 @@ class SidebarQt(QWidget):
                     # 📦 Filter by File Size (Option 7)
                     size_parent = QStandardItem("📦 By File Size")
                     size_parent.setEditable(False)
-                    size_count = QStandardItem("")
-                    size_count.setEditable(False)
-                    root_name_item.appendRow([size_parent, size_count])
 
                     # Count videos by file size
                     small_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 < 100]
                     medium_size_videos = [v for v in videos if v.get('size_kb') and 100 <= v['size_kb'] / 1024 < 1024]
                     large_videos = [v for v in videos if v.get('size_kb') and 1024 <= v['size_kb'] / 1024 < 5120]
                     xlarge_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 >= 5120]
+
+                    # CRITICAL FIX: Show sum count for File Size section
+                    total_size_videos = len(small_videos) + len(medium_size_videos) + len(large_videos) + len(xlarge_videos)
+                    size_count = QStandardItem(str(total_size_videos))
+                    size_count.setEditable(False)
+                    size_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    size_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([size_parent, size_count])
 
                     # Small (< 100MB)
                     small_size_item = QStandardItem("Small (< 100MB)")

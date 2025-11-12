@@ -249,9 +249,9 @@ class ScanController:
                 """Refresh sidebar video counts after metadata extraction completes."""
                 self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
 
-                # Check if auto-backfill is enabled
-                auto_backfill = self.main.settings.get("auto_run_backfill_after_scan", False)
-                if auto_backfill and success > 0:
+                # CRITICAL FIX: ALWAYS run video date backfill after scan (not conditional)
+                # Without this, video date branches show 0 count and no dates appear
+                if success > 0:
                     self.logger.info("Auto-running video metadata backfill...")
                     # Run backfill in background to populate date fields
                     from backfill_video_dates import backfill_video_dates

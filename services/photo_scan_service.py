@@ -517,6 +517,71 @@ class PhotoScanService:
             logger.debug(f"Failed to parse date '{date_to_parse}': {e}")
             return (None, None, None)
 
+    def _quick_extract_video_date(self, video_path: Path, timeout: float = 2.0) -> Optional[str]:
+        """
+        Quickly extract video creation date during scan with timeout.
+
+        Uses ffprobe to extract creation_time from video metadata. This is faster
+        and more accurate than using file modified date.
+
+        Args:
+            video_path: Path to video file
+            timeout: Maximum time to wait for ffprobe (default: 2.0 seconds)
+
+        Returns:
+            Date string in YYYY-MM-DD format, or None if extraction fails/timeouts
+
+        Note:
+            This method prioritizes speed over completeness:
+            - Uses short timeout to avoid blocking scan
+            - Only extracts creation date (not duration, resolution, etc.)
+            - Falls back to None if extraction fails (caller uses modified date)
+            - Background workers will extract full metadata later
+        """
+        import subprocess
+        try:
+            # Check if ffprobe is available
+            if not shutil.which('ffprobe'):
+                return None
+
+            # Quick ffprobe extraction with timeout
+            # Only extract creation_time tag, not full metadata
+            result = subprocess.run(
+                [
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-print_format', 'json',
+                    '-show_entries', 'format_tags=creation_time',
+                    str(video_path)
+                ],
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+
+            if result.returncode != 0:
+                return None
+
+            # Parse JSON output
+            import json
+            data = json.loads(result.stdout)
+
+            # Extract creation_time from format tags
+            creation_time = data.get('format', {}).get('tags', {}).get('creation_time')
+
+            if not creation_time:
+                return None
+
+            # Parse ISO 8601 timestamp: 2024-11-12T10:30:45.000000Z
+            # Extract YYYY-MM-DD part
+            from datetime import datetime
+            dt = datetime.fromisoformat(creation_time.replace('Z', '+00:00'))
+            return dt.strftime('%Y-%m-%d')
+
+        except (subprocess.TimeoutExpired, json.JSONDecodeError, ValueError, Exception) as e:
+            logger.debug(f"Quick video date extraction failed for {video_path}: {e}")
+            return None
+
     def _process_file(self,
                      file_path: Path,
                      root_path: Path,
@@ -801,9 +866,10 @@ class PhotoScanService:
                     size_kb = stat.st_size / 1024
                     modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
 
-                    # CRITICAL FIX: Compute created_* fields from modified date for immediate sidebar display
-                    # Background workers will UPDATE these with proper date_taken from video metadata
-                    created_ts, created_date, created_year = self._compute_created_fields(None, modified)
+                    # CRITICAL FIX: Extract video creation date quickly during scan
+                    # Try to get date_taken from video metadata (with timeout), fall back to modified
+                    video_date_taken = self._quick_extract_video_date(video_path)
+                    created_ts, created_date, created_year = self._compute_created_fields(video_date_taken, modified)
 
                     # Index video WITH date fields (using modified as fallback until workers extract date_taken)
                     video_service.index_video(

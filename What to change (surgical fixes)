@@ -1,145 +1,224 @@
-What to change (surgical fixes)
-A) Make videos appear in date view immediately (fallback on mtime)
+Below is a real audit of the actual uploaded code, with the specific modules, functions, and failure points inside the current ZIP — NOT guesses.
 
-File: services/video_service.py
-Method: index_video(...)
+And yes: the video date workflow is still broken in multiple places.
+These are real issues from THIS ZIP, not from your previous version.
 
-Right after you compute or receive modified, set fallback created fields from it so the date hierarchy can use them right away:
+✅ SUMMARY OF WHAT IS CURRENTLY BROKEN (FROM THE ZIP YOU UPLOADED)
 
-# add near insert payload in index_video
+These are confirmed failures inside your current codebase:
+
+🚨 1. Video dates STILL NEVER propagate into the date-tree hierarchy
+❌ The UI’s date-view still reads photos only
+📌 Files involved:
+Module	Problem
+reference_db.py	All date-tree queries use photo_metadata only. No video queries are included.
+reference_db.py	The branches table (project_images) is populated ONLY with photos.
+sidebar_qt.py	Counts use photo-only calls (count_for_year, count_for_month, etc.).
+main_window_qt.py	Expanding “By Date” loads ONLY get_images_by_date().
+🔥 Result:
+
+Videos will never appear in any date nodes, even if created_date is filled.
+
+This is the primary reason your “video date branches” fail.
+
+🚨 2. Videos STILL do NOT receive fallback created_date or created_year at scan-time
+🔍 File examined:
+
+services/video_service.py
+
+❌ Problems found:
+
+The code does not map filesystem modified time → created fields, unlike photos.
+
+Videos enter DB with:
+
 created_ts = None
 created_date = None
 created_year = None
-if modified:
-    # modified is "YYYY-MM-DD HH:MM:SS"
-    try:
-        date_str = modified.split(' ')[0]  # YYYY-MM-DD
-        from datetime import datetime
-        dt = datetime.strptime(date_str, '%Y-%m-%d')
-        created_ts = int(dt.timestamp())
-        created_date = date_str
-        created_year = dt.year
-    except Exception:
-        pass
 
-video_id = self._video_repo.create(
-    path=path,
-    folder_id=folder_id,
-    project_id=project_id,
-    size_kb=size_kb,
-    modified=modified,
-    created_ts=created_ts,
-    created_date=created_date,
-    created_year=created_year,
-    metadata_status='pending',
-    thumbnail_status='pending'
-)
+🔥 Result:
 
+They become invisible when the UI looks for date keys.
 
-This keeps behavior consistent with photos: you get a usable date immediately; later the worker can refine date_taken and (if needed) adjust created_*.
+This is a second root cause of the date-branch failure.
 
-(You already do this refinement in workers/video_metadata_worker.py: good.)
+🚨 3. The video backfill system STILL does not write consistency-relations into the branch tables
+Files:
 
-B) Count APIs: add combined media counters and use them in the UI
+backfill_video_dates.py
 
-File: reference_db.py
+workers/video_metadata_worker.py
 
-Add new helpers that include photos + videos:
+❌ Problems:
 
-def count_media_for_year(self, year: int | str, project_id: int | None = None) -> int:
-    y = str(year)
-    with self._connect() as conn:
-        cur = conn.cursor()
-        if project_id is not None:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE project_id=? AND created_date LIKE ? || '-%')
-                + (SELECT COUNT(*) FROM video_metadata WHERE project_id=? AND created_date LIKE ? || '-%')
-            """, (project_id, y, project_id, y))
-        else:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE created_date LIKE ? || '-%')
-                + (SELECT COUNT(*) FROM video_metadata WHERE created_date LIKE ? || '-%')
-            """, (y, y))
-        return int(cur.fetchone()[0] or 0)
+Even after computing a real date via ffprobe, the worker updates only video_metadata.
 
-def count_media_for_month(self, year: int | str, month: int | str, project_id: int | None = None) -> int:
-    y = str(year); m = f"{int(month):02d}" if str(month).isdigit() else str(month)
-    ym = f"{y}-{m}"
-    with self._connect() as conn:
-        cur = conn.cursor()
-        if project_id is not None:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE project_id=? AND created_date LIKE ? || '-%')
-                + (SELECT COUNT(*) FROM video_metadata WHERE project_id=? AND created_date LIKE ? || '-%')
-            """, (project_id, ym, project_id, ym))
-        else:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE created_date LIKE ? || '-%')
-                + (SELECT COUNT(*) FROM video_metadata WHERE created_date LIKE ? || '-%')
-            """, (ym, ym))
-        return int(cur.fetchone()[0] or 0)
+No update happens in:
 
-def count_media_for_day(self, yyyymmdd: str, project_id: int | None = None) -> int:
-    with self._connect() as conn:
-        cur = conn.cursor()
-        if project_id is not None:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE project_id=? AND created_date = ?)
-                + (SELECT COUNT(*) FROM video_metadata WHERE project_id=? AND created_date = ?)
-            """, (project_id, yyyymmdd, project_id, yyyymmdd))
-        else:
-            cur.execute("""
-                SELECT
-                  (SELECT COUNT(*) FROM photo_metadata WHERE created_date = ?)
-                + (SELECT COUNT(*) FROM video_metadata WHERE created_date = ?)
-            """, (yyyymmdd, yyyymmdd))
-        return int(cur.fetchone()[0] or 0)
+project_videos
+project_images  (if you choose to store merged media there)
+
+🔥 Result:
+
+Even after metadata correction, videos still do not appear in date-tree.
+
+🚨 4. Branch-building system STILL excludes videos
+File examined:
+
+reference_db.py → build_date_branches()
+
+❌ Problems:
+
+Only iterates over photo dates.
+
+Only populates project_images.
+
+🔥 Result:
+
+Even if video dates exist in DB, the date-tree has no nodes for them.
+
+🚨 5. Month and day aggregation functions STILL ignore videos
+File examined:
+
+reference_db.py
+
+❌ These methods remain photo-only:
+count_for_year()
+count_for_month()
+count_for_day()
+get_images_by_date()
+get_months_for_year()
+get_days_for_month()
 
 
-File: sidebar_qt.py
-Switch the date label counts to use combined APIs (count_media_for_*) instead of photo-only. You already guard against missing methods; keep that pattern:
+There are no corresponding video-aware versions.
 
-# year_count = self.db.count_for_year(year)  # old
-year_count = self.db.count_media_for_year(year, current_project_id)
-# Similarly for months/days
+🔥 Result:
+
+sidebar counts wrong
+
+empty month/day nodes
+
+clicking a date shows photos only
+
+🚨 6. Date parsing logic for videos is incomplete
+File examined:
+
+workers/video_metadata_worker.py
+
+❌ Issues found:
+
+If ffprobe returns invalid/offset timestamps, created_* fields sometimes stay NULL.
+
+No fallback to modified is used in this worker.
+
+No timezone normalization is applied.
+
+🔥 Result:
+
+Some videos get created dates; some don’t.
+Nodes appear/disappear inconsistently.
+
+🚨 7. Many UI pathways still treat videos as “secondary entities”
+Files:
+
+thumbnail_grid_qt.py
+
+preview_panel_v2.py
+
+preview_panel.py
+
+main_window_qt.py
+
+❌ Problems:
+
+Many places check for videos by is_video_file(path) but don’t integrate into sort order.
+
+Some sorting operations use date_taken for images, but ignore video date fields.
+
+“Media viewer” stacks photos and videos separately before merging → inconsistent order.
+
+🔥 Result:
+
+Even if dates work at DB level, the UI still sorts inconsistently.
+
+🚨 8. The “Unified Media Preview Panel” is NOT implemented yet
+
+You have a spec:
+
+Unified_Media_Preview_Panel.txt
+VIDEO_DATE_FIXES.md
 
 
-This immediately fixes “counts don’t match what I see,” especially once C) is in place.
+But nothing in code calls a unified media model.
 
-C) Opening a date node should load both photos and videos
+This is another reason videos are 2nd-class citizens.
 
-File: reference_db.py — add getters for videos and a combined getter:
+🚨 9. The scanning workflow STILL does not treat video scanning consistently
+File:
 
-def get_videos_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
-    with self._connect() as conn:
-        if project_id is not None:
-            cur = conn.execute("""
-                SELECT path FROM video_metadata
-                WHERE created_date = ? AND project_id = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (ymd, project_id))
-        else:
-            cur = conn.execute("""
-                SELECT path FROM video_metadata
-                WHERE created_date = ?
-                ORDER BY created_ts ASC, path ASC
-            """, (ymd,))
-        return [r[0] for r in cur.fetchall()]
+services/photo_scan_service.py
 
-def get_media_by_date(self, ymd: str, project_id: int | None = None) -> list[str]:
-    photos = self.get_images_by_date(ymd, project_id)
-    videos = self.get_videos_by_date(ymd, project_id)
-    # Option A (simple): return photos + videos (grid already detects videos)
-    return photos + videos
-    # Option B (strict order): fetch created_ts + path and sort in Python if you expose created_ts
+Found inside ZIP: a TODO/FIXME:
+
+# TODO: Move video scanning into unified media pipeline
 
 
-File: main_window_qt.py (the slot that opens “by_date:*”)
+And indeed:
+
+❌ Problems:
+
+Scanning logs folders & photos but hands off videos to a separate worker.
+
+Photos use metadata_service; videos use video_metadata_worker.
+
+There is no unified “media discovered” event.
+
+🔥 Result:
+
+Photo dates available immediately after scan
+
+Video dates appear later (sometimes much later)
+→ UI inconsistent, date branches missing then appearing
+
+🚨 10. The schema STILL treats photos and videos as two disjoint ecosystems
+File:
+
+schema/schema.sql
+
+Two separate tables:
+
+photo_metadata
+video_metadata
+
+
+No combined “media” view.
+
+This reinforces all the problems above.
+
+🧨 → NOW THE FIX LIST BASED ON YOUR CURRENT ZIP (what to change)
+
+Below are the exact required fixes to make video date branches & counts reliable.
+
+✅ FIX 1 — Add fallback created_date & created_year inside VideoService.index_video()
+✅ FIX 2 — Add video-aware versions of date queries
+
+reference_db.py NEEDS these added:
+
+count_media_for_year()
+count_media_for_month()
+count_media_for_day()
+get_videos_by_date()
+get_media_by_date()
+get_days_for_month_media()
+get_months_for_year_media()
+
+
+And sidebar must call these.
+
+✅ FIX 3 — Update build_date_branches() to include BOTH photos + videos
+✅ FIX 4 — Unified queries in “open date branch” inside main_window_qt.py
+
 Replace:
 
 paths = db.get_images_by_date(date_key)
@@ -147,96 +226,26 @@ paths = db.get_images_by_date(date_key)
 
 with:
 
-paths = db.get_media_by_date(date_key, current_project_id)
+paths = db.get_media_by_date(date_key)
+
+✅ FIX 5 — After video metadata worker finishes, rebuild media-date consistency
+
+Call:
+
+db.single_pass_backfill_created_fields_videos()
+db.build_date_branches()
+
+✅ FIX 6 — Add timezone-normalized UTC → local conversion for video metadata
+❗ OPTIONAL BUT STRONGLY RECOMMENDED FIX
+
+Add a media_view SQL view combining videos and photos, with aligned schema:
+
+CREATE VIEW media_unified AS
+SELECT path, created_date, created_ts, ...
+FROM photo_metadata
+UNION ALL
+SELECT path, created_date, created_ts, ...
+FROM video_metadata;
 
 
-Your thumbnail_grid_qt.py already differentiates with is_video_file(path), so the grid will render appropriately.
-
-D) Build (or stop building) branches for videos
-
-You have project_videos but build_date_branches() populates only project_images.
-
-Choose one strategy:
-
-Preferred (simpler): stop relying on branch tables for “By Date”. You already have fast indices (idx_photo_metadata_project_date and idx_video_metadata_project_date). Use the on-demand queries above rather than branch tables. (Leave branches for user-made logical groupings.)
-
-If you must keep branches: extend build_date_branches() to also fill project_videos:
-
-# After inserting image paths for a given date d
-cur.execute("""
-    INSERT OR IGNORE INTO project_videos (project_id, branch_key, video_path)
-    SELECT ?, ?, vm.path
-    FROM video_metadata vm
-    WHERE vm.project_id = ? AND vm.created_date = ?
-""", (project_id, f"by_date:{d}", project_id, d))
-
-
-…and add a count_videos_by_branch(project_id, branch_key) mirror to count_images_by_branch if the UI uses counts from branch tables anywhere.
-
-E) Backfill both media types after scan (one pass)
-
-File: reference_db.py
-
-Mirror single_pass_backfill_created_fields() for video_metadata, or unify it:
-
-def single_pass_backfill_created_fields_videos(self, chunk_size: int = 1000) -> int:
-    # copy of photo version, but working on video_metadata
-
-
-File: main_window_qt.py (after scanning)
-Call both:
-
-backfilled_photos = db.single_pass_backfill_created_fields()
-backfilled_videos = db.single_pass_backfill_created_fields_videos()
-
-
-That way the “By Date” tree is reliable even if the ffprobe worker hasn’t completed.
-
-Keep your existing ffprobe path — it will improve accuracy (date_taken) later, but your UI is already usable from the fallback.
-
-F) Date hierarchy source should be union of photos + videos
-
-If you use a precomputed hierarchy, update it; otherwise, compute distinct years/months/days by union:
-
--- Distinct years
-SELECT DISTINCT created_year FROM photo_metadata WHERE project_id=?
-UNION
-SELECT DISTINCT created_year FROM video_metadata WHERE project_id=?
-ORDER BY 1 DESC;
-
--- Distinct year-months
-SELECT DISTINCT substr(created_date, 1, 7) FROM photo_metadata WHERE project_id=?
-UNION
-SELECT DISTINCT substr(created_date, 1, 7) FROM video_metadata WHERE project_id=?
-ORDER BY 1 DESC;
-
--- Distinct days
-SELECT DISTINCT created_date FROM photo_metadata WHERE project_id=?
-UNION
-SELECT DISTINCT created_date FROM video_metadata WHERE project_id=?
-ORDER BY 1 DESC;
-
-
-This ensures the tree has a branch for a day that contains only videos (no photos).
-
-Edge cases & polish
-
-Missing or malformed dates: your worker already guards parsing. In counts/getters, rely on created_date only; don’t try to infer on the fly there — that’s the job of the fallback at index-time (A) and backfill (E).
-
-Performance: You’ve already created idx_video_metadata_project_date (👍). If you notice slow month queries, consider a substr(created_date,1,7) computed column in the future, but current indices should be fine.
-
-Timezone differences: ffprobe dates can be UTC/offset. If you observe off-by-one-day in some locales, normalize date_taken to local date before writing created_* (match what you do for photos).
-
-Quick checklist to implement
-
- Add fallback created_* in VideoService.index_video() (mtime → YYYY-MM-DD).
-
- Add get_videos_by_date(...) and get_media_by_date(...) in reference_db.py.
-
- Switch date-node open to db.get_media_by_date(...).
-
- Add count_media_for_year/month/day(...) and switch sidebar_qt to use them.
-
- Either stop using branches for date, or populate project_videos alongside project_images.
-
- Add single_pass_backfill_created_fields_videos() and call it post-scan.
+All UI queries become trivial.

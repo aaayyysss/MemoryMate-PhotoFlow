@@ -145,11 +145,6 @@ class FolderRepository(BaseRepository):
             VALUES (?, ?, ?, ?)
         """
 
-        sql_select = """
-            SELECT id FROM photo_folders
-            WHERE path = ? AND project_id = ?
-        """
-
         with self.connection() as conn:
             cur = conn.cursor()
 
@@ -157,13 +152,35 @@ class FolderRepository(BaseRepository):
             cur.execute(sql_insert, (path, name, parent_id, project_id))
             conn.commit()  # Always commit (idempotent operation)
 
-            # Now query for the folder ID (whether just inserted or already existed)
-            cur.execute(sql_select, (path, project_id))
+            # CRITICAL FIX: Use case-insensitive matching on Windows for SELECT
+            # Windows file paths are case-insensitive but can be stored with different casing
+            # We need the same logic as get_by_path() to handle path variations
+            import platform
+            if platform.system() == 'Windows':
+                # Normalize both stored and query paths to lowercase for comparison
+                normalized_path = path.lower().replace('/', '\\')
+                cur.execute(
+                    """
+                    SELECT id FROM photo_folders
+                    WHERE LOWER(REPLACE(path, '/', '\\')) = ?
+                    AND project_id = ?
+                    """,
+                    (normalized_path, project_id)
+                )
+            else:
+                # Unix-like systems: use exact match (case-sensitive)
+                cur.execute(
+                    "SELECT id FROM photo_folders WHERE path = ? AND project_id = ?",
+                    (path, project_id)
+                )
+
             row = cur.fetchone()
 
             if row:
-                folder_id = row['id']  # FIX: row is a dict, not a tuple (due to _dict_factory)
-                self.logger.debug(f"Folder already exists: {path} (id={folder_id}, project={project_id})")
+                # CRITICAL FIX: row is a dict (from row_factory), not a tuple!
+                # Access by column name, not index
+                folder_id = row['id']
+                self.logger.debug(f"Ensured folder: {path} (id={folder_id}, project={project_id})")
                 return folder_id
 
             # This should never happen (insert was successful, so select must find it)

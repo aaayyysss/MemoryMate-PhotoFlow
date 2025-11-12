@@ -739,6 +739,7 @@ class VideoService:
                       start_date: str = None,
                       end_date: str = None,
                       year: int = None,
+                      month: int = None,
                       use_modified: bool = False) -> List[Dict[str, Any]]:
         """
         Filter videos by date taken or modified.
@@ -748,6 +749,7 @@ class VideoService:
             start_date: Start date (YYYY-MM-DD format, inclusive)
             end_date: End date (YYYY-MM-DD format, inclusive)
             year: Year filter (shortcut for start_date=YYYY-01-01, end_date=YYYY-12-31)
+            month: Month filter (1-12) - requires year parameter
             use_modified: Use modified date instead of date_taken (default: False)
 
         Returns:
@@ -758,13 +760,27 @@ class VideoService:
             >>> videos = service.get_videos_by_project(1)
             >>> y2024 = service.filter_by_date(videos, year=2024)
 
+            >>> # Get videos from November 2024
+            >>> nov2024 = service.filter_by_date(videos, year=2024, month=11)
+
             >>> # Get videos from Jan-Mar 2024
             >>> q1 = service.filter_by_date(videos, start_date='2024-01-01', end_date='2024-03-31')
         """
         from datetime import datetime
+        import calendar
+
+        # Month filter shortcut (requires year)
+        if month is not None:
+            if year is None:
+                self.logger.warning("Month filter requires year parameter, ignoring month")
+            else:
+                # Calculate first and last day of month
+                start_date = f"{year}-{month:02d}-01"
+                last_day = calendar.monthrange(year, month)[1]
+                end_date = f"{year}-{month:02d}-{last_day:02d}"
 
         # Year shortcut
-        if year is not None:
+        elif year is not None:
             start_date = f"{year}-01-01"
             end_date = f"{year}-12-31"
 

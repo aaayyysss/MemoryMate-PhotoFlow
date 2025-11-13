@@ -73,6 +73,78 @@ class VideoThumbnailWorker(QRunnable):
         self.cancelled = True
         logger.info("[VideoThumbnailWorker] Cancellation requested")
 
+    def _generate_thumbnail_for_video(self, video: dict) -> bool:
+        """
+        Generate thumbnail for a single video (called by worker threads).
+
+        Args:
+            video: Video dict from repository with 'id', 'path', etc.
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        video_path = video['path']
+        video_id = video['id']
+
+        try:
+            # Check if file exists
+            if not os.path.exists(video_path):
+                logger.warning(f"File not found: {video_path}")
+                self.signals.error.emit(video_path, "File not found")
+                return False
+
+            # Generate thumbnail
+            # generate_thumbnail() returns file path string, not bytes
+            # It already saves the thumbnail to disk (no need for separate caching)
+            thumbnail_path = self.thumbnail_service.generate_thumbnail(
+                video_path,
+                width=int(self.thumbnail_height * 4/3),  # Maintain 4:3 aspect ratio
+                height=self.thumbnail_height
+            )
+
+            if not thumbnail_path:
+                # Thumbnail generation failed
+                self.video_repo.update(
+                    video_id=video_id,
+                    thumbnail_status='error'
+                )
+                error_msg = "Failed to generate thumbnail"
+                self.signals.error.emit(video_path, error_msg)
+                return False
+
+            # Update database status
+            self.video_repo.update(
+                video_id=video_id,
+                thumbnail_status='ok'
+            )
+
+            # Read thumbnail file as bytes for signal emission
+            try:
+                with open(thumbnail_path, 'rb') as f:
+                    thumbnail_data = f.read()
+                self.signals.thumbnail_ready.emit(video_path, thumbnail_data)
+            except Exception as read_error:
+                logger.warning(f"Generated thumbnail but couldn't read: {read_error}")
+                # Still count as success since thumbnail file exists
+
+            return True
+
+        except Exception as e:
+            # Error during generation
+            error_msg = str(e)
+            logger.error(f"Error processing {video_path}: {error_msg}")
+
+            try:
+                self.video_repo.update(
+                    video_id=video_id,
+                    thumbnail_status='error'
+                )
+            except Exception:
+                pass
+
+            self.signals.error.emit(video_path, error_msg)
+            return False
+
     @Slot()
     def run(self):
         """
@@ -110,81 +182,47 @@ class VideoThumbnailWorker(QRunnable):
                 self.signals.finished.emit(0, 0)
                 return
 
-            # Process each video
-            for idx, video in enumerate(videos_to_process):
-                if self.cancelled:
-                    logger.info("[VideoThumbnailWorker] Cancelled, stopping")
-                    break
+            # PERFORMANCE OPTIMIZATION: Process videos in parallel for 8x speedup
+            # ffmpeg is I/O bound (waiting for subprocess), so threads work well
+            from concurrent.futures import ThreadPoolExecutor, as_completed
 
-                video_path = video['path']
-                current = idx + 1
+            max_workers = 8  # Process 8 videos concurrently
+            logger.info(f"[VideoThumbnailWorker] Processing with {max_workers} parallel workers")
 
-                # Emit progress
-                self.signals.progress.emit(current, total, video_path)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all thumbnail generation tasks
+                futures = {}
+                for video in videos_to_process:
+                    if self.cancelled:
+                        break
+                    future = executor.submit(self._generate_thumbnail_for_video, video)
+                    futures[future] = video
 
-                # Check if file exists
-                if not os.path.exists(video_path):
-                    logger.warning(f"[VideoThumbnailWorker] File not found: {video_path}")
-                    self.signals.error.emit(video_path, "File not found")
-                    failed_count += 1
-                    continue
+                # Process results as they complete
+                for idx, future in enumerate(as_completed(futures), 1):
+                    if self.cancelled:
+                        logger.info("[VideoThumbnailWorker] Cancelled, shutting down workers")
+                        executor.shutdown(wait=False, cancel_futures=True)
+                        break
 
-                # Generate thumbnail
-                try:
-                    # generate_thumbnail() returns file path string, not bytes
-                    # It already saves the thumbnail to disk (no need for separate caching)
-                    thumbnail_path = self.thumbnail_service.generate_thumbnail(
-                        video_path,
-                        width=int(self.thumbnail_height * 4/3),  # Maintain 4:3 aspect ratio
-                        height=self.thumbnail_height
-                    )
+                    video = futures[future]
+                    video_path = video['path']
 
-                    if thumbnail_path:
-                        # Update database status
-                        video_id = video['id']
-                        self.video_repo.update(
-                            video_id=video_id,
-                            thumbnail_status='ok'
-                        )
-
-                        # Read thumbnail file as bytes for signal emission
-                        try:
-                            with open(thumbnail_path, 'rb') as f:
-                                thumbnail_data = f.read()
-                            self.signals.thumbnail_ready.emit(video_path, thumbnail_data)
-                        except Exception as read_error:
-                            logger.warning(f"[VideoThumbnailWorker] Generated thumbnail but couldn't read: {read_error}")
-                            # Still count as success since thumbnail file exists
-
-                        success_count += 1
-                        logger.info(f"[VideoThumbnailWorker] ✓ Generated thumbnail: {video_path}")
-
-                    else:
-                        # Thumbnail generation failed
-                        self.video_repo.update(
-                            video_id=video['id'],
-                            thumbnail_status='error'
-                        )
-                        failed_count += 1
-                        error_msg = "Failed to generate thumbnail"
-                        self.signals.error.emit(video_path, error_msg)
-                        logger.error(f"[VideoThumbnailWorker] ✗ {video_path}: {error_msg}")
-
-                except Exception as e:
-                    # Error during generation
-                    error_msg = str(e)
-                    logger.error(f"[VideoThumbnailWorker] Error processing {video_path}: {error_msg}")
+                    # Emit progress
+                    self.signals.progress.emit(idx, total, video_path)
 
                     try:
-                        self.video_repo.update(
-                            video_id=video['id'],
-                            thumbnail_status='error'
-                        )
-                    except Exception:
-                        pass
+                        success = future.result()
+                        if success:
+                            success_count += 1
+                            logger.info(f"[VideoThumbnailWorker] ✓ {video_path}")
+                        else:
+                            failed_count += 1
+                            logger.error(f"[VideoThumbnailWorker] ✗ {video_path}")
 
-                    self.signals.error.emit(video_path, error_msg)
-                    failed_count += 1
+                    except Exception as e:
+                        logger.error(f"[VideoThumbnailWorker] Error: {video_path}: {e}")
+                        failed_count += 1
 
         except Exception as e:
             logger.error(f"[VideoThumbnailWorker] Fatal error: {e}")

@@ -2318,12 +2318,14 @@ class LightboxDialog(QDialog):
                 slider.setValue(0)
                 slider.blockSignals(False)
 
-        # Show editor view and move canvas into editor container
+        # Show editor view and move content_stack into editor container
+        # CRITICAL FIX: Reparent content_stack (not just canvas) to avoid Qt visibility inheritance bug
         self.stack.setCurrentIndex(1)
         if hasattr(self, "edit_canvas_container"):
             container_layout = self.edit_canvas_container.layout()
-            if self.canvas.parent() is not self.edit_canvas_container:
-                container_layout.addWidget(self.canvas)
+            # Reparent the entire content_stack so canvas becomes visible in editor page
+            if self.content_stack.parent() is not self.edit_canvas_container:
+                container_layout.addWidget(self.content_stack)
         self.canvas.reset_view()
 
         # Make Save & Cancel visible in toolbar row (they are already created in page)
@@ -2350,17 +2352,18 @@ class LightboxDialog(QDialog):
             return
         if reply == QMessageBox.Yes:
             QMessageBox.information(self, "Saved", "Changes saved.")
-        # remove right editor panel (optional) - keep visible but no harm
+        # CRITICAL FIX: Reparent content_stack back to viewer page
         viewer_page = self.stack.widget(0)
         viewer_layout = viewer_page.layout()
         center_widget = viewer_layout.itemAt(1).widget() if viewer_layout.count() > 1 else None
         if center_widget:
-            canvas_row = center_widget.layout()
+            hbox_layout = center_widget.layout()
         else:
-            canvas_row = None
+            hbox_layout = None
 
-        if canvas_row and self.canvas.parent() is not center_widget:
-            canvas_row.insertWidget(0, self.canvas, 1)
+        # Reparent content_stack back to viewer page (not just canvas)
+        if hbox_layout and self.content_stack.parent() is not center_widget:
+            hbox_layout.insertWidget(0, self.content_stack, 1)
 
         self.stack.setCurrentIndex(0)
         self.canvas.reset_view()

@@ -69,6 +69,87 @@ class VideoMetadataWorker(QRunnable):
         self.cancelled = True
         logger.info("[VideoMetadataWorker] Cancellation requested")
 
+    def _extract_video_metadata(self, video: dict) -> bool:
+        """
+        Extract metadata for a single video (called by worker threads).
+
+        Args:
+            video: Video dict from repository with 'id', 'path', etc.
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        video_path = video['path']
+        video_id = video['id']
+
+        try:
+            # Check if file exists
+            if not os.path.exists(video_path):
+                logger.warning(f"File not found: {video_path}")
+                self.signals.error.emit(video_path, "File not found")
+                return False
+
+            # Extract metadata
+            metadata = self.metadata_service.extract_metadata(video_path)
+
+            if not metadata:
+                # Metadata extraction failed
+                self.video_repo.update(
+                    video_id=video_id,
+                    metadata_status='error'
+                )
+                error_msg = "Failed to extract metadata"
+                self.signals.error.emit(video_path, error_msg)
+                return False
+
+            # Update database with extracted metadata
+            # BUG FIX #6: Compute created_date, created_year, created_ts from date_taken
+            # This enables efficient date hierarchy queries (matching photo metadata pattern)
+            update_data = {
+                'duration_seconds': metadata.get('duration_seconds'),
+                'width': metadata.get('width'),
+                'height': metadata.get('height'),
+                'fps': metadata.get('fps'),
+                'codec': metadata.get('codec'),
+                'bitrate': metadata.get('bitrate'),
+                'date_taken': metadata.get('date_taken'),
+                'metadata_status': 'ok'
+            }
+
+            # Compute created_* fields from date_taken for date hierarchy
+            date_taken = metadata.get('date_taken')
+            if date_taken:
+                try:
+                    from datetime import datetime
+                    # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
+                    date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
+                    dt = datetime.strptime(date_str, '%Y-%m-%d')
+                    update_data['created_ts'] = int(dt.timestamp())
+                    update_data['created_date'] = date_str  # YYYY-MM-DD
+                    update_data['created_year'] = dt.year
+                except (ValueError, AttributeError, IndexError):
+                    # If date parsing fails, these fields will remain NULL
+                    logger.debug(f"Failed to parse date_taken: {date_taken}")
+
+            self.video_repo.update(video_id=video_id, **update_data)
+            return True
+
+        except Exception as e:
+            # Error during extraction
+            error_msg = str(e)
+            logger.error(f"Error processing {video_path}: {error_msg}")
+
+            try:
+                self.video_repo.update(
+                    video_id=video_id,
+                    metadata_status='error'
+                )
+            except Exception:
+                pass
+
+            self.signals.error.emit(video_path, error_msg)
+            return False
+
     @Slot()
     def run(self):
         """
@@ -106,92 +187,47 @@ class VideoMetadataWorker(QRunnable):
                 self.signals.finished.emit(0, 0)
                 return
 
-            # Process each video
-            for idx, video in enumerate(videos_to_process):
-                if self.cancelled:
-                    logger.info("[VideoMetadataWorker] Cancelled, stopping")
-                    break
+            # PERFORMANCE OPTIMIZATION: Process videos in parallel for 8x speedup
+            # ffprobe is I/O bound (waiting for subprocess), so threads work well
+            from concurrent.futures import ThreadPoolExecutor, as_completed
 
-                video_path = video['path']
-                current = idx + 1
+            max_workers = 8  # Process 8 videos concurrently
+            logger.info(f"[VideoMetadataWorker] Processing with {max_workers} parallel workers")
 
-                # Emit progress
-                self.signals.progress.emit(current, total, video_path)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all extraction tasks
+                futures = {}
+                for video in videos_to_process:
+                    if self.cancelled:
+                        break
+                    future = executor.submit(self._extract_video_metadata, video)
+                    futures[future] = video
 
-                # Check if file exists
-                if not os.path.exists(video_path):
-                    logger.warning(f"[VideoMetadataWorker] File not found: {video_path}")
-                    self.signals.error.emit(video_path, "File not found")
-                    failed_count += 1
-                    continue
+                # Process results as they complete
+                for idx, future in enumerate(as_completed(futures), 1):
+                    if self.cancelled:
+                        logger.info("[VideoMetadataWorker] Cancelled, shutting down workers")
+                        executor.shutdown(wait=False, cancel_futures=True)
+                        break
 
-                # Extract metadata
-                try:
-                    metadata = self.metadata_service.extract_metadata(video_path)
+                    video = futures[future]
+                    video_path = video['path']
 
-                    if metadata:
-                        # Update database
-                        video_id = video['id']
-
-                        # BUG FIX #6: Compute created_date, created_year, created_ts from date_taken
-                        # This enables efficient date hierarchy queries (matching photo metadata pattern)
-                        update_data = {
-                            'duration_seconds': metadata.get('duration_seconds'),
-                            'width': metadata.get('width'),
-                            'height': metadata.get('height'),
-                            'fps': metadata.get('fps'),
-                            'codec': metadata.get('codec'),
-                            'bitrate': metadata.get('bitrate'),
-                            'date_taken': metadata.get('date_taken'),
-                            'metadata_status': 'ok'
-                        }
-
-                        # Compute created_* fields from date_taken for date hierarchy
-                        date_taken = metadata.get('date_taken')
-                        if date_taken:
-                            try:
-                                from datetime import datetime
-                                # Parse date_taken (format: 'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD')
-                                date_str = date_taken.split(' ')[0]  # Extract YYYY-MM-DD part
-                                dt = datetime.strptime(date_str, '%Y-%m-%d')
-                                update_data['created_ts'] = int(dt.timestamp())
-                                update_data['created_date'] = date_str  # YYYY-MM-DD
-                                update_data['created_year'] = dt.year
-                            except (ValueError, AttributeError, IndexError):
-                                # If date parsing fails, these fields will remain NULL
-                                logger.debug(f"[VideoMetadataWorker] Failed to parse date_taken: {date_taken}")
-
-                        self.video_repo.update(video_id=video_id, **update_data)
-
-                        success_count += 1
-                        logger.info(f"[VideoMetadataWorker] ✓ {video_path}: {metadata.get('duration_seconds', 0):.1f}s")
-
-                    else:
-                        # Metadata extraction failed
-                        self.video_repo.update(
-                            video_id=video['id'],
-                            metadata_status='error'
-                        )
-                        failed_count += 1
-                        error_msg = "Failed to extract metadata"
-                        self.signals.error.emit(video_path, error_msg)
-                        logger.error(f"[VideoMetadataWorker] ✗ {video_path}: {error_msg}")
-
-                except Exception as e:
-                    # Error during extraction
-                    error_msg = str(e)
-                    logger.error(f"[VideoMetadataWorker] Error processing {video_path}: {error_msg}")
+                    # Emit progress
+                    self.signals.progress.emit(idx, total, video_path)
 
                     try:
-                        self.video_repo.update(
-                            video_id=video['id'],
-                            metadata_status='error'
-                        )
-                    except Exception:
-                        pass
+                        success = future.result()
+                        if success:
+                            success_count += 1
+                            logger.info(f"[VideoMetadataWorker] ✓ {video_path}")
+                        else:
+                            failed_count += 1
+                            logger.error(f"[VideoMetadataWorker] ✗ {video_path}")
 
-                    self.signals.error.emit(video_path, error_msg)
-                    failed_count += 1
+                    except Exception as e:
+                        logger.error(f"[VideoMetadataWorker] Error: {video_path}: {e}")
+                        failed_count += 1
 
         except Exception as e:
             logger.error(f"[VideoMetadataWorker] Fatal error: {e}")

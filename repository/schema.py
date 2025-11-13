@@ -322,6 +322,7 @@ CREATE INDEX IF NOT EXISTS idx_video_metadata_folder ON video_metadata(folder_id
 CREATE INDEX IF NOT EXISTS idx_video_metadata_date ON video_metadata(date_taken);
 CREATE INDEX IF NOT EXISTS idx_video_metadata_year ON video_metadata(created_year);
 CREATE INDEX IF NOT EXISTS idx_video_metadata_status ON video_metadata(metadata_status);
+CREATE INDEX IF NOT EXISTS idx_video_thumbnail_status ON video_metadata(thumbnail_status);
 
 CREATE INDEX IF NOT EXISTS idx_project_videos_project ON project_videos(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_videos_branch ON project_videos(project_id, branch_key);
@@ -336,6 +337,8 @@ CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_folder ON photo_metadata(p
 CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_date ON photo_metadata(project_id, created_year, created_date);
 CREATE INDEX IF NOT EXISTS idx_video_metadata_project_folder ON video_metadata(project_id, folder_id);
 CREATE INDEX IF NOT EXISTS idx_video_metadata_project_date ON video_metadata(project_id, created_year, created_date);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_thumb_status ON video_metadata(project_id, thumbnail_status);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_meta_status ON video_metadata(project_id, metadata_status);
 CREATE INDEX IF NOT EXISTS idx_project_images_project_branch ON project_images(project_id, branch_key, image_path);
 CREATE INDEX IF NOT EXISTS idx_photo_folders_project_parent ON photo_folders(project_id, parent_id);
 """

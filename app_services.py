@@ -480,8 +480,12 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
     scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {video_count} videos, {folder_count} folders")
     print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos, {video_count} videos")
 
-    # Trigger post-scan date indexing
-    rebuild_date_index_with_progress()
+    # Trigger post-scan date indexing (wrapped in try-catch to prevent blocking)
+    try:
+        rebuild_date_index_with_progress()
+    except Exception as e:
+        print(f"[SCAN] ⚠️ Date indexing failed (non-critical): {e}")
+        # Continue anyway - date indexing is not critical for core functionality
 
     # --- Step 7: Launch background workers for video processing ---
     if video_count > 0:

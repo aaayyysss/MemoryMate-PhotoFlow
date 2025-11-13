@@ -6,7 +6,8 @@ import os, io, shutil, hashlib, json
 import time
 import sqlite3
 import threading
-from queue import Queue
+from queue import Queue, Empty as QueueEmpty
+import queue  # For queue.Empty exception
 
 
 from pathlib import Path
@@ -118,7 +119,8 @@ def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
     # Get result from queue
     try:
         return result_queue.get_nowait()
-    except:
+    except queue.Empty:
+        # Queue is empty after timeout - metadata extraction failed
         return None, None, None
 
 
@@ -536,6 +538,16 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
 
             # Launch thumbnail generation worker
             thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+
+            # CRITICAL: Connect callbacks BEFORE starting worker to avoid race condition
+            thumbnail_worker.signals.progress.connect(
+                lambda curr, total, path: print(f"[SCAN] Thumbnail progress: {curr}/{total}")
+            )
+            thumbnail_worker.signals.finished.connect(
+                lambda success, failed: print(f"[SCAN] ✓ Thumbnails complete: {success} successful, {failed} failed")
+            )
+            print("[SCAN] ✓ Connected thumbnail worker callbacks")
+
             QThreadPool.globalInstance().start(thumbnail_worker)
             print(f"[SCAN] ✓ Thumbnail generation worker started")
 

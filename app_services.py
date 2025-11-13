@@ -492,8 +492,41 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
 
             print(f"[SCAN] Launching background workers for {video_count} videos...")
 
+            # Define callback to rebuild video date branches after metadata extraction
+            def on_metadata_finished(success_count, failed_count):
+                """Rebuild video date branches with extracted dates."""
+                print(f"[SCAN] Video metadata extraction complete: {success_count} success, {failed_count} failed")
+
+                if success_count > 0:
+                    print("[SCAN] Rebuilding video date branches with extracted dates...")
+
+                    try:
+                        # Clear old video date branches (keep non-date branches like 'videos:all')
+                        with db._connect() as conn:
+                            cur = conn.cursor()
+                            cur.execute("""
+                                DELETE FROM project_videos
+                                WHERE project_id = ? AND branch_key LIKE 'videos:by_date:%'
+                            """, (project_id,))
+                            conn.commit()
+
+                        # Rebuild with updated dates from metadata
+                        video_branch_count = db.build_video_date_branches(project_id)
+                        print(f"[SCAN] ✓ Rebuilt {video_branch_count} video date branch entries with extracted dates")
+
+                        # Emit signal to refresh sidebar if available
+                        scan_signals.progress.emit(100, f"✓ Video dates updated: {success_count} videos processed")
+
+                    except Exception as e:
+                        print(f"[SCAN] ⚠️ Failed to rebuild video date branches: {e}")
+
             # Launch metadata extraction worker
             metadata_worker = VideoMetadataWorker(project_id=project_id)
+
+            # CRITICAL: Connect callback BEFORE starting worker to avoid race condition
+            metadata_worker.signals.finished.connect(on_metadata_finished)
+            print("[SCAN] ✓ Connected metadata finished callback for date branch rebuild")
+
             QThreadPool.globalInstance().start(metadata_worker)
             print(f"[SCAN] ✓ Metadata extraction worker started")
 

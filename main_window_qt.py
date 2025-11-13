@@ -436,6 +436,85 @@ class ScanController:
             if video_backfilled:
                 self.logger.info(f"Backfilled {video_backfilled} video rows with created_date")
 
+            # PHASE 3: Face Detection Integration (Optional Post-Scan Step)
+            # Check if face detection is enabled in configuration
+            try:
+                from config.face_detection_config import get_face_config
+                face_config = get_face_config()
+
+                if face_config.is_enabled() and face_config.get("auto_cluster_after_scan", True):
+                    self.logger.info("Face detection is enabled - starting face detection worker...")
+
+                    # Check if backend is available
+                    from services.face_detection_service import FaceDetectionService
+                    availability = FaceDetectionService.check_backend_availability()
+                    backend = face_config.get_backend()
+
+                    if availability.get(backend, False):
+                        # Ask user for confirmation if required
+                        if face_config.get("require_confirmation", True):
+                            from PySide6.QtWidgets import QMessageBox
+                            reply = QMessageBox.question(
+                                self.main,
+                                "Face Detection",
+                                f"Scan completed!\n\nWould you like to detect faces in the scanned images?\n\n"
+                                f"Backend: {backend}\n"
+                                f"This may take a few minutes depending on the number of images.",
+                                QMessageBox.Yes | QMessageBox.No,
+                                QMessageBox.Yes
+                            )
+
+                            if reply != QMessageBox.Yes:
+                                self.logger.info("User declined face detection")
+                                face_detection_enabled = False
+                            else:
+                                face_detection_enabled = True
+                        else:
+                            face_detection_enabled = True
+
+                        if face_detection_enabled:
+                            self.logger.info(f"Starting face detection with backend: {backend}")
+
+                            # Run face detection worker
+                            from workers.face_detection_worker import FaceDetectionWorker
+                            face_worker = FaceDetectionWorker(current_project_id)
+
+                            # Run with progress reporting
+                            stats = face_worker.run()
+
+                            self.logger.info(f"Face detection completed: {stats['total_faces']} faces detected in {stats['images_with_faces']} images")
+
+                            # Run clustering if enabled
+                            if face_config.get("clustering_enabled", True) and stats['total_faces'] > 0:
+                                self.logger.info("Starting face clustering...")
+
+                                from workers.face_cluster_worker import cluster_faces
+                                cluster_params = face_config.get_clustering_params()
+
+                                cluster_faces(
+                                    current_project_id,
+                                    eps=cluster_params["eps"],
+                                    min_samples=cluster_params["min_samples"]
+                                )
+
+                                self.logger.info("Face clustering completed")
+                    else:
+                        self.logger.warning(f"Face detection backend '{backend}' is not available")
+                        self.logger.warning(f"Available backends: {[k for k, v in availability.items() if v]}")
+                else:
+                    self.logger.debug("Face detection is disabled or auto-clustering is off")
+
+            except ImportError as e:
+                self.logger.debug(f"Face detection modules not available: {e}")
+            except Exception as e:
+                self.logger.error(f"Face detection error: {e}", exc_info=True)
+                # Don't fail the entire scan if face detection fails
+                QMessageBox.warning(
+                    self.main,
+                    "Face Detection Error",
+                    f"Face detection failed:\n{str(e)}\n\nThe scan completed successfully, but faces were not detected."
+                )
+
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
             if self.main.sidebar.project_id is None:

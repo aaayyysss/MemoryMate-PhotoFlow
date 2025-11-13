@@ -1,28 +1,29 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 00:39:08,146 [INFO] ================================================================================
-2025-11-14 00:39:08,146 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 00:39:08,147 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\app_log.txt
-2025-11-14 00:39:08,147 [INFO] ================================================================================
-2025-11-14 00:39:08,188 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 00:39:08,188 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-04\\thumbnails_cache.db', 'last_updated': '2025-11-14 00:39'}
+2025-11-14 00:46:44,067 [INFO] ================================================================================
+2025-11-14 00:46:44,067 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-14 00:46:44,069 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\app_log.txt
+2025-11-14 00:46:44,069 [INFO] ================================================================================
+2025-11-14 00:46:44,107 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-14 00:46:44,107 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-05\\thumbnails_cache.db', 'last_updated': '2025-11-14 00:46'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 00:39:08,449 [INFO] SearchService initialized
-[00:39:08.987] [Tabs] __init__ started
-[00:39:08.987] [Tabs] _build_tabs → building tab widgets
-[00:39:08.989] [Tabs] _on_tab_changed(idx=0)
-[00:39:08.989] [Tabs] _start_timeout idx=0 type=branches
-[00:39:08.989] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:39:08.989] [Tabs]   populated=False, loading=False
-[00:39:08.989] [Tabs]   Starting load for branches
-[00:39:08.989] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:39:08.989] [Tabs] _clear_tab idx=0
-[00:39:08.990] [Tabs] _on_tab_changed → tab_type=branches
-[00:39:08.991] [Tabs] _build_tabs → added 6 tabs
-[00:39:08.991] [Tabs] __init__ completed
+2025-11-14 00:46:44,353 [INFO] SearchService initialized
+[00:46:44.962] [Tabs] __init__ started
+[00:46:44.963] [Tabs] _build_tabs → building tab widgets
+[00:46:44.964] [Tabs] _on_tab_changed(idx=0)
+[00:46:44.964] [Tabs] _start_timeout idx=0 type=branches
+[00:46:44.964] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:46:44.964] [Tabs]   populated=False, loading=False
+[00:46:44.965] [Tabs]   Starting load for branches
+[00:46:44.965] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:46:44.965] [Tabs] _clear_tab idx=0
+[00:46:44.966] [Tabs] _on_tab_changed → tab_type=branches
+[00:46:44.967] [Tabs] _build_tabs → added 6 tabs
+[00:46:44.967] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
@@ -30,7 +31,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[00:39:09.019] [Tabs] hide_tabs() called - canceling pending workers
+[00:46:44.994] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -41,64 +42,68 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
-2025-11-14 00:39:09,037 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 00:39:09,037 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 00:39:09,038 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-14 00:46:45,010 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-14 00:46:45,010 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-14 00:46:45,011 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected - full video support enabled
-[00:39:10.526] [Tabs] _finish_branches (stale gen=1) — ignoring
-[00:39:10.526] [Tabs] _on_tab_changed(idx=0)
-[00:39:10.526] [Tabs] _start_timeout idx=0 type=branches
-[00:39:10.527] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:39:10.527] [Tabs]   populated=False, loading=False
-[00:39:10.527] [Tabs]   Starting load for branches
-[00:39:10.527] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:39:10.527] [Tabs] _clear_tab idx=0
-[00:39:10.529] [Tabs] _on_tab_changed → tab_type=branches
-[00:39:10.543] [Tabs] _clear_tab idx=0
+[00:46:45.507] [Tabs] _finish_branches (stale gen=1) — ignoring
+[00:46:45.507] [Tabs] _on_tab_changed(idx=0)
+[00:46:45.508] [Tabs] _start_timeout idx=0 type=branches
+[00:46:45.508] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:46:45.508] [Tabs]   populated=False, loading=False
+[00:46:45.508] [Tabs]   Starting load for branches
+[00:46:45.508] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:46:45.508] [Tabs] _clear_tab idx=0
+[00:46:45.509] [Tabs] _on_tab_changed → tab_type=branches
+[00:46:45.522] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
-[00:39:23.349] [Tabs] refresh_all(force=True) called
-[00:39:23.349] [Tabs] refresh_all: key=branches, idx=0, force=True
-[00:39:23.349] [Tabs] _populate_tab(branches, idx=0, force=True)
-[00:39:23.349] [Tabs]   populated=True, loading=False
-[00:39:23.349] [Tabs]   Force refresh: removing branches from populated set
-[00:39:23.349] [Tabs]   Starting load for branches
-[00:39:23.349] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:39:23.350] [Tabs] _clear_tab idx=0
-[00:39:23.351] [Tabs] refresh_all: key=folders, idx=1, force=True
-[00:39:23.351] [Tabs] _populate_tab(folders, idx=1, force=True)
-[00:39:23.351] [Tabs]   populated=False, loading=False
-[00:39:23.351] [Tabs]   Starting load for folders
-[00:39:23.351] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[00:39:23.351] [Tabs] _clear_tab idx=1
-[00:39:23.352] [Tabs] refresh_all: key=dates, idx=2, force=True
-[00:39:23.352] [Tabs] _populate_tab(dates, idx=2, force=True)
-[00:39:23.352] [Tabs]   populated=False, loading=False
-[00:39:23.353] [Tabs]   Starting load for dates
-[00:39:23.353] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[00:39:23.353] [Tabs] _clear_tab idx=2
-[00:39:23.353] [Tabs] _load_folders → got 0 rows for project_id=1
-[00:39:23.354] [Tabs] refresh_all: key=tags, idx=3, force=True
-[00:39:23.354] [Tabs] _populate_tab(tags, idx=3, force=True)
-[00:39:23.355] [Tabs]   populated=False, loading=False
-[00:39:23.355] [Tabs]   Starting load for tags
-[00:39:23.355] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[00:39:23.355] [Tabs] _clear_tab idx=3
-[00:39:23.356] [Tabs] refresh_all: key=quick, idx=5, force=True
-[00:39:23.357] [Tabs] _populate_tab(quick, idx=5, force=True)
-[00:39:23.357] [Tabs]   populated=False, loading=False
-[00:39:23.358] [Tabs]   Starting load for quick
-[00:39:23.358] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[00:39:23.358] [Tabs] _clear_tab idx=5
-[00:39:23.359] [Tabs] _load_dates → got hierarchy data for project_id=1
-[00:39:23.360] [Tabs] refresh_all(force=True) completed
+[00:46:54.098] [Tabs] refresh_all(force=True) called
+[00:46:54.098] [Tabs] refresh_all: key=branches, idx=0, force=True
+[00:46:54.098] [Tabs] _populate_tab(branches, idx=0, force=True)
+[00:46:54.098] [Tabs]   populated=True, loading=False
+[00:46:54.098] [Tabs]   Force refresh: removing branches from populated set
+[00:46:54.098] [Tabs]   Starting load for branches
+[00:46:54.098] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:46:54.098] [Tabs] _clear_tab idx=0
+[00:46:54.099] [Tabs] refresh_all: key=folders, idx=1, force=True
+[00:46:54.099] [Tabs] _populate_tab(folders, idx=1, force=True)
+[00:46:54.099] [Tabs]   populated=False, loading=False
+[00:46:54.099] [Tabs]   Starting load for folders
+[00:46:54.100] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[00:46:54.100] [Tabs] _clear_tab idx=1
+[00:46:54.100] [Tabs] refresh_all: key=dates, idx=2, force=True
+[00:46:54.101] [Tabs] _populate_tab(dates, idx=2, force=True)
+[00:46:54.101] [Tabs]   populated=False, loading=False
+[00:46:54.101] [Tabs]   Starting load for dates
+[00:46:54.101] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[00:46:54.101] [Tabs] _clear_tab idx=2
+[00:46:54.102] [Tabs] _load_folders → got 0 rows for project_id=1
+[00:46:54.102] [Tabs] refresh_all: key=tags, idx=3, force=True
+[00:46:54.102] [Tabs] _populate_tab(tags, idx=3, force=True)
+[00:46:54.102] [Tabs]   populated=False, loading=False
+[00:46:54.102] [Tabs]   Starting load for tags
+[00:46:54.102] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[00:46:54.102] [Tabs] _clear_tab idx=3
+[00:46:54.104] [Tabs] refresh_all: key=quick, idx=5, force=True
+[00:46:54.104] [Tabs] _populate_tab(quick, idx=5, force=True)
+[00:46:54.104] [Tabs]   populated=False, loading=False
+[00:46:54.104] [Tabs]   Starting load for quick
+[00:46:54.105] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[00:46:54.105] [Tabs] _clear_tab idx=5
+[00:46:54.106] [Tabs] refresh_all(force=True) completed
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
-[00:39:23.361] [Tabs] _load_tags → got 0 rows for project_id=1
-[00:39:23.361] [Tabs] _clear_tab idx=1
-[00:39:23.362] [Tabs] _load_quick → got 6 rows
-[00:39:23.365] [Tabs] _clear_tab idx=0
+[00:46:54.107] [Tabs] _clear_tab idx=1
+[00:46:54.108] [Tabs] _load_tags → got 0 rows for project_id=1
+[00:46:54.108] [Tabs] _load_dates → got hierarchy data for project_id=1
+[00:46:54.108] [Tabs] _load_quick → got 6 rows
+[00:46:54.115] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[00:46:54.115] [Tabs] _clear_tab idx=3
+[00:46:54.116] [Tabs] _clear_tab idx=2
+[00:46:54.116] [Tabs] _clear_tab idx=5
+[00:46:54.118] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -107,10 +112,6 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[00:39:23.385] [Tabs] _clear_tab idx=2
-[00:39:23.391] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[00:39:23.391] [Tabs] _clear_tab idx=3
-[00:39:23.392] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -122,8 +123,8 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [Sidebar][counts worker gen=4] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
 [Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
 [MainWindow] Switched to project ID: 1
@@ -134,40 +135,40 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [ScanController] ScanWorker imported successfully
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
-2025-11-14 00:39:49,108 [INFO] DBWriter timer started in worker thread
 [ScanController] Worker moved to thread
+2025-11-14 00:47:02,757 [INFO] DBWriter timer started in worker thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
 [ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos, incremental=True
-2025-11-14 00:39:49,111 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
+2025-11-14 00:47:02,760 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
 [ScanWorkerAdapter] Starting scan...
-2025-11-14 00:39:49,112 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos (incremental=True)
+2025-11-14 00:47:02,762 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos (incremental=True)
 [ScanController] QThread STARTED!
-2025-11-14 00:39:49,151 [INFO] Discovered 298 candidate image files and 0 video files
-2025-11-14 00:39:49,151 [INFO] Loading existing metadata for incremental scan...
-2025-11-14 00:39:49,153 [INFO] ✓ Loaded 0 existing file records
-2025-11-14 00:39:52,821 [INFO] Bulk upserted 200 photos for project 1
-2025-11-14 00:39:54,823 [INFO] Bulk upserted 98 photos for project 1
-2025-11-14 00:39:54,830 [INFO] Scan complete: 298 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 5.7s
-2025-11-14 00:39:54,832 [INFO] Scan completed: 298 photos, 0 videos, 12 folders in 5.7s
+2025-11-14 00:47:02,788 [INFO] Discovered 298 candidate image files and 0 video files
+2025-11-14 00:47:02,790 [INFO] Loading existing metadata for incremental scan...
+2025-11-14 00:47:02,792 [INFO] ✓ Loaded 0 existing file records
+2025-11-14 00:47:06,326 [INFO] Bulk upserted 200 photos for project 1
+2025-11-14 00:47:08,300 [INFO] Bulk upserted 98 photos for project 1
+2025-11-14 00:47:08,307 [INFO] Scan complete: 298 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 5.5s
+2025-11-14 00:47:08,307 [INFO] Scan completed: 298 photos, 0 videos, 12 folders in 5.5s
 [ScanController] scan finished: 12 folders, 298 photos, 0 videos
 [ScanController] cleanup after scan
 ================================================================================
 UNHANDLED EXCEPTION CAUGHT:
 ================================================================================
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 378, in _cleanup
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\main_window_qt.py", line 378, in _cleanup
     QMessageBox.information(self.main, "Scan Complete", msg)
 UnboundLocalError: local variable 'QMessageBox' referenced before assignment
 ================================================================================
-2025-11-14 00:39:54,911 [ERROR] Unhandled exception
+2025-11-14 00:47:08,405 [ERROR] Unhandled exception
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 378, in _cleanup
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\main_window_qt.py", line 378, in _cleanup
     QMessageBox.information(self.main, "Scan Complete", msg)
 UnboundLocalError: local variable 'QMessageBox' referenced before assignment
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 378, in _cleanup
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\main_window_qt.py", line 378, in _cleanup
     QMessageBox.information(self.main, "Scan Complete", msg)
 UnboundLocalError: local variable 'QMessageBox' referenced before assignment

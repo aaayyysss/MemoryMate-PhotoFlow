@@ -6,7 +6,8 @@ import os, io, shutil, hashlib, json
 import time
 import sqlite3
 import threading
-from queue import Queue
+from queue import Queue, Empty as QueueEmpty
+import queue  # For queue.Empty exception
 
 
 from pathlib import Path
@@ -118,7 +119,8 @@ def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
     # Get result from queue
     try:
         return result_queue.get_nowait()
-    except:
+    except queue.Empty:
+        # Queue is empty after timeout - metadata extraction failed
         return None, None, None
 
 
@@ -480,8 +482,12 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
     scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {video_count} videos, {folder_count} folders")
     print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos, {video_count} videos")
 
-    # Trigger post-scan date indexing
-    rebuild_date_index_with_progress()
+    # Trigger post-scan date indexing (wrapped in try-catch to prevent blocking)
+    try:
+        rebuild_date_index_with_progress()
+    except Exception as e:
+        print(f"[SCAN] ⚠️ Date indexing failed (non-critical): {e}")
+        # Continue anyway - date indexing is not critical for core functionality
 
     # --- Step 7: Launch background workers for video processing ---
     if video_count > 0:
@@ -492,13 +498,56 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
 
             print(f"[SCAN] Launching background workers for {video_count} videos...")
 
+            # Define callback to rebuild video date branches after metadata extraction
+            def on_metadata_finished(success_count, failed_count):
+                """Rebuild video date branches with extracted dates."""
+                print(f"[SCAN] Video metadata extraction complete: {success_count} success, {failed_count} failed")
+
+                if success_count > 0:
+                    print("[SCAN] Rebuilding video date branches with extracted dates...")
+
+                    try:
+                        # Clear old video date branches (keep non-date branches like 'videos:all')
+                        with db._connect() as conn:
+                            cur = conn.cursor()
+                            cur.execute("""
+                                DELETE FROM project_videos
+                                WHERE project_id = ? AND branch_key LIKE 'videos:by_date:%'
+                            """, (project_id,))
+                            conn.commit()
+
+                        # Rebuild with updated dates from metadata
+                        video_branch_count = db.build_video_date_branches(project_id)
+                        print(f"[SCAN] ✓ Rebuilt {video_branch_count} video date branch entries with extracted dates")
+
+                        # Emit signal to refresh sidebar if available
+                        scan_signals.progress.emit(100, f"✓ Video dates updated: {success_count} videos processed")
+
+                    except Exception as e:
+                        print(f"[SCAN] ⚠️ Failed to rebuild video date branches: {e}")
+
             # Launch metadata extraction worker
             metadata_worker = VideoMetadataWorker(project_id=project_id)
+
+            # CRITICAL: Connect callback BEFORE starting worker to avoid race condition
+            metadata_worker.signals.finished.connect(on_metadata_finished)
+            print("[SCAN] ✓ Connected metadata finished callback for date branch rebuild")
+
             QThreadPool.globalInstance().start(metadata_worker)
             print(f"[SCAN] ✓ Metadata extraction worker started")
 
             # Launch thumbnail generation worker
             thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+
+            # CRITICAL: Connect callbacks BEFORE starting worker to avoid race condition
+            thumbnail_worker.signals.progress.connect(
+                lambda curr, total, path: print(f"[SCAN] Thumbnail progress: {curr}/{total}")
+            )
+            thumbnail_worker.signals.finished.connect(
+                lambda success, failed: print(f"[SCAN] ✓ Thumbnails complete: {success} successful, {failed} failed")
+            )
+            print("[SCAN] ✓ Connected thumbnail worker callbacks")
+
             QThreadPool.globalInstance().start(thumbnail_worker)
             print(f"[SCAN] ✓ Thumbnail generation worker started")
 

@@ -385,6 +385,75 @@ class CenteredThumbnailDelegate(QStyledItemDelegate):
                     painter.drawText(badge_rect, Qt.AlignCenter, duration_text)
                     painter.restore()
 
+                    # 🎯 Phase 3: Status indicators for video processing (top-left corner)
+                    metadata_status = index.data(Qt.UserRole + 7)
+                    thumbnail_status = index.data(Qt.UserRole + 8)
+
+                    # Only show indicators if status is not 'ok' (show pending/error states)
+                    if metadata_status and metadata_status != 'ok':
+                        painter.save()
+                        # Metadata status indicator (left side)
+                        status_size = 18
+                        status_x = x + 4
+                        status_y = y + 4
+
+                        # Color and icon based on status
+                        if metadata_status == 'pending':
+                            status_color = QColor(255, 165, 0, 200)  # Orange
+                            status_icon = "⏳"
+                        elif metadata_status == 'error':
+                            status_color = QColor(255, 0, 0, 200)  # Red
+                            status_icon = "❌"
+                        else:  # unknown
+                            status_color = QColor(128, 128, 128, 200)  # Gray
+                            status_icon = "❓"
+
+                        # Draw background circle
+                        painter.setPen(Qt.NoPen)
+                        painter.setBrush(status_color)
+                        painter.drawEllipse(status_x, status_y, status_size, status_size)
+
+                        # Draw icon
+                        painter.setPen(QPen(Qt.white))
+                        icon_font = QFont()
+                        icon_font.setPointSize(10)
+                        painter.setFont(icon_font)
+                        painter.drawText(QRect(status_x, status_y, status_size, status_size),
+                                       Qt.AlignCenter, status_icon)
+                        painter.restore()
+
+                    if thumbnail_status and thumbnail_status != 'ok':
+                        painter.save()
+                        # Thumbnail status indicator (right side of metadata indicator)
+                        status_size = 18
+                        status_x = x + 4 + 20  # Offset from metadata indicator
+                        status_y = y + 4
+
+                        # Color and icon based on status
+                        if thumbnail_status == 'pending':
+                            status_color = QColor(255, 165, 0, 200)  # Orange
+                            status_icon = "🖼"
+                        elif thumbnail_status == 'error':
+                            status_color = QColor(255, 0, 0, 200)  # Red
+                            status_icon = "🚫"
+                        else:  # unknown
+                            status_color = QColor(128, 128, 128, 200)  # Gray
+                            status_icon = "❓"
+
+                        # Draw background circle
+                        painter.setPen(Qt.NoPen)
+                        painter.setBrush(status_color)
+                        painter.drawEllipse(status_x, status_y, status_size, status_size)
+
+                        # Draw icon
+                        painter.setPen(QPen(Qt.white))
+                        icon_font = QFont()
+                        icon_font.setPointSize(10)
+                        painter.setFont(icon_font)
+                        painter.drawText(QRect(status_x, status_y, status_size, status_size),
+                                       Qt.AlignCenter, status_icon)
+                        painter.restore()
+
 
         # 🟢 Focus glow
         if option.state & QStyle.State_HasFocus:
@@ -1979,16 +2048,93 @@ class ThumbnailGridQt(QWidget):
             item.setData(default_aspect, Qt.UserRole + 1)
             item.setData(False, Qt.UserRole + 5)   # not scheduled yet
 
-            # 🎬 Phase 4.3: Store video duration if this is a video file
+            # 🎬 Phase 4.3: Store video metadata if this is a video file
             if is_video_file(p):
                 try:
-                    # Try to get duration from video_metadata table
+                    # Try to get metadata from video_metadata table
                     video_meta = self.db.get_video_by_path(p, self.project_id)
-                    if video_meta and 'duration_seconds' in video_meta:
-                        item.setData(video_meta['duration_seconds'], Qt.UserRole + 3)
-                except Exception:
-                    # If no metadata available, set None (will show play icon instead)
+                    if video_meta:
+                        # Duration for badge
+                        if 'duration_seconds' in video_meta:
+                            item.setData(video_meta['duration_seconds'], Qt.UserRole + 3)
+
+                        # Phase 3: Status indicators for UI feedback
+                        metadata_status = video_meta.get('metadata_status', 'pending')
+                        thumbnail_status = video_meta.get('thumbnail_status', 'pending')
+                        item.setData(metadata_status, Qt.UserRole + 7)
+                        item.setData(thumbnail_status, Qt.UserRole + 8)
+
+                        # Phase 4: Rich tooltip with video metadata details
+                        tooltip_parts = [f"🎬 <b>{os.path.basename(p)}</b>"]
+
+                        # Duration
+                        if video_meta.get('duration_seconds'):
+                            duration_str = format_duration(video_meta['duration_seconds'])
+                            tooltip_parts.append(f"⏱️ Duration: {duration_str}")
+
+                        # Resolution
+                        width = video_meta.get('width')
+                        height = video_meta.get('height')
+                        if width and height:
+                            # Determine quality label
+                            if height >= 2160:
+                                quality = "4K UHD"
+                            elif height >= 1080:
+                                quality = "Full HD"
+                            elif height >= 720:
+                                quality = "HD"
+                            else:
+                                quality = "SD"
+                            tooltip_parts.append(f"📺 Resolution: {width}x{height} ({quality})")
+
+                        # Frame rate
+                        if video_meta.get('fps'):
+                            tooltip_parts.append(f"🎞️ Frame Rate: {video_meta['fps']:.1f} fps")
+
+                        # Codec
+                        if video_meta.get('codec'):
+                            tooltip_parts.append(f"🎞️ Codec: {video_meta['codec']}")
+
+                        # Bitrate
+                        if video_meta.get('bitrate'):
+                            bitrate_mbps = video_meta['bitrate'] / 1_000_000
+                            tooltip_parts.append(f"📊 Bitrate: {bitrate_mbps:.1f} Mbps")
+
+                        # File size
+                        if video_meta.get('size_kb'):
+                            size_mb = video_meta['size_kb'] / 1024
+                            if size_mb >= 1024:
+                                size_str = f"{size_mb / 1024:.1f} GB"
+                            else:
+                                size_str = f"{size_mb:.1f} MB"
+                            tooltip_parts.append(f"📦 Size: {size_str}")
+
+                        # Date taken
+                        if video_meta.get('date_taken'):
+                            tooltip_parts.append(f"📅 Date: {video_meta['date_taken']}")
+
+                        # Processing status
+                        if metadata_status != 'ok' or thumbnail_status != 'ok':
+                            status_parts = []
+                            if metadata_status != 'ok':
+                                status_parts.append(f"Metadata: {metadata_status}")
+                            if thumbnail_status != 'ok':
+                                status_parts.append(f"Thumbnail: {thumbnail_status}")
+                            tooltip_parts.append(f"⚠️ Status: {', '.join(status_parts)}")
+
+                        item.setToolTip("<br>".join(tooltip_parts))
+                    else:
+                        # No video record found
+                        item.setData(None, Qt.UserRole + 3)
+                        item.setData('unknown', Qt.UserRole + 7)
+                        item.setData('unknown', Qt.UserRole + 8)
+                        item.setToolTip(f"🎬 {os.path.basename(p)}<br>⚠️ No metadata available")
+                except Exception as e:
+                    # If query fails, set defaults
                     item.setData(None, Qt.UserRole + 3)
+                    item.setData('error', Qt.UserRole + 7)
+                    item.setData('error', Qt.UserRole + 8)
+                    item.setToolTip(f"🎬 {os.path.basename(p)}<br>❌ Error loading metadata: {str(e)}")
 
             # 🖼 initial placeholder size & icon
             item.setSizeHint(placeholder_size)

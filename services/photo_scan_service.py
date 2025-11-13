@@ -248,8 +248,14 @@ class PhotoScanService:
             # Step 2: Load existing metadata for incremental scan
             existing_metadata = {}
             if skip_unchanged:
-                existing_metadata = self._load_existing_metadata()
-                logger.debug(f"Loaded {len(existing_metadata)} existing file records")
+                try:
+                    logger.info("Loading existing metadata for incremental scan...")
+                    existing_metadata = self._load_existing_metadata()
+                    logger.info(f"✓ Loaded {len(existing_metadata)} existing file records")
+                except Exception as e:
+                    logger.warning(f"Failed to load existing metadata (continuing with full scan): {e}")
+                    # Continue with full scan if metadata loading fails
+                    existing_metadata = {}
 
             # Step 3: Process files in batches
             batch_rows = []

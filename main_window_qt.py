@@ -439,9 +439,8 @@ class ScanController:
             # PHASE 3: Face Detection Integration (Optional Post-Scan Step)
             # Check if face detection is enabled in configuration
             try:
-                # Import QMessageBox FIRST (before any code that might raise exceptions)
-                # This ensures it's available in the except block
-                from PySide6.QtWidgets import QMessageBox
+                # NOTE: QMessageBox is already imported at module level (line 64)
+                # Do NOT re-import here as it makes QMessageBox a local variable
                 from config.face_detection_config import get_face_config
                 face_config = get_face_config()
 

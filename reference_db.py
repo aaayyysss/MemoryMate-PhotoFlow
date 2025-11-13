@@ -2574,14 +2574,13 @@ class ReferenceDB:
     # ===============================================
     def get_date_hierarchy(self, project_id: int | None = None) -> dict:
         """
-        Return nested dict {year: {month: [days...]}} from BOTH photo_metadata AND video_metadata.
+        Return nested dict {year: {month: [days...]}} from photo_metadata.created_date.
         Assumes created_date is 'YYYY-MM-DD'.
 
-        UNIFIED MEDIA FIX: This method now combines photos and videos to populate
-        the date tree with all media, not just photos.
+        NOTE: This is for PHOTOS ONLY. For videos, use get_video_date_hierarchy().
 
         Args:
-            project_id: Filter by project_id if provided, otherwise use all media globally
+            project_id: Filter by project_id if provided, otherwise use all photos globally
 
         Returns:
             Nested dict {year: {month: [days...]}}
@@ -2591,31 +2590,20 @@ class ReferenceDB:
         with self._connect() as conn:
             cur = conn.cursor()
             if project_id is not None:
-                # UNIFIED MEDIA: Query both photo_metadata AND video_metadata using UNION
-                # Uses compound indexes for fast filtering:
-                #   - idx_photo_metadata_project_date (photos)
-                #   - idx_video_project_date (videos)
+                # PERFORMANCE: Use direct project_id column (schema v3.2.0+)
+                # Uses compound index idx_photo_metadata_project_date for fast filtering
                 cur.execute("""
                     SELECT DISTINCT created_date
                     FROM photo_metadata
-                    WHERE project_id = ?
-                      AND created_date IS NOT NULL
-                    UNION
-                    SELECT DISTINCT created_date
-                    FROM video_metadata
                     WHERE project_id = ?
                       AND created_date IS NOT NULL
                     ORDER BY created_date ASC
-                """, (project_id, project_id))
+                """, (project_id,))
             else:
-                # No project filter - use all media globally
+                # No project filter - use all photos globally
                 cur.execute("""
                     SELECT DISTINCT created_date
                     FROM photo_metadata
-                    WHERE created_date IS NOT NULL
-                    UNION
-                    SELECT DISTINCT created_date
-                    FROM video_metadata
                     WHERE created_date IS NOT NULL
                     ORDER BY created_date ASC
                 """)

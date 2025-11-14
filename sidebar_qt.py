@@ -1247,7 +1247,7 @@ class SidebarQt(QWidget):
         self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
         self.tree.setModel(self.model)
         header = self.tree.header()
-        header.setStretchLastSection(False)
+        header.setStretchLastSection(True)
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -3250,3 +3250,4 @@ class SidebarQt(QWidget):
             print(f"[Sidebar] Detached worker launched: {script_path}")
         except Exception as e:
             print(f"[Sidebar] Failed to launch worker: {e}")
+

@@ -306,12 +306,27 @@ class FaceDetectionService:
             bbox_w = face['bbox_w']
             bbox_h = face['bbox_h']
 
+            # Validate bounding box dimensions
+            if bbox_w <= 0 or bbox_h <= 0:
+                logger.warning(
+                    f"Invalid face bounding box (w={bbox_w}, h={bbox_h}) in {os.path.basename(image_path)}, skipping"
+                )
+                return False
+
             # Add padding (10% on each side)
             padding = int(min(bbox_w, bbox_h) * 0.1)
             x1 = max(0, bbox_x - padding)
             y1 = max(0, bbox_y - padding)
             x2 = min(img.width, bbox_x + bbox_w + padding)
             y2 = min(img.height, bbox_y + bbox_h + padding)
+
+            # Final validation: ensure x2 > x1 and y2 > y1
+            if x2 <= x1 or y2 <= y1:
+                logger.warning(
+                    f"Invalid crop coordinates (x1={x1}, x2={x2}, y1={y1}, y2={y2}) "
+                    f"in {os.path.basename(image_path)}, skipping"
+                )
+                return False
 
             # Crop face
             face_img = img.crop((x1, y1, x2, y2))

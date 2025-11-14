@@ -146,7 +146,7 @@ class FaceClusterWorker(QRunnable):
 
             # Step 3: Clear previous cluster data
             cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (self.project_id,))
-            cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (self.project_id,))
+            cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (self.project_id,))
 
             # Step 4: Write new cluster results
             for idx, cid in enumerate(unique_labels):
@@ -175,7 +175,7 @@ class FaceClusterWorker(QRunnable):
 
                 # Insert into branches (for sidebar display)
                 cur.execute("""
-                    INSERT INTO branches (project_id, key, display_name, type)
+                    INSERT INTO branches (project_id, branch_key, display_name, type)
                     VALUES (?, ?, ?, 'face')
                 """, (self.project_id, branch_key, display_name))
 
@@ -257,7 +257,7 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
     # 3️: Clear previous cluster data
     cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
-    cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (project_id,))
+    cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
 
     # 4️: Write new cluster results
     for cid in unique_labels:
@@ -279,7 +279,7 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
         # Insert into branches (for sidebar display)
         cur.execute("""
-            INSERT INTO branches (project_id, key, display_name, type)
+            INSERT INTO branches (project_id, branch_key, display_name, type)
             VALUES (?, ?, ?, 'face')
         """, (project_id, branch_key, display_name))
 
@@ -351,7 +351,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
     # 3️: Clear previous cluster data
     cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
-    cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (project_id,))
+    cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
 
     # 4️: Write new cluster results
     processed_clusters = 0
@@ -377,7 +377,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
         # Insert into branches (for sidebar display)
         cur.execute("""
-            INSERT INTO branches (project_id, key, display_name, type)
+            INSERT INTO branches (project_id, branch_key, display_name, type)
             VALUES (?, ?, ?, 'face')
         """, (project_id, branch_key, display_name))
 

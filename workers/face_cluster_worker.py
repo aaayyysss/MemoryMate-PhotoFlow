@@ -175,8 +175,8 @@ class FaceClusterWorker(QRunnable):
 
                 # Insert into branches (for sidebar display)
                 cur.execute("""
-                    INSERT INTO branches (project_id, branch_key, display_name, type)
-                    VALUES (?, ?, ?, 'face')
+                    INSERT INTO branches (project_id, branch_key, display_name)
+                    VALUES (?, ?, ?)
                 """, (self.project_id, branch_key, display_name))
 
                 # Update face_crops entries to reflect cluster
@@ -279,8 +279,8 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
         # Insert into branches (for sidebar display)
         cur.execute("""
-            INSERT INTO branches (project_id, branch_key, display_name, type)
-            VALUES (?, ?, ?, 'face')
+            INSERT INTO branches (project_id, branch_key, display_name)
+            VALUES (?, ?, ?)
         """, (project_id, branch_key, display_name))
 
         # Update face_crops entries to reflect cluster
@@ -377,8 +377,8 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
         # Insert into branches (for sidebar display)
         cur.execute("""
-            INSERT INTO branches (project_id, branch_key, display_name, type)
-            VALUES (?, ?, ?, 'face')
+            INSERT INTO branches (project_id, branch_key, display_name)
+            VALUES (?, ?, ?)
         """, (project_id, branch_key, display_name))
 
         # Update face_crops entries to reflect cluster

@@ -577,7 +577,19 @@ class ThumbnailGridQt(QWidget):
         except Exception:
             self._prefetch_radius = 8
 
-        # --- Toolbar (Zoom controls)
+        # --- Toolbar (Face Grouping + Zoom controls)
+        # Phase 8: Face grouping buttons (moved from People tab for global access)
+        self.btn_detect_and_group = QPushButton("⚡ Detect & Group Faces")
+        self.btn_detect_and_group.setToolTip("Automatically detect faces and group them into person albums")
+        self.btn_detect_and_group.setStyleSheet("QPushButton{padding:5px 12px; font-weight:bold;}")
+        # Handler will be connected from main_window_qt.py after grid is created
+
+        self.btn_recluster = QPushButton("🔁 Re-Cluster")
+        self.btn_recluster.setToolTip("Re-group detected faces (without re-detecting)")
+        self.btn_recluster.setStyleSheet("QPushButton{padding:5px 12px;}")
+        # Handler will be connected from main_window_qt.py after grid is created
+
+        # Zoom controls
         self.zoom_out_btn = QPushButton("-")
         self.zoom_out_btn.setFixedWidth(30)
         self.zoom_out_btn.clicked.connect(self.zoom_out)
@@ -646,6 +658,15 @@ class ThumbnailGridQt(QWidget):
 
         # Toolbar
         toolbar_layout = QHBoxLayout()
+        toolbar_layout.setSpacing(10)
+
+        # Face grouping buttons (left side)
+        toolbar_layout.addWidget(self.btn_detect_and_group)
+        toolbar_layout.addWidget(self.btn_recluster)
+        toolbar_layout.addSpacing(20)  # Add space between face buttons and zoom controls
+
+        # Zoom controls (right side)
+        toolbar_layout.addStretch()  # Push zoom controls to the right
         toolbar_layout.addWidget(self.zoom_out_btn)
         toolbar_layout.addWidget(self.zoom_slider)
         toolbar_layout.addWidget(self.zoom_in_btn)

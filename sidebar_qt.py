@@ -2098,16 +2098,15 @@ class SidebarQt(QWidget):
                         name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
                         rep = row.get("rep_path", "")
-                        label = f"{name} ({count})"
 
-                        name_item = QStandardItem(label)
+                        name_item = QStandardItem(name)
                         name_item.setEditable(False)
-                        count_item = QStandardItem("")
+                        count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
                         name_item.setData("facecluster", Qt.UserRole)
                         name_item.setData(row["branch_key"], Qt.UserRole + 1)
                         count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                        count_item.setForeground(QColor("#BBBBBB"))
+                        count_item.setForeground(QColor("#888888"))
                         people_root.appendRow([name_item, count_item])
 
                     print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
@@ -2539,15 +2538,14 @@ class SidebarQt(QWidget):
                         name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
                         rep = row.get("rep_path", "")
-                        label = f"{name} ({count})"
 
-                        name_item = QStandardItem(label)
+                        name_item = QStandardItem(name)
                         name_item.setEditable(False)
                         name_item.setData("people", Qt.UserRole)
                         name_item.setData(row["branch_key"], Qt.UserRole + 1)
                         name_item.setToolTip(rep)
 
-                        count_item = QStandardItem(str(count))
+                        count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
                         count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         count_item.setForeground(QColor("#888888"))
@@ -3058,6 +3056,49 @@ class SidebarQt(QWidget):
         label = item.text().strip()
         db = self.db
         menu = QMenu(self)
+
+        # 👥 Face cluster context menu (Rename person)
+        if mode in ("facecluster", "people") and isinstance(value, str):
+            branch_key = value
+            # Extract current name from label (remove count if present)
+            current_name = label.split("(")[0].strip() if "(" in label else label
+
+            act_rename = menu.addAction("✏️ Rename Person…")
+            menu.addSeparator()
+            act_export = menu.addAction("📁 Export Photos to Folder…")
+
+            chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+            if chosen is act_rename:
+                from PySide6.QtWidgets import QInputDialog
+                new_name, ok = QInputDialog.getText(self, "Rename Person", "Person name:", text=current_name)
+                if ok and new_name.strip() and new_name.strip() != current_name:
+                    try:
+                        # Update display_name in branches table
+                        with db._connect() as conn:
+                            conn.execute("""
+                                UPDATE branches
+                                SET display_name = ?
+                                WHERE project_id = ? AND branch_key = ?
+                            """, (new_name.strip(), self.project_id, branch_key))
+                            conn.commit()
+
+                        # Also update label in face_branch_reps if it exists
+                        with db._connect() as conn:
+                            conn.execute("""
+                                UPDATE face_branch_reps
+                                SET label = ?
+                                WHERE project_id = ? AND branch_key = ?
+                            """, (new_name.strip(), self.project_id, branch_key))
+                            conn.commit()
+
+                        # Reload sidebar to show new name
+                        self.reload()
+                        QMessageBox.information(self, "Renamed", f"Person renamed to '{new_name.strip()}'")
+                    except Exception as e:
+                        QMessageBox.critical(self, "Rename Failed", str(e))
+            elif chosen is act_export:
+                self._do_export(branch_key)
+            return
 
         if mode == "tag" and isinstance(value, str):
             tag_name = value

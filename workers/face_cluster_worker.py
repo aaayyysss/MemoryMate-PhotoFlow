@@ -99,7 +99,7 @@ class FaceClusterWorker(QRunnable):
             self.signals.progress.emit(0, 100, "Loading face embeddings...")
 
             cur.execute("""
-                SELECT id, crop_path, embedding FROM face_crops
+                SELECT id, crop_path, image_path, embedding FROM face_crops
                 WHERE project_id=? AND embedding IS NOT NULL
             """, (self.project_id,))
             rows = cur.fetchall()
@@ -111,13 +111,14 @@ class FaceClusterWorker(QRunnable):
                 return
 
             # Parse embeddings
-            ids, paths, vecs = [], [], []
-            for rid, path, blob in rows:
+            ids, paths, image_paths, vecs = [], [], [], []
+            for rid, path, img_path, blob in rows:
                 try:
                     vec = np.frombuffer(blob, dtype=np.float32)
                     if vec.size:
                         ids.append(rid)
                         paths.append(path)
+                        image_paths.append(img_path)
                         vecs.append(vec)
                 except Exception as e:
                     logger.warning(f"[FaceClusterWorker] Failed to parse embedding: {e}")
@@ -147,6 +148,7 @@ class FaceClusterWorker(QRunnable):
             # Step 3: Clear previous cluster data
             cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (self.project_id,))
             cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (self.project_id,))
+            cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key LIKE 'face_%'", (self.project_id,))
 
             # Step 4: Write new cluster results
             for idx, cid in enumerate(unique_labels):
@@ -159,6 +161,7 @@ class FaceClusterWorker(QRunnable):
                 mask = labels == cid
                 cluster_vecs = X[mask]
                 cluster_paths = np.array(paths)[mask].tolist()
+                cluster_image_paths = np.array(image_paths)[mask].tolist()
                 cluster_ids = np.array(ids)[mask].tolist()
 
                 centroid = np.mean(cluster_vecs, axis=0).astype(np.float32).tobytes()
@@ -184,6 +187,17 @@ class FaceClusterWorker(QRunnable):
                 cur.execute(f"""
                     UPDATE face_crops SET branch_key=? WHERE project_id=? AND id IN ({placeholders})
                 """, (branch_key, self.project_id, *cluster_ids))
+
+                # CRITICAL FIX: Link photos to this face branch in project_images
+                # This allows get_images_by_branch() to return photos for face clusters
+                unique_photos = set(cluster_image_paths)
+                for photo_path in unique_photos:
+                    cur.execute("""
+                        INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path)
+                        VALUES (?, ?, ?)
+                    """, (self.project_id, branch_key, photo_path))
+
+                logger.debug(f"[FaceClusterWorker] Linked {len(unique_photos)} unique photos to {branch_key}")
 
                 # Emit progress
                 progress_pct = int(40 + (idx / cluster_count) * 60)
@@ -224,7 +238,7 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
     # 1️: Get embeddings from existing face_crops table
     cur.execute("""
-        SELECT id, crop_path, embedding FROM face_crops
+        SELECT id, crop_path, image_path, embedding FROM face_crops
         WHERE project_id=? AND embedding IS NOT NULL
     """, (project_id,))
     rows = cur.fetchall()
@@ -232,13 +246,14 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
         print(f"[FaceCluster] No embeddings found for project {project_id}")
         return
 
-    ids, paths, vecs = [], [], []
-    for rid, path, blob in rows:
+    ids, paths, image_paths, vecs = [], [], [], []
+    for rid, path, img_path, blob in rows:
         try:
             vec = np.frombuffer(blob, dtype=np.float32)
             if vec.size:
                 ids.append(rid)
                 paths.append(path)
+                image_paths.append(img_path)
                 vecs.append(vec)
         except Exception:
             pass
@@ -258,12 +273,14 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
     # 3️: Clear previous cluster data
     cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
     cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
+    cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
 
     # 4️: Write new cluster results
     for cid in unique_labels:
         mask = labels == cid
         cluster_vecs = X[mask]
         cluster_paths = np.array(paths)[mask].tolist()
+        cluster_image_paths = np.array(image_paths)[mask].tolist()
 
         centroid = np.mean(cluster_vecs, axis=0).astype(np.float32).tobytes()
         rep_path = cluster_paths[0]
@@ -289,7 +306,15 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
         """ % ",".join(["?"] * np.sum(mask)),
         (branch_key, project_id, *np.array(ids)[mask].tolist()))
 
-        print(f"[FaceCluster] Cluster {cid} → {member_count} faces")
+        # CRITICAL FIX: Link photos to this face branch in project_images
+        unique_photos = set(cluster_image_paths)
+        for photo_path in unique_photos:
+            cur.execute("""
+                INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path)
+                VALUES (?, ?, ?)
+            """, (project_id, branch_key, photo_path))
+
+        print(f"[FaceCluster] Cluster {cid} → {member_count} faces ({len(unique_photos)} unique photos)")
 
     conn.commit()
     conn.close()
@@ -306,7 +331,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
     # 1️: Get embeddings from existing face_crops table
     cur.execute("""
-        SELECT id, crop_path, embedding FROM face_crops
+        SELECT id, crop_path, image_path, embedding FROM face_crops
         WHERE project_id=? AND embedding IS NOT NULL
     """, (project_id,))
     rows = cur.fetchall()
@@ -314,13 +339,14 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
         print(f"[FaceCluster] No embeddings found for project {project_id}")
         return
 
-    ids, paths, vecs = [], [], []
-    for rid, path, blob in rows:
+    ids, paths, image_paths, vecs = [], [], [], []
+    for rid, path, img_path, blob in rows:
         try:
             vec = np.frombuffer(blob, dtype=np.float32)
             if vec.size:
                 ids.append(rid)
                 paths.append(path)
+                image_paths.append(img_path)
                 vecs.append(vec)
         except Exception:
             pass
@@ -352,6 +378,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
     # 3️: Clear previous cluster data
     cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
     cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
+    cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
 
     # 4️: Write new cluster results
     processed_clusters = 0
@@ -362,6 +389,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
         mask = labels == cid
         cluster_vecs = X[mask]
         cluster_paths = np.array(paths)[mask].tolist()
+        cluster_image_paths = np.array(image_paths)[mask].tolist()
 
         centroid = np.mean(cluster_vecs, axis=0).astype(np.float32).tobytes()
         rep_path = cluster_paths[0]
@@ -386,11 +414,19 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
             UPDATE face_crops SET branch_key=? WHERE project_id=? AND id IN ({','.join(['?'] * np.sum(mask))})
         """, (branch_key, project_id, *np.array(ids)[mask].tolist()))
 
+        # CRITICAL FIX: Link photos to this face branch in project_images
+        unique_photos = set(cluster_image_paths)
+        for photo_path in unique_photos:
+            cur.execute("""
+                INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path)
+                VALUES (?, ?, ?)
+            """, (project_id, branch_key, photo_path))
+
         processed_clusters += 1
         write_status(status_path, "clustering", processed_clusters, total_clusters)
         _log_progress("clustering", processed_clusters, total_clusters)
 
-        print(f"[FaceCluster] Cluster {cid} → {member_count} faces")
+        print(f"[FaceCluster] Cluster {cid} → {member_count} faces ({len(unique_photos)} unique photos)")
 
     conn.commit()
     write_status(status_path, "done", total_clusters, total_clusters)

@@ -1,29 +1,29 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-01> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 22:01:03,649 [INFO] ================================================================================
-2025-11-14 22:01:03,649 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 22:01:03,649 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\app_log.txt
-2025-11-14 22:01:03,650 [INFO] ================================================================================
-2025-11-14 22:01:03,689 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 22:01:03,689 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\thumbnails_cache.db', 'last_updated': '2025-11-14 22:01'}
+2025-11-14 22:40:57,373 [INFO] ================================================================================
+2025-11-14 22:40:57,373 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-14 22:40:57,374 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\app_log.txt
+2025-11-14 22:40:57,374 [INFO] ================================================================================
+2025-11-14 22:40:57,420 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-14 22:40:57,421 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-03\\thumbnails_cache.db', 'last_updated': '2025-11-14 22:40'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 22:01:03,935 [INFO] SearchService initialized
-[22:01:04.453] [Tabs] __init__ started
-[22:01:04.454] [Tabs] _build_tabs → building tab widgets
-[22:01:04.455] [Tabs] _on_tab_changed(idx=0)
-[22:01:04.455] [Tabs] _start_timeout idx=0 type=branches
-[22:01:04.455] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:01:04.455] [Tabs]   populated=False, loading=False
-[22:01:04.455] [Tabs]   Starting load for branches
-[22:01:04.455] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:01:04.455] [Tabs] _clear_tab idx=0
-[22:01:04.456] [Tabs] _on_tab_changed → tab_type=branches
-[22:01:04.458] [Tabs] _build_tabs → added 6 tabs
-[22:01:04.458] [Tabs] __init__ completed
+2025-11-14 22:40:57,696 [INFO] SearchService initialized
+[22:40:58.189] [Tabs] __init__ started
+[22:40:58.190] [Tabs] _build_tabs → building tab widgets
+[22:40:58.190] [Tabs] _on_tab_changed(idx=0)
+[22:40:58.191] [Tabs] _start_timeout idx=0 type=branches
+[22:40:58.191] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:40:58.191] [Tabs]   populated=False, loading=False
+[22:40:58.191] [Tabs]   Starting load for branches
+[22:40:58.191] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:40:58.191] [Tabs] _clear_tab idx=0
+[22:40:58.193] [Tabs] _on_tab_changed → tab_type=branches
+[22:40:58.193] [Tabs] _build_tabs → added 6 tabs
+[22:40:58.194] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
@@ -32,7 +32,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[22:01:04.489] [Tabs] hide_tabs() called - canceling pending workers
+[22:40:58.226] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -44,65 +44,65 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
-2025-11-14 22:01:04,506 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 22:01:04,508 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 22:01:04,508 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[MainWindow] ⚠️ Progress pollers init failed: 'status' exists but is not a directory: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\status
+2025-11-14 22:40:58,245 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-14 22:40:58,246 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-14 22:40:58,246 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[MainWindow] ⚠️ Progress pollers init failed: 'status' exists but is not a directory: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\status
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected - full video support enabled
-[22:01:05.054] [Tabs] _finish_branches (stale gen=1) — ignoring
-[22:01:05.054] [Tabs] _on_tab_changed(idx=0)
-[22:01:05.056] [Tabs] _start_timeout idx=0 type=branches
-[22:01:05.056] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:01:05.056] [Tabs]   populated=False, loading=False
-[22:01:05.056] [Tabs]   Starting load for branches
-[22:01:05.056] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:01:05.057] [Tabs] _clear_tab idx=0
-[22:01:05.058] [Tabs] _on_tab_changed → tab_type=branches
-[22:01:05.073] [Tabs] _clear_tab idx=0
+[22:40:58.853] [Tabs] _finish_branches (stale gen=1) — ignoring
+[22:40:58.853] [Tabs] _on_tab_changed(idx=0)
+[22:40:58.854] [Tabs] _start_timeout idx=0 type=branches
+[22:40:58.854] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:40:58.854] [Tabs]   populated=False, loading=False
+[22:40:58.854] [Tabs]   Starting load for branches
+[22:40:58.854] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:40:58.854] [Tabs] _clear_tab idx=0
+[22:40:58.856] [Tabs] _on_tab_changed → tab_type=branches
+[22:40:58.870] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
-[22:01:24.373] [Tabs] refresh_all(force=True) called
-[22:01:24.373] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:01:24.373] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:01:24.373] [Tabs]   populated=True, loading=False
-[22:01:24.373] [Tabs]   Force refresh: removing branches from populated set
-[22:01:24.373] [Tabs]   Starting load for branches
-[22:01:24.373] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:01:24.374] [Tabs] _clear_tab idx=0
-[22:01:24.375] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:01:24.375] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:01:24.375] [Tabs]   populated=False, loading=False
-[22:01:24.375] [Tabs]   Starting load for folders
-[22:01:24.375] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:01:24.375] [Tabs] _clear_tab idx=1
-[22:01:24.376] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:01:24.376] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:01:24.376] [Tabs]   populated=False, loading=False
-[22:01:24.377] [Tabs]   Starting load for dates
-[22:01:24.377] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:01:24.377] [Tabs] _clear_tab idx=2
-[22:01:24.377] [Tabs] _load_folders → got 0 rows for project_id=1
-[22:01:24.379] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:01:24.379] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:01:24.379] [Tabs]   populated=False, loading=False
-[22:01:24.379] [Tabs]   Starting load for tags
-[22:01:24.379] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:01:24.379] [Tabs] _clear_tab idx=3
-[22:01:24.380] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:01:24.380] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:01:24.380] [Tabs]   populated=False, loading=False
-[22:01:24.380] [Tabs]   Starting load for quick
-[22:01:24.380] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:01:24.380] [Tabs] _clear_tab idx=5
-[22:01:24.381] [Tabs] refresh_all(force=True) completed
+[22:41:07.964] [Tabs] refresh_all(force=True) called
+[22:41:07.964] [Tabs] refresh_all: key=branches, idx=0, force=True
+[22:41:07.964] [Tabs] _populate_tab(branches, idx=0, force=True)
+[22:41:07.964] [Tabs]   populated=True, loading=False
+[22:41:07.965] [Tabs]   Force refresh: removing branches from populated set
+[22:41:07.965] [Tabs]   Starting load for branches
+[22:41:07.965] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:41:07.965] [Tabs] _clear_tab idx=0
+[22:41:07.966] [Tabs] refresh_all: key=folders, idx=1, force=True
+[22:41:07.966] [Tabs] _populate_tab(folders, idx=1, force=True)
+[22:41:07.966] [Tabs]   populated=False, loading=False
+[22:41:07.966] [Tabs]   Starting load for folders
+[22:41:07.966] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[22:41:07.966] [Tabs] _clear_tab idx=1
+[22:41:07.967] [Tabs] refresh_all: key=dates, idx=2, force=True
+[22:41:07.967] [Tabs] _populate_tab(dates, idx=2, force=True)
+[22:41:07.968] [Tabs]   populated=False, loading=False
+[22:41:07.968] [Tabs]   Starting load for dates
+[22:41:07.968] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[22:41:07.968] [Tabs] _clear_tab idx=2
+[22:41:07.969] [Tabs] refresh_all: key=tags, idx=3, force=True
+[22:41:07.969] [Tabs] _populate_tab(tags, idx=3, force=True)
+[22:41:07.969] [Tabs]   populated=False, loading=False
+[22:41:07.969] [Tabs] _load_folders → got 0 rows for project_id=1
+[22:41:07.969] [Tabs]   Starting load for tags
+[22:41:07.969] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[22:41:07.970] [Tabs] _clear_tab idx=3
+[22:41:07.971] [Tabs] refresh_all: key=quick, idx=5, force=True
+[22:41:07.971] [Tabs] _populate_tab(quick, idx=5, force=True)
+[22:41:07.971] [Tabs]   populated=False, loading=False
+[22:41:07.971] [Tabs]   Starting load for quick
+[22:41:07.971] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[22:41:07.971] [Tabs] _clear_tab idx=5
+[22:41:07.974] [Tabs] refresh_all(force=True) completed
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
-[22:01:24.383] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:01:24.383] [Tabs] _clear_tab idx=1
-[22:01:24.384] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:01:24.385] [Tabs] _load_quick → got 6 rows
-[22:01:24.385] [Tabs] _clear_tab idx=0
+[22:41:07.974] [Tabs] _load_dates → got hierarchy data for project_id=1
+[22:41:07.975] [Tabs] _load_tags → got 0 rows for project_id=1
+[22:41:07.975] [Tabs] _clear_tab idx=1
+[22:41:07.976] [Tabs] _load_quick → got 6 rows
+[22:41:07.977] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -111,10 +111,10 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[22:01:24.406] [Tabs] _clear_tab idx=2
-[22:01:24.406] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[22:01:24.406] [Tabs] _clear_tab idx=3
-[22:01:24.407] [Tabs] _clear_tab idx=5
+[22:41:08.002] [Tabs] _clear_tab idx=2
+[22:41:08.002] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[22:41:08.002] [Tabs] _clear_tab idx=3
+[22:41:08.004] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -135,81 +135,68 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Breadcrumb] Switched to project ID: 1
 [MainWindow] Refreshed project list: 1 projects
 [Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
+[ScanController] Creating ScanWorker for folder: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
 [ScanController] ScanWorker imported successfully
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
 [ScanController] Worker moved to thread
-2025-11-14 22:01:38,264 [INFO] DBWriter timer started in worker thread
+2025-11-14 22:41:20,913 [INFO] DBWriter timer started in worker thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
-[ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos, incremental=True
-2025-11-14 22:01:38,267 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos
+[ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs, incremental=True
+2025-11-14 22:41:20,918 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
 [ScanWorkerAdapter] Starting scan...
-2025-11-14 22:01:38,270 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos (incremental=True)
+2025-11-14 22:41:20,919 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs (incremental=True)
+2025-11-14 22:41:20,923 [INFO] Discovered 21 candidate image files and 0 video files
+2025-11-14 22:41:20,924 [INFO] Loading existing metadata for incremental scan...
+2025-11-14 22:41:20,925 [INFO] ✓ Loaded 0 existing file records
 [ScanController] QThread STARTED!
-2025-11-14 22:01:38,298 [INFO] Discovered 298 candidate image files and 0 video files
-2025-11-14 22:01:38,301 [INFO] Loading existing metadata for incremental scan...
-2025-11-14 22:01:38,303 [INFO] ✓ Loaded 0 existing file records
-2025-11-14 22:01:41,852 [INFO] Bulk upserted 200 photos for project 1
-2025-11-14 22:01:43,728 [INFO] Bulk upserted 98 photos for project 1
-2025-11-14 22:01:43,734 [INFO] Scan complete: 298 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 5.5s
-2025-11-14 22:01:43,735 [INFO] Scan completed: 298 photos, 0 videos, 12 folders in 5.5s
-[ScanController] scan finished: 12 folders, 298 photos, 0 videos
+2025-11-14 22:41:21,483 [INFO] Bulk upserted 21 photos for project 1
+2025-11-14 22:41:21,490 [INFO] Scan complete: 21 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.6s
+2025-11-14 22:41:21,492 [INFO] Scan completed: 21 photos, 0 videos, 5 folders in 0.6s
+[ScanController] scan finished: 5 folders, 21 photos, 0 videos
 [ScanController] cleanup after scan
-2025-11-14 22:01:45,181 [INFO] Building date branches...
-2025-11-14 22:01:45,182 [INFO] Building date branches for project_id=1
+2025-11-14 22:41:23,625 [INFO] Building date branches...
+2025-11-14 22:41:23,626 [INFO] Building date branches for project_id=1
 [build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 298 photos for project 1
-[build_date_branches] Inserted 298/298 photos into 'all' branch
-[build_date_branches] Found 11 unique dates for project 1
-[build_date_branches] Date 2022-01-02: found 16 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_0484.jpg
-[build_date_branches] Date 2022-01-02: inserted 16/16 into project_images (new)
-[build_date_branches] Date 2022-01-15: found 2 photos for project 1
+[build_date_branches] Populating 'all' branch with 21 photos for project 1
+[build_date_branches] Inserted 21/21 photos into 'all' branch
+[build_date_branches] Found 7 unique dates for project 1
+[build_date_branches] Date 2022-01-15: found 1 photos for project 1
 [build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg
-[build_date_branches] Date 2022-01-15: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2022-03-01: found 3 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e7069.jpg
-[build_date_branches] Date 2022-03-01: inserted 3/3 into project_images (new)
-[build_date_branches] Date 2022-08-18: found 211 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3062.jpg
-[build_date_branches] Date 2022-08-18: inserted 211/211 into project_images (new)
-[build_date_branches] Date 2023-10-19: found 5 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_3307.jpg
-[build_date_branches] Date 2023-10-19: inserted 5/5 into project_images (new)
-[build_date_branches] Date 2023-10-27: found 2 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_4973.jpg
-[build_date_branches] Date 2023-10-27: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2024-11-07: found 2 photos for project 1
+[build_date_branches] Date 2022-01-15: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2022-08-18: found 4 photos for project 1
+[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg
+[build_date_branches] Date 2022-08-18: inserted 4/4 into project_images (new)
+[build_date_branches] Date 2023-10-19: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg
+[build_date_branches] Date 2023-10-19: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-11-07: found 1 photos for project 1
 [build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg
-[build_date_branches] Date 2024-11-07: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2024-11-16: found 6 photos for project 1
+[build_date_branches] Date 2024-11-07: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-11-16: found 3 photos for project 1
 [build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg
-[build_date_branches] Date 2024-11-16: inserted 6/6 into project_images (new)
-[build_date_branches] Date 2024-11-26: found 2 photos for project 1
+[build_date_branches] Date 2024-11-16: inserted 3/3 into project_images (new)
+[build_date_branches] Date 2024-11-26: found 1 photos for project 1
 [build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng
-[build_date_branches] Date 2024-11-26: inserted 2/2 into project_images (new)
-[build_date_branches] Date 2025-03-13: found 4 photos for project 1
+[build_date_branches] Date 2024-11-26: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-03-13: found 2 photos for project 1
 [build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg
-[build_date_branches] Date 2025-03-13: inserted 4/4 into project_images (new)
-[build_date_branches] Date 2025-04-25: found 3 photos for project 1
-[build_date_branches] Sample path: c:/users/asus/onedrive/documents/python/test-photos/inbox/img_4790.jpeg
-[build_date_branches] Date 2025-04-25: inserted 3/3 into project_images (new)
-[build_date_branches] Total entries processed: 256
-[build_date_branches] project_images table has 554 rows for project 1
-2025-11-14 22:01:45,209 [INFO] Created 256 photo date branch entries for project 1
-2025-11-14 22:01:45,210 [INFO] Building video date branches for project_id=1
+[build_date_branches] Date 2025-03-13: inserted 2/2 into project_images (new)
+[build_date_branches] Total entries processed: 13
+[build_date_branches] project_images table has 34 rows for project 1
+2025-11-14 22:41:23,643 [INFO] Created 13 photo date branch entries for project 1
+2025-11-14 22:41:23,644 [INFO] Building video date branches for project_id=1
 [build_video_date_branches] Using project_id=1
 [build_video_date_branches] Found 0 videos with dates for project 1
 [build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-14 22:01:45,211 [INFO] Created 0 video date branch entries for project 1
-2025-11-14 22:01:45,212 [INFO] Backfilling created_date fields for photos...
-2025-11-14 22:01:45,223 [INFO] Backfilled 42 photo rows with created_date
-2025-11-14 22:01:45,223 [INFO] Backfilling created_date fields for videos...
-2025-11-14 22:01:45,234 [INFO] Reloading sidebar after date branches built...
+2025-11-14 22:41:23,645 [INFO] Created 0 video date branch entries for project 1
+2025-11-14 22:41:23,649 [INFO] Backfilling created_date fields for photos...
+2025-11-14 22:41:23,657 [INFO] Backfilled 8 photo rows with created_date
+2025-11-14 22:41:23,657 [INFO] Backfilling created_date fields for videos...
+2025-11-14 22:41:23,668 [INFO] Reloading sidebar after date branches built...
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
@@ -217,107 +204,107 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
+[Sidebar] Loaded 6 folder counts in batch (performance optimization)
 [Sidebar] 👥 People: No faces detected yet
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
+[Sidebar] Loaded date counts in batch: 5 years, 8 months, 15 days
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=6] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
 [Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Queued 21 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
 [SidebarQt] switch_display_mode(tabs) - canceling old workers
 [SidebarQt] Canceled list workers (new gen=7)
 [SidebarQt] Hiding tree view
 [SidebarQt] Showing tabs controller
 [SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:02:05.204] [Tabs] refresh_all(force=True) called
-[22:02:05.204] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:02:05.204] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:02:05.204] [Tabs]   populated=True, loading=False
-[22:02:05.204] [Tabs]   Force refresh: removing branches from populated set
-[22:02:05.204] [Tabs]   Starting load for branches
-[22:02:05.204] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:02:05.204] [Tabs] _clear_tab idx=0
-[22:02:05.205] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:02:05.205] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:02:05.205] [Tabs]   populated=True, loading=False
-[22:02:05.205] [Tabs]   Force refresh: removing folders from populated set
-[22:02:05.205] [Tabs]   Starting load for folders
-[22:02:05.206] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:02:05.206] [Tabs] _clear_tab idx=1
-[22:02:05.207] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:02:05.207] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:02:05.207] [Tabs]   populated=True, loading=False
-[22:02:05.207] [Tabs]   Force refresh: removing dates from populated set
-[22:02:05.207] [Tabs]   Starting load for dates
-[22:02:05.209] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:02:05.209] [Tabs] _clear_tab idx=2
-[22:02:05.209] [Tabs] _load_folders → got 17 rows for project_id=1
-[22:02:05.210] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:02:05.210] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:02:05.210] [Tabs]   populated=True, loading=False
-[22:02:05.210] [Tabs]   Force refresh: removing tags from populated set
-[22:02:05.210] [Tabs]   Starting load for tags
-[22:02:05.210] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:02:05.211] [Tabs] _clear_tab idx=3
-[22:02:05.212] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:02:05.212] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:02:05.212] [Tabs]   populated=True, loading=False
-[22:02:05.212] [Tabs]   Force refresh: removing quick from populated set
-[22:02:05.212] [Tabs]   Starting load for quick
-[22:02:05.212] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:02:05.213] [Tabs] _clear_tab idx=5
-[22:02:05.212] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:02:05.212] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:02:05.214] [Tabs] refresh_all(force=True) completed
+[22:41:36.008] [Tabs] refresh_all(force=True) called
+[22:41:36.008] [Tabs] refresh_all: key=branches, idx=0, force=True
+[22:41:36.008] [Tabs] _populate_tab(branches, idx=0, force=True)
+[22:41:36.008] [Tabs]   populated=True, loading=False
+[22:41:36.008] [Tabs]   Force refresh: removing branches from populated set
+[22:41:36.008] [Tabs]   Starting load for branches
+[22:41:36.009] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:41:36.009] [Tabs] _clear_tab idx=0
+[22:41:36.010] [Tabs] refresh_all: key=folders, idx=1, force=True
+[22:41:36.010] [Tabs] _populate_tab(folders, idx=1, force=True)
+[22:41:36.010] [Tabs]   populated=True, loading=False
+[22:41:36.010] [Tabs]   Force refresh: removing folders from populated set
+[22:41:36.010] [Tabs]   Starting load for folders
+[22:41:36.011] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[22:41:36.011] [Tabs] _clear_tab idx=1
+[22:41:36.012] [Tabs] refresh_all: key=dates, idx=2, force=True
+[22:41:36.012] [Tabs] _populate_tab(dates, idx=2, force=True)
+[22:41:36.012] [Tabs]   populated=True, loading=False
+[22:41:36.012] [Tabs]   Force refresh: removing dates from populated set
+[22:41:36.012] [Tabs]   Starting load for dates
+[22:41:36.012] [Tabs] _load_folders → got 6 rows for project_id=1
+[22:41:36.012] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[22:41:36.013] [Tabs] _clear_tab idx=2
+[22:41:36.015] [Tabs] refresh_all: key=tags, idx=3, force=True
+[22:41:36.015] [Tabs] _populate_tab(tags, idx=3, force=True)
+[22:41:36.015] [Tabs]   populated=True, loading=False
+[22:41:36.015] [Tabs]   Force refresh: removing tags from populated set
+[22:41:36.015] [Tabs]   Starting load for tags
+[22:41:36.015] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[22:41:36.015] [Tabs] _clear_tab idx=3
+[22:41:36.017] [Tabs] _load_dates → got hierarchy data for project_id=1
+[22:41:36.017] [Tabs] refresh_all: key=quick, idx=5, force=True
+[22:41:36.017] [Tabs] _populate_tab(quick, idx=5, force=True)
+[22:41:36.017] [Tabs]   populated=True, loading=False
+[22:41:36.017] [Tabs]   Force refresh: removing quick from populated set
+[22:41:36.017] [Tabs]   Starting load for quick
+[22:41:36.018] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[22:41:36.018] [Tabs] _clear_tab idx=5
+[22:41:36.017] [Tabs] _load_tags → got 0 rows for project_id=1
+[22:41:36.018] [Tabs] refresh_all(force=True) completed
 [SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:02:05.216] [Tabs] _load_quick → got 6 rows
-[22:02:05.217] [Tabs] _clear_tab idx=0
+[22:41:36.020] [Tabs] _load_quick → got 6 rows
+[22:41:36.029] [Tabs] _clear_tab idx=0
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[22:02:05.297] [Tabs] _clear_tab idx=1
-[22:02:05.329] [Tabs] _clear_tab idx=2
-[22:02:05.367] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
-[22:02:05.368] [Tabs] _clear_tab idx=3
-[22:02:05.376] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[22:02:09.126] [Tabs] _on_tab_changed(idx=4)
-[22:02:09.126] [Tabs] _start_timeout idx=4 type=people
-[22:02:09.126] [Tabs] _populate_tab(people, idx=4, force=False)
-[22:02:09.126] [Tabs]   populated=False, loading=False
-[22:02:09.127] [Tabs]   Starting load for people
-[22:02:09.127] [Tabs] _show_loading idx=4 label='Loading People…'
-[22:02:09.127] [Tabs] _clear_tab idx=4
-[22:02:09.128] [Tabs] _on_tab_changed → tab_type=people
-[22:02:09.129] [Tabs] _load_people → got 0 clusters
-[22:02:09.132] [Tabs] _clear_tab idx=4
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[22:41:36.059] [Tabs] _clear_tab idx=1
+[22:41:36.074] [Tabs] _clear_tab idx=2
+[22:41:36.099] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
+[22:41:36.099] [Tabs] _clear_tab idx=3
+[22:41:36.106] [Tabs] _clear_tab idx=5
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Queued 21 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[22:41:39.259] [Tabs] _on_tab_changed(idx=4)
+[22:41:39.260] [Tabs] _start_timeout idx=4 type=people
+[22:41:39.260] [Tabs] _populate_tab(people, idx=4, force=False)
+[22:41:39.260] [Tabs]   populated=False, loading=False
+[22:41:39.260] [Tabs]   Starting load for people
+[22:41:39.261] [Tabs] _show_loading idx=4 label='Loading People…'
+[22:41:39.261] [Tabs] _clear_tab idx=4
+[22:41:39.262] [Tabs] _on_tab_changed → tab_type=people
+[22:41:39.263] [Tabs] _load_people → got 0 clusters
+[22:41:39.264] [Tabs] _clear_tab idx=4
 [People] No faces detected yet
-[People] Launching face detection worker for project 1
-2025-11-14 22:02:15,692 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-14 22:02:17,636 [INFO] 💻 Using CPU for face detection (CUDA not available)
+[People] Launching automatic face grouping pipeline for project 1
+2025-11-14 22:41:49,874 [INFO] [FaceDetectionWorker] Starting face detection for project 1
+2025-11-14 22:41:51,607 [INFO] 💻 Using CPU for face detection (CUDA not available)
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 model ignore: C:\Users\ASUS/.insightface\models\buffalo_l\1k3d68.onnx landmark_3d_68
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
@@ -329,1390 +316,97 @@ model ignore: C:\Users\ASUS/.insightface\models\buffalo_l\genderage.onnx gendera
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 find model: C:\Users\ASUS/.insightface\models\buffalo_l\w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
 set det-size: (640, 640)
-2025-11-14 22:02:19,824 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
-2025-11-14 22:02:19,825 [INFO] [FaceDetection] Initialized InsightFace with model=hog
-2025-11-14 22:02:19,827 [INFO] [FaceDetectionWorker] Processing 298 photos
-[FaceDetection] [1/298] Detecting faces: 22.jfif
-2025-11-14 22:02:20,129 [INFO] [FaceDetection] Found 1 faces in 22.jfif
-2025-11-14 22:02:20,174 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/22.jfif: 1 faces
-[FaceDetection] [2/298] Detecting faces: ewkj3802.jpg
-2025-11-14 22:02:20,735 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:02:20,830 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/ewkj3802.jpg: 5 faces
-[FaceDetection] [3/298] Detecting faces: ewkj3802.jpg
-2025-11-14 22:02:21,328 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:02:21,434 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/ewkj3802.jpg: 5 faces
-[FaceDetection] [4/298] Detecting faces: ihoc0868.jpg
-2025-11-14 22:02:21,924 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:02:21,995 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/ihoc0868.jpg: 5 faces
-[FaceDetection] [5/298] Detecting faces: img_0484.jpg
-2025-11-14 22:02:22,335 [INFO] [FaceDetection] Found 1 faces in img_0484.jpg
-2025-11-14 22:02:22,411 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/img_0484.jpg: 1 faces
-[FaceDetection] [6/298] Detecting faces: img_0485.jpg
-2025-11-14 22:02:22,760 [INFO] [FaceDetection] Found 1 faces in img_0485.jpg
-2025-11-14 22:02:22,853 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/img_0485.jpg: 1 faces
-[FaceDetection] [7/298] Detecting faces: img_0486.jpg
-2025-11-14 22:02:23,188 [INFO] [FaceDetection] Found 1 faces in img_0486.jpg
-2025-11-14 22:02:23,276 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/img_0486.jpg: 1 faces
-[FaceDetection] [8/298] Detecting faces: img_0487.jpg
-2025-11-14 22:02:23,607 [INFO] [FaceDetection] Found 1 faces in img_0487.jpg
-2025-11-14 22:02:23,692 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/img_0487.jpg: 1 faces
-[FaceDetection] [9/298] Detecting faces: img_3307.jpg
-2025-11-14 22:02:24,131 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:02:24,418 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/few-qty/img_3307.jpg: 3 faces
-[FaceDetection] [10/298] Detecting faces: ihoc0868.jpg
-2025-11-14 22:02:24,899 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:02:24,972 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/ihoc0868.jpg: 5 faces
-[FaceDetection] [11/298] Detecting faces: img_0484.jpg
-2025-11-14 22:02:25,318 [INFO] [FaceDetection] Found 1 faces in img_0484.jpg
-2025-11-14 22:02:25,393 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_0484.jpg: 1 faces
-[FaceDetection] [12/298] Detecting faces: img_0485.jpg
-2025-11-14 22:02:25,740 [INFO] [FaceDetection] Found 1 faces in img_0485.jpg
-2025-11-14 22:02:25,824 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_0485.jpg: 1 faces
-[FaceDetection] [13/298] Detecting faces: img_0486.jpg
-2025-11-14 22:02:26,164 [INFO] [FaceDetection] Found 1 faces in img_0486.jpg
-2025-11-14 22:02:26,254 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_0486.jpg: 1 faces
-[FaceDetection] [14/298] Detecting faces: img_0487.jpg
-2025-11-14 22:02:26,640 [INFO] [FaceDetection] Found 1 faces in img_0487.jpg
-2025-11-14 22:02:26,720 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_0487.jpg: 1 faces
-[FaceDetection] [15/298] Detecting faces: img_3307.jpg
-2025-11-14 22:02:27,171 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:02:27,463 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_3307.jpg: 3 faces
-[FaceDetection] [16/298] Detecting faces: img_4790.jpeg
-2025-11-14 22:02:27,688 [INFO] [FaceDetection] Found 1 faces in img_4790.jpeg
-2025-11-14 22:02:27,726 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_4790.jpeg: 1 faces
-[FaceDetection] [17/298] Detecting faces: img_4973.jpg
-2025-11-14 22:02:28,596 [INFO] [FaceDetection] Found 8 faces in img_4973.jpg
-2025-11-14 22:02:29,172 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_4973.jpg: 8 faces
-[FaceDetection] [18/298] Detecting faces: img_e3062.jpg
-2025-11-14 22:02:29,461 [INFO] [FaceDetection] Found 1 faces in img_e3062.jpg
-2025-11-14 22:02:29,543 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3062.jpg: 1 faces
-[FaceDetection] [19/298] Detecting faces: img_e3066.jpg
-2025-11-14 22:02:29,857 [INFO] [FaceDetection] Found 2 faces in img_e3066.jpg
-2025-11-14 22:02:29,991 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3066.jpg: 2 faces
-[FaceDetection] [20/298] Detecting faces: img_e3067.jpg
-2025-11-14 22:02:30,307 [INFO] [FaceDetection] Found 2 faces in img_e3067.jpg
-2025-11-14 22:02:30,436 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3067.jpg: 2 faces
-[FaceDetection] [21/298] Detecting faces: img_e3068.jpg
-2025-11-14 22:02:30,767 [INFO] [FaceDetection] Found 2 faces in img_e3068.jpg
-2025-11-14 22:02:30,888 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3068.jpg: 2 faces
-[FaceDetection] [22/298] Detecting faces: img_e3069.jpg
-2025-11-14 22:02:31,208 [INFO] [FaceDetection] Found 2 faces in img_e3069.jpg
-2025-11-14 22:02:31,343 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3069.jpg: 2 faces
-[FaceDetection] [23/298] Detecting faces: img_e3071.jpg
-2025-11-14 22:02:31,631 [INFO] [FaceDetection] Found 1 faces in img_e3071.jpg
-2025-11-14 22:02:31,732 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3071.jpg: 1 faces
-[FaceDetection] [24/298] Detecting faces: img_e3072.jpg
-2025-11-14 22:02:32,083 [INFO] [FaceDetection] Found 2 faces in img_e3072.jpg
-2025-11-14 22:02:32,243 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3072.jpg: 2 faces
-[FaceDetection] [25/298] Detecting faces: img_e3073.jpg
-2025-11-14 22:02:32,534 [INFO] [FaceDetection] Found 1 faces in img_e3073.jpg
-2025-11-14 22:02:32,631 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3073.jpg: 1 faces
-[FaceDetection] [26/298] Detecting faces: img_e3074.jpg
-2025-11-14 22:02:33,005 [INFO] [FaceDetection] Found 2 faces in img_e3074.jpg
-2025-11-14 22:02:33,179 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3074.jpg: 2 faces
-[FaceDetection] [27/298] Detecting faces: img_e3075.jpg
-2025-11-14 22:02:33,549 [INFO] [FaceDetection] Found 2 faces in img_e3075.jpg
-2025-11-14 22:02:33,731 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3075.jpg: 2 faces
-[FaceDetection] [28/298] Detecting faces: img_e3076.jpg
-2025-11-14 22:02:34,096 [INFO] [FaceDetection] Found 2 faces in img_e3076.jpg
-2025-11-14 22:02:34,263 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3076.jpg: 2 faces
-[FaceDetection] [29/298] Detecting faces: img_e3077.jpg
-2025-11-14 22:02:34,637 [INFO] [FaceDetection] Found 2 faces in img_e3077.jpg
-2025-11-14 22:02:34,810 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3077.jpg: 2 faces
-[FaceDetection] [30/298] Detecting faces: img_e3078.jpg
-2025-11-14 22:02:35,081 [INFO] [FaceDetection] Found 1 faces in img_e3078.jpg
-2025-11-14 22:02:35,172 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3078.jpg: 1 faces
-[FaceDetection] [31/298] Detecting faces: img_e3085.jpg
-2025-11-14 22:02:35,545 [INFO] [FaceDetection] Found 2 faces in img_e3085.jpg
-2025-11-14 22:02:35,703 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3085.jpg: 2 faces
-[FaceDetection] [32/298] Detecting faces: img_e3086.jpg
-2025-11-14 22:02:36,036 [INFO] [FaceDetection] Found 2 faces in img_e3086.jpg
-2025-11-14 22:02:36,189 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3086.jpg: 2 faces
-[FaceDetection] [33/298] Detecting faces: img_e3088.jpg
-2025-11-14 22:02:36,583 [INFO] [FaceDetection] Found 2 faces in img_e3088.jpg
-2025-11-14 22:02:36,752 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3088.jpg: 2 faces
-[FaceDetection] [34/298] Detecting faces: img_e3089.jpg
-2025-11-14 22:02:37,141 [INFO] [FaceDetection] Found 2 faces in img_e3089.jpg
-2025-11-14 22:02:37,299 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3089.jpg: 2 faces
-[FaceDetection] [35/298] Detecting faces: img_e3090.jpg
-2025-11-14 22:02:37,606 [INFO] [FaceDetection] Found 1 faces in img_e3090.jpg
-2025-11-14 22:02:37,709 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3090.jpg: 1 faces
-[FaceDetection] [36/298] Detecting faces: img_e3091.jpg
-2025-11-14 22:02:38,054 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:02:38,183 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3091.jpg: 1 faces
-[FaceDetection] [37/298] Detecting faces: img_e3092.jpg
-2025-11-14 22:02:38,529 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-14 22:02:38,644 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3092.jpg: 1 faces
-[FaceDetection] [38/298] Detecting faces: img_e3093.jpg
-2025-11-14 22:02:38,976 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-14 22:02:39,089 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3093.jpg: 1 faces
-[FaceDetection] [39/298] Detecting faces: img_e3094.jpg
-2025-11-14 22:02:39,454 [INFO] [FaceDetection] Found 2 faces in img_e3094.jpg
-2025-11-14 22:02:39,611 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3094.jpg: 2 faces
-[FaceDetection] [40/298] Detecting faces: img_e3095.jpg
-2025-11-14 22:02:39,995 [INFO] [FaceDetection] Found 2 faces in img_e3095.jpg
-2025-11-14 22:02:40,158 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3095.jpg: 2 faces
-[FaceDetection] [41/298] Detecting faces: img_e3096.jpg
-2025-11-14 22:02:40,468 [INFO] [FaceDetection] Found 1 faces in img_e3096.jpg
-2025-11-14 22:02:40,561 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3096.jpg: 1 faces
-[FaceDetection] [42/298] Detecting faces: img_e3097.jpg
-2025-11-14 22:02:40,912 [INFO] [FaceDetection] Found 2 faces in img_e3097.jpg
-2025-11-14 22:02:41,071 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3097.jpg: 2 faces
-[FaceDetection] [43/298] Detecting faces: img_e3098.jpg
-2025-11-14 22:02:41,460 [INFO] [FaceDetection] Found 3 faces in img_e3098.jpg
-2025-11-14 22:02:41,625 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3098.jpg: 3 faces
-[FaceDetection] [44/298] Detecting faces: img_e3099.jpg
-2025-11-14 22:02:42,017 [INFO] [FaceDetection] Found 3 faces in img_e3099.jpg
-2025-11-14 22:02:42,175 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3099.jpg: 3 faces
-[FaceDetection] [45/298] Detecting faces: img_e3100.jpg
-2025-11-14 22:02:42,530 [INFO] [FaceDetection] Found 2 faces in img_e3100.jpg
-2025-11-14 22:02:42,659 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3100.jpg: 2 faces
-[FaceDetection] [46/298] Detecting faces: img_e3101.jpg
-2025-11-14 22:02:42,994 [INFO] [FaceDetection] Found 2 faces in img_e3101.jpg
-2025-11-14 22:02:43,119 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3101.jpg: 2 faces
-[FaceDetection] [47/298] Detecting faces: img_e3102.jpg
-2025-11-14 22:02:43,432 [INFO] [FaceDetection] Found 1 faces in img_e3102.jpg
-2025-11-14 22:02:43,528 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3102.jpg: 1 faces
-[FaceDetection] [48/298] Detecting faces: img_e3103.jpg
-2025-11-14 22:02:43,827 [INFO] [FaceDetection] Found 1 faces in img_e3103.jpg
-2025-11-14 22:02:43,927 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3103.jpg: 1 faces
-[FaceDetection] [49/298] Detecting faces: img_e3104.jpg
-2025-11-14 22:02:44,242 [INFO] [FaceDetection] Found 1 faces in img_e3104.jpg
-2025-11-14 22:02:44,345 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3104.jpg: 1 faces
-[FaceDetection] [50/298] Detecting faces: img_e3105.jpg
-2025-11-14 22:02:44,755 [INFO] [FaceDetection] Found 2 faces in img_e3105.jpg
-2025-11-14 22:02:44,924 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3105.jpg: 2 faces
-[FaceDetection] [51/298] Detecting faces: img_e3106.jpg
-2025-11-14 22:02:45,229 [INFO] [FaceDetection] Found 1 faces in img_e3106.jpg
-2025-11-14 22:02:45,312 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3106.jpg: 1 faces
-[FaceDetection] [52/298] Detecting faces: img_e3108.jpg
-2025-11-14 22:02:45,736 [INFO] [FaceDetection] Found 2 faces in img_e3108.jpg
-2025-11-14 22:02:45,938 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3108.jpg: 2 faces
-[FaceDetection] [53/298] Detecting faces: img_e3110.jpg
-2025-11-14 22:02:46,316 [INFO] [FaceDetection] Found 2 faces in img_e3110.jpg
-2025-11-14 22:02:46,442 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3110.jpg: 2 faces
-[FaceDetection] [54/298] Detecting faces: img_e3111.jpg
-2025-11-14 22:02:46,868 [INFO] [FaceDetection] Found 3 faces in img_e3111.jpg
-2025-11-14 22:02:47,017 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3111.jpg: 3 faces
-[FaceDetection] [55/298] Detecting faces: img_e3121.jpg
-2025-11-14 22:02:47,338 [INFO] [FaceDetection] Found 1 faces in img_e3121.jpg
-2025-11-14 22:02:47,434 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3121.jpg: 1 faces
-[FaceDetection] [56/298] Detecting faces: img_e3122.jpg
-2025-11-14 22:02:47,767 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:02:47,861 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3122.jpg: 1 faces
-[FaceDetection] [57/298] Detecting faces: img_e3123.jpg
-2025-11-14 22:02:48,193 [INFO] [FaceDetection] Found 1 faces in img_e3123.jpg
-2025-11-14 22:02:48,294 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3123.jpg: 1 faces
-[FaceDetection] [58/298] Detecting faces: img_e3124.jpg
-2025-11-14 22:02:48,739 [INFO] [FaceDetection] Found 2 faces in img_e3124.jpg
-2025-11-14 22:02:48,955 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3124.jpg: 2 faces
-[FaceDetection] [59/298] Detecting faces: img_e3125.jpg
-2025-11-14 22:02:49,291 [INFO] [FaceDetection] Found 1 faces in img_e3125.jpg
-2025-11-14 22:02:49,381 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3125.jpg: 1 faces
-[FaceDetection] [60/298] Detecting faces: img_e3126.jpg
-2025-11-14 22:02:49,727 [INFO] [FaceDetection] Found 1 faces in img_e3126.jpg
-2025-11-14 22:02:49,826 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3126.jpg: 1 faces
-[FaceDetection] [61/298] Detecting faces: img_e3127.jpg
-2025-11-14 22:02:50,149 [INFO] [FaceDetection] Found 1 faces in img_e3127.jpg
-2025-11-14 22:02:50,238 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3127.jpg: 1 faces
-[FaceDetection] [62/298] Detecting faces: img_e3128.jpg
-2025-11-14 22:02:50,642 [INFO] [FaceDetection] Found 2 faces in img_e3128.jpg
-2025-11-14 22:02:50,805 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3128.jpg: 2 faces
-[FaceDetection] [63/298] Detecting faces: img_e3129.jpg
-2025-11-14 22:02:51,234 [INFO] [FaceDetection] Found 2 faces in img_e3129.jpg
-2025-11-14 22:02:51,425 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3129.jpg: 2 faces
-[FaceDetection] [64/298] Detecting faces: img_e3130.jpg
-2025-11-14 22:02:51,857 [INFO] [FaceDetection] Found 2 faces in img_e3130.jpg
-2025-11-14 22:02:52,031 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3130.jpg: 2 faces
-[FaceDetection] [65/298] Detecting faces: img_e3131.jpg
-2025-11-14 22:02:52,501 [INFO] [FaceDetection] Found 3 faces in img_e3131.jpg
-2025-11-14 22:02:52,724 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3131.jpg: 3 faces
-[FaceDetection] [66/298] Detecting faces: img_e3132.jpg
-2025-11-14 22:02:53,067 [INFO] [FaceDetection] Found 1 faces in img_e3132.jpg
-2025-11-14 22:02:53,156 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3132.jpg: 1 faces
-[FaceDetection] [67/298] Detecting faces: img_e3133.jpg
-2025-11-14 22:02:53,482 [INFO] [FaceDetection] Found 1 faces in img_e3133.jpg
-2025-11-14 22:02:53,571 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3133.jpg: 1 faces
-[FaceDetection] [68/298] Detecting faces: img_e3134.jpg
-2025-11-14 22:02:53,899 [INFO] [FaceDetection] Found 1 faces in img_e3134.jpg
-2025-11-14 22:02:53,982 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3134.jpg: 1 faces
-[FaceDetection] [69/298] Detecting faces: img_e3135.jpg
-2025-11-14 22:02:54,284 [INFO] [FaceDetection] Found 1 faces in img_e3135.jpg
-2025-11-14 22:02:54,364 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3135.jpg: 1 faces
-[FaceDetection] [70/298] Detecting faces: img_e3136.jpg
-2025-11-14 22:02:54,674 [INFO] [FaceDetection] Found 1 faces in img_e3136.jpg
-2025-11-14 22:02:54,745 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3136.jpg: 1 faces
-[FaceDetection] [71/298] Detecting faces: img_e3137.jpg
-2025-11-14 22:02:55,040 [INFO] [FaceDetection] Found 1 faces in img_e3137.jpg
-2025-11-14 22:02:55,113 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3137.jpg: 1 faces
-[FaceDetection] [72/298] Detecting faces: img_e3138.jpg
-2025-11-14 22:02:55,430 [INFO] [FaceDetection] Found 1 faces in img_e3138.jpg
-2025-11-14 22:02:55,509 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3138.jpg: 1 faces
-[FaceDetection] [73/298] Detecting faces: img_e3139.jpg
-2025-11-14 22:02:55,830 [INFO] [FaceDetection] Found 1 faces in img_e3139.jpg
-2025-11-14 22:02:55,926 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3139.jpg: 1 faces
-[FaceDetection] [74/298] Detecting faces: img_e3140.jpg
-2025-11-14 22:02:56,213 [INFO] [FaceDetection] Found 1 faces in img_e3140.jpg
-2025-11-14 22:02:56,294 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3140.jpg: 1 faces
-[FaceDetection] [75/298] Detecting faces: img_e3141.jpg
-2025-11-14 22:02:56,610 [INFO] [FaceDetection] Found 1 faces in img_e3141.jpg
-2025-11-14 22:02:56,688 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3141.jpg: 1 faces
-[FaceDetection] [76/298] Detecting faces: img_e3142.jpg
-2025-11-14 22:02:56,990 [INFO] [FaceDetection] Found 1 faces in img_e3142.jpg
-2025-11-14 22:02:57,067 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3142.jpg: 1 faces
-[FaceDetection] [77/298] Detecting faces: img_e3143.jpg
-2025-11-14 22:02:57,373 [INFO] [FaceDetection] Found 1 faces in img_e3143.jpg
-2025-11-14 22:02:57,454 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3143.jpg: 1 faces
-[FaceDetection] [78/298] Detecting faces: img_e3144.jpg
-2025-11-14 22:02:57,751 [INFO] [FaceDetection] Found 1 faces in img_e3144.jpg
-2025-11-14 22:02:57,826 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3144.jpg: 1 faces
-[FaceDetection] [79/298] Detecting faces: img_e3145.jpg
-2025-11-14 22:02:58,140 [INFO] [FaceDetection] Found 1 faces in img_e3145.jpg
-2025-11-14 22:02:58,217 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3145.jpg: 1 faces
-[FaceDetection] [80/298] Detecting faces: img_e3146.jpg
-2025-11-14 22:02:58,518 [INFO] [FaceDetection] Found 1 faces in img_e3146.jpg
-2025-11-14 22:02:58,602 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3146.jpg: 1 faces
-[FaceDetection] [81/298] Detecting faces: img_e3147.jpg
-2025-11-14 22:02:58,899 [INFO] [FaceDetection] Found 1 faces in img_e3147.jpg
-2025-11-14 22:02:58,974 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e3147.jpg: 1 faces
-[FaceDetection] [82/298] Detecting faces: img_e3148.jpg
-[FaceDetection] [83/298] Detecting faces: img_e3149.jpg
-[FaceDetection] [84/298] Detecting faces: img_e3150.jpg
-[FaceDetection] [85/298] Detecting faces: img_e3152.jpg
-[FaceDetection] [86/298] Detecting faces: img_e5085.jpg
-2025-11-14 22:03:00,323 [INFO] [FaceDetection] Found 3 faces in img_e5085.jpg
-2025-11-14 22:03:00,380 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e5085.jpg: 3 faces
-[FaceDetection] [87/298] Detecting faces: img_e5816.jpg
-2025-11-14 22:03:00,575 [INFO] [FaceDetection] Found 1 faces in img_e5816.jpg
-2025-11-14 22:03:00,594 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e5816.jpg: 1 faces
-[FaceDetection] [88/298] Detecting faces: img_e5817.jpg
-2025-11-14 22:03:01,227 [INFO] [FaceDetection] Found 6 faces in img_e5817.jpg
-2025-11-14 22:03:01,295 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e5817.jpg: 6 faces
-[FaceDetection] [89/298] Detecting faces: img_e7069.jpg
-2025-11-14 22:03:01,600 [INFO] [FaceDetection] Found 1 faces in img_e7069.jpg
-2025-11-14 22:03:01,669 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/img_e7069.jpg: 1 faces
-[FaceDetection] [90/298] Detecting faces: nqxh3331.jpg
-2025-11-14 22:03:01,906 [INFO] [FaceDetection] Found 1 faces in nqxh3331.jpg
-2025-11-14 22:03:01,952 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/nqxh3331.jpg: 1 faces
-[FaceDetection] [91/298] Detecting faces: svmo2172.jpg
-2025-11-14 22:03:02,210 [INFO] [FaceDetection] Found 1 faces in svmo2172.jpg
-2025-11-14 22:03:02,252 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/svmo2172.jpg: 1 faces
-[FaceDetection] [92/298] Detecting faces: tpnf3849.jpg
-2025-11-14 22:03:02,496 [INFO] [FaceDetection] Found 1 faces in tpnf3849.jpg
-2025-11-14 22:03:02,499 [ERROR] Failed to save face crop: Coordinate 'right' is less than 'left'
-2025-11-14 22:03:02,499 [WARNING] Failed to save face crop: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\.memorymate\faces\tpnf3849_face0.jpg
-2025-11-14 22:03:02,500 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/inbox/tpnf3849.jpg: 1 faces
-[FaceDetection] [93/298] Detecting faces: ewkj3802.jpg
-2025-11-14 22:03:03,088 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:03:03,198 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/ewkj3802.jpg: 5 faces
-[FaceDetection] [94/298] Detecting faces: ihoc0868.jpg
-2025-11-14 22:03:03,779 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:03:03,868 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/ihoc0868.jpg: 5 faces
-[FaceDetection] [95/298] Detecting faces: img_0484.jpg
-2025-11-14 22:03:04,223 [INFO] [FaceDetection] Found 1 faces in img_0484.jpg
-2025-11-14 22:03:04,309 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_0484.jpg: 1 faces
-[FaceDetection] [96/298] Detecting faces: img_0485.jpg
-2025-11-14 22:03:04,694 [INFO] [FaceDetection] Found 1 faces in img_0485.jpg
-2025-11-14 22:03:04,788 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_0485.jpg: 1 faces
-[FaceDetection] [97/298] Detecting faces: img_0486.jpg
-2025-11-14 22:03:05,132 [INFO] [FaceDetection] Found 1 faces in img_0486.jpg
-2025-11-14 22:03:05,229 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_0486.jpg: 1 faces
-[FaceDetection] [98/298] Detecting faces: img_0487.jpg
-2025-11-14 22:03:05,591 [INFO] [FaceDetection] Found 1 faces in img_0487.jpg
-2025-11-14 22:03:05,685 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_0487.jpg: 1 faces
-[FaceDetection] [99/298] Detecting faces: img_3307.jpg
-2025-11-14 22:03:06,189 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:03:06,498 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_3307.jpg: 3 faces
-[FaceDetection] [100/298] Detecting faces: img_4790.jpeg
-2025-11-14 22:03:06,727 [INFO] [FaceDetection] Found 1 faces in img_4790.jpeg
-2025-11-14 22:03:06,763 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_4790.jpeg: 1 faces
-[FaceDetection] [101/298] Detecting faces: img_4973.jpg
-2025-11-14 22:03:07,699 [INFO] [FaceDetection] Found 8 faces in img_4973.jpg
-2025-11-14 22:03:08,307 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_4973.jpg: 8 faces
-[FaceDetection] [102/298] Detecting faces: img_e3062.jpg
-2025-11-14 22:03:08,612 [INFO] [FaceDetection] Found 1 faces in img_e3062.jpg
-2025-11-14 22:03:08,694 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3062.jpg: 1 faces
-[FaceDetection] [103/298] Detecting faces: img_e3066.jpg
-2025-11-14 22:03:09,052 [INFO] [FaceDetection] Found 2 faces in img_e3066.jpg
-2025-11-14 22:03:09,181 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3066.jpg: 2 faces
-[FaceDetection] [104/298] Detecting faces: img_e3067.jpg
-2025-11-14 22:03:09,546 [INFO] [FaceDetection] Found 2 faces in img_e3067.jpg
-2025-11-14 22:03:09,690 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3067.jpg: 2 faces
-[FaceDetection] [105/298] Detecting faces: img_e3068.jpg
-2025-11-14 22:03:10,063 [INFO] [FaceDetection] Found 2 faces in img_e3068.jpg
-2025-11-14 22:03:10,206 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3068.jpg: 2 faces
-[FaceDetection] [106/298] Detecting faces: img_e3069.jpg
-2025-11-14 22:03:10,560 [INFO] [FaceDetection] Found 2 faces in img_e3069.jpg
-2025-11-14 22:03:10,705 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3069.jpg: 2 faces
-[FaceDetection] [107/298] Detecting faces: img_e3071.jpg
-2025-11-14 22:03:11,013 [INFO] [FaceDetection] Found 1 faces in img_e3071.jpg
-2025-11-14 22:03:11,115 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3071.jpg: 1 faces
-[FaceDetection] [108/298] Detecting faces: img_e3072.jpg
-2025-11-14 22:03:11,502 [INFO] [FaceDetection] Found 2 faces in img_e3072.jpg
-2025-11-14 22:03:11,682 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3072.jpg: 2 faces
-[FaceDetection] [109/298] Detecting faces: img_e3073.jpg
-2025-11-14 22:03:11,981 [INFO] [FaceDetection] Found 1 faces in img_e3073.jpg
-2025-11-14 22:03:12,087 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3073.jpg: 1 faces
-[FaceDetection] [110/298] Detecting faces: img_e3074.jpg
-2025-11-14 22:03:12,481 [INFO] [FaceDetection] Found 2 faces in img_e3074.jpg
-2025-11-14 22:03:12,662 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3074.jpg: 2 faces
-[FaceDetection] [111/298] Detecting faces: img_e3075.jpg
-2025-11-14 22:03:13,038 [INFO] [FaceDetection] Found 2 faces in img_e3075.jpg
-2025-11-14 22:03:13,230 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3075.jpg: 2 faces
-[FaceDetection] [112/298] Detecting faces: img_e3076.jpg
-2025-11-14 22:03:13,615 [INFO] [FaceDetection] Found 2 faces in img_e3076.jpg
-2025-11-14 22:03:13,817 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3076.jpg: 2 faces
-[FaceDetection] [113/298] Detecting faces: img_e3077.jpg
-2025-11-14 22:03:14,227 [INFO] [FaceDetection] Found 2 faces in img_e3077.jpg
-2025-11-14 22:03:14,414 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3077.jpg: 2 faces
-[FaceDetection] [114/298] Detecting faces: img_e3078.jpg
-2025-11-14 22:03:14,723 [INFO] [FaceDetection] Found 1 faces in img_e3078.jpg
-2025-11-14 22:03:14,821 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3078.jpg: 1 faces
-[FaceDetection] [115/298] Detecting faces: img_e3085.jpg
-2025-11-14 22:03:15,208 [INFO] [FaceDetection] Found 2 faces in img_e3085.jpg
-2025-11-14 22:03:15,370 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3085.jpg: 2 faces
-[FaceDetection] [116/298] Detecting faces: img_e3086.jpg
-2025-11-14 22:03:15,803 [INFO] [FaceDetection] Found 2 faces in img_e3086.jpg
-2025-11-14 22:03:15,988 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3086.jpg: 2 faces
-[FaceDetection] [117/298] Detecting faces: img_e3088.jpg
-2025-11-14 22:03:16,386 [INFO] [FaceDetection] Found 2 faces in img_e3088.jpg
-2025-11-14 22:03:16,549 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3088.jpg: 2 faces
-[FaceDetection] [118/298] Detecting faces: img_e3089.jpg
-2025-11-14 22:03:16,940 [INFO] [FaceDetection] Found 2 faces in img_e3089.jpg
-2025-11-14 22:03:17,102 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3089.jpg: 2 faces
-[FaceDetection] [119/298] Detecting faces: img_e3090.jpg
-2025-11-14 22:03:17,387 [INFO] [FaceDetection] Found 1 faces in img_e3090.jpg
-2025-11-14 22:03:17,482 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3090.jpg: 1 faces
-[FaceDetection] [120/298] Detecting faces: img_e3091.jpg
-2025-11-14 22:03:17,835 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:03:17,964 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3091.jpg: 1 faces
-[FaceDetection] [121/298] Detecting faces: img_e3092.jpg
-2025-11-14 22:03:18,321 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-14 22:03:18,452 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3092.jpg: 1 faces
-[FaceDetection] [122/298] Detecting faces: img_e3093.jpg
-2025-11-14 22:03:18,812 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-14 22:03:18,933 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3093.jpg: 1 faces
-[FaceDetection] [123/298] Detecting faces: img_e3094.jpg
-2025-11-14 22:03:19,313 [INFO] [FaceDetection] Found 2 faces in img_e3094.jpg
-2025-11-14 22:03:19,510 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3094.jpg: 2 faces
-[FaceDetection] [124/298] Detecting faces: img_e3095.jpg
-2025-11-14 22:03:19,915 [INFO] [FaceDetection] Found 2 faces in img_e3095.jpg
-2025-11-14 22:03:20,086 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3095.jpg: 2 faces
-[FaceDetection] [125/298] Detecting faces: img_e3096.jpg
-2025-11-14 22:03:20,387 [INFO] [FaceDetection] Found 1 faces in img_e3096.jpg
-2025-11-14 22:03:20,481 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3096.jpg: 1 faces
-[FaceDetection] [126/298] Detecting faces: img_e3097.jpg
-2025-11-14 22:03:20,882 [INFO] [FaceDetection] Found 2 faces in img_e3097.jpg
-2025-11-14 22:03:21,051 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3097.jpg: 2 faces
-[FaceDetection] [127/298] Detecting faces: img_e3098.jpg
-2025-11-14 22:03:21,495 [INFO] [FaceDetection] Found 3 faces in img_e3098.jpg
-2025-11-14 22:03:21,671 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3098.jpg: 3 faces
-[FaceDetection] [128/298] Detecting faces: img_e3099.jpg
-2025-11-14 22:03:22,104 [INFO] [FaceDetection] Found 3 faces in img_e3099.jpg
-2025-11-14 22:03:22,295 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3099.jpg: 3 faces
-[FaceDetection] [129/298] Detecting faces: img_e3100.jpg
-2025-11-14 22:03:22,626 [INFO] [FaceDetection] Found 2 faces in img_e3100.jpg
-2025-11-14 22:03:22,764 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3100.jpg: 2 faces
-[FaceDetection] [130/298] Detecting faces: img_e3101.jpg
-2025-11-14 22:03:23,115 [INFO] [FaceDetection] Found 2 faces in img_e3101.jpg
-2025-11-14 22:03:23,250 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3101.jpg: 2 faces
-[FaceDetection] [131/298] Detecting faces: img_e3102.jpg
-2025-11-14 22:03:23,535 [INFO] [FaceDetection] Found 1 faces in img_e3102.jpg
-2025-11-14 22:03:23,645 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3102.jpg: 1 faces
-[FaceDetection] [132/298] Detecting faces: img_e3103.jpg
-2025-11-14 22:03:23,973 [INFO] [FaceDetection] Found 1 faces in img_e3103.jpg
-2025-11-14 22:03:24,081 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3103.jpg: 1 faces
-[FaceDetection] [133/298] Detecting faces: img_e3104.jpg
-2025-11-14 22:03:24,379 [INFO] [FaceDetection] Found 1 faces in img_e3104.jpg
-2025-11-14 22:03:24,486 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3104.jpg: 1 faces
-[FaceDetection] [134/298] Detecting faces: img_e3105.jpg
-2025-11-14 22:03:24,887 [INFO] [FaceDetection] Found 2 faces in img_e3105.jpg
-2025-11-14 22:03:25,063 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3105.jpg: 2 faces
-[FaceDetection] [135/298] Detecting faces: img_e3106.jpg
-2025-11-14 22:03:25,362 [INFO] [FaceDetection] Found 1 faces in img_e3106.jpg
-2025-11-14 22:03:25,454 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3106.jpg: 1 faces
-[FaceDetection] [136/298] Detecting faces: img_e3108.jpg
-2025-11-14 22:03:25,880 [INFO] [FaceDetection] Found 2 faces in img_e3108.jpg
-2025-11-14 22:03:26,091 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3108.jpg: 2 faces
-[FaceDetection] [137/298] Detecting faces: img_e3110.jpg
-2025-11-14 22:03:26,473 [INFO] [FaceDetection] Found 2 faces in img_e3110.jpg
-2025-11-14 22:03:26,611 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3110.jpg: 2 faces
-[FaceDetection] [138/298] Detecting faces: img_e3111.jpg
-2025-11-14 22:03:27,058 [INFO] [FaceDetection] Found 3 faces in img_e3111.jpg
-2025-11-14 22:03:27,207 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3111.jpg: 3 faces
-[FaceDetection] [139/298] Detecting faces: img_e3121.jpg
-2025-11-14 22:03:27,538 [INFO] [FaceDetection] Found 1 faces in img_e3121.jpg
-2025-11-14 22:03:27,640 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3121.jpg: 1 faces
-[FaceDetection] [140/298] Detecting faces: img_e3122.jpg
-2025-11-14 22:03:27,966 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:03:28,067 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3122.jpg: 1 faces
-[FaceDetection] [141/298] Detecting faces: img_e3123.jpg
-2025-11-14 22:03:28,424 [INFO] [FaceDetection] Found 1 faces in img_e3123.jpg
-2025-11-14 22:03:28,524 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3123.jpg: 1 faces
-[FaceDetection] [142/298] Detecting faces: img_e3124.jpg
-2025-11-14 22:03:28,957 [INFO] [FaceDetection] Found 2 faces in img_e3124.jpg
-2025-11-14 22:03:29,153 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3124.jpg: 2 faces
-[FaceDetection] [143/298] Detecting faces: img_e3125.jpg
-2025-11-14 22:03:29,482 [INFO] [FaceDetection] Found 1 faces in img_e3125.jpg
-2025-11-14 22:03:29,577 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3125.jpg: 1 faces
-[FaceDetection] [144/298] Detecting faces: img_e3126.jpg
-2025-11-14 22:03:29,915 [INFO] [FaceDetection] Found 1 faces in img_e3126.jpg
-2025-11-14 22:03:30,023 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3126.jpg: 1 faces
-[FaceDetection] [145/298] Detecting faces: img_e3127.jpg
-2025-11-14 22:03:30,337 [INFO] [FaceDetection] Found 1 faces in img_e3127.jpg
-2025-11-14 22:03:30,426 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3127.jpg: 1 faces
-[FaceDetection] [146/298] Detecting faces: img_e3128.jpg
-2025-11-14 22:03:30,838 [INFO] [FaceDetection] Found 2 faces in img_e3128.jpg
-2025-11-14 22:03:31,000 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3128.jpg: 2 faces
-[FaceDetection] [147/298] Detecting faces: img_e3129.jpg
-2025-11-14 22:03:31,405 [INFO] [FaceDetection] Found 2 faces in img_e3129.jpg
-2025-11-14 22:03:31,578 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3129.jpg: 2 faces
-[FaceDetection] [148/298] Detecting faces: img_e3130.jpg
-2025-11-14 22:03:31,978 [INFO] [FaceDetection] Found 2 faces in img_e3130.jpg
-2025-11-14 22:03:32,139 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3130.jpg: 2 faces
-[FaceDetection] [149/298] Detecting faces: img_e3131.jpg
-2025-11-14 22:03:32,667 [INFO] [FaceDetection] Found 3 faces in img_e3131.jpg
-2025-11-14 22:03:32,915 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3131.jpg: 3 faces
-[FaceDetection] [150/298] Detecting faces: img_e3132.jpg
-2025-11-14 22:03:33,264 [INFO] [FaceDetection] Found 1 faces in img_e3132.jpg
-2025-11-14 22:03:33,364 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3132.jpg: 1 faces
-[FaceDetection] [151/298] Detecting faces: img_e3133.jpg
-2025-11-14 22:03:33,720 [INFO] [FaceDetection] Found 1 faces in img_e3133.jpg
-2025-11-14 22:03:33,820 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3133.jpg: 1 faces
-[FaceDetection] [152/298] Detecting faces: img_e3134.jpg
-2025-11-14 22:03:34,168 [INFO] [FaceDetection] Found 1 faces in img_e3134.jpg
-2025-11-14 22:03:34,278 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3134.jpg: 1 faces
-[FaceDetection] [153/298] Detecting faces: img_e3135.jpg
-2025-11-14 22:03:34,607 [INFO] [FaceDetection] Found 1 faces in img_e3135.jpg
-2025-11-14 22:03:34,697 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3135.jpg: 1 faces
-[FaceDetection] [154/298] Detecting faces: img_e3136.jpg
-2025-11-14 22:03:35,026 [INFO] [FaceDetection] Found 1 faces in img_e3136.jpg
-2025-11-14 22:03:35,113 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3136.jpg: 1 faces
-[FaceDetection] [155/298] Detecting faces: img_e3137.jpg
-2025-11-14 22:03:35,445 [INFO] [FaceDetection] Found 1 faces in img_e3137.jpg
-2025-11-14 22:03:35,543 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3137.jpg: 1 faces
-[FaceDetection] [156/298] Detecting faces: img_e3138.jpg
-2025-11-14 22:03:35,890 [INFO] [FaceDetection] Found 1 faces in img_e3138.jpg
-2025-11-14 22:03:35,992 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3138.jpg: 1 faces
-[FaceDetection] [157/298] Detecting faces: img_e3139.jpg
-2025-11-14 22:03:36,348 [INFO] [FaceDetection] Found 1 faces in img_e3139.jpg
-2025-11-14 22:03:36,452 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3139.jpg: 1 faces
-[FaceDetection] [158/298] Detecting faces: img_e3140.jpg
-2025-11-14 22:03:36,795 [INFO] [FaceDetection] Found 1 faces in img_e3140.jpg
-2025-11-14 22:03:36,886 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3140.jpg: 1 faces
-[FaceDetection] [159/298] Detecting faces: img_e3141.jpg
-2025-11-14 22:03:37,200 [INFO] [FaceDetection] Found 1 faces in img_e3141.jpg
-2025-11-14 22:03:37,291 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3141.jpg: 1 faces
-[FaceDetection] [160/298] Detecting faces: img_e3142.jpg
-2025-11-14 22:03:37,638 [INFO] [FaceDetection] Found 1 faces in img_e3142.jpg
-2025-11-14 22:03:37,726 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3142.jpg: 1 faces
-[FaceDetection] [161/298] Detecting faces: img_e3143.jpg
-2025-11-14 22:03:38,060 [INFO] [FaceDetection] Found 1 faces in img_e3143.jpg
-2025-11-14 22:03:38,146 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3143.jpg: 1 faces
-[FaceDetection] [162/298] Detecting faces: img_e3144.jpg
-2025-11-14 22:03:38,495 [INFO] [FaceDetection] Found 1 faces in img_e3144.jpg
-2025-11-14 22:03:38,585 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3144.jpg: 1 faces
-[FaceDetection] [163/298] Detecting faces: img_e3145.jpg
-2025-11-14 22:03:38,913 [INFO] [FaceDetection] Found 1 faces in img_e3145.jpg
-2025-11-14 22:03:39,005 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3145.jpg: 1 faces
-[FaceDetection] [164/298] Detecting faces: img_e3146.jpg
-2025-11-14 22:03:39,337 [INFO] [FaceDetection] Found 1 faces in img_e3146.jpg
-2025-11-14 22:03:39,424 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3146.jpg: 1 faces
-[FaceDetection] [165/298] Detecting faces: img_e3147.jpg
-2025-11-14 22:03:39,759 [INFO] [FaceDetection] Found 1 faces in img_e3147.jpg
-2025-11-14 22:03:39,843 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e3147.jpg: 1 faces
-[FaceDetection] [166/298] Detecting faces: img_e3148.jpg
-[FaceDetection] [167/298] Detecting faces: img_e3149.jpg
-[FaceDetection] [168/298] Detecting faces: img_e3150.jpg
-[FaceDetection] [169/298] Detecting faces: img_e3152.jpg
-[FaceDetection] [170/298] Detecting faces: img_e5085.jpg
-2025-11-14 22:03:41,295 [INFO] [FaceDetection] Found 3 faces in img_e5085.jpg
-2025-11-14 22:03:41,357 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e5085.jpg: 3 faces
-[FaceDetection] [171/298] Detecting faces: img_e5816.jpg
-2025-11-14 22:03:41,574 [INFO] [FaceDetection] Found 1 faces in img_e5816.jpg
-2025-11-14 22:03:41,597 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e5816.jpg: 1 faces
-[FaceDetection] [172/298] Detecting faces: img_e5817.jpg
-2025-11-14 22:03:42,279 [INFO] [FaceDetection] Found 6 faces in img_e5817.jpg
-2025-11-14 22:03:42,356 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e5817.jpg: 6 faces
-[FaceDetection] [173/298] Detecting faces: img_e7069.jpg
-2025-11-14 22:03:42,687 [INFO] [FaceDetection] Found 1 faces in img_e7069.jpg
-2025-11-14 22:03:42,780 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/img_e7069.jpg: 1 faces
-[FaceDetection] [174/298] Detecting faces: nqxh3331.jpg
-2025-11-14 22:03:43,032 [INFO] [FaceDetection] Found 1 faces in nqxh3331.jpg
-2025-11-14 22:03:43,091 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/nqxh3331.jpg: 1 faces
-[FaceDetection] [175/298] Detecting faces: svmo2172.jpg
-2025-11-14 22:03:43,353 [INFO] [FaceDetection] Found 1 faces in svmo2172.jpg
-2025-11-14 22:03:43,392 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/svmo2172.jpg: 1 faces
-[FaceDetection] [176/298] Detecting faces: tpnf3849.jpg
-2025-11-14 22:03:43,665 [INFO] [FaceDetection] Found 1 faces in tpnf3849.jpg
-2025-11-14 22:03:43,667 [ERROR] Failed to save face crop: Coordinate 'right' is less than 'left'
-2025-11-14 22:03:43,667 [WARNING] Failed to save face crop: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\.memorymate\faces\tpnf3849_face0.jpg
-2025-11-14 22:03:43,668 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/inbox/tpnf3849.jpg: 1 faces
-[FaceDetection] [177/298] Detecting faces: ewkj3802.jpg
-2025-11-14 22:03:44,287 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:03:44,415 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
-[FaceDetection] [178/298] Detecting faces: ihoc0868.jpg
-2025-11-14 22:03:44,998 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:03:45,089 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
-[FaceDetection] [179/298] Detecting faces: img_1550.dng
-2025-11-14 22:03:45,433 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
-2025-11-14 22:03:45,561 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
-[FaceDetection] [180/298] Detecting faces: img_3307.jpg
-2025-11-14 22:03:46,105 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:03:46,397 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
-[FaceDetection] [181/298] Detecting faces: img_9570.jpg
-2025-11-14 22:03:46,788 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
-2025-11-14 22:03:46,930 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
-[FaceDetection] [182/298] Detecting faces: img_e3122.jpg
-2025-11-14 22:03:47,265 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:03:47,372 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
-[FaceDetection] [183/298] Detecting faces: img_e7413.jpg
-2025-11-14 22:03:47,700 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
-2025-11-14 22:03:47,785 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
-[FaceDetection] [184/298] Detecting faces: img_e9569.jpg
-2025-11-14 22:03:48,058 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
-2025-11-14 22:03:48,156 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
-[FaceDetection] [185/298] Detecting faces: img_e9574.jpg
-2025-11-14 22:03:48,493 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
-2025-11-14 22:03:48,597 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
-[FaceDetection] [186/298] Detecting faces: 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-14 22:03:48,833 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-14 22:03:48,881 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
-[FaceDetection] [187/298] Detecting faces: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-14 22:03:49,142 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-14 22:03:49,208 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
-[FaceDetection] [188/298] Detecting faces: gpic6664.jpg
-2025-11-14 22:03:49,482 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
-2025-11-14 22:03:49,531 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
-[FaceDetection] [189/298] Detecting faces: img_8920.png
-2025-11-14 22:03:49,909 [INFO] [FaceDetection] Found 2 faces in img_8920.png
-2025-11-14 22:03:50,052 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
-[FaceDetection] [190/298] Detecting faces: jkhc8378.jpg
-2025-11-14 22:03:50,290 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
-2025-11-14 22:03:50,343 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
-[FaceDetection] [191/298] Detecting faces: ntxk2933.jpg
-2025-11-14 22:03:50,594 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
-2025-11-14 22:03:50,654 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
-[FaceDetection] [192/298] Detecting faces: img_8152.jpeg
-2025-11-14 22:03:50,898 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
-2025-11-14 22:03:50,948 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
-[FaceDetection] [193/298] Detecting faces: img_8158.jpeg
-2025-11-14 22:03:51,211 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
-2025-11-14 22:03:51,256 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
-[FaceDetection] [194/298] Detecting faces: img_1779.jpeg
-2025-11-14 22:03:51,639 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
-2025-11-14 22:03:51,771 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
-[FaceDetection] [195/298] Detecting faces: img_e3091.jpg
-2025-11-14 22:03:52,118 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:03:52,249 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
-[FaceDetection] [196/298] Detecting faces: img_e3092.jpg
-2025-11-14 22:03:52,580 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-14 22:03:52,706 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
-[FaceDetection] [197/298] Detecting faces: img_e3093.jpg
-2025-11-14 22:03:53,062 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-14 22:03:53,186 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
-[FaceDetection] [198/298] Detecting faces: ewkj3802.jpg
-2025-11-14 22:03:53,774 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:03:53,895 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/ewkj3802.jpg: 5 faces
-[FaceDetection] [199/298] Detecting faces: ihoc0868.jpg
-2025-11-14 22:03:54,477 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:03:54,559 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/ihoc0868.jpg: 5 faces
-[FaceDetection] [200/298] Detecting faces: img_0484.jpg
-2025-11-14 22:03:54,953 [INFO] [FaceDetection] Found 1 faces in img_0484.jpg
-2025-11-14 22:03:55,057 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_0484.jpg: 1 faces
-[FaceDetection] [201/298] Detecting faces: img_0485.jpg
-2025-11-14 22:03:55,411 [INFO] [FaceDetection] Found 1 faces in img_0485.jpg
-2025-11-14 22:03:55,503 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_0485.jpg: 1 faces
-[FaceDetection] [202/298] Detecting faces: img_0486.jpg
-2025-11-14 22:03:55,917 [INFO] [FaceDetection] Found 1 faces in img_0486.jpg
-2025-11-14 22:03:56,017 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_0486.jpg: 1 faces
-[FaceDetection] [203/298] Detecting faces: img_0487.jpg
-2025-11-14 22:03:56,369 [INFO] [FaceDetection] Found 1 faces in img_0487.jpg
-2025-11-14 22:03:56,456 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_0487.jpg: 1 faces
-[FaceDetection] [204/298] Detecting faces: img_3307.jpg
-2025-11-14 22:03:56,994 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:03:57,319 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_3307.jpg: 3 faces
-[FaceDetection] [205/298] Detecting faces: img_4790.jpeg
-2025-11-14 22:03:57,547 [INFO] [FaceDetection] Found 1 faces in img_4790.jpeg
-2025-11-14 22:03:57,588 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_4790.jpeg: 1 faces
-[FaceDetection] [206/298] Detecting faces: img_4973.jpg
-[FaceDetection] [207/298] Detecting faces: img_e3062.jpg
-2025-11-14 22:03:58,017 [INFO] [FaceDetection] Found 1 faces in img_e3062.jpg
-2025-11-14 22:03:58,106 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3062.jpg: 1 faces
-[FaceDetection] [208/298] Detecting faces: img_e3066.jpg
-2025-11-14 22:03:58,512 [INFO] [FaceDetection] Found 2 faces in img_e3066.jpg
-2025-11-14 22:03:58,663 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3066.jpg: 2 faces
-[FaceDetection] [209/298] Detecting faces: img_e3067.jpg
-2025-11-14 22:03:59,070 [INFO] [FaceDetection] Found 2 faces in img_e3067.jpg
-2025-11-14 22:03:59,212 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3067.jpg: 2 faces
-[FaceDetection] [210/298] Detecting faces: img_e3068.jpg
-2025-11-14 22:03:59,583 [INFO] [FaceDetection] Found 2 faces in img_e3068.jpg
-2025-11-14 22:03:59,734 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3068.jpg: 2 faces
-[FaceDetection] [211/298] Detecting faces: img_e3069.jpg
-2025-11-14 22:04:00,110 [INFO] [FaceDetection] Found 2 faces in img_e3069.jpg
-2025-11-14 22:04:00,263 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3069.jpg: 2 faces
-[FaceDetection] [212/298] Detecting faces: img_e3071.jpg
-2025-11-14 22:04:00,553 [INFO] [FaceDetection] Found 1 faces in img_e3071.jpg
-2025-11-14 22:04:00,693 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3071.jpg: 1 faces
-[FaceDetection] [213/298] Detecting faces: img_e3072.jpg
-2025-11-14 22:04:01,101 [INFO] [FaceDetection] Found 2 faces in img_e3072.jpg
-2025-11-14 22:04:01,289 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3072.jpg: 2 faces
-[FaceDetection] [214/298] Detecting faces: img_e3073.jpg
-2025-11-14 22:04:01,611 [INFO] [FaceDetection] Found 1 faces in img_e3073.jpg
-2025-11-14 22:04:01,725 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3073.jpg: 1 faces
-[FaceDetection] [215/298] Detecting faces: img_e3074.jpg
-2025-11-14 22:04:02,129 [INFO] [FaceDetection] Found 2 faces in img_e3074.jpg
-2025-11-14 22:04:02,328 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3074.jpg: 2 faces
-[FaceDetection] [216/298] Detecting faces: img_e3075.jpg
-2025-11-14 22:04:02,743 [INFO] [FaceDetection] Found 2 faces in img_e3075.jpg
-2025-11-14 22:04:02,949 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3075.jpg: 2 faces
-[FaceDetection] [217/298] Detecting faces: img_e3076.jpg
-2025-11-14 22:04:03,339 [INFO] [FaceDetection] Found 2 faces in img_e3076.jpg
-2025-11-14 22:04:03,535 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3076.jpg: 2 faces
-[FaceDetection] [218/298] Detecting faces: img_e3077.jpg
-2025-11-14 22:04:03,926 [INFO] [FaceDetection] Found 2 faces in img_e3077.jpg
-2025-11-14 22:04:04,111 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3077.jpg: 2 faces
-[FaceDetection] [219/298] Detecting faces: img_e3078.jpg
-2025-11-14 22:04:04,421 [INFO] [FaceDetection] Found 1 faces in img_e3078.jpg
-2025-11-14 22:04:04,522 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3078.jpg: 1 faces
-[FaceDetection] [220/298] Detecting faces: img_e3085.jpg
-2025-11-14 22:04:04,932 [INFO] [FaceDetection] Found 2 faces in img_e3085.jpg
-2025-11-14 22:04:05,113 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3085.jpg: 2 faces
-[FaceDetection] [221/298] Detecting faces: img_e3086.jpg
-2025-11-14 22:04:05,489 [INFO] [FaceDetection] Found 2 faces in img_e3086.jpg
-2025-11-14 22:04:05,660 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3086.jpg: 2 faces
-[FaceDetection] [222/298] Detecting faces: img_e3088.jpg
-2025-11-14 22:04:06,039 [INFO] [FaceDetection] Found 2 faces in img_e3088.jpg
-2025-11-14 22:04:06,205 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3088.jpg: 2 faces
-[FaceDetection] [223/298] Detecting faces: img_e3089.jpg
-2025-11-14 22:04:06,598 [INFO] [FaceDetection] Found 2 faces in img_e3089.jpg
-2025-11-14 22:04:06,773 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3089.jpg: 2 faces
-[FaceDetection] [224/298] Detecting faces: img_e3090.jpg
-2025-11-14 22:04:07,083 [INFO] [FaceDetection] Found 1 faces in img_e3090.jpg
-2025-11-14 22:04:07,189 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3090.jpg: 1 faces
-[FaceDetection] [225/298] Detecting faces: img_e3091.jpg
-2025-11-14 22:04:07,572 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:04:07,712 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3091.jpg: 1 faces
-[FaceDetection] [226/298] Detecting faces: img_e3092.jpg
-2025-11-14 22:04:08,039 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-14 22:04:08,166 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3092.jpg: 1 faces
-[FaceDetection] [227/298] Detecting faces: img_e3093.jpg
-2025-11-14 22:04:08,519 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-14 22:04:08,649 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3093.jpg: 1 faces
-[FaceDetection] [228/298] Detecting faces: img_e3094.jpg
-2025-11-14 22:04:09,050 [INFO] [FaceDetection] Found 2 faces in img_e3094.jpg
-2025-11-14 22:04:09,227 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3094.jpg: 2 faces
-[FaceDetection] [229/298] Detecting faces: img_e3095.jpg
-2025-11-14 22:04:09,649 [INFO] [FaceDetection] Found 2 faces in img_e3095.jpg
-2025-11-14 22:04:09,831 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3095.jpg: 2 faces
-[FaceDetection] [230/298] Detecting faces: img_e3096.jpg
-2025-11-14 22:04:10,137 [INFO] [FaceDetection] Found 1 faces in img_e3096.jpg
-2025-11-14 22:04:10,245 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3096.jpg: 1 faces
-[FaceDetection] [231/298] Detecting faces: img_e3097.jpg
-2025-11-14 22:04:10,646 [INFO] [FaceDetection] Found 2 faces in img_e3097.jpg
-2025-11-14 22:04:10,829 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3097.jpg: 2 faces
-[FaceDetection] [232/298] Detecting faces: img_e3098.jpg
-2025-11-14 22:04:11,269 [INFO] [FaceDetection] Found 3 faces in img_e3098.jpg
-2025-11-14 22:04:11,450 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3098.jpg: 3 faces
-[FaceDetection] [233/298] Detecting faces: img_e3099.jpg
-2025-11-14 22:04:11,899 [INFO] [FaceDetection] Found 3 faces in img_e3099.jpg
-2025-11-14 22:04:12,073 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3099.jpg: 3 faces
-[FaceDetection] [234/298] Detecting faces: img_e3100.jpg
-2025-11-14 22:04:12,436 [INFO] [FaceDetection] Found 2 faces in img_e3100.jpg
-2025-11-14 22:04:12,578 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3100.jpg: 2 faces
-[FaceDetection] [235/298] Detecting faces: img_e3101.jpg
-2025-11-14 22:04:12,939 [INFO] [FaceDetection] Found 2 faces in img_e3101.jpg
-2025-11-14 22:04:13,080 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3101.jpg: 2 faces
-[FaceDetection] [236/298] Detecting faces: img_e3102.jpg
-2025-11-14 22:04:13,380 [INFO] [FaceDetection] Found 1 faces in img_e3102.jpg
-2025-11-14 22:04:13,494 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3102.jpg: 1 faces
-[FaceDetection] [237/298] Detecting faces: img_e3103.jpg
-2025-11-14 22:04:13,812 [INFO] [FaceDetection] Found 1 faces in img_e3103.jpg
-2025-11-14 22:04:13,939 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3103.jpg: 1 faces
-[FaceDetection] [238/298] Detecting faces: img_e3104.jpg
-2025-11-14 22:04:14,244 [INFO] [FaceDetection] Found 1 faces in img_e3104.jpg
-2025-11-14 22:04:14,352 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3104.jpg: 1 faces
-[FaceDetection] [239/298] Detecting faces: img_e3105.jpg
-2025-11-14 22:04:14,809 [INFO] [FaceDetection] Found 2 faces in img_e3105.jpg
-2025-11-14 22:04:14,989 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3105.jpg: 2 faces
-[FaceDetection] [240/298] Detecting faces: img_e3106.jpg
-2025-11-14 22:04:15,298 [INFO] [FaceDetection] Found 1 faces in img_e3106.jpg
-2025-11-14 22:04:15,401 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3106.jpg: 1 faces
-[FaceDetection] [241/298] Detecting faces: img_e3108.jpg
-2025-11-14 22:04:15,859 [INFO] [FaceDetection] Found 2 faces in img_e3108.jpg
-2025-11-14 22:04:16,059 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3108.jpg: 2 faces
-[FaceDetection] [242/298] Detecting faces: img_e3110.jpg
-2025-11-14 22:04:16,458 [INFO] [FaceDetection] Found 2 faces in img_e3110.jpg
-2025-11-14 22:04:16,608 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3110.jpg: 2 faces
-[FaceDetection] [243/298] Detecting faces: img_e3111.jpg
-2025-11-14 22:04:17,064 [INFO] [FaceDetection] Found 3 faces in img_e3111.jpg
-2025-11-14 22:04:17,222 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3111.jpg: 3 faces
-[FaceDetection] [244/298] Detecting faces: img_e3121.jpg
-2025-11-14 22:04:17,556 [INFO] [FaceDetection] Found 1 faces in img_e3121.jpg
-2025-11-14 22:04:17,660 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3121.jpg: 1 faces
-[FaceDetection] [245/298] Detecting faces: img_e3122.jpg
-2025-11-14 22:04:17,982 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:04:18,092 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3122.jpg: 1 faces
-[FaceDetection] [246/298] Detecting faces: img_e3123.jpg
-2025-11-14 22:04:18,482 [INFO] [FaceDetection] Found 1 faces in img_e3123.jpg
-2025-11-14 22:04:18,590 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3123.jpg: 1 faces
-[FaceDetection] [247/298] Detecting faces: img_e3124.jpg
-2025-11-14 22:04:19,027 [INFO] [FaceDetection] Found 2 faces in img_e3124.jpg
-2025-11-14 22:04:19,274 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3124.jpg: 2 faces
-[FaceDetection] [248/298] Detecting faces: img_e3125.jpg
-2025-11-14 22:04:19,686 [INFO] [FaceDetection] Found 1 faces in img_e3125.jpg
-2025-11-14 22:04:19,802 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3125.jpg: 1 faces
-[FaceDetection] [249/298] Detecting faces: img_e3126.jpg
-2025-11-14 22:04:20,154 [INFO] [FaceDetection] Found 1 faces in img_e3126.jpg
-2025-11-14 22:04:20,274 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3126.jpg: 1 faces
-[FaceDetection] [250/298] Detecting faces: img_e3127.jpg
-2025-11-14 22:04:20,635 [INFO] [FaceDetection] Found 1 faces in img_e3127.jpg
-2025-11-14 22:04:20,747 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3127.jpg: 1 faces
-[FaceDetection] [251/298] Detecting faces: img_e3128.jpg
-2025-11-14 22:04:21,196 [INFO] [FaceDetection] Found 2 faces in img_e3128.jpg
-2025-11-14 22:04:21,377 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3128.jpg: 2 faces
-[FaceDetection] [252/298] Detecting faces: img_e3129.jpg
-2025-11-14 22:04:21,809 [INFO] [FaceDetection] Found 2 faces in img_e3129.jpg
-2025-11-14 22:04:21,999 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3129.jpg: 2 faces
-[FaceDetection] [253/298] Detecting faces: img_e3130.jpg
-2025-11-14 22:04:22,394 [INFO] [FaceDetection] Found 2 faces in img_e3130.jpg
-2025-11-14 22:04:22,598 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3130.jpg: 2 faces
-[FaceDetection] [254/298] Detecting faces: img_e3131.jpg
-2025-11-14 22:04:23,119 [INFO] [FaceDetection] Found 3 faces in img_e3131.jpg
-2025-11-14 22:04:23,372 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3131.jpg: 3 faces
-[FaceDetection] [255/298] Detecting faces: img_e3132.jpg
-2025-11-14 22:04:23,711 [INFO] [FaceDetection] Found 1 faces in img_e3132.jpg
-2025-11-14 22:04:23,809 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3132.jpg: 1 faces
-[FaceDetection] [256/298] Detecting faces: img_e3133.jpg
-2025-11-14 22:04:24,132 [INFO] [FaceDetection] Found 1 faces in img_e3133.jpg
-2025-11-14 22:04:24,240 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3133.jpg: 1 faces
-[FaceDetection] [257/298] Detecting faces: img_e3134.jpg
-2025-11-14 22:04:24,568 [INFO] [FaceDetection] Found 1 faces in img_e3134.jpg
-2025-11-14 22:04:24,671 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3134.jpg: 1 faces
-[FaceDetection] [258/298] Detecting faces: img_e3135.jpg
-2025-11-14 22:04:24,983 [INFO] [FaceDetection] Found 1 faces in img_e3135.jpg
-2025-11-14 22:04:25,070 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3135.jpg: 1 faces
-[FaceDetection] [259/298] Detecting faces: img_e3136.jpg
-2025-11-14 22:04:25,386 [INFO] [FaceDetection] Found 1 faces in img_e3136.jpg
-2025-11-14 22:04:25,471 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3136.jpg: 1 faces
-[FaceDetection] [260/298] Detecting faces: img_e3137.jpg
-2025-11-14 22:04:25,796 [INFO] [FaceDetection] Found 1 faces in img_e3137.jpg
-2025-11-14 22:04:25,883 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3137.jpg: 1 faces
-[FaceDetection] [261/298] Detecting faces: img_e3138.jpg
-2025-11-14 22:04:26,222 [INFO] [FaceDetection] Found 1 faces in img_e3138.jpg
-2025-11-14 22:04:26,321 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3138.jpg: 1 faces
-[FaceDetection] [262/298] Detecting faces: img_e3139.jpg
-2025-11-14 22:04:26,662 [INFO] [FaceDetection] Found 1 faces in img_e3139.jpg
-2025-11-14 22:04:26,773 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3139.jpg: 1 faces
-[FaceDetection] [263/298] Detecting faces: img_e3140.jpg
-2025-11-14 22:04:27,089 [INFO] [FaceDetection] Found 1 faces in img_e3140.jpg
-2025-11-14 22:04:27,182 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3140.jpg: 1 faces
-[FaceDetection] [264/298] Detecting faces: img_e3141.jpg
-2025-11-14 22:04:27,496 [INFO] [FaceDetection] Found 1 faces in img_e3141.jpg
-2025-11-14 22:04:27,585 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3141.jpg: 1 faces
-[FaceDetection] [265/298] Detecting faces: img_e3142.jpg
-2025-11-14 22:04:27,905 [INFO] [FaceDetection] Found 1 faces in img_e3142.jpg
-2025-11-14 22:04:27,996 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3142.jpg: 1 faces
-[FaceDetection] [266/298] Detecting faces: img_e3143.jpg
-2025-11-14 22:04:28,330 [INFO] [FaceDetection] Found 1 faces in img_e3143.jpg
-2025-11-14 22:04:28,415 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3143.jpg: 1 faces
-[FaceDetection] [267/298] Detecting faces: img_e3144.jpg
-2025-11-14 22:04:28,746 [INFO] [FaceDetection] Found 1 faces in img_e3144.jpg
-2025-11-14 22:04:28,838 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3144.jpg: 1 faces
-[FaceDetection] [268/298] Detecting faces: img_e3145.jpg
-2025-11-14 22:04:29,150 [INFO] [FaceDetection] Found 1 faces in img_e3145.jpg
-2025-11-14 22:04:29,242 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3145.jpg: 1 faces
-[FaceDetection] [269/298] Detecting faces: img_e3146.jpg
-2025-11-14 22:04:29,557 [INFO] [FaceDetection] Found 1 faces in img_e3146.jpg
-2025-11-14 22:04:29,649 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3146.jpg: 1 faces
-[FaceDetection] [270/298] Detecting faces: img_e3147.jpg
-2025-11-14 22:04:29,980 [INFO] [FaceDetection] Found 1 faces in img_e3147.jpg
-2025-11-14 22:04:30,072 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e3147.jpg: 1 faces
-[FaceDetection] [271/298] Detecting faces: img_e3148.jpg
-[FaceDetection] [272/298] Detecting faces: img_e3149.jpg
-[FaceDetection] [273/298] Detecting faces: img_e3150.jpg
-[FaceDetection] [274/298] Detecting faces: img_e3152.jpg
-[FaceDetection] [275/298] Detecting faces: img_e5085.jpg
-2025-11-14 22:04:31,452 [INFO] [FaceDetection] Found 3 faces in img_e5085.jpg
-2025-11-14 22:04:31,514 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e5085.jpg: 3 faces
-[FaceDetection] [276/298] Detecting faces: img_e5816.jpg
-2025-11-14 22:04:31,751 [INFO] [FaceDetection] Found 1 faces in img_e5816.jpg
-2025-11-14 22:04:31,770 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e5816.jpg: 1 faces
-[FaceDetection] [277/298] Detecting faces: img_e5817.jpg
-2025-11-14 22:04:32,422 [INFO] [FaceDetection] Found 6 faces in img_e5817.jpg
-2025-11-14 22:04:32,492 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e5817.jpg: 6 faces
-[FaceDetection] [278/298] Detecting faces: img_e7069.jpg
-2025-11-14 22:04:32,784 [INFO] [FaceDetection] Found 1 faces in img_e7069.jpg
-2025-11-14 22:04:32,871 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/img_e7069.jpg: 1 faces
-[FaceDetection] [279/298] Detecting faces: nqxh3331.jpg
-2025-11-14 22:04:33,110 [INFO] [FaceDetection] Found 1 faces in nqxh3331.jpg
-2025-11-14 22:04:33,154 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/nqxh3331.jpg: 1 faces
-[FaceDetection] [280/298] Detecting faces: svmo2172.jpg
-2025-11-14 22:04:33,405 [INFO] [FaceDetection] Found 1 faces in svmo2172.jpg
-2025-11-14 22:04:33,451 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/svmo2172.jpg: 1 faces
-[FaceDetection] [281/298] Detecting faces: tpnf3849.jpg
-2025-11-14 22:04:33,715 [INFO] [FaceDetection] Found 1 faces in tpnf3849.jpg
-2025-11-14 22:04:33,717 [ERROR] Failed to save face crop: Coordinate 'right' is less than 'left'
-2025-11-14 22:04:33,717 [WARNING] Failed to save face crop: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\.memorymate\faces\tpnf3849_face0.jpg
-2025-11-14 22:04:33,718 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/inbox/tpnf3849.jpg: 1 faces
-[FaceDetection] [282/298] Detecting faces: 11.jpg
-2025-11-14 22:04:33,947 [INFO] [FaceDetection] Found 1 faces in 11.jpg
-2025-11-14 22:04:33,977 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/11.jpg: 1 faces
-[FaceDetection] [283/298] Detecting faces: 22.jfif
-2025-11-14 22:04:34,253 [INFO] [FaceDetection] Found 1 faces in 22.jfif
-2025-11-14 22:04:34,305 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/22.jfif: 1 faces
-[FaceDetection] [284/298] Detecting faces: gpic6664.jpg
-2025-11-14 22:04:34,535 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
-2025-11-14 22:04:34,588 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/gpic6664.jpg: 1 faces
-[FaceDetection] [285/298] Detecting faces: img_1550.png
-2025-11-14 22:04:34,942 [INFO] [FaceDetection] Found 1 faces in img_1550.png
-2025-11-14 22:04:35,075 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_1550.png: 1 faces
-[FaceDetection] [286/298] Detecting faces: img_8152.jpeg
-2025-11-14 22:04:35,332 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
-2025-11-14 22:04:35,384 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_8152.jpeg: 1 faces
-[FaceDetection] [287/298] Detecting faces: img_8158.jpeg
-2025-11-14 22:04:35,655 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
-2025-11-14 22:04:35,701 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_8158.jpeg: 1 faces
-[FaceDetection] [288/298] Detecting faces: img_8920.png
-2025-11-14 22:04:36,105 [INFO] [FaceDetection] Found 2 faces in img_8920.png
-2025-11-14 22:04:36,249 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_8920.png: 2 faces
-[FaceDetection] [289/298] Detecting faces: img_9570.jpg
-2025-11-14 22:04:36,678 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
-2025-11-14 22:04:36,827 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_9570.jpg: 2 faces
-[FaceDetection] [290/298] Detecting faces: img_e3122.jpg
-2025-11-14 22:04:37,154 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:04:37,255 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_e3122.jpg: 1 faces
-[FaceDetection] [291/298] Detecting faces: img_e7413.jpg
-2025-11-14 22:04:37,531 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
-2025-11-14 22:04:37,606 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_e7413.jpg: 1 faces
-[FaceDetection] [292/298] Detecting faces: img_e9569.jpg
-2025-11-14 22:04:37,903 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
-2025-11-14 22:04:37,987 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_e9569.jpg: 1 faces
-[FaceDetection] [293/298] Detecting faces: img_e9574.jpg
-2025-11-14 22:04:38,279 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
-2025-11-14 22:04:38,371 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/img_e9574.jpg: 1 faces
-[FaceDetection] [294/298] Detecting faces: jkhc8378.jpg
-2025-11-14 22:04:38,609 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
-2025-11-14 22:04:38,667 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/jkhc8378.jpg: 1 faces
-[FaceDetection] [295/298] Detecting faces: ntxk2933.jpg
-2025-11-14 22:04:38,914 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
-2025-11-14 22:04:38,968 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/2/ntxk2933.jpg: 1 faces
-[FaceDetection] [296/298] Detecting faces: img_1779.jpeg
-2025-11-14 22:04:39,281 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
-2025-11-14 22:04:39,419 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/4/img_1779.jpeg: 1 faces
-[FaceDetection] [297/298] Detecting faces: img_e3091.jpg
-2025-11-14 22:04:39,770 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:04:39,895 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/5/img_e3091.jpg: 1 faces
-[FaceDetection] [298/298] Detecting faces: img_e3106.jpg
-2025-11-14 22:04:40,195 [INFO] [FaceDetection] Found 1 faces in img_e3106.jpg
-2025-11-14 22:04:40,298 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/test-photos - copy/refs/5/img_e3106.jpg: 1 faces
-2025-11-14 22:04:40,299 [INFO] [FaceDetectionWorker] Complete in 144.6s: 298 processed, 473 faces detected, 0 failed
-[FaceDetection] Finished: 298 photos, 473 faces detected
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[22:04:58.592] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=9] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=9] finished scanning targets, scheduling UI update
-[GRID] Using scroll-based start position: 90 (scroll: 1920/5194)
-[GRID] Loading viewport range: 82-140 of 298
-[GRID] Queued 59 new thumbnail workers
-[GRID] Using scroll-based start position: 68 (scroll: 1536/5194)
-[GRID] Loading viewport range: 60-118 of 298
-[GRID] Queued 43 new thumbnail workers
-[GRID] Using scroll-based start position: 46 (scroll: 1152/5194)
-[GRID] Loading viewport range: 38-145 of 298
-[GRID] Queued 33 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/5194)
-[GRID] Loading viewport range: 0-127 of 298
-[GRID] Queued 62 new thumbnail workers
-[GRID] Using scroll-based start position: 2 (scroll: 384/5194)
-[GRID] Loading viewport range: 0-73 of 298
-[GRID] Using scroll-based start position: 24 (scroll: 768/5194)
-[GRID] Loading viewport range: 16-123 of 298
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=10)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:05:25.826] [Tabs] refresh_all(force=True) called
-[22:05:25.826] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:05:25.826] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:05:25.826] [Tabs]   populated=True, loading=False
-[22:05:25.826] [Tabs]   Force refresh: removing branches from populated set
-[22:05:25.826] [Tabs]   Starting load for branches
-[22:05:25.827] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:05:25.827] [Tabs] _clear_tab idx=0
-[22:05:25.828] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:05:25.828] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:05:25.828] [Tabs]   populated=True, loading=False
-[22:05:25.828] [Tabs]   Force refresh: removing folders from populated set
-[22:05:25.829] [Tabs]   Starting load for folders
-[22:05:25.829] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:05:25.829] [Tabs] _clear_tab idx=1
-[22:05:25.830] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:05:25.830] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:05:25.830] [Tabs]   populated=True, loading=False
-[22:05:25.830] [Tabs]   Force refresh: removing dates from populated set
-[22:05:25.831] [Tabs]   Starting load for dates
-[22:05:25.831] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:05:25.831] [Tabs] _clear_tab idx=2
-[22:05:25.831] [Tabs] _load_folders → got 17 rows for project_id=1
-[22:05:25.832] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:05:25.832] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:05:25.832] [Tabs]   populated=True, loading=False
-[22:05:25.832] [Tabs]   Force refresh: removing tags from populated set
-[22:05:25.833] [Tabs]   Starting load for tags
-[22:05:25.833] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:05:25.833] [Tabs] _clear_tab idx=3
-[22:05:25.834] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:05:25.835] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:05:25.835] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:05:25.835] [Tabs]   populated=True, loading=False
-[22:05:25.835] [Tabs]   Force refresh: removing quick from populated set
-[22:05:25.835] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:05:25.835] [Tabs]   Starting load for quick
-[22:05:25.836] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:05:25.836] [Tabs] _clear_tab idx=5
-[22:05:25.837] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:05:25.838] [Tabs] _load_quick → got 6 rows
-[22:05:25.841] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[22:05:25.928] [Tabs] _clear_tab idx=1
-[22:05:25.959] [Tabs] _clear_tab idx=2
-[22:05:25.997] [Tabs] _finish_tags called: idx=3, gen=5, rows_count=0
-[22:05:25.999] [Tabs] _clear_tab idx=3
-[22:05:26.006] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 12 (scroll: 768/6986)
-[GRID] Loading viewport range: 4-55 of 298
-[GRID] Queued 52 new thumbnail workers
-[GRID] Using scroll-based start position: 12 (scroll: 768/6986)
-[GRID] Loading viewport range: 4-55 of 298
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[22:06:30.415] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=12] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=12] finished scanning targets, scheduling UI update
-[GRID] Using scroll-based start position: 88 (scroll: 2304/6346)
-[GRID] Loading viewport range: 80-131 of 298
-[GRID] Queued 52 new thumbnail workers
-[GRID] Using scroll-based start position: 16 (scroll: 768/6346)
-[GRID] Loading viewport range: 8-66 of 298
-[GRID] Queued 59 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/6346)
-[GRID] Loading viewport range: 0-43 of 298
-[GRID] Queued 44 new thumbnail workers
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=13)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:06:43.457] [Tabs] refresh_all(force=True) called
-[22:06:43.457] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:06:43.457] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:06:43.457] [Tabs]   populated=True, loading=False
-[22:06:43.457] [Tabs]   Force refresh: removing branches from populated set
-[22:06:43.458] [Tabs]   Starting load for branches
-[22:06:43.458] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:06:43.458] [Tabs] _clear_tab idx=0
-[22:06:43.459] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:06:43.459] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:06:43.459] [Tabs]   populated=True, loading=False
-[22:06:43.459] [Tabs]   Force refresh: removing folders from populated set
-[22:06:43.459] [Tabs]   Starting load for folders
-[22:06:43.459] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:06:43.460] [Tabs] _clear_tab idx=1
-[22:06:43.461] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:06:43.461] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:06:43.461] [Tabs]   populated=True, loading=False
-[22:06:43.461] [Tabs]   Force refresh: removing dates from populated set
-[22:06:43.461] [Tabs]   Starting load for dates
-[22:06:43.461] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:06:43.461] [Tabs] _clear_tab idx=2
-[22:06:43.461] [Tabs] _load_folders → got 17 rows for project_id=1
-[22:06:43.463] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:06:43.463] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:06:43.463] [Tabs]   populated=True, loading=False
-[22:06:43.463] [Tabs]   Force refresh: removing tags from populated set
-[22:06:43.463] [Tabs]   Starting load for tags
-[22:06:43.463] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:06:43.463] [Tabs] _clear_tab idx=3
-[22:06:43.465] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:06:43.465] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:06:43.466] [Tabs]   populated=True, loading=False
-[22:06:43.466] [Tabs]   Force refresh: removing quick from populated set
-[22:06:43.466] [Tabs]   Starting load for quick
-[22:06:43.466] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:06:43.466] [Tabs] _clear_tab idx=5
-[22:06:43.466] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:06:43.466] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:06:43.468] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:06:43.470] [Tabs] _load_quick → got 6 rows
-[22:06:43.472] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[22:06:43.549] [Tabs] _clear_tab idx=1
-[22:06:43.582] [Tabs] _clear_tab idx=2
-[22:06:43.620] [Tabs] _finish_tags called: idx=3, gen=7, rows_count=0
-[22:06:43.620] [Tabs] _clear_tab idx=3
-[22:06:43.628] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/6986)
-[GRID] Loading viewport range: 0-43 of 298
-[GRID] Queued 44 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/6986)
-[GRID] Loading viewport range: 0-43 of 298
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[22:06:50.184] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=15] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=15] finished scanning targets, scheduling UI update
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> python main_qt.py
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 22:07:05,885 [INFO] ================================================================================
-2025-11-14 22:07:05,886 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 22:07:05,886 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\app_log.txt
-2025-11-14 22:07:05,887 [INFO] ================================================================================
-2025-11-14 22:07:05,930 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 22:07:05,930 [INFO] Qt message handler installed to suppress TIFF warnings
-[ThumbCacheDB] Purged 146 stale thumbnails (> 30 days).
-[Cache] {'entries': 146, 'size_mb': 0.54, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\thumbnails_cache.db', 'last_updated': '2025-11-14 22:01'}
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 22:07:06,202 [INFO] SearchService initialized
-[22:07:06.620] [Tabs] __init__ started
-[22:07:06.621] [Tabs] _build_tabs → building tab widgets
-[22:07:06.621] [Tabs] _on_tab_changed(idx=0)
-[22:07:06.622] [Tabs] _start_timeout idx=0 type=branches
-[22:07:06.623] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:07:06.623] [Tabs]   populated=False, loading=False
-[22:07:06.623] [Tabs]   Starting load for branches
-[22:07:06.623] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:07:06.623] [Tabs] _clear_tab idx=0
-[22:07:06.623] [Tabs] _on_tab_changed → tab_type=branches
-[22:07:06.624] [Tabs] _build_tabs → added 6 tabs
-[22:07:06.624] [Tabs] __init__ completed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=2] running for 1 targets...
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[22:07:06.664] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-14 22:07:06,708 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 22:07:06,709 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 22:07:06,710 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[MainWindow] ⚠️ Progress pollers init failed: 'status' exists but is not a directory: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\status
-[Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected - full video support enabled
-[22:07:07.244] [Tabs] _on_tab_changed(idx=0)
-[22:07:07.244] [Tabs] _start_timeout idx=0 type=branches
-[22:07:07.244] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:07:07.246] [Tabs]   populated=False, loading=False
-[22:07:07.246] [Tabs]   Starting load for branches
-[22:07:07.246] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:07:07.246] [Tabs] _clear_tab idx=0
-[22:07:07.247] [Tabs] _on_tab_changed → tab_type=branches
-[22:07:07.247] [Tabs] _finish_branches (stale gen=1) — ignoring
-[22:07:07.265] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[GRID] Using scroll-based start position: 0 (scroll: 0/5685)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=5)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:07:16.049] [Tabs] refresh_all(force=True) called
-[22:07:16.049] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:07:16.049] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:07:16.049] [Tabs]   populated=True, loading=False
-[22:07:16.049] [Tabs]   Force refresh: removing branches from populated set
-[22:07:16.049] [Tabs]   Starting load for branches
-[22:07:16.049] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:07:16.049] [Tabs] _clear_tab idx=0
-[22:07:16.052] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:07:16.052] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:07:16.052] [Tabs]   populated=False, loading=False
-[22:07:16.052] [Tabs]   Starting load for folders
-[22:07:16.052] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:07:16.052] [Tabs] _clear_tab idx=1
-[22:07:16.053] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:07:16.053] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:07:16.053] [Tabs]   populated=False, loading=False
-[22:07:16.053] [Tabs]   Starting load for dates
-[22:07:16.053] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:07:16.053] [Tabs] _clear_tab idx=2
-[22:07:16.054] [Tabs] _load_folders → got 17 rows for project_id=1
-[22:07:16.054] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:07:16.055] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:07:16.055] [Tabs]   populated=False, loading=False
-[22:07:16.055] [Tabs]   Starting load for tags
-[22:07:16.055] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:07:16.055] [Tabs] _clear_tab idx=3
-[22:07:16.056] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:07:16.056] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:07:16.056] [Tabs]   populated=False, loading=False
-[22:07:16.056] [Tabs]   Starting load for quick
-[22:07:16.058] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:07:16.058] [Tabs] _clear_tab idx=5
-[22:07:16.058] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:07:16.059] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:07:16.060] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:07:16.061] [Tabs] _load_quick → got 6 rows
-[22:07:16.063] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[22:07:16.138] [Tabs] _clear_tab idx=1
-[22:07:16.171] [Tabs] _clear_tab idx=2
-[22:07:16.216] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[22:07:16.216] [Tabs] _clear_tab idx=3
-[22:07:16.217] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/5706)
-[GRID] Loading viewport range: 0-50 of 298
-[22:07:19.750] [Tabs] _on_tab_changed(idx=4)
-[22:07:19.750] [Tabs] _start_timeout idx=4 type=people
-[22:07:19.750] [Tabs] _populate_tab(people, idx=4, force=False)
-[22:07:19.750] [Tabs]   populated=False, loading=False
-[22:07:19.750] [Tabs]   Starting load for people
-[22:07:19.751] [Tabs] _show_loading idx=4 label='Loading People…'
-[22:07:19.751] [Tabs] _clear_tab idx=4
-[22:07:19.752] [Tabs] _on_tab_changed → tab_type=people
-[22:07:19.753] [Tabs] _load_people → got 0 clusters
-[22:07:19.754] [Tabs] _clear_tab idx=4
-[People] 470 faces detected, awaiting clustering
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[22:07:41.521] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=7] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=7] finished scanning targets, scheduling UI update
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=8)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:07:45.464] [Tabs] refresh_all(force=True) called
-[22:07:45.466] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:07:45.466] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:07:45.466] [Tabs]   populated=True, loading=False
-[22:07:45.466] [Tabs]   Force refresh: removing branches from populated set
-[22:07:45.466] [Tabs]   Starting load for branches
-[22:07:45.466] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:07:45.467] [Tabs] _clear_tab idx=0
-[22:07:45.467] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:07:45.467] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:07:45.467] [Tabs]   populated=True, loading=False
-[22:07:45.467] [Tabs]   Force refresh: removing folders from populated set
-[22:07:45.467] [Tabs]   Starting load for folders
-[22:07:45.467] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:07:45.467] [Tabs] _clear_tab idx=1
-[22:07:45.468] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:07:45.468] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:07:45.470] [Tabs]   populated=True, loading=False
-[22:07:45.470] [Tabs]   Force refresh: removing dates from populated set
-[22:07:45.470] [Tabs]   Starting load for dates
-[22:07:45.470] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:07:45.470] [Tabs] _clear_tab idx=2
-[22:07:45.470] [Tabs] _load_folders → got 17 rows for project_id=1
-[22:07:45.471] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:07:45.471] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:07:45.471] [Tabs]   populated=True, loading=False
-[22:07:45.472] [Tabs]   Force refresh: removing tags from populated set
-[22:07:45.472] [Tabs]   Starting load for tags
-[22:07:45.472] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:07:45.472] [Tabs] _clear_tab idx=3
-[22:07:45.473] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:07:45.473] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:07:45.473] [Tabs]   populated=True, loading=False
-[22:07:45.473] [Tabs]   Force refresh: removing quick from populated set
-[22:07:45.474] [Tabs]   Starting load for quick
-[22:07:45.474] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:07:45.474] [Tabs] _clear_tab idx=5
-[22:07:45.473] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:07:45.474] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:07:45.475] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:07:45.476] [Tabs] _load_quick → got 6 rows
-[22:07:45.478] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 298 photos
-[GRID] Loaded 298 thumbnails.
-[GRID] Reloaded 298 thumbnails in branch-mode (base=298)
-[22:07:45.555] [Tabs] _clear_tab idx=1
-[22:07:45.586] [Tabs] _clear_tab idx=2
-[22:07:45.625] [Tabs] _finish_tags called: idx=3, gen=4, rows_count=0
-[22:07:45.625] [Tabs] _clear_tab idx=3
-[22:07:45.634] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/6986)
-[GRID] Loading viewport range: 0-43 of 298
-[GRID] Queued 44 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/6986)
-[GRID] Loading viewport range: 0-43 of 298
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\workers\face_cluster_worker.py
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[22:09:10.119] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 17 folder counts in batch (performance optimization)
-[Sidebar] 👥 People: 470 faces detected, awaiting clustering
-[Sidebar] Loaded date counts in batch: 5 years, 14 months, 25 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=10] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=10] finished scanning targets, scheduling UI update
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02>
+2025-11-14 22:41:54,213 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
+2025-11-14 22:41:54,214 [INFO] [FaceDetection] Initialized InsightFace with model=hog
+2025-11-14 22:41:54,216 [INFO] [FaceDetectionWorker] Processing 21 photos
+[FaceDetection] [1/21] Detecting faces: ewkj3802.jpg
+2025-11-14 22:41:54,835 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
+2025-11-14 22:41:54,956 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
+[FaceDetection] [2/21] Detecting faces: ihoc0868.jpg
+2025-11-14 22:41:55,512 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
+2025-11-14 22:41:55,588 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
+[FaceDetection] [3/21] Detecting faces: img_1550.dng
+2025-11-14 22:41:55,902 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
+2025-11-14 22:41:56,009 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
+[FaceDetection] [4/21] Detecting faces: img_3307.jpg
+2025-11-14 22:41:56,470 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
+2025-11-14 22:41:56,744 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
+[FaceDetection] [5/21] Detecting faces: img_9570.jpg
+2025-11-14 22:41:57,067 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
+2025-11-14 22:41:57,184 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
+[FaceDetection] [6/21] Detecting faces: img_e3122.jpg
+2025-11-14 22:41:57,486 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
+2025-11-14 22:41:57,582 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
+[FaceDetection] [7/21] Detecting faces: img_e7413.jpg
+2025-11-14 22:41:57,854 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
+2025-11-14 22:41:57,919 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
+[FaceDetection] [8/21] Detecting faces: img_e9569.jpg
+2025-11-14 22:41:58,177 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
+2025-11-14 22:41:58,251 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
+[FaceDetection] [9/21] Detecting faces: img_e9574.jpg
+2025-11-14 22:41:58,508 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
+2025-11-14 22:41:58,591 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
+[FaceDetection] [10/21] Detecting faces: 244008930_565686944637059_4279754871252118785_n.jpg
+2025-11-14 22:41:58,795 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
+2025-11-14 22:41:58,838 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
+[FaceDetection] [11/21] Detecting faces: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
+2025-11-14 22:41:59,067 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
+2025-11-14 22:41:59,120 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
+[FaceDetection] [12/21] Detecting faces: gpic6664.jpg
+2025-11-14 22:41:59,318 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
+2025-11-14 22:41:59,363 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
+[FaceDetection] [13/21] Detecting faces: img_8920.png
+2025-11-14 22:41:59,670 [INFO] [FaceDetection] Found 2 faces in img_8920.png
+2025-11-14 22:41:59,806 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
+[FaceDetection] [14/21] Detecting faces: jkhc8378.jpg
+2025-11-14 22:42:00,001 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
+2025-11-14 22:42:00,045 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
+[FaceDetection] [15/21] Detecting faces: ntxk2933.jpg
+2025-11-14 22:42:00,259 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
+2025-11-14 22:42:00,304 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
+[FaceDetection] [16/21] Detecting faces: img_8152.jpeg
+2025-11-14 22:42:00,539 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
+2025-11-14 22:42:00,577 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
+[FaceDetection] [17/21] Detecting faces: img_8158.jpeg
+2025-11-14 22:42:00,778 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
+2025-11-14 22:42:00,806 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
+[FaceDetection] [18/21] Detecting faces: img_1779.jpeg
+2025-11-14 22:42:01,107 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
+2025-11-14 22:42:01,220 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
+[FaceDetection] [19/21] Detecting faces: img_e3091.jpg
+2025-11-14 22:42:01,535 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
+2025-11-14 22:42:01,644 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
+[FaceDetection] [20/21] Detecting faces: img_e3092.jpg
+2025-11-14 22:42:01,966 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
+2025-11-14 22:42:02,079 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
+[FaceDetection] [21/21] Detecting faces: img_e3093.jpg
+2025-11-14 22:42:02,385 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
+2025-11-14 22:42:02,487 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
+2025-11-14 22:42:02,488 [INFO] [FaceDetectionWorker] Complete in 12.6s: 21 processed, 33 faces detected, 0 failed
+[FaceDetection] Complete: 21 photos, 33 faces detected
+2025-11-14 22:42:02,489 [INFO] [FaceClusterWorker] Starting face clustering for project 1
+[FaceCluster] Loading face embeddings...
+2025-11-14 22:42:02,491 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
+[FaceCluster] Clustering 33 faces...
+2025-11-14 22:42:02,520 [INFO] [FaceClusterWorker] Found 5 clusters
+[FaceCluster] Found 5 person groups...
+2025-11-14 22:42:02,520 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\workers\face_cluster_worker.py", line 149, in run
+    cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (self.project_id,))
+sqlite3.OperationalError: no such column: key
+[FaceCluster] Complete: 0 person groups created
+[People] Launching clustering worker for 33 detected faces
+2025-11-14 22:42:10,877 [INFO] [FaceClusterWorker] Starting face clustering for project 1
+2025-11-14 22:42:10,879 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
+2025-11-14 22:42:10,881 [INFO] [FaceClusterWorker] Found 5 clusters
+2025-11-14 22:42:10,882 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\workers\face_cluster_worker.py", line 149, in run
+    cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (self.project_id,))
+sqlite3.OperationalError: no such column: key
+[FaceCluster] Loading face embeddings...
+[FaceCluster] Found 5 person groups...
+2025-11-14 22:42:10,898 [INFO] [FaceClusterWorker] Cancellation requested
+[FaceCluster] Complete: 0 person groups created
+[FaceCluster] Clustering 33 faces...

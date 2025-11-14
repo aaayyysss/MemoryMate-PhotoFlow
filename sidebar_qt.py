@@ -1661,7 +1661,7 @@ class SidebarQt(QWidget):
                 print(f"[Sidebar] Failed to filter videos by year: {e}")
 
         elif mode == "videos_month" and value:
-            # Filter videos by month (YYYY-MM format)
+            # Filter videos by month (value is "YYYY-MM")
             _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by month: {value}")
             try:
@@ -1669,41 +1669,33 @@ class SidebarQt(QWidget):
                 video_service = VideoService()
                 videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
 
-                # Parse month key (e.g., "2024-03")
-                year, month = value.split("-")
-                filtered = video_service.filter_by_date(videos, year=int(year), month=int(month))
+                # Parse year and month from value "YYYY-MM"
+                parts = value.split("-")
+                year = int(parts[0])
+                month = int(parts[1])
+
+                # Filter by year and month using VideoService method
+                filtered = video_service.filter_by_date(videos, year=year, month=month)
 
                 paths = [v['path'] for v in filtered]
 
-                # Ensure strict media type separation
-                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
-
-                print(f"[Sidebar] Showing {len(paths)} videos from {value}")
+                print(f"[Sidebar] Showing {len(filtered)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
                     mw.grid.model.clear()
                     mw.grid.load_custom_paths(paths, content_type="videos")
-                    mw.statusBar().showMessage(f"📅 Showing {len(paths)} videos from {value}")
+                    mw.statusBar().showMessage(f"📅 Showing {len(filtered)} videos from {value}")
                 else:
                     print(f"[Sidebar] Unable to display filtered videos - grid.load_custom_paths not found")
             except Exception as e:
                 print(f"[Sidebar] Failed to filter videos by month: {e}")
 
         elif mode == "videos_day" and value:
-            # Filter videos by day (YYYY-MM-DD format)
+            # Filter videos by day (value is "YYYY-MM-DD")
             _clear_tag_if_needed()
             print(f"[Sidebar] Filtering videos by day: {value}")
             try:
-                from services.video_service import VideoService
-                video_service = VideoService()
-                videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
-
-                # Filter by exact date
-                filtered = [v for v in videos if v.get('created_date') == value]
-
-                paths = [v['path'] for v in filtered]
-
-                # Ensure strict media type separation
-                paths, photo_cnt, video_cnt = _ensure_video_paths_only(paths)
+                # Use database query to get videos for specific day
+                paths = self.db.get_videos_by_date(value, project_id=self.project_id)
 
                 print(f"[Sidebar] Showing {len(paths)} videos from {value}")
                 if hasattr(mw, "grid") and hasattr(mw.grid, "load_custom_paths"):
@@ -2162,41 +2154,27 @@ class SidebarQt(QWidget):
                     xlarge_size_cnt.setForeground(QColor("#888888"))
                     size_parent.appendRow([xlarge_size_item, xlarge_size_cnt])
 
-                    # 📅 Filter by Date (Option 7)
-                    # CRITICAL FIX: Build proper Year → Month → Day hierarchy like photos
+                    # 📅 Filter by Date - Full Year/Month/Day Hierarchy for Videos
                     date_parent = QStandardItem("📅 By Date")
                     date_parent.setEditable(False)
 
-                    # Get video date hierarchy: {year: {month: [days]}}
-                    video_hier = self.db.get_video_date_hierarchy(self.project_id) or {}
+                    # Get video date hierarchy: {year: {month: [days...]}}
+                    try:
+                        video_hier = self.db.get_video_date_hierarchy(self.project_id) or {}
+                    except Exception as e:
+                        print(f"[Sidebar] Failed to get video date hierarchy: {e}")
+                        video_hier = {}
 
-                    # PERFORMANCE OPTIMIZATION: Get ALL video date counts in ONE query (Phase 4)
-                    # This eliminates N+1 problem: N queries → 1 query (10-20x speedup)
-                    video_date_counts = {'years': {}, 'months': {}, 'days': {}}
-                    if hasattr(self.db, 'get_video_date_counts_batch'):
-                        try:
-                            video_date_counts = self.db.get_video_date_counts_batch(self.project_id)
-                            total_dated_videos = sum(video_date_counts['years'].values())
-                            print(f"[VideoDateHierarchy] Loaded video date counts in batch: {len(video_date_counts['years'])} years, {len(video_date_counts['months'])} months, {total_dated_videos} videos")
-                        except Exception as e:
-                            print(f"[VideoDateHierarchy] Batch query failed (falling back to individual queries): {e}")
-                            # Fallback to old method
-                            video_years = self.db.list_video_years_with_counts(self.project_id) or {}
-                            total_dated_videos = sum(count for _, count in video_years)
-                    else:
-                        # Fallback if batch method not available
-                        video_years = self.db.list_video_years_with_counts(self.project_id) or {}
-                        total_dated_videos = sum(count for _, count in video_years)
+                    # Count total videos with dates
+                    total_dated_videos = sum(
+                        self.db.count_videos_for_year(year, self.project_id)
+                        for year in video_hier.keys()
+                    ) if video_hier else 0
 
-                    # Build expandable hierarchy: Year → Month → Day
-                    for year in sorted(video_hier.keys(), reverse=True):
-                        # Get year count from batch result (fast) or calculate (slow)
-                        if video_date_counts and year in video_date_counts['years']:
-                            year_count = video_date_counts['years'][year]
-                        else:
-                            # Fallback: calculate from hierarchy
-                            year_count = sum(len(months_dict) for months_dict in video_hier.get(year, {}).values())
-
+                    # Build full year/month/day hierarchy (like photos)
+                    for year in sorted(video_hier.keys(), key=lambda y: int(str(y)), reverse=True):
+                        # Year node
+                        year_count = self.db.count_videos_for_year(year, self.project_id)
                         year_item = QStandardItem(str(year))
                         year_item.setEditable(False)
                         year_item.setData("videos_year", Qt.UserRole)
@@ -2209,71 +2187,45 @@ class SidebarQt(QWidget):
 
                         date_parent.appendRow([year_item, year_cnt])
 
-                        # Months (children of year)
-                        months_dict = video_hier[year]
-                        month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-                        for month_num in sorted(months_dict.keys(), reverse=True):
-                            try:
-                                month_int = int(month_num)
-                                month_label = month_names[month_int] if 1 <= month_int <= 12 else month_num
-                            except (ValueError, IndexError):
-                                month_label = month_num
-
-                            # Get month count from batch result (fast) or query individually (slow)
-                            month_key = f"{year}-{month_num.zfill(2)}"
-                            if video_date_counts and month_key in video_date_counts['months']:
-                                month_count = video_date_counts['months'][month_key]
-                            else:
-                                # Fallback: individual query or count days
-                                try:
-                                    month_count = self.db.count_videos_for_month(year, month_num, self.project_id)
-                                except Exception:
-                                    month_count = len(months_dict[month_num])
-
+                        # Month nodes under year
+                        months = video_hier[year]
+                        for month in sorted(months.keys(), key=lambda m: int(str(m))):
+                            month_label = f"{int(month):02d}"
+                            month_count = self.db.count_videos_for_month(year, month, self.project_id)
                             month_item = QStandardItem(month_label)
                             month_item.setEditable(False)
                             month_item.setData("videos_month", Qt.UserRole)
-                            month_item.setData(month_key, Qt.UserRole + 1)
-
+                            month_item.setData(f"{year}-{month_label}", Qt.UserRole + 1)
                             month_cnt = QStandardItem(str(month_count))
                             month_cnt.setEditable(False)
                             month_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                             month_cnt.setForeground(QColor("#888888"))
-
                             year_item.appendRow([month_item, month_cnt])
 
-                            # Days (children of month)
-                            days_list = months_dict[month_num]
-                            for day_str in sorted(days_list, reverse=True):
+                            # Day nodes under month
+                            days = months[month]
+                            day_numbers = set()
+                            for ymd in days:
                                 try:
-                                    # Extract day number from date string (YYYY-MM-DD)
-                                    day_num = day_str.split("-")[2]
+                                    parts = ymd.split("-")
+                                    if len(parts) == 3:
+                                        day_numbers.add(int(parts[2]))
+                                except:
+                                    pass
 
-                                    # Get day count from batch result (fast) or query individually (slow)
-                                    if video_date_counts and day_str in video_date_counts['days']:
-                                        day_count = video_date_counts['days'][day_str]
-                                    else:
-                                        # Fallback: individual query
-                                        try:
-                                            day_count = self.db.count_videos_for_day(day_str, self.project_id)
-                                        except Exception:
-                                            day_count = 1  # At least one video exists for this day
-
-                                    day_item = QStandardItem(f"Day {day_num}")
-                                    day_item.setEditable(False)
-                                    day_item.setData("videos_day", Qt.UserRole)
-                                    day_item.setData(day_str, Qt.UserRole + 1)
-
-                                    day_cnt = QStandardItem(str(day_count))
-                                    day_cnt.setEditable(False)
-                                    day_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                                    day_cnt.setForeground(QColor("#888888"))
-
-                                    month_item.appendRow([day_item, day_cnt])
-                                except (IndexError, ValueError):
-                                    pass  # Skip malformed dates
+                            for day in sorted(day_numbers):
+                                day_label = f"{day:02d}"
+                                ymd = f"{year}-{month_label}-{day_label}"
+                                day_count = self.db.count_videos_for_day(ymd, self.project_id)
+                                day_item = QStandardItem(day_label)
+                                day_item.setEditable(False)
+                                day_item.setData("videos_day", Qt.UserRole)
+                                day_item.setData(ymd, Qt.UserRole + 1)
+                                day_cnt = QStandardItem(str(day_count))
+                                day_cnt.setEditable(False)
+                                day_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                                day_cnt.setForeground(QColor("#888888"))
+                                month_item.appendRow([day_item, day_cnt])
 
                     # Set total count on date parent
                     date_count = QStandardItem(str(total_dated_videos))
@@ -2281,6 +2233,11 @@ class SidebarQt(QWidget):
                     date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     date_count.setForeground(QColor("#888888"))
                     root_name_item.appendRow([date_parent, date_count])
+
+                    # Log the hierarchy build (for debugging)
+                    year_count_total = len(video_hier)
+                    month_count_total = sum(len(months) for months in video_hier.values())
+                    print(f"[VideoDateHierarchy] Building: {year_count_total} years, {month_count_total} months, {total_dated_videos} videos")
 
                     # 🔍 Search Videos
                     search_item = QStandardItem("🔍 Search Videos...")

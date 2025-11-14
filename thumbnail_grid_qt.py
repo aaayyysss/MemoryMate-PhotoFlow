@@ -1920,7 +1920,7 @@ class ThumbnailGridQt(QWidget):
 
             # CRITICAL FIX: Update load_mode to match context mode
             # This ensures grid state stays synchronized when switching between photo/video navigation
-            if mode in ("folder", "branch", "date", "videos", "tag"):
+            if mode in ("folder", "branch", "date", "videos", "tag", "people"):
                 self.load_mode = mode
             elif mode is None and tag:
                 # Tag filter without specific navigation context
@@ -1939,6 +1939,10 @@ class ThumbnailGridQt(QWidget):
                 elif mode == "branch" and key:
                     paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
                     print(f"[TAG FILTER] Branch {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "people" and key:
+                    # 👥 Face cluster + tag filter
+                    paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
+                    print(f"[TAG FILTER] People {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
                 elif mode == "date" and key:
                     dk = str(key)
                     paths = db.get_images_by_date_and_tag(self.project_id, dk, tag)
@@ -1955,6 +1959,10 @@ class ThumbnailGridQt(QWidget):
                     paths = db.get_images_by_folder(key, project_id=self.project_id)
                 elif mode == "branch" and key:
                     paths = db.get_images_by_branch(self.project_id, key)
+                elif mode == "people" and key:
+                    # 👥 Face cluster navigation - load photos containing faces from this cluster
+                    paths = db.get_images_by_branch(self.project_id, key)
+                    print(f"[GRID] Loaded {len(paths)} photos for face cluster {key}")
                 elif mode == "date" and key:
                     dk = str(key)
                     if len(dk) == 4 and dk.isdigit():
@@ -1992,7 +2000,8 @@ class ThumbnailGridQt(QWidget):
                 "branch": "Branch",
                 "date": "Date",
                 "tag": "Tag",
-                "videos": "Videos"
+                "videos": "Videos",
+                "people": "People"
             }.get(mode or "unknown", "Unknown")
 
             tag_label = f" [Tag: {tag}]" if tag else ""

@@ -71,6 +71,36 @@ class FaceDetectionService:
             print(f"Embedding shape: {face['embedding'].shape}")  # (512,)
     """
 
+    @staticmethod
+    def check_backend_availability() -> dict:
+        """
+        Check availability of face detection backends WITHOUT initializing them.
+
+        This method checks if the required libraries can be imported
+        without triggering expensive model downloads or initializations.
+
+        Returns:
+            Dictionary mapping backend name to availability status:
+            {
+                "insightface": bool,  # True if insightface and onnxruntime are available
+                "face_recognition": False  # No longer supported
+            }
+        """
+        availability = {
+            "insightface": False,
+            "face_recognition": False  # Deprecated, not supported
+        }
+
+        # Check InsightFace availability
+        try:
+            import insightface  # Just check if module exists
+            import onnxruntime  # Check OnnxRuntime too
+            availability["insightface"] = True
+        except ImportError:
+            pass
+
+        return availability
+
     def __init__(self, model: str = "buffalo_l"):
         """
         Initialize face detection service.
@@ -84,6 +114,18 @@ class FaceDetectionService:
         self.model = model
         self.app = _get_insightface_app()
         logger.info(f"[FaceDetection] Initialized InsightFace with model={model}")
+
+    def is_available(self) -> bool:
+        """
+        Check if the service is available and ready to use.
+
+        Returns:
+            True if InsightFace is initialized and ready, False otherwise
+        """
+        try:
+            return self.app is not None
+        except Exception:
+            return False
 
     def detect_faces(self, image_path: str) -> List[dict]:
         """
@@ -273,3 +315,43 @@ def get_face_detection_service(model: str = "buffalo_l") -> FaceDetectionService
     if _face_detection_service is None:
         _face_detection_service = FaceDetectionService(model=model)
     return _face_detection_service
+
+
+def create_face_detection_service(config: dict) -> Optional[FaceDetectionService]:
+    """
+    Create a new FaceDetectionService instance from configuration.
+
+    This function creates a fresh instance (not singleton) for testing purposes.
+
+    Args:
+        config: Configuration dictionary with keys:
+            - backend: "insightface" (only supported backend)
+            - insightface_model: Model name ("buffalo_l", "buffalo_s", "antelopev2")
+
+    Returns:
+        FaceDetectionService instance or None if backend not supported/available
+
+    Example:
+        config = {"backend": "insightface", "insightface_model": "buffalo_l"}
+        service = create_face_detection_service(config)
+    """
+    backend = config.get("backend", "insightface")
+
+    if backend != "insightface":
+        logger.warning(f"Unsupported backend: {backend}. Only 'insightface' is supported.")
+        return None
+
+    # Check if InsightFace is available
+    availability = FaceDetectionService.check_backend_availability()
+    if not availability.get("insightface", False):
+        logger.error("InsightFace backend not available. Install with: pip install insightface onnxruntime")
+        return None
+
+    # Get model name from config
+    model = config.get("insightface_model", "buffalo_l")
+
+    try:
+        return FaceDetectionService(model=model)
+    except Exception as e:
+        logger.error(f"Failed to create FaceDetectionService: {e}")
+        return None

@@ -15,25 +15,73 @@ logger = logging.getLogger(__name__)
 
 # Lazy import InsightFace (only load when needed)
 _insightface_app = None
+_providers_used = None
+
+
+def _detect_available_providers():
+    """
+    Detect available ONNX Runtime providers (GPU/CPU).
+
+    Returns automatic GPU detection based on proof of concept from OldPy/photo_sorter.py
+
+    Returns:
+        tuple: (providers_list, hardware_type)
+            - providers_list: List of provider names for ONNXRuntime
+            - hardware_type: 'GPU' or 'CPU'
+    """
+    try:
+        import onnxruntime as ort
+        available_providers = ort.get_available_providers()
+
+        # Prefer GPU (CUDA), fallback to CPU
+        if 'CUDAExecutionProvider' in available_providers:
+            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+            hardware_type = 'GPU'
+            logger.info("🚀 CUDA (GPU) available - Using GPU acceleration for face detection")
+        else:
+            providers = ['CPUExecutionProvider']
+            hardware_type = 'CPU'
+            logger.info("💻 Using CPU for face detection (CUDA not available)")
+
+        return providers, hardware_type
+
+    except ImportError:
+        logger.warning("ONNXRuntime not found, defaulting to CPU")
+        return ['CPUExecutionProvider'], 'CPU'
 
 
 def _get_insightface_app():
-    """Lazy load InsightFace application."""
-    global _insightface_app
+    """
+    Lazy load InsightFace application with automatic GPU/CPU detection.
+
+    Uses the proven pattern from OldPy/photo_sorter.py proof of concept:
+    - Automatic provider detection (GPU if available, CPU fallback)
+    - Model caching to avoid reloading
+    - Proper error handling
+    """
+    global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
             from insightface.app import FaceAnalysis
 
+            # Detect best available providers
+            providers, hardware_type = _detect_available_providers()
+            _providers_used = providers
+
             # Initialize InsightFace with buffalo_l model
+            # NOTE: InsightFace doesn't accept 'providers' in __init__
+            # Instead, we set ctx_id to control GPU/CPU usage
             _insightface_app = FaceAnalysis(
                 name='buffalo_l',  # High accuracy model
-                providers=['CPUExecutionProvider']  # OnnxRuntime CPU backend
+                allowed_modules=['detection', 'recognition']
             )
 
-            # Prepare model with detection size
-            _insightface_app.prepare(ctx_id=0, det_size=(640, 640))
+            # Prepare with context:
+            # ctx_id=0 for GPU, ctx_id=-1 for CPU
+            ctx_id = 0 if hardware_type == 'GPU' else -1
+            _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
 
-            logger.info("✅ InsightFace (buffalo_l) loaded successfully with OnnxRuntime")
+            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")
             logger.error("Install with: pip install insightface onnxruntime")
@@ -45,6 +93,32 @@ def _get_insightface_app():
             logger.error(f"❌ Failed to initialize InsightFace: {e}")
             raise
     return _insightface_app
+
+
+def get_hardware_info():
+    """
+    Get information about the hardware being used for face detection.
+
+    Returns:
+        dict: Hardware information
+            - 'type': 'GPU' or 'CPU'
+            - 'providers': List of ONNXRuntime providers
+            - 'cuda_available': bool
+    """
+    providers, hardware_type = _detect_available_providers()
+
+    try:
+        import onnxruntime as ort
+        available = ort.get_available_providers()
+        cuda_available = 'CUDAExecutionProvider' in available
+    except:
+        cuda_available = False
+
+    return {
+        'type': hardware_type,
+        'providers': providers,
+        'cuda_available': cuda_available
+    }
 
 
 class FaceDetectionService:

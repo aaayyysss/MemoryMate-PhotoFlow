@@ -1,45 +1,44 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06> python main_qt.py
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.29.01.01-Photo-App\MemoryMate-PhotoFlow-main-02>python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 00:54:47,852 [INFO] ================================================================================
-2025-11-14 00:54:47,853 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 00:54:47,853 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-14 00:54:47,855 [INFO] ================================================================================
-2025-11-14 00:54:47,894 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 00:54:47,894 [INFO] Qt message handler installed to suppress TIFF warnings
-[ThumbCacheDB] Purged 81 stale thumbnails (> 30 days).
-[Cache] {'entries': 83, 'size_mb': 0.31, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-14 00:53'}
-[ThumbCacheDB] Purged 2 stale thumbnails (> 7 days).
+2025-11-14 17:11:54,710 [INFO] ================================================================================
+2025-11-14 17:11:54,710 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-14 17:11:54,710 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.29.01.01-Photo-App\MemoryMate-PhotoFlow-main-02\app_log.txt
+2025-11-14 17:11:54,710 [INFO] ================================================================================
+2025-11-14 17:11:54,837 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-14 17:11:54,837 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 60, 'size_mb': 0.19, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.29.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\thumbnails_cache.db', 'last_updated': '2025-11-14 16:43'}
+[ThumbCacheDB] Purged 60 stale thumbnails (> 30 days).
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 00:54:48,119 [INFO] SearchService initialized
-[00:54:48.569] [Tabs] __init__ started
-[00:54:48.570] [Tabs] _build_tabs → building tab widgets
-[00:54:48.570] [Tabs] _on_tab_changed(idx=0)
-[00:54:48.570] [Tabs] _start_timeout idx=0 type=branches
-[00:54:48.571] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:54:48.572] [Tabs]   populated=False, loading=False
-[00:54:48.572] [Tabs]   Starting load for branches
-[00:54:48.572] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:54:48.572] [Tabs] _clear_tab idx=0
-[00:54:48.572] [Tabs] _on_tab_changed → tab_type=branches
-[00:54:48.573] [Tabs] _build_tabs → added 6 tabs
-[00:54:48.574] [Tabs] __init__ completed
+2025-11-14 17:11:55,223 [INFO] SearchService initialized
+[17:11:58.274] [Tabs] __init__ started
+[17:11:58.274] [Tabs] _build_tabs → building tab widgets
+[17:11:58.274] [Tabs] _on_tab_changed(idx=0)
+[17:11:58.274] [Tabs] _start_timeout idx=0 type=branches
+[17:11:58.274] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:11:58.274] [Tabs]   populated=False, loading=False
+[17:11:58.274] [Tabs]   Starting load for branches
+[17:11:58.274] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:11:58.274] [Tabs] _clear_tab idx=0
+[17:11:58.274] [Tabs] _on_tab_changed → tab_type=branches
+[17:11:58.274] [Tabs] _build_tabs → added 6 tabs
+[17:11:58.274] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 31 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 10 years, 47 months, 129 days
+[Sidebar] Loaded 59 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 70 days
 [Sidebar] Loading videos for project_id=1
-[Sidebar] Found 97 videos in project 1
-[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=2] running for 1 targets...
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
+[17:11:58.444] [Tabs] hide_tabs() called - canceling pending workers
 [Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[00:54:48.740] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -47,260 +46,160 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 31 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 10 years, 47 months, 129 days
+[Sidebar] Loaded 59 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 70 days
 [Sidebar] Loading videos for project_id=1
-[Sidebar] Found 97 videos in project 1
-[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=4] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
 [Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-14 00:54:48,896 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 00:54:48,897 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 00:54:48,897 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-14 17:11:58,518 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-14 17:11:58,519 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-14 17:11:58,519 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[MainWindow] ⚠️ Progress pollers init failed: [WinError 183] Eine Datei kann nicht erstellt werden, wenn sie bereits vorhanden ist: 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.29.01.01-Photo-App\\MemoryMate-PhotoFlow-main-02\\status'
 [Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected - full video support enabled
-[00:54:49.378] [Tabs] _on_tab_changed(idx=0)
-[00:54:49.378] [Tabs] _start_timeout idx=0 type=branches
-[00:54:49.378] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:54:49.378] [Tabs]   populated=False, loading=False
-[00:54:49.378] [Tabs]   Starting load for branches
-[00:54:49.378] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:54:49.378] [Tabs] _clear_tab idx=0
-[00:54:49.379] [Tabs] _on_tab_changed → tab_type=branches
-[00:54:49.379] [Tabs] _finish_branches (stale gen=1) — ignoring
-[00:54:49.398] [Tabs] _clear_tab idx=0
+✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
+[17:12:04.778] [Tabs] _on_tab_changed(idx=0)
+[17:12:04.778] [Tabs] _start_timeout idx=0 type=branches
+[17:12:04.778] [Tabs] _populate_tab(branches, idx=0, force=False)
+[17:12:04.778] [Tabs]   populated=False, loading=False
+[17:12:04.778] [Tabs]   Starting load for branches
+[17:12:04.778] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:12:04.778] [Tabs] _clear_tab idx=0
+[17:12:04.787] [Tabs] _on_tab_changed → tab_type=branches
+[17:12:04.787] [Tabs] _finish_branches (stale gen=1) — ignoring
+[17:12:04.797] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 395 photos
-[GRID] Loaded 395 thumbnails.
-[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
-[GRID] Using scroll-based start position: 0 (scroll: 0/7733)
-[GRID] Loading viewport range: 0-50 of 395
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
-[GRID] Loading viewport range: 0-50 of 395
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=5)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[00:55:36.060] [Tabs] refresh_all(force=True) called
-[00:55:36.061] [Tabs] refresh_all: key=branches, idx=0, force=True
-[00:55:36.061] [Tabs] _populate_tab(branches, idx=0, force=True)
-[00:55:36.061] [Tabs]   populated=True, loading=False
-[00:55:36.061] [Tabs]   Force refresh: removing branches from populated set
-[00:55:36.061] [Tabs]   Starting load for branches
-[00:55:36.061] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:55:36.061] [Tabs] _clear_tab idx=0
-[00:55:36.063] [Tabs] refresh_all: key=folders, idx=1, force=True
-[00:55:36.063] [Tabs] _populate_tab(folders, idx=1, force=True)
-[00:55:36.063] [Tabs]   populated=False, loading=False
-[00:55:36.063] [Tabs]   Starting load for folders
-[00:55:36.063] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[00:55:36.063] [Tabs] _clear_tab idx=1
-[00:55:36.064] [Tabs] refresh_all: key=dates, idx=2, force=True
-[00:55:36.064] [Tabs] _populate_tab(dates, idx=2, force=True)
-[00:55:36.064] [Tabs]   populated=False, loading=False
-[00:55:36.065] [Tabs]   Starting load for dates
-[00:55:36.065] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[00:55:36.065] [Tabs] _clear_tab idx=2
-[00:55:36.066] [Tabs] _load_folders → got 31 rows for project_id=1
-[00:55:36.067] [Tabs] refresh_all: key=tags, idx=3, force=True
-[00:55:36.067] [Tabs] _populate_tab(tags, idx=3, force=True)
-[00:55:36.067] [Tabs]   populated=False, loading=False
-[00:55:36.067] [Tabs]   Starting load for tags
-[00:55:36.067] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[00:55:36.067] [Tabs] _clear_tab idx=3
-[00:55:36.068] [Tabs] refresh_all: key=quick, idx=5, force=True
-[00:55:36.068] [Tabs] _populate_tab(quick, idx=5, force=True)
-[00:55:36.068] [Tabs]   populated=False, loading=False
-[00:55:36.069] [Tabs]   Starting load for quick
-[00:55:36.069] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[00:55:36.069] [Tabs] _clear_tab idx=5
-[00:55:36.072] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[00:55:36.072] [Tabs] _load_dates → got hierarchy data for project_id=1
-[00:55:36.073] [Tabs] _load_tags → got 0 rows for project_id=1
-[00:55:36.074] [Tabs] _load_quick → got 6 rows
-[00:55:36.077] [Tabs] _clear_tab idx=0
+[get_images_by_branch] Found 166 photos
+[GRID] Loaded 166 thumbnails.
+[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
+[GRID] Using scroll-based start position: 0 (scroll: 0/2749)
+[GRID] Loading viewport range: 0-56 of 166
+[GRID] Queued 57 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/2770)
+[GRID] Loading viewport range: 0-56 of 166
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 395 photos
-[GRID] Loaded 395 thumbnails.
-[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 395 photos
-[GRID] Loaded 395 thumbnails.
-[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
-[00:55:36.329] [Tabs] _clear_tab idx=1
-[00:55:36.391] [Tabs] _clear_tab idx=2
-[00:55:36.475] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[00:55:36.475] [Tabs] _clear_tab idx=3
-[00:55:36.476] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
-[GRID] Loading viewport range: 0-50 of 395
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
-[GRID] Loading viewport range: 0-50 of 395
-[00:55:43.653] [Tabs] _on_tab_changed(idx=4)
-[00:55:43.653] [Tabs] _start_timeout idx=4 type=people
-[00:55:43.653] [Tabs] _populate_tab(people, idx=4, force=False)
-[00:55:43.653] [Tabs]   populated=False, loading=False
-[00:55:43.653] [Tabs]   Starting load for people
-[00:55:43.653] [Tabs] _show_loading idx=4 label='Loading People…'
-[00:55:43.653] [Tabs] _clear_tab idx=4
-[00:55:43.656] [Tabs] _on_tab_changed → tab_type=people
-[00:55:43.657] [Tabs] _load_people → got 0 clusters
-[00:55:43.660] [Tabs] _clear_tab idx=4
-[People] launching recluster worker → C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\workers\face_cluster_worker.py
-[Sidebar] Detached worker launched: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\workers\face_cluster_worker.py
-[00:55:48.213] [Tabs] _on_tab_changed(idx=5)
-[00:55:48.214] [Tabs] _start_timeout idx=5 type=quick
-[00:55:48.214] [Tabs] _populate_tab(quick, idx=5, force=False)
-[00:55:48.214] [Tabs]   populated=True, loading=False
-[00:55:48.214] [Tabs]   Skipping quick: already populated or loading
-[00:55:48.214] [Tabs] _on_tab_changed → tab_type=quick
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[00:55:49.945] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 31 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 10 years, 47 months, 129 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 97 videos in project 1
-[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=7] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=7] finished scanning targets, scheduling UI update
-[GRID] Using scroll-based start position: 82 (scroll: 1920/7370)
-[GRID] Loading viewport range: 74-132 of 395
-[GRID] Queued 59 new thumbnail workers
-[GRID] Using scroll-based start position: 62 (scroll: 1536/7370)
-[GRID] Loading viewport range: 54-112 of 395
-[GRID] Queued 55 new thumbnail workers
-[GRID] Using scroll-based start position: 41 (scroll: 1152/7370)
-[GRID] Loading viewport range: 33-140 of 395
-[GRID] Queued 33 new thumbnail workers
-[GRID] Using scroll-based start position: 62 (scroll: 1536/7370)
-[GRID] Loading viewport range: 54-112 of 395
-[GRID] Queued 5 new thumbnail workers
-[GRID] Using scroll-based start position: 82 (scroll: 1920/7370)
-[GRID] Loading viewport range: 74-181 of 395
-[GRID] Queued 61 new thumbnail workers
-[GRID] Using scroll-based start position: 103 (scroll: 2304/7370)
-[GRID] Loading viewport range: 95-202 of 395
-[GRID] Queued 24 new thumbnail workers
-[ContextMenu] Got tags for 1 path(s): {'c:\\users\\asus\\onedrive\\documents\\python\\test-photos\\photos\\inbox\\img_e3104.jpg': []}
-[ContextMenu] present_tags = set()
+[get_images_by_branch] Found 166 photos
+[GRID] Loaded 166 thumbnails.
+[GRID] Reloaded 166 thumbnails in branch-mode (base=166)
+[GRID] Loaded 62 thumbnails.
+[GRID] Reloaded 62 thumbnails in date-mode (base=62)
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
+[GRID] Queued 62 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
+[Sidebar] Displaying all videos for project 1
+[MediaTypeSeparation] ✅ VERIFIED: All 3 items are videos
+[GRID] Loaded 3 thumbnails in videos-mode.
+[GRID] Loaded 62 thumbnails.
+[GRID] Reloaded 62 thumbnails in date-mode (base=62)
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+[GRID] Queued 94 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+2025-11-14 17:12:16,350 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:16,400 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:16,505 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+[GRID] Queued 94 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+2025-11-14 17:12:19,975 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:20,027 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:20,078 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[Sidebar] Displaying all videos for project 1
+[MediaTypeSeparation] ✅ VERIFIED: All 3 items are videos
+[GRID] Loaded 3 thumbnails in videos-mode.
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+[GRID] Queued 94 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+2025-11-14 17:12:23,009 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:23,072 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:23,109 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[Sidebar] Displaying all videos for project 1
+[MediaTypeSeparation] ✅ VERIFIED: All 3 items are videos
+[GRID] Loaded 3 thumbnails in videos-mode.
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Loaded 62 thumbnails.
+[GRID] Reloaded 62 thumbnails in date-mode (base=62)
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
+[GRID] Queued 62 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
+[GRID] Loaded 62 thumbnails.
+[GRID] Reloaded 62 thumbnails in date-mode (base=62)
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+[GRID] Queued 94 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1234)
+[GRID] Near bottom, loading all remaining 37 items
+[GRID] Loading viewport range: 0-93 of 94
+2025-11-14 17:12:29,401 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:29,460 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-14 17:12:29,460 [WARNING] OS error processing c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+[GRID] Loaded 94 thumbnails.
+[GRID] Reloaded 94 thumbnails in date-mode (base=94)
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in date-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[Sidebar] Displaying all videos for project 1
+[MediaTypeSeparation] ✅ VERIFIED: All 3 items are videos
+[GRID] Loaded 3 thumbnails in videos-mode.
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in date-mode (base=7)
+[GRID] Loaded 62 thumbnails.
+[GRID] Reloaded 62 thumbnails in date-mode (base=62)
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
+[GRID] Queued 62 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/594)
+[GRID] Near bottom, loading all remaining 5 items
+[GRID] Loading viewport range: 0-61 of 62
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06> python main_qt.py
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 00:57:01,479 [INFO] ================================================================================
-2025-11-14 00:57:01,480 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 00:57:01,480 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-14 00:57:01,481 [INFO] ================================================================================
-2025-11-14 00:57:01,520 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 00:57:01,521 [INFO] Qt message handler installed to suppress TIFF warnings
-[ThumbCacheDB] Purged 203 stale thumbnails (> 30 days).
-[Cache] {'entries': 203, 'size_mb': 0.75, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_27.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-14 00:56'}
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 00:57:01,754 [INFO] SearchService initialized
-[00:57:02.377] [Tabs] __init__ started
-[00:57:02.377] [Tabs] _build_tabs → building tab widgets
-[00:57:02.378] [Tabs] _on_tab_changed(idx=0)
-[00:57:02.378] [Tabs] _start_timeout idx=0 type=branches
-[00:57:02.378] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:57:02.378] [Tabs]   populated=False, loading=False
-[00:57:02.379] [Tabs]   Starting load for branches
-[00:57:02.379] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:57:02.379] [Tabs] _clear_tab idx=0
-[00:57:02.380] [Tabs] _on_tab_changed → tab_type=branches
-[00:57:02.381] [Tabs] _build_tabs → added 6 tabs
-[00:57:02.381] [Tabs] __init__ completed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 31 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 10 years, 47 months, 129 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 97 videos in project 1
-[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=2] running for 1 targets...
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[00:57:02.549] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar] Loaded 31 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 10 years, 47 months, 129 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 97 videos in project 1
-[VideoDateHierarchy] Building: 6 years, 31 months, 97 videos
-[Sidebar] Added 🎬 Videos section with 97 videos and filters.
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-14 00:57:02,725 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 00:57:02,725 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 00:57:02,725 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected - full video support enabled
-[00:57:03.362] [Tabs] _on_tab_changed(idx=0)
-[00:57:03.362] [Tabs] _start_timeout idx=0 type=branches
-[00:57:03.362] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:57:03.362] [Tabs]   populated=False, loading=False
-[00:57:03.362] [Tabs]   Starting load for branches
-[00:57:03.362] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:57:03.362] [Tabs] _clear_tab idx=0
-[00:57:03.364] [Tabs] _on_tab_changed → tab_type=branches
-[00:57:03.364] [Tabs] _finish_branches (stale gen=1) — ignoring
-[00:57:03.387] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 395 photos
-[GRID] Loaded 395 thumbnails.
-[GRID] Reloaded 395 thumbnails in branch-mode (base=395)
-[GRID] Using scroll-based start position: 0 (scroll: 0/7733)
-[GRID] Loading viewport range: 0-50 of 395
-[GRID] Queued 51 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/7754)
-[GRID] Loading viewport range: 0-50 of 395
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_27.01.01-Photo-App\MemoryMate-PhotoFlow-main-06>
+
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.29.01.01-Photo-App\MemoryMate-PhotoFlow-main-02>

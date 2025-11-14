@@ -1115,9 +1115,50 @@ class SidebarTabs(QWidget):
 
         # === Populate cluster list ===
         if not rows:
-            self._set_tab_empty(idx, "No face clusters found")
+            # Check if faces were detected but not clustered
+            try:
+                with self.db._connect() as conn:
+                    cur = conn.execute("""
+                        SELECT COUNT(*) FROM face_crops WHERE project_id = ?
+                    """, (self.project_id,))
+                    face_count = cur.fetchone()[0]
+            except Exception as e:
+                print(f"[People] Failed to count faces: {e}")
+                face_count = 0
+
+            if face_count > 0:
+                # Faces detected but not clustered
+                msg = QLabel(
+                    f"<div style='padding:20px;text-align:center;'>"
+                    f"<p style='font-size:14px;color:#FF8800;'>⚠️ <b>{face_count} faces detected</b></p>"
+                    f"<p style='color:#666;'>Click the <b>🔁 Re-Cluster</b> button above to group similar faces together.</p>"
+                    f"<p style='color:#999;font-size:12px;'>This will create person groups based on facial similarity.</p>"
+                    f"</div>"
+                )
+                msg.setWordWrap(True)
+                layout.addWidget(msg, 1)
+                print(f"[People] {face_count} faces detected, awaiting clustering")
+            else:
+                # No faces detected yet
+                msg = QLabel(
+                    f"<div style='padding:20px;text-align:center;'>"
+                    f"<p style='font-size:14px;color:#888;'>ℹ️ <b>No faces detected yet</b></p>"
+                    f"<p style='color:#666;'>Run face detection on your photos first.</p>"
+                    f"<p style='color:#999;font-size:12px;'>Face detection will scan your photos and identify people.</p>"
+                    f"</div>"
+                )
+                msg.setWordWrap(True)
+                layout.addWidget(msg, 1)
+                print("[People] No faces detected yet")
+
             self._tab_populated.add("people")
             self._tab_loading.discard("people")
+            st = self._tab_status_labels.get(idx)
+            if st:
+                if face_count > 0:
+                    st.setText(f"{face_count} faces detected • Click Re-Cluster")
+                else:
+                    st.setText("No faces detected")
             return
 
         # Create 2-column table: Person | Photos
@@ -1869,6 +1910,68 @@ class SidebarQt(QWidget):
                 self.model.appendRow([folder_root, folder_count_item])
                 # synchronous (restores the previous working behavior)
                 self._add_folder_items(folder_root, None)
+
+                # >>> NEW: 👥 People / Face Albums section
+                try:
+                    clusters = self.db.get_face_clusters(self.project_id)
+                except Exception as e:
+                    print("[Sidebar] get_face_clusters failed:", e)
+                    clusters = []
+
+                # ALWAYS show People section (even if empty)
+                people_root = QStandardItem("👥 People")
+                people_count_item = QStandardItem("")
+                people_root.setEditable(False)
+                people_count_item.setEditable(False)
+                self.model.appendRow([people_root, people_count_item])
+
+                if clusters:
+                    # Show clustered faces
+                    for row in clusters:
+                        name = row.get("display_name") or row.get("branch_key")
+                        count = row.get("member_count", 0)
+                        rep = row.get("rep_path", "")
+                        label = f"{name} ({count})"
+
+                        name_item = QStandardItem(label)
+                        name_item.setEditable(False)
+                        count_item = QStandardItem("")
+                        count_item.setEditable(False)
+                        name_item.setData("facecluster", Qt.UserRole)
+                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
+                        count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        count_item.setForeground(QColor("#BBBBBB"))
+                        people_root.appendRow([name_item, count_item])
+
+                    print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
+                else:
+                    # No clusters yet - check if faces were detected
+                    try:
+                        with self.db._connect() as conn:
+                            cur = conn.execute("""
+                                SELECT COUNT(*) FROM face_crops WHERE project_id = ?
+                            """, (self.project_id,))
+                            face_count = cur.fetchone()[0]
+                    except Exception:
+                        face_count = 0
+
+                    if face_count > 0:
+                        # Faces detected but not clustered
+                        status_item = QStandardItem(f"⚠️ {face_count} faces detected - Click Re-Cluster")
+                        status_item.setEditable(False)
+                        status_item.setForeground(QColor("#FF8800"))
+                        status_item.setData("people_status", Qt.UserRole)
+                        people_root.appendRow([status_item, QStandardItem("")])
+                        print(f"[Sidebar] 👥 People: {face_count} faces detected, awaiting clustering")
+                    else:
+                        # No faces detected yet
+                        status_item = QStandardItem("ℹ️ No faces detected yet")
+                        status_item.setEditable(False)
+                        status_item.setForeground(QColor("#888888"))
+                        status_item.setData("people_status", Qt.UserRole)
+                        people_root.appendRow([status_item, QStandardItem("")])
+                        print("[Sidebar] 👥 People: No faces detected yet")
+                # <<< NEW
 
                 self._build_by_date_section()
                 self._build_tag_section()

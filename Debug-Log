@@ -1,29 +1,29 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-02> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-14 22:40:57,373 [INFO] ================================================================================
-2025-11-14 22:40:57,373 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-14 22:40:57,374 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\app_log.txt
-2025-11-14 22:40:57,374 [INFO] ================================================================================
-2025-11-14 22:40:57,420 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-14 22:40:57,421 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-03\\thumbnails_cache.db', 'last_updated': '2025-11-14 22:40'}
+2025-11-14 22:57:25,339 [INFO] ================================================================================
+2025-11-14 22:57:25,340 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-14 22:57:25,340 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\app_log.txt
+2025-11-14 22:57:25,342 [INFO] ================================================================================
+2025-11-14 22:57:25,380 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-14 22:57:25,381 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-04\\thumbnails_cache.db', 'last_updated': '2025-11-14 22:57'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-14 22:40:57,696 [INFO] SearchService initialized
-[22:40:58.189] [Tabs] __init__ started
-[22:40:58.190] [Tabs] _build_tabs → building tab widgets
-[22:40:58.190] [Tabs] _on_tab_changed(idx=0)
-[22:40:58.191] [Tabs] _start_timeout idx=0 type=branches
-[22:40:58.191] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:40:58.191] [Tabs]   populated=False, loading=False
-[22:40:58.191] [Tabs]   Starting load for branches
-[22:40:58.191] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:40:58.191] [Tabs] _clear_tab idx=0
-[22:40:58.193] [Tabs] _on_tab_changed → tab_type=branches
-[22:40:58.193] [Tabs] _build_tabs → added 6 tabs
-[22:40:58.194] [Tabs] __init__ completed
+2025-11-14 22:57:25,626 [INFO] SearchService initialized
+[22:57:26.124] [Tabs] __init__ started
+[22:57:26.125] [Tabs] _build_tabs → building tab widgets
+[22:57:26.125] [Tabs] _on_tab_changed(idx=0)
+[22:57:26.126] [Tabs] _start_timeout idx=0 type=branches
+[22:57:26.126] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:57:26.126] [Tabs]   populated=False, loading=False
+[22:57:26.126] [Tabs]   Starting load for branches
+[22:57:26.126] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:57:26.126] [Tabs] _clear_tab idx=0
+[22:57:26.128] [Tabs] _on_tab_changed → tab_type=branches
+[22:57:26.128] [Tabs] _build_tabs → added 6 tabs
+[22:57:26.129] [Tabs] __init__ completed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
@@ -32,7 +32,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[22:40:58.226] [Tabs] hide_tabs() called - canceling pending workers
+[22:57:26.159] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -44,65 +44,65 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
-2025-11-14 22:40:58,245 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-14 22:40:58,246 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-14 22:40:58,246 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[MainWindow] ⚠️ Progress pollers init failed: 'status' exists but is not a directory: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\status
+2025-11-14 22:57:26,177 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-14 22:57:26,177 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-14 22:57:26,178 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[MainWindow] ⚠️ Progress pollers init failed: 'status' exists but is not a directory: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\status
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected - full video support enabled
-[22:40:58.853] [Tabs] _finish_branches (stale gen=1) — ignoring
-[22:40:58.853] [Tabs] _on_tab_changed(idx=0)
-[22:40:58.854] [Tabs] _start_timeout idx=0 type=branches
-[22:40:58.854] [Tabs] _populate_tab(branches, idx=0, force=False)
-[22:40:58.854] [Tabs]   populated=False, loading=False
-[22:40:58.854] [Tabs]   Starting load for branches
-[22:40:58.854] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:40:58.854] [Tabs] _clear_tab idx=0
-[22:40:58.856] [Tabs] _on_tab_changed → tab_type=branches
-[22:40:58.870] [Tabs] _clear_tab idx=0
+[22:57:26.722] [Tabs] _finish_branches (stale gen=1) — ignoring
+[22:57:26.722] [Tabs] _on_tab_changed(idx=0)
+[22:57:26.723] [Tabs] _start_timeout idx=0 type=branches
+[22:57:26.723] [Tabs] _populate_tab(branches, idx=0, force=False)
+[22:57:26.723] [Tabs]   populated=False, loading=False
+[22:57:26.723] [Tabs]   Starting load for branches
+[22:57:26.723] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:57:26.724] [Tabs] _clear_tab idx=0
+[22:57:26.724] [Tabs] _on_tab_changed → tab_type=branches
+[22:57:26.738] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
-[22:41:07.964] [Tabs] refresh_all(force=True) called
-[22:41:07.964] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:41:07.964] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:41:07.964] [Tabs]   populated=True, loading=False
-[22:41:07.965] [Tabs]   Force refresh: removing branches from populated set
-[22:41:07.965] [Tabs]   Starting load for branches
-[22:41:07.965] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:41:07.965] [Tabs] _clear_tab idx=0
-[22:41:07.966] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:41:07.966] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:41:07.966] [Tabs]   populated=False, loading=False
-[22:41:07.966] [Tabs]   Starting load for folders
-[22:41:07.966] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:41:07.966] [Tabs] _clear_tab idx=1
-[22:41:07.967] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:41:07.967] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:41:07.968] [Tabs]   populated=False, loading=False
-[22:41:07.968] [Tabs]   Starting load for dates
-[22:41:07.968] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:41:07.968] [Tabs] _clear_tab idx=2
-[22:41:07.969] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:41:07.969] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:41:07.969] [Tabs]   populated=False, loading=False
-[22:41:07.969] [Tabs] _load_folders → got 0 rows for project_id=1
-[22:41:07.969] [Tabs]   Starting load for tags
-[22:41:07.969] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:41:07.970] [Tabs] _clear_tab idx=3
-[22:41:07.971] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:41:07.971] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:41:07.971] [Tabs]   populated=False, loading=False
-[22:41:07.971] [Tabs]   Starting load for quick
-[22:41:07.971] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:41:07.971] [Tabs] _clear_tab idx=5
-[22:41:07.974] [Tabs] refresh_all(force=True) completed
+[22:57:39.434] [Tabs] refresh_all(force=True) called
+[22:57:39.434] [Tabs] refresh_all: key=branches, idx=0, force=True
+[22:57:39.434] [Tabs] _populate_tab(branches, idx=0, force=True)
+[22:57:39.434] [Tabs]   populated=True, loading=False
+[22:57:39.436] [Tabs]   Force refresh: removing branches from populated set
+[22:57:39.436] [Tabs]   Starting load for branches
+[22:57:39.436] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[22:57:39.436] [Tabs] _clear_tab idx=0
+[22:57:39.437] [Tabs] refresh_all: key=folders, idx=1, force=True
+[22:57:39.437] [Tabs] _populate_tab(folders, idx=1, force=True)
+[22:57:39.437] [Tabs]   populated=False, loading=False
+[22:57:39.437] [Tabs]   Starting load for folders
+[22:57:39.437] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[22:57:39.437] [Tabs] _clear_tab idx=1
+[22:57:39.438] [Tabs] refresh_all: key=dates, idx=2, force=True
+[22:57:39.438] [Tabs] _populate_tab(dates, idx=2, force=True)
+[22:57:39.438] [Tabs]   populated=False, loading=False
+[22:57:39.438] [Tabs]   Starting load for dates
+[22:57:39.438] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[22:57:39.439] [Tabs] _clear_tab idx=2
+[22:57:39.439] [Tabs] _load_folders → got 0 rows for project_id=1
+[22:57:39.439] [Tabs] refresh_all: key=tags, idx=3, force=True
+[22:57:39.439] [Tabs] _populate_tab(tags, idx=3, force=True)
+[22:57:39.440] [Tabs]   populated=False, loading=False
+[22:57:39.440] [Tabs]   Starting load for tags
+[22:57:39.440] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[22:57:39.440] [Tabs] _clear_tab idx=3
+[22:57:39.441] [Tabs] refresh_all: key=quick, idx=5, force=True
+[22:57:39.441] [Tabs] _populate_tab(quick, idx=5, force=True)
+[22:57:39.441] [Tabs]   populated=False, loading=False
+[22:57:39.441] [Tabs]   Starting load for quick
+[22:57:39.441] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[22:57:39.442] [Tabs] _clear_tab idx=5
+[22:57:39.443] [Tabs] refresh_all(force=True) completed
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[22:57:39.443] [Tabs] _load_dates → got hierarchy data for project_id=1
 [Sidebar] Processing pending events before model clear
-[22:41:07.974] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:41:07.975] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:41:07.975] [Tabs] _clear_tab idx=1
-[22:41:07.976] [Tabs] _load_quick → got 6 rows
-[22:41:07.977] [Tabs] _clear_tab idx=0
+[22:57:39.444] [Tabs] _clear_tab idx=1
+[22:57:39.445] [Tabs] _load_tags → got 0 rows for project_id=1
+[22:57:39.446] [Tabs] _load_quick → got 6 rows
+[22:57:39.446] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -111,10 +111,10 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[22:41:08.002] [Tabs] _clear_tab idx=2
-[22:41:08.002] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[22:41:08.002] [Tabs] _clear_tab idx=3
-[22:41:08.004] [Tabs] _clear_tab idx=5
+[22:57:39.466] [Tabs] _clear_tab idx=2
+[22:57:39.469] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[22:57:39.470] [Tabs] _clear_tab idx=3
+[22:57:39.471] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -126,8 +126,8 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=4] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
 [get_images_by_branch] Found 0 photos
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
@@ -140,26 +140,26 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
 [ScanController] Worker moved to thread
-2025-11-14 22:41:20,913 [INFO] DBWriter timer started in worker thread
+2025-11-14 22:57:54,857 [INFO] DBWriter timer started in worker thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
 [ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs, incremental=True
-2025-11-14 22:41:20,918 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
+2025-11-14 22:57:54,861 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
 [ScanWorkerAdapter] Starting scan...
-2025-11-14 22:41:20,919 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs (incremental=True)
-2025-11-14 22:41:20,923 [INFO] Discovered 21 candidate image files and 0 video files
-2025-11-14 22:41:20,924 [INFO] Loading existing metadata for incremental scan...
-2025-11-14 22:41:20,925 [INFO] ✓ Loaded 0 existing file records
+2025-11-14 22:57:54,863 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs (incremental=True)
+2025-11-14 22:57:54,867 [INFO] Discovered 21 candidate image files and 0 video files
+2025-11-14 22:57:54,867 [INFO] Loading existing metadata for incremental scan...
+2025-11-14 22:57:54,868 [INFO] ✓ Loaded 0 existing file records
 [ScanController] QThread STARTED!
-2025-11-14 22:41:21,483 [INFO] Bulk upserted 21 photos for project 1
-2025-11-14 22:41:21,490 [INFO] Scan complete: 21 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.6s
-2025-11-14 22:41:21,492 [INFO] Scan completed: 21 photos, 0 videos, 5 folders in 0.6s
+2025-11-14 22:57:55,287 [INFO] Bulk upserted 21 photos for project 1
+2025-11-14 22:57:55,295 [INFO] Scan complete: 21 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
+2025-11-14 22:57:55,296 [INFO] Scan completed: 21 photos, 0 videos, 5 folders in 0.4s
 [ScanController] scan finished: 5 folders, 21 photos, 0 videos
 [ScanController] cleanup after scan
-2025-11-14 22:41:23,625 [INFO] Building date branches...
-2025-11-14 22:41:23,626 [INFO] Building date branches for project_id=1
+2025-11-14 22:57:56,717 [INFO] Building date branches...
+2025-11-14 22:57:56,719 [INFO] Building date branches for project_id=1
 [build_date_branches] Using project_id=1
 [build_date_branches] Populating 'all' branch with 21 photos for project 1
 [build_date_branches] Inserted 21/21 photos into 'all' branch
@@ -187,16 +187,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [build_date_branches] Date 2025-03-13: inserted 2/2 into project_images (new)
 [build_date_branches] Total entries processed: 13
 [build_date_branches] project_images table has 34 rows for project 1
-2025-11-14 22:41:23,643 [INFO] Created 13 photo date branch entries for project 1
-2025-11-14 22:41:23,644 [INFO] Building video date branches for project_id=1
+2025-11-14 22:57:56,733 [INFO] Created 13 photo date branch entries for project 1
+2025-11-14 22:57:56,733 [INFO] Building video date branches for project_id=1
 [build_video_date_branches] Using project_id=1
 [build_video_date_branches] Found 0 videos with dates for project 1
 [build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-14 22:41:23,645 [INFO] Created 0 video date branch entries for project 1
-2025-11-14 22:41:23,649 [INFO] Backfilling created_date fields for photos...
-2025-11-14 22:41:23,657 [INFO] Backfilled 8 photo rows with created_date
-2025-11-14 22:41:23,657 [INFO] Backfilling created_date fields for videos...
-2025-11-14 22:41:23,668 [INFO] Reloading sidebar after date branches built...
+2025-11-14 22:57:56,736 [INFO] Created 0 video date branch entries for project 1
+2025-11-14 22:57:56,738 [INFO] Backfilling created_date fields for photos...
+2025-11-14 22:57:56,746 [INFO] Backfilled 8 photo rows with created_date
+2025-11-14 22:57:56,746 [INFO] Backfilling created_date fields for videos...
+2025-11-14 22:57:56,757 [INFO] Reloading sidebar after date branches built...
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [Sidebar] Processing pending events before model clear
@@ -225,86 +225,9 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [GRID] Loading viewport range: 0-20 of 21
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-20 of 21
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=7)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[22:41:36.008] [Tabs] refresh_all(force=True) called
-[22:41:36.008] [Tabs] refresh_all: key=branches, idx=0, force=True
-[22:41:36.008] [Tabs] _populate_tab(branches, idx=0, force=True)
-[22:41:36.008] [Tabs]   populated=True, loading=False
-[22:41:36.008] [Tabs]   Force refresh: removing branches from populated set
-[22:41:36.008] [Tabs]   Starting load for branches
-[22:41:36.009] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[22:41:36.009] [Tabs] _clear_tab idx=0
-[22:41:36.010] [Tabs] refresh_all: key=folders, idx=1, force=True
-[22:41:36.010] [Tabs] _populate_tab(folders, idx=1, force=True)
-[22:41:36.010] [Tabs]   populated=True, loading=False
-[22:41:36.010] [Tabs]   Force refresh: removing folders from populated set
-[22:41:36.010] [Tabs]   Starting load for folders
-[22:41:36.011] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[22:41:36.011] [Tabs] _clear_tab idx=1
-[22:41:36.012] [Tabs] refresh_all: key=dates, idx=2, force=True
-[22:41:36.012] [Tabs] _populate_tab(dates, idx=2, force=True)
-[22:41:36.012] [Tabs]   populated=True, loading=False
-[22:41:36.012] [Tabs]   Force refresh: removing dates from populated set
-[22:41:36.012] [Tabs]   Starting load for dates
-[22:41:36.012] [Tabs] _load_folders → got 6 rows for project_id=1
-[22:41:36.012] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[22:41:36.013] [Tabs] _clear_tab idx=2
-[22:41:36.015] [Tabs] refresh_all: key=tags, idx=3, force=True
-[22:41:36.015] [Tabs] _populate_tab(tags, idx=3, force=True)
-[22:41:36.015] [Tabs]   populated=True, loading=False
-[22:41:36.015] [Tabs]   Force refresh: removing tags from populated set
-[22:41:36.015] [Tabs]   Starting load for tags
-[22:41:36.015] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[22:41:36.015] [Tabs] _clear_tab idx=3
-[22:41:36.017] [Tabs] _load_dates → got hierarchy data for project_id=1
-[22:41:36.017] [Tabs] refresh_all: key=quick, idx=5, force=True
-[22:41:36.017] [Tabs] _populate_tab(quick, idx=5, force=True)
-[22:41:36.017] [Tabs]   populated=True, loading=False
-[22:41:36.017] [Tabs]   Force refresh: removing quick from populated set
-[22:41:36.017] [Tabs]   Starting load for quick
-[22:41:36.018] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[22:41:36.018] [Tabs] _clear_tab idx=5
-[22:41:36.017] [Tabs] _load_tags → got 0 rows for project_id=1
-[22:41:36.018] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[22:41:36.020] [Tabs] _load_quick → got 6 rows
-[22:41:36.029] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 21 photos
-[GRID] Loaded 21 thumbnails.
-[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 21 photos
-[GRID] Loaded 21 thumbnails.
-[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[22:41:36.059] [Tabs] _clear_tab idx=1
-[22:41:36.074] [Tabs] _clear_tab idx=2
-[22:41:36.099] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
-[22:41:36.099] [Tabs] _clear_tab idx=3
-[22:41:36.106] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-20 of 21
-[GRID] Queued 21 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-20 of 21
-[22:41:39.259] [Tabs] _on_tab_changed(idx=4)
-[22:41:39.260] [Tabs] _start_timeout idx=4 type=people
-[22:41:39.260] [Tabs] _populate_tab(people, idx=4, force=False)
-[22:41:39.260] [Tabs]   populated=False, loading=False
-[22:41:39.260] [Tabs]   Starting load for people
-[22:41:39.261] [Tabs] _show_loading idx=4 label='Loading People…'
-[22:41:39.261] [Tabs] _clear_tab idx=4
-[22:41:39.262] [Tabs] _on_tab_changed → tab_type=people
-[22:41:39.263] [Tabs] _load_people → got 0 clusters
-[22:41:39.264] [Tabs] _clear_tab idx=4
-[People] No faces detected yet
-[People] Launching automatic face grouping pipeline for project 1
-2025-11-14 22:41:49,874 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-14 22:41:51,607 [INFO] 💻 Using CPU for face detection (CUDA not available)
+[MainWindow] Launching automatic face grouping pipeline for project 1
+2025-11-14 22:58:12,247 [INFO] [FaceDetectionWorker] Starting face detection for project 1
+2025-11-14 22:58:13,754 [INFO] 💻 Using CPU for face detection (CUDA not available)
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 model ignore: C:\Users\ASUS/.insightface\models\buffalo_l\1k3d68.onnx landmark_3d_68
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
@@ -316,97 +239,131 @@ model ignore: C:\Users\ASUS/.insightface\models\buffalo_l\genderage.onnx gendera
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 find model: C:\Users\ASUS/.insightface\models\buffalo_l\w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
 set det-size: (640, 640)
-2025-11-14 22:41:54,213 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
-2025-11-14 22:41:54,214 [INFO] [FaceDetection] Initialized InsightFace with model=hog
-2025-11-14 22:41:54,216 [INFO] [FaceDetectionWorker] Processing 21 photos
+2025-11-14 22:58:15,954 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
+2025-11-14 22:58:15,954 [INFO] [FaceDetection] Initialized InsightFace with model=hog
+2025-11-14 22:58:15,956 [INFO] [FaceDetectionWorker] Processing 21 photos
 [FaceDetection] [1/21] Detecting faces: ewkj3802.jpg
-2025-11-14 22:41:54,835 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-14 22:41:54,956 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
+2025-11-14 22:58:16,526 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
+2025-11-14 22:58:16,644 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
 [FaceDetection] [2/21] Detecting faces: ihoc0868.jpg
-2025-11-14 22:41:55,512 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-14 22:41:55,588 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
+2025-11-14 22:58:17,194 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
+2025-11-14 22:58:17,277 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
 [FaceDetection] [3/21] Detecting faces: img_1550.dng
-2025-11-14 22:41:55,902 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
-2025-11-14 22:41:56,009 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
+2025-11-14 22:58:17,615 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
+2025-11-14 22:58:17,730 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
 [FaceDetection] [4/21] Detecting faces: img_3307.jpg
-2025-11-14 22:41:56,470 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-14 22:41:56,744 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
+2025-11-14 22:58:18,222 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
+2025-11-14 22:58:18,501 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
 [FaceDetection] [5/21] Detecting faces: img_9570.jpg
-2025-11-14 22:41:57,067 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
-2025-11-14 22:41:57,184 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
+2025-11-14 22:58:18,874 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
+2025-11-14 22:58:18,989 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
 [FaceDetection] [6/21] Detecting faces: img_e3122.jpg
-2025-11-14 22:41:57,486 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-14 22:41:57,582 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
+2025-11-14 22:58:19,307 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
+2025-11-14 22:58:19,398 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
 [FaceDetection] [7/21] Detecting faces: img_e7413.jpg
-2025-11-14 22:41:57,854 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
-2025-11-14 22:41:57,919 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
+2025-11-14 22:58:19,644 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
+2025-11-14 22:58:19,716 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
 [FaceDetection] [8/21] Detecting faces: img_e9569.jpg
-2025-11-14 22:41:58,177 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
-2025-11-14 22:41:58,251 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
+2025-11-14 22:58:19,957 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
+2025-11-14 22:58:20,034 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
 [FaceDetection] [9/21] Detecting faces: img_e9574.jpg
-2025-11-14 22:41:58,508 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
-2025-11-14 22:41:58,591 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
+2025-11-14 22:58:20,303 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
+2025-11-14 22:58:20,389 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
 [FaceDetection] [10/21] Detecting faces: 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-14 22:41:58,795 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-14 22:41:58,838 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
+2025-11-14 22:58:20,596 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
+2025-11-14 22:58:20,637 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
 [FaceDetection] [11/21] Detecting faces: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-14 22:41:59,067 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-14 22:41:59,120 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
+2025-11-14 22:58:20,872 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
+2025-11-14 22:58:20,918 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
 [FaceDetection] [12/21] Detecting faces: gpic6664.jpg
-2025-11-14 22:41:59,318 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
-2025-11-14 22:41:59,363 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
+2025-11-14 22:58:21,151 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
+2025-11-14 22:58:21,200 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
 [FaceDetection] [13/21] Detecting faces: img_8920.png
-2025-11-14 22:41:59,670 [INFO] [FaceDetection] Found 2 faces in img_8920.png
-2025-11-14 22:41:59,806 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
+2025-11-14 22:58:21,517 [INFO] [FaceDetection] Found 2 faces in img_8920.png
+2025-11-14 22:58:21,637 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
 [FaceDetection] [14/21] Detecting faces: jkhc8378.jpg
-2025-11-14 22:42:00,001 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
-2025-11-14 22:42:00,045 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
+2025-11-14 22:58:21,870 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
+2025-11-14 22:58:21,921 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
 [FaceDetection] [15/21] Detecting faces: ntxk2933.jpg
-2025-11-14 22:42:00,259 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
-2025-11-14 22:42:00,304 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
+2025-11-14 22:58:22,148 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
+2025-11-14 22:58:22,197 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
 [FaceDetection] [16/21] Detecting faces: img_8152.jpeg
-2025-11-14 22:42:00,539 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
-2025-11-14 22:42:00,577 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
+2025-11-14 22:58:22,422 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
+2025-11-14 22:58:22,455 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
 [FaceDetection] [17/21] Detecting faces: img_8158.jpeg
-2025-11-14 22:42:00,778 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
-2025-11-14 22:42:00,806 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
+2025-11-14 22:58:22,714 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
+2025-11-14 22:58:22,754 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
 [FaceDetection] [18/21] Detecting faces: img_1779.jpeg
-2025-11-14 22:42:01,107 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
-2025-11-14 22:42:01,220 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
+2025-11-14 22:58:23,082 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
+2025-11-14 22:58:23,191 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
 [FaceDetection] [19/21] Detecting faces: img_e3091.jpg
-2025-11-14 22:42:01,535 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-14 22:42:01,644 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
+2025-11-14 22:58:23,530 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
+2025-11-14 22:58:23,640 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
 [FaceDetection] [20/21] Detecting faces: img_e3092.jpg
-2025-11-14 22:42:01,966 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-14 22:42:02,079 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
+2025-11-14 22:58:23,990 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
+2025-11-14 22:58:24,098 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
 [FaceDetection] [21/21] Detecting faces: img_e3093.jpg
-2025-11-14 22:42:02,385 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-14 22:42:02,487 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
-2025-11-14 22:42:02,488 [INFO] [FaceDetectionWorker] Complete in 12.6s: 21 processed, 33 faces detected, 0 failed
+2025-11-14 22:58:24,441 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
+2025-11-14 22:58:24,558 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
+2025-11-14 22:58:24,558 [INFO] [FaceDetectionWorker] Complete in 12.3s: 21 processed, 33 faces detected, 0 failed
 [FaceDetection] Complete: 21 photos, 33 faces detected
-2025-11-14 22:42:02,489 [INFO] [FaceClusterWorker] Starting face clustering for project 1
+2025-11-14 22:58:24,559 [INFO] [FaceClusterWorker] Starting face clustering for project 1
 [FaceCluster] Loading face embeddings...
-2025-11-14 22:42:02,491 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
+2025-11-14 22:58:24,561 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
 [FaceCluster] Clustering 33 faces...
-2025-11-14 22:42:02,520 [INFO] [FaceClusterWorker] Found 5 clusters
+2025-11-14 22:58:24,565 [INFO] [FaceClusterWorker] Found 5 clusters
 [FaceCluster] Found 5 person groups...
-2025-11-14 22:42:02,520 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
+2025-11-14 22:58:24,566 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\workers\face_cluster_worker.py", line 149, in run
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\workers\face_cluster_worker.py", line 149, in run
     cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (self.project_id,))
 sqlite3.OperationalError: no such column: key
 [FaceCluster] Complete: 0 person groups created
-[People] Launching clustering worker for 33 detected faces
-2025-11-14 22:42:10,877 [INFO] [FaceClusterWorker] Starting face clustering for project 1
-2025-11-14 22:42:10,879 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
-2025-11-14 22:42:10,881 [INFO] [FaceClusterWorker] Found 5 clusters
-2025-11-14 22:42:10,882 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-03\workers\face_cluster_worker.py", line 149, in run
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4029, in on_cluster_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'
+================================================================================
+2025-11-14 22:58:24,592 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4029, in on_cluster_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4029, in on_cluster_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'. Did you mean: '_reload_timer'?
+[MainWindow] Launching clustering worker for 33 detected faces
+2025-11-14 22:58:29,796 [INFO] [FaceClusterWorker] Starting face clustering for project 1
+2025-11-14 22:58:29,798 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
+2025-11-14 22:58:29,800 [INFO] [FaceClusterWorker] Found 5 clusters
+2025-11-14 22:58:29,800 [ERROR] [FaceClusterWorker] Fatal error: no such column: key
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\workers\face_cluster_worker.py", line 149, in run
     cur.execute("DELETE FROM branches WHERE project_id=? AND key LIKE 'face_%'", (self.project_id,))
 sqlite3.OperationalError: no such column: key
 [FaceCluster] Loading face embeddings...
 [FaceCluster] Found 5 person groups...
-2025-11-14 22:42:10,898 [INFO] [FaceClusterWorker] Cancellation requested
+2025-11-14 22:58:29,818 [INFO] [FaceClusterWorker] Cancellation requested
 [FaceCluster] Complete: 0 person groups created
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4142, in on_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'
+================================================================================
+2025-11-14 22:58:29,845 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4142, in on_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'
+Traceback (most recent call last):
+  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 4142, in on_finished
+    self.sidebar.reload_tree()
+AttributeError: 'SidebarQt' object has no attribute 'reload_tree'. Did you mean: '_reload_timer'?
 [FaceCluster] Clustering 33 faces...

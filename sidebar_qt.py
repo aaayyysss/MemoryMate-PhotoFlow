@@ -1082,8 +1082,8 @@ class SidebarTabs(QWidget):
                 QMessageBox.critical(
                     self,
                     "Missing Library",
-                    f"face_recognition library not installed.\n\n"
-                    f"Install with:\npip install face_recognition\n\n"
+                    f"InsightFace library not installed.\n\n"
+                    f"Install with:\npip install insightface onnxruntime\n\n"
                     f"Error: {e}"
                 )
             except Exception as e:

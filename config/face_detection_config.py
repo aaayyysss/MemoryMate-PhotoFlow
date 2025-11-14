@@ -14,7 +14,7 @@ class FaceDetectionConfig:
 
     DEFAULT_CONFIG = {
         # Backend selection
-        "backend": "face_recognition",  # Options: "face_recognition", "insightface"
+        "backend": "insightface",  # Options: "insightface" (recommended, uses buffalo_l + OnnxRuntime)
         "enabled": False,  # Face detection disabled by default
 
         # Detection parameters
@@ -120,7 +120,7 @@ class FaceDetectionConfig:
 
     def get_backend(self) -> str:
         """Get selected backend."""
-        return self.config.get("backend", "face_recognition")
+        return self.config.get("backend", "insightface")
 
     def get_clustering_params(self) -> Dict[str, Any]:
         """Get clustering parameters."""

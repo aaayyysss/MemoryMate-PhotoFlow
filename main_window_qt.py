@@ -3094,7 +3094,14 @@ class MainWindow(QMainWindow):
         # === Initialize periodic progress pollers (for detached workers) ===
         try:
             self.app_root = os.getcwd()  # base path for 'status/' folder
-            os.makedirs(os.path.join(self.app_root, "status"), exist_ok=True)
+            status_dir = os.path.join(self.app_root, "status")
+
+            # More defensive directory creation (fixes WinError 183 on Windows)
+            if not os.path.exists(status_dir):
+                os.makedirs(status_dir)
+            elif not os.path.isdir(status_dir):
+                raise ValueError(f"'status' exists but is not a directory: {status_dir}")
+
             self._init_progress_pollers()
         except Exception as e:
             print(f"[MainWindow] ⚠️ Progress pollers init failed: {e}")

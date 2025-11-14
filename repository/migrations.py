@@ -241,9 +241,32 @@ VALUES ('2.0.0', 'Repository layer schema with full migration', CURRENT_TIMESTAM
 
 
 # Ordered list of all migrations
+# Migration to v3.4.0 (add embedding column to face_crops)
+MIGRATION_3_4_0 = Migration(
+    version="3.4.0",
+    description="Add embedding column to face_crops for InsightFace integration",
+    sql="""
+-- Add embedding column to face_crops table for storing face embeddings
+-- This is needed for face clustering and recognition using InsightFace
+
+-- Check if embedding column already exists
+-- SQLite's ALTER TABLE ADD COLUMN is safe if column doesn't exist yet
+
+-- Try to add the column (will fail silently if already exists)
+-- We'll handle the column existence check in Python code
+
+CREATE INDEX IF NOT EXISTS idx_face_crops_embedding ON face_crops(project_id, embedding);
+""",
+    rollback_sql="""
+-- Cannot drop columns in SQLite without recreating table
+-- Manual rollback required if needed
+"""
+)
+
 ALL_MIGRATIONS = [
     MIGRATION_1_5_0,
     MIGRATION_2_0_0,
+    MIGRATION_3_4_0,
 ]
 
 
@@ -394,6 +417,8 @@ class MigrationManager:
                 elif migration.version == "2.0.0":
                     self._add_created_columns_if_missing(conn)
                     self._add_metadata_columns_if_missing(conn)
+                elif migration.version == "3.4.0":
+                    self._add_embedding_column_if_missing(conn)
 
                 # Execute migration SQL
                 conn.executescript(migration.sql)
@@ -562,6 +587,25 @@ class MigrationManager:
         if 'metadata_fail_count' not in columns:
             self.logger.info("Adding column: metadata_fail_count")
             cur.execute("ALTER TABLE photo_metadata ADD COLUMN metadata_fail_count INTEGER DEFAULT 0")
+
+        conn.commit()
+
+    def _add_embedding_column_if_missing(self, conn: sqlite3.Connection):
+        """
+        Add embedding column to face_crops table if it doesn't exist.
+
+        This column stores face embeddings as BLOB for clustering and recognition.
+
+        Args:
+            conn: Database connection
+        """
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(face_crops)")
+        columns = {row['name'] for row in cur.fetchall()}
+
+        if 'embedding' not in columns:
+            self.logger.info("Adding column: face_crops.embedding (BLOB)")
+            cur.execute("ALTER TABLE face_crops ADD COLUMN embedding BLOB")
 
         conn.commit()
 

@@ -170,6 +170,7 @@ class ReferenceDB:
                 branch_key TEXT NOT NULL,
                 image_path TEXT NOT NULL,  -- original photo
                 crop_path  TEXT NOT NULL,  -- saved face-crop (thumbnail-sized OK)
+                embedding BLOB,            -- face embedding for clustering/matching
                 is_representative INTEGER DEFAULT 0,
                 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 UNIQUE(project_id, branch_key, crop_path)

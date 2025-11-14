@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "3.3.0"
+SCHEMA_VERSION = "3.4.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -44,6 +44,9 @@ VALUES ('3.2.0', 'Added complete video infrastructure (video_metadata, project_v
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES ('3.3.0', 'Added compound indexes for query optimization (project_id + folder/date patterns)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.4.0', 'Added embedding column to face_crops for InsightFace integration');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -114,6 +117,7 @@ CREATE TABLE IF NOT EXISTS face_crops (
     branch_key TEXT NOT NULL,
     image_path TEXT NOT NULL,
     crop_path TEXT NOT NULL,
+    embedding BLOB,
     is_representative INTEGER DEFAULT 0,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     UNIQUE(project_id, branch_key, crop_path)

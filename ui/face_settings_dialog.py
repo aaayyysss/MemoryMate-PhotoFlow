@@ -396,11 +396,9 @@ class FaceSettingsDialog(QDialog):
         try:
             from services.face_detection_service import create_face_detection_service
 
-            # Create test service
+            # Create test service (InsightFace only)
             test_config = {
                 "backend": backend,
-                "detection_model": self.fr_model_combo.currentText(),
-                "upsample_times": self.upsample_spin.value(),
                 "insightface_model": self.if_model_combo.currentText(),
             }
 
@@ -411,7 +409,8 @@ class FaceSettingsDialog(QDialog):
                     self,
                     "Backend Test",
                     f"✅ Backend '{backend}' is working correctly!\n\n"
-                    f"Embedding size: {service.get_embedding_size()}-D"
+                    f"Model: {self.if_model_combo.currentText()}\n"
+                    f"Embedding size: 512-D (InsightFace ArcFace)"
                 )
             else:
                 QMessageBox.warning(

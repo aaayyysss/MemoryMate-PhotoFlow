@@ -1,10 +1,12 @@
 # face_cluster_worker.py
 # Version 01.01.01.01  (Phase 7.1 – People / Face Albums)
 # Reuses face_branch_reps + face_crops for clustering
+# Phase 5: Fixed bug with X variable order
 # ------------------------------------------------------
 
 import os
 import sys
+import time
 import sqlite3
 import numpy as np
 from sklearn.cluster import DBSCAN
@@ -127,6 +129,7 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
         print("[FaceCluster] Not enough faces to cluster.")
         return
 
+    X = np.vstack(vecs)
     total = len(X)
     status_path = os.path.join(os.getcwd(), "status", "cluster_status.json")
     log_path = status_path.replace(".json", ".log")
@@ -134,12 +137,10 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
     def _log_progress(phase, current, total):
         pct = round((current / total) * 100, 1) if total else 0
         with open(log_path, "a", encoding="utf-8") as f:
-            f.write(f"[{time.strftime('%H:%M:%S')}] {phase} {pct:.1f}% ({current}/{total})\n")    
-    
+            f.write(f"[{time.strftime('%H:%M:%S')}] {phase} {pct:.1f}% ({current}/{total})\n")
+
     write_status(status_path, "embedding_load", 0, total)
     _log_progress("embedding_load", 0, total)
-
-    X = np.vstack(vecs)
     print(f"[FaceCluster] Clustering {len(X)} faces ...")
 
     # 2️: Run DBSCAN clustering

@@ -1,352 +1,252 @@
-"""
-Face Detection Service - Abstraction Layer
-Supports multiple backends: face_recognition and InsightFace
-"""
+# face_detection_service.py
+# Phase 5: Face Detection Service
+# Detects faces in photos and generates 128-dimensional embeddings
+# Uses face_recognition library (dlib-based)
+# ------------------------------------------------------
 
+import os
 import numpy as np
-from typing import List, Tuple, Optional, Dict, Any
-from abc import ABC, abstractmethod
-from pathlib import Path
-import traceback
+from typing import List, Tuple, Optional
+from PIL import Image
+import logging
 
+logger = logging.getLogger(__name__)
 
-class FaceDetectionBackend(ABC):
-    """Abstract base class for face detection backends."""
+# Lazy import face_recognition (only load when needed)
+_face_recognition = None
 
-    @abstractmethod
-    def detect_faces(self, image_path: str) -> List[Dict[str, Any]]:
-        """Detect faces in an image.
-
-        Args:
-            image_path: Path to image file
-
-        Returns:
-            List of face dictionaries with keys:
-                - bbox: (top, right, bottom, left) coordinates
-                - embedding: Face embedding vector
-                - confidence: Detection confidence (0-1)
-                - landmarks: Optional facial landmarks
-        """
-        pass
-
-    @abstractmethod
-    def get_embedding_size(self) -> int:
-        """Get size of embedding vector."""
-        pass
-
-    @abstractmethod
-    def is_available(self) -> bool:
-        """Check if backend is available and initialized."""
-        pass
-
-
-class FaceRecognitionBackend(FaceDetectionBackend):
-    """Backend using face_recognition library (dlib)."""
-
-    def __init__(self, model: str = "hog", upsample_times: int = 1):
-        """Initialize face_recognition backend.
-
-        Args:
-            model: Detection model - "hog" (fast, CPU) or "cnn" (accurate, GPU)
-            upsample_times: How many times to upsample image for detection
-        """
-        self.model = model
-        self.upsample_times = upsample_times
-        self._available = False
-
+def _get_face_recognition():
+    """Lazy load face_recognition library."""
+    global _face_recognition
+    if _face_recognition is None:
         try:
             import face_recognition
-            self.face_recognition = face_recognition
-            self._available = True
-            print(f"[FaceRecognition] Backend initialized (model={model})")
-        except ImportError:
-            print("[FaceRecognition] Library not installed. Run: pip install face-recognition")
-
-    def detect_faces(self, image_path: str) -> List[Dict[str, Any]]:
-        """Detect faces using face_recognition library."""
-        if not self._available:
-            return []
-
-        try:
-            # Load image
-            image = self.face_recognition.load_image_file(image_path)
-
-            # Detect face locations
-            face_locations = self.face_recognition.face_locations(
-                image,
-                number_of_times_to_upsample=self.upsample_times,
-                model=self.model
-            )
-
-            if not face_locations:
-                return []
-
-            # Get face encodings (128-D embeddings)
-            face_encodings = self.face_recognition.face_encodings(
-                image,
-                known_face_locations=face_locations
-            )
-
-            # Get landmarks
-            face_landmarks = self.face_recognition.face_landmarks(
-                image,
-                face_locations=face_locations
-            )
-
-            # Format results
-            faces = []
-            for i, (location, encoding) in enumerate(zip(face_locations, face_encodings)):
-                top, right, bottom, left = location
-
-                face_dict = {
-                    "bbox": (top, right, bottom, left),
-                    "embedding": encoding.astype(np.float32),
-                    "confidence": 1.0,  # face_recognition doesn't provide confidence
-                    "landmarks": face_landmarks[i] if i < len(face_landmarks) else None,
-                    "area": (bottom - top) * (right - left)
-                }
-                faces.append(face_dict)
-
-            return faces
-
-        except Exception as e:
-            print(f"[FaceRecognition] Detection failed for {image_path}: {e}")
-            traceback.print_exc()
-            return []
-
-    def get_embedding_size(self) -> int:
-        """face_recognition uses 128-D embeddings."""
-        return 128
-
-    def is_available(self) -> bool:
-        """Check if face_recognition is available."""
-        return self._available
-
-
-class InsightFaceBackend(FaceDetectionBackend):
-    """Backend using InsightFace library."""
-
-    def __init__(self, model_name: str = "buffalo_l", det_size: Tuple[int, int] = (640, 640)):
-        """Initialize InsightFace backend.
-
-        Args:
-            model_name: Model name - "buffalo_s", "buffalo_l", "antelopev2"
-            det_size: Detection input size (width, height)
-        """
-        self.model_name = model_name
-        self.det_size = det_size
-        self._available = False
-        self.app = None
-
-        try:
-            import insightface
-            from insightface.app import FaceAnalysis
-
-            # Initialize face analysis app
-            self.app = FaceAnalysis(
-                name=model_name,
-                providers=['CPUExecutionProvider']  # Use CPU by default
-            )
-            self.app.prepare(ctx_id=0, det_size=det_size)
-            self._available = True
-            print(f"[InsightFace] Backend initialized (model={model_name})")
-
-        except ImportError:
-            print("[InsightFace] Library not installed. Run: pip install insightface onnxruntime")
-        except Exception as e:
-            print(f"[InsightFace] Initialization failed: {e}")
-
-    def detect_faces(self, image_path: str) -> List[Dict[str, Any]]:
-        """Detect faces using InsightFace."""
-        if not self._available or self.app is None:
-            return []
-
-        try:
-            import cv2
-
-            # Load image
-            image = cv2.imread(str(image_path))
-            if image is None:
-                return []
-
-            # Detect faces
-            faces_data = self.app.get(image)
-
-            if not faces_data:
-                return []
-
-            # Format results
-            faces = []
-            for face in faces_data:
-                bbox = face.bbox.astype(int)  # [x1, y1, x2, y2]
-                # Convert to (top, right, bottom, left) format
-                top, right, bottom, left = bbox[1], bbox[2], bbox[3], bbox[0]
-
-                face_dict = {
-                    "bbox": (top, right, bottom, left),
-                    "embedding": face.embedding.astype(np.float32),  # 512-D embedding
-                    "confidence": float(face.det_score),
-                    "landmarks": face.landmark_2d_106 if hasattr(face, 'landmark_2d_106') else None,
-                    "area": (bottom - top) * (right - left),
-                    "age": face.age if hasattr(face, 'age') else None,
-                    "gender": face.gender if hasattr(face, 'gender') else None,
-                }
-                faces.append(face_dict)
-
-            return faces
-
-        except Exception as e:
-            print(f"[InsightFace] Detection failed for {image_path}: {e}")
-            traceback.print_exc()
-            return []
-
-    def get_embedding_size(self) -> int:
-        """InsightFace uses 512-D embeddings."""
-        return 512
-
-    def is_available(self) -> bool:
-        """Check if InsightFace is available."""
-        return self._available
+            _face_recognition = face_recognition
+            logger.info("✅ face_recognition library loaded successfully")
+        except ImportError as e:
+            logger.error(f"❌ face_recognition library not installed: {e}")
+            logger.error("Install with: pip install face_recognition")
+            raise ImportError(
+                "face_recognition library required for face detection. "
+                "Install with: pip install face_recognition"
+            ) from e
+    return _face_recognition
 
 
 class FaceDetectionService:
-    """Main service for face detection with backend selection."""
+    """
+    Service for detecting faces and generating embeddings.
 
-    def __init__(self, backend_name: str = "face_recognition", **kwargs):
-        """Initialize face detection service.
+    Uses face_recognition library which provides:
+    - Face detection via HOG or CNN
+    - 128-dimensional face embeddings via dlib's ResNet model
+    - High accuracy face recognition
+
+    Usage:
+        service = FaceDetectionService()
+        faces = service.detect_faces("photo.jpg")
+        for face in faces:
+            print(f"Found face at {face['bbox']} with confidence {face['confidence']}")
+            print(f"Embedding shape: {face['embedding'].shape}")
+    """
+
+    def __init__(self, model: str = "hog"):
+        """
+        Initialize face detection service.
 
         Args:
-            backend_name: Backend to use - "face_recognition" or "insightface"
-            **kwargs: Backend-specific parameters
+            model: Detection model to use
+                   - "hog" (faster, CPU-friendly, good for most cases)
+                   - "cnn" (slower, GPU-optimized, more accurate)
         """
-        self.backend_name = backend_name
-        self.backend: Optional[FaceDetectionBackend] = None
+        self.model = model
+        self.fr = _get_face_recognition()
+        logger.info(f"[FaceDetection] Initialized with model={model}")
 
-        # Initialize backend
-        if backend_name == "face_recognition":
-            model = kwargs.get("model", "hog")
-            upsample = kwargs.get("upsample_times", 1)
-            self.backend = FaceRecognitionBackend(model=model, upsample_times=upsample)
-
-        elif backend_name == "insightface":
-            model = kwargs.get("model_name", "buffalo_l")
-            det_size = kwargs.get("det_size", (640, 640))
-            self.backend = InsightFaceBackend(model_name=model, det_size=det_size)
-
-        else:
-            raise ValueError(f"Unknown backend: {backend_name}")
-
-        if not self.backend.is_available():
-            raise RuntimeError(f"Backend '{backend_name}' is not available")
-
-        print(f"[FaceDetection] Service initialized with backend: {backend_name}")
-
-    def detect_faces(
-        self,
-        image_path: str,
-        min_size: int = 20,
-        confidence_threshold: float = 0.6
-    ) -> List[Dict[str, Any]]:
-        """Detect faces in an image.
+    def detect_faces(self, image_path: str) -> List[dict]:
+        """
+        Detect all faces in an image and generate embeddings.
 
         Args:
             image_path: Path to image file
-            min_size: Minimum face size in pixels
-            confidence_threshold: Minimum detection confidence
 
         Returns:
-            List of face dictionaries
+            List of face dictionaries with:
+            {
+                'bbox': (top, right, bottom, left),  # Face bounding box
+                'bbox_x': int,  # X coordinate
+                'bbox_y': int,  # Y coordinate
+                'bbox_w': int,  # Width
+                'bbox_h': int,  # Height
+                'embedding': np.array (128,),  # Face embedding vector
+                'confidence': float  # Detection confidence (0-1)
+            }
+
+        Example:
+            faces = service.detect_faces("photo.jpg")
+            print(f"Found {len(faces)} faces")
         """
-        if self.backend is None:
+        try:
+            # Check if file exists
+            if not os.path.exists(image_path):
+                logger.warning(f"Image not found: {image_path}")
+                return []
+
+            # Load image using face_recognition (handles various formats)
+            try:
+                image = self.fr.load_image_file(image_path)
+            except Exception as e:
+                logger.warning(f"Failed to load image {image_path}: {e}")
+                return []
+
+            # Detect face locations
+            # Returns: [(top, right, bottom, left), ...]
+            face_locations = self.fr.face_locations(image, model=self.model)
+
+            if not face_locations:
+                logger.debug(f"No faces found in {image_path}")
+                return []
+
+            # Generate embeddings for all detected faces
+            # Returns: [array(128,), array(128,), ...]
+            face_encodings = self.fr.face_encodings(image, face_locations)
+
+            # Combine locations and embeddings
+            faces = []
+            for location, encoding in zip(face_locations, face_encodings):
+                top, right, bottom, left = location
+
+                # Calculate bounding box dimensions
+                bbox_x = left
+                bbox_y = top
+                bbox_w = right - left
+                bbox_h = bottom - top
+
+                # Estimate confidence (face_recognition doesn't provide confidence scores)
+                # We use a heuristic based on face size (larger faces = more confident)
+                face_area = bbox_w * bbox_h
+                image_area = image.shape[0] * image.shape[1]
+                confidence = min(0.95, 0.7 + (face_area / image_area) * 0.25)
+
+                faces.append({
+                    'bbox': location,
+                    'bbox_x': bbox_x,
+                    'bbox_y': bbox_y,
+                    'bbox_w': bbox_w,
+                    'bbox_h': bbox_h,
+                    'embedding': encoding,
+                    'confidence': confidence
+                })
+
+            logger.info(f"[FaceDetection] Found {len(faces)} faces in {os.path.basename(image_path)}")
+            return faces
+
+        except Exception as e:
+            logger.error(f"Error detecting faces in {image_path}: {e}")
             return []
 
-        faces = self.backend.detect_faces(image_path)
+    def save_face_crop(self, image_path: str, face: dict, output_path: str) -> bool:
+        """
+        Save a cropped face image to disk.
 
-        # Filter by size and confidence
-        filtered_faces = []
-        for face in faces:
-            # Check minimum size
-            if face["area"] < min_size * min_size:
-                continue
-
-            # Check confidence threshold
-            if face["confidence"] < confidence_threshold:
-                continue
-
-            filtered_faces.append(face)
-
-        return filtered_faces
-
-    def get_embedding_size(self) -> int:
-        """Get embedding size for current backend."""
-        if self.backend is None:
-            return 0
-        return self.backend.get_embedding_size()
-
-    def is_available(self) -> bool:
-        """Check if service is available."""
-        return self.backend is not None and self.backend.is_available()
-
-    @staticmethod
-    def check_backend_availability() -> Dict[str, bool]:
-        """Check which backends are available.
+        Args:
+            image_path: Original image path
+            face: Face dictionary with 'bbox' key
+            output_path: Path to save cropped face
 
         Returns:
-            Dictionary with backend availability status
+            True if successful, False otherwise
         """
-        availability = {}
-
-        # Check face_recognition
         try:
-            import face_recognition
-            availability["face_recognition"] = True
-        except ImportError:
-            availability["face_recognition"] = False
+            # Load original image
+            img = Image.open(image_path)
 
-        # Check insightface
-        try:
-            import insightface
-            availability["insightface"] = True
-        except ImportError:
-            availability["insightface"] = False
+            # Extract bounding box
+            bbox_x = face['bbox_x']
+            bbox_y = face['bbox_y']
+            bbox_w = face['bbox_w']
+            bbox_h = face['bbox_h']
 
-        return availability
+            # Add padding (10% on each side)
+            padding = int(min(bbox_w, bbox_h) * 0.1)
+            x1 = max(0, bbox_x - padding)
+            y1 = max(0, bbox_y - padding)
+            x2 = min(img.width, bbox_x + bbox_w + padding)
+            y2 = min(img.height, bbox_y + bbox_h + padding)
+
+            # Crop face
+            face_img = img.crop((x1, y1, x2, y2))
+
+            # Resize to standard size for consistency (128x128)
+            face_img = face_img.resize((128, 128), Image.Resampling.LANCZOS)
+
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            # Save
+            face_img.save(output_path, quality=95)
+            logger.debug(f"Saved face crop to {output_path}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to save face crop: {e}")
+            return False
+
+    def batch_detect_faces(self, image_paths: List[str],
+                          max_workers: int = 4) -> dict:
+        """
+        Detect faces in multiple images (parallel processing).
+
+        Args:
+            image_paths: List of image paths
+            max_workers: Number of parallel workers
+
+        Returns:
+            Dictionary mapping image_path -> list of faces
+
+        Example:
+            results = service.batch_detect_faces(["img1.jpg", "img2.jpg"])
+            for path, faces in results.items():
+                print(f"{path}: {len(faces)} faces")
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        results = {}
+        total = len(image_paths)
+
+        logger.info(f"[FaceDetection] Processing {total} images with {max_workers} workers")
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all detection tasks
+            futures = {executor.submit(self.detect_faces, path): path
+                      for path in image_paths}
+
+            # Collect results as they complete
+            processed = 0
+            for future in as_completed(futures):
+                path = futures[future]
+                try:
+                    faces = future.result()
+                    results[path] = faces
+                    processed += 1
+
+                    if processed % 10 == 0:
+                        logger.info(f"[FaceDetection] Progress: {processed}/{total} images")
+
+                except Exception as e:
+                    logger.error(f"Error processing {path}: {e}")
+                    results[path] = []
+
+        logger.info(f"[FaceDetection] Batch complete: {processed}/{total} images processed")
+        return results
 
 
-def create_face_detection_service(config: Optional[Dict[str, Any]] = None) -> Optional[FaceDetectionService]:
-    """Factory function to create face detection service from config.
+# Singleton instance
+_face_detection_service = None
 
-    Args:
-        config: Configuration dictionary. If None, uses default config.
-
-    Returns:
-        FaceDetectionService instance or None if backend unavailable
-    """
-    if config is None:
-        from config.face_detection_config import get_face_config
-        cfg = get_face_config()
-        backend = cfg.get_backend()
-        config = cfg.config
-    else:
-        backend = config.get("backend", "face_recognition")
-
-    try:
-        if backend == "face_recognition":
-            return FaceDetectionService(
-                backend_name="face_recognition",
-                model=config.get("detection_model", "hog"),
-                upsample_times=config.get("upsample_times", 1)
-            )
-        elif backend == "insightface":
-            return FaceDetectionService(
-                backend_name="insightface",
-                model_name=config.get("insightface_model", "buffalo_l"),
-                det_size=tuple(config.get("insightface_det_size", (640, 640)))
-            )
-        else:
-            print(f"[FaceDetection] Unknown backend: {backend}")
-            return None
-
-    except Exception as e:
-        print(f"[FaceDetection] Failed to create service: {e}")
-        return None
+def get_face_detection_service(model: str = "hog") -> FaceDetectionService:
+    """Get or create singleton FaceDetectionService instance."""
+    global _face_detection_service
+    if _face_detection_service is None:
+        _face_detection_service = FaceDetectionService(model=model)
+    return _face_detection_service

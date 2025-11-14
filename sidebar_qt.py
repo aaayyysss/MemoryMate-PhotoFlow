@@ -997,21 +997,102 @@ class SidebarTabs(QWidget):
         tab = self.tab_widget.widget(idx)
         layout = tab.layout()
 
-        # === Header row with label + 🔁 Re-Cluster ===
+        # === Header row with label + 🔍 Detect Faces + 🔁 Re-Cluster ===
         header = QWidget()
         hbox = QHBoxLayout(header)
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.setSpacing(8)
 
         lbl = QLabel("<b>👥 People / Face Clusters</b>")
+
+        # Phase 5: Detect Faces button
+        btn_detect = QPushButton("🔍 Detect Faces")
+        btn_detect.setFixedHeight(24)
+        btn_detect.setToolTip("Scan photos and detect faces (Phase 5)")
+        btn_detect.setStyleSheet("QPushButton{padding:3px 8px;}")
+
         btn_recluster = QPushButton("🔁 Re-Cluster")
         btn_recluster.setFixedHeight(24)
         btn_recluster.setToolTip("Run face clustering again in background")
         btn_recluster.setStyleSheet("QPushButton{padding:3px 8px;}")
+
         hbox.addWidget(lbl)
         hbox.addStretch(1)
+        hbox.addWidget(btn_detect)
         hbox.addWidget(btn_recluster)
         layout.addWidget(header)
+
+        # === Phase 5: Launch face detection worker ===
+        def on_detect_faces():
+            try:
+                from PySide6.QtCore import QThreadPool
+                from workers.face_detection_worker import FaceDetectionWorker
+                from PySide6.QtWidgets import QMessageBox
+
+                # Confirm action
+                reply = QMessageBox.question(
+                    self,
+                    "Detect Faces",
+                    f"This will scan all photos in the project and detect faces.\n\n"
+                    f"This may take 10-20 minutes for large photo collections.\n\n"
+                    f"Continue?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+
+                if reply != QMessageBox.Yes:
+                    return
+
+                print(f"[People] Launching face detection worker for project {self.project_id}")
+
+                # Create worker
+                worker = FaceDetectionWorker(project_id=self.project_id)
+
+                # Connect signals
+                def on_progress(current, total, message):
+                    print(f"[FaceDetection] [{current}/{total}] {message}")
+
+                def on_finished(success, failed, total_faces):
+                    print(f"[FaceDetection] Finished: {success} photos, {total_faces} faces detected")
+                    QMessageBox.information(
+                        self,
+                        "Face Detection Complete",
+                        f"Detected {total_faces} faces in {success} photos.\n\n"
+                        f"Click 🔁 Re-Cluster to group faces by person."
+                    )
+                    # Refresh the people tab
+                    if hasattr(self.parent(), "refresh_sidebar"):
+                        self.parent().refresh_sidebar()
+
+                worker.signals.progress.connect(on_progress)
+                worker.signals.finished.connect(on_finished)
+
+                # Start worker
+                QThreadPool.globalInstance().start(worker)
+
+                QMessageBox.information(
+                    self,
+                    "Face Detection Started",
+                    "Face detection is running in the background.\n\n"
+                    "Check console for progress updates."
+                )
+
+            except ImportError as e:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.critical(
+                    self,
+                    "Missing Library",
+                    f"face_recognition library not installed.\n\n"
+                    f"Install with:\npip install face_recognition\n\n"
+                    f"Error: {e}"
+                )
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.critical(self, "Face Detection Failed", str(e))
+
+        btn_detect.clicked.connect(on_detect_faces)
 
         # === Launch clustering worker ===
         def on_recluster():

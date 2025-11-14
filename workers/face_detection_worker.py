@@ -1,396 +1,299 @@
-"""
-Face Detection Worker
-Detects faces in images, extracts embeddings, and saves face crops to database.
-"""
+# face_detection_worker.py
+# Phase 5: Face Detection Worker
+# Background worker for detecting faces and generating embeddings
+# Populates face_crops table with detected faces
+# ------------------------------------------------------
 
 import os
-import sys
 import time
-import sqlite3
 import numpy as np
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-from PIL import Image
-import traceback
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from typing import Optional
+from PySide6.QtCore import QRunnable, QObject, Signal, Slot
+import logging
 
 from reference_db import ReferenceDB
-from services.face_detection_service import create_face_detection_service
-from config.face_detection_config import get_face_config
-from workers.progress_writer import write_status
+from services.face_detection_service import get_face_detection_service
+
+logger = logging.getLogger(__name__)
 
 
-class FaceDetectionWorker:
-    """Worker for detecting faces in a photo collection."""
+class FaceDetectionSignals(QObject):
+    """
+    Signals for face detection worker progress reporting.
+    """
+    # progress(current, total, message)
+    progress = Signal(int, int, str)
 
-    def __init__(self, project_id: int):
-        """Initialize face detection worker.
+    # face_detected(image_path, face_count)
+    face_detected = Signal(str, int)
+
+    # finished(success_count, failed_count, total_faces)
+    finished = Signal(int, int, int)
+
+    # error(image_path, error_message)
+    error = Signal(str, str)
+
+
+class FaceDetectionWorker(QRunnable):
+    """
+    Background worker for detecting faces in photos.
+
+    Processes all photos in a project, detects faces, generates embeddings,
+    and saves results to face_crops table.
+
+    Usage:
+        worker = FaceDetectionWorker(project_id=1)
+        worker.signals.progress.connect(on_progress)
+        worker.signals.finished.connect(on_finished)
+        QThreadPool.globalInstance().start(worker)
+
+    Performance:
+        - Uses HOG model (fast, CPU-friendly)
+        - Processes ~1-2 photos/second
+        - Parallel processing NOT recommended (CPU-intensive)
+        - For 1000 photos: ~10-15 minutes
+
+    Features:
+        - Skips photos already processed
+        - Saves face crops to .memorymate/faces/
+        - Generates 128-dim embeddings
+        - Error handling and progress reporting
+    """
+
+    def __init__(self, project_id: int, model: str = "hog",
+                 skip_processed: bool = True, max_faces_per_photo: int = 10):
+        """
+        Initialize face detection worker.
 
         Args:
-            project_id: Project ID to process
+            project_id: Project ID to process photos for
+            model: Detection model ("hog" or "cnn")
+            skip_processed: Skip photos already in face_crops table
+            max_faces_per_photo: Maximum faces to detect per photo (prevent memory issues)
         """
+        super().__init__()
         self.project_id = project_id
-        self.db = ReferenceDB()
-        self.config = get_face_config()
+        self.model = model
+        self.skip_processed = skip_processed
+        self.max_faces_per_photo = max_faces_per_photo
+        self.signals = FaceDetectionSignals()
+        self.cancelled = False
 
-        # Initialize face detection service
-        self.face_service = create_face_detection_service()
-        if self.face_service is None or not self.face_service.is_available():
-            raise RuntimeError("Face detection service not available")
-
-        # Get configuration
-        self.min_face_size = self.config.get("min_face_size", 20)
-        self.confidence_threshold = self.config.get("confidence_threshold", 0.6)
-        self.batch_size = self.config.get("batch_size", 50)
-        self.skip_detected = self.config.get("skip_detected", True)
-        self.save_crops = self.config.get("save_face_crops", True)
-        self.crop_size = self.config.get("crop_size", 160)
-        self.crop_quality = self.config.get("crop_quality", 95)
-
-        # Setup face cache directory
-        self.face_cache_dir = self.config.get_face_cache_dir()
-        self.face_cache_dir.mkdir(parents=True, exist_ok=True)
-
-        print(f"[FaceWorker] Initialized for project {project_id}")
-        print(f"[FaceWorker] Backend: {self.config.get_backend()}")
-        print(f"[FaceWorker] Face cache: {self.face_cache_dir}")
-
-    def get_images_to_process(self) -> List[Dict[str, Any]]:
-        """Get list of images that need face detection.
-
-        Returns:
-            List of image dictionaries with 'id' and 'path'
-        """
-        with self.db._connect() as conn:
-            cur = conn.cursor()
-
-            if self.skip_detected:
-                # Only get images without face detection
-                cur.execute("""
-                    SELECT pm.id, pm.path
-                    FROM photo_metadata pm
-                    WHERE pm.project_id = ?
-                      AND NOT EXISTS (
-                          SELECT 1 FROM face_crops fc
-                          WHERE fc.image_path = pm.path
-                            AND fc.project_id = pm.project_id
-                      )
-                    ORDER BY pm.id
-                """, (self.project_id,))
-            else:
-                # Get all images in project
-                cur.execute("""
-                    SELECT id, path
-                    FROM photo_metadata
-                    WHERE project_id = ?
-                    ORDER BY id
-                """, (self.project_id,))
-
-            rows = cur.fetchall()
-            return [{"id": r[0], "path": r[1]} for r in rows]
-
-    def save_face_crop(
-        self,
-        image_path: str,
-        bbox: tuple,
-        face_id: int
-    ) -> Optional[str]:
-        """Save a face crop to disk.
-
-        Args:
-            image_path: Path to original image
-            bbox: Face bounding box (top, right, bottom, left)
-            face_id: Unique face ID for filename
-
-        Returns:
-            Path to saved crop or None if failed
-        """
-        if not self.save_crops:
-            return None
-
-        try:
-            # Load original image
-            image = Image.open(image_path)
-
-            # Extract bounding box
-            top, right, bottom, left = bbox
-
-            # Add padding (10%)
-            width = right - left
-            height = bottom - top
-            padding_x = int(width * 0.1)
-            padding_y = int(height * 0.1)
-
-            # Apply padding with bounds checking
-            img_width, img_height = image.size
-            left = max(0, left - padding_x)
-            top = max(0, top - padding_y)
-            right = min(img_width, right + padding_x)
-            bottom = min(img_height, bottom + padding_y)
-
-            # Crop face
-            face_crop = image.crop((left, top, right, bottom))
-
-            # Resize to standard size
-            face_crop = face_crop.resize((self.crop_size, self.crop_size), Image.Resampling.LANCZOS)
-
-            # Generate filename
-            crop_filename = f"face_{self.project_id}_{face_id:08d}.jpg"
-            crop_path = self.face_cache_dir / crop_filename
-
-            # Save crop
-            face_crop.save(crop_path, "JPEG", quality=self.crop_quality)
-
-            return str(crop_path)
-
-        except Exception as e:
-            print(f"[FaceWorker] Failed to save crop: {e}")
-            return None
-
-    def process_image(self, image_path: str) -> List[Dict[str, Any]]:
-        """Process a single image for face detection.
-
-        Args:
-            image_path: Path to image
-
-        Returns:
-            List of detected faces with embeddings
-        """
-        try:
-            # Detect faces
-            faces = self.face_service.detect_faces(
-                image_path,
-                min_size=self.min_face_size,
-                confidence_threshold=self.confidence_threshold
-            )
-
-            return faces
-
-        except Exception as e:
-            print(f"[FaceWorker] Error processing {image_path}: {e}")
-            traceback.print_exc()
-            return []
-
-    def save_faces_to_db(
-        self,
-        image_path: str,
-        faces: List[Dict[str, Any]],
-        conn: sqlite3.Connection
-    ) -> int:
-        """Save detected faces to database.
-
-        Args:
-            image_path: Path to original image
-            faces: List of detected faces
-            conn: Database connection
-
-        Returns:
-            Number of faces saved
-        """
-        if not faces:
-            return 0
-
-        cur = conn.cursor()
-        saved_count = 0
-
-        for face in faces:
-            try:
-                # Generate unique face ID
-                cur.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM face_crops")
-                face_id = cur.fetchone()[0]
-
-                # Save face crop
-                crop_path = self.save_face_crop(image_path, face["bbox"], face_id)
-
-                # Convert embedding to bytes
-                embedding_bytes = face["embedding"].tobytes()
-
-                # Insert into face_crops table
-                cur.execute("""
-                    INSERT INTO face_crops (
-                        project_id,
-                        branch_key,
-                        image_path,
-                        crop_path,
-                        embedding,
-                        confidence,
-                        bbox_top,
-                        bbox_right,
-                        bbox_bottom,
-                        bbox_left,
-                        is_representative
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-                """, (
-                    self.project_id,
-                    "unassigned",  # Will be assigned during clustering
-                    image_path,
-                    crop_path or "",
-                    embedding_bytes,
-                    face["confidence"],
-                    face["bbox"][0],  # top
-                    face["bbox"][1],  # right
-                    face["bbox"][2],  # bottom
-                    face["bbox"][3],  # left
-                ))
-
-                saved_count += 1
-
-            except Exception as e:
-                print(f"[FaceWorker] Failed to save face from {image_path}: {e}")
-                traceback.print_exc()
-
-        return saved_count
-
-    def run(self, status_path: Optional[str] = None) -> Dict[str, Any]:
-        """Run face detection on all images in project.
-
-        Args:
-            status_path: Optional path to status file for progress reporting
-
-        Returns:
-            Dictionary with statistics
-        """
-        start_time = time.time()
-
-        # Setup status reporting
-        if status_path is None:
-            status_dir = Path("status")
-            status_dir.mkdir(exist_ok=True)
-            status_path = status_dir / "face_detection_status.json"
-
-        log_path = str(status_path).replace(".json", ".log")
-
-        def log(message: str):
-            """Log message to file and console."""
-            print(f"[FaceWorker] {message}")
-            with open(log_path, "a", encoding="utf-8") as f:
-                f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
-
-        # Get images to process
-        log("Getting images to process...")
-        images = self.get_images_to_process()
-        total_images = len(images)
-
-        if total_images == 0:
-            log("No images to process")
-            return {"total_images": 0, "total_faces": 0, "elapsed_time": 0}
-
-        log(f"Found {total_images} images to process")
-        write_status(status_path, "initializing", 0, total_images)
-
-        # Process images in batches
-        total_faces = 0
-        processed_images = 0
-        images_with_faces = 0
-
-        conn = self.db._connect()
-
-        try:
-            for i in range(0, total_images, self.batch_size):
-                batch = images[i:i + self.batch_size]
-                batch_faces = 0
-
-                for img in batch:
-                    image_path = img["path"]
-
-                    # Check if file exists
-                    if not os.path.exists(image_path):
-                        processed_images += 1
-                        continue
-
-                    # Detect faces
-                    faces = self.process_image(image_path)
-
-                    # Save to database
-                    if faces:
-                        saved = self.save_faces_to_db(image_path, faces, conn)
-                        batch_faces += saved
-                        if saved > 0:
-                            images_with_faces += 1
-
-                    processed_images += 1
-
-                    # Update progress
-                    if processed_images % 10 == 0:
-                        pct = (processed_images / total_images) * 100
-                        log(f"Progress: {processed_images}/{total_images} ({pct:.1f}%) - {total_faces} faces")
-                        write_status(status_path, "detecting", processed_images, total_images)
-
-                # Commit batch
-                conn.commit()
-                total_faces += batch_faces
-                log(f"Batch {i//self.batch_size + 1}: {batch_faces} faces detected")
-
-        finally:
-            conn.close()
-
-        # Final statistics
-        elapsed = time.time() - start_time
-        log("=" * 50)
-        log(f"Face detection completed!")
-        log(f"  Total images: {total_images}")
-        log(f"  Images processed: {processed_images}")
-        log(f"  Images with faces: {images_with_faces}")
-        log(f"  Total faces detected: {total_faces}")
-        log(f"  Elapsed time: {elapsed:.1f}s")
-        log(f"  Average: {elapsed/processed_images:.2f}s per image" if processed_images > 0 else "N/A")
-        log("=" * 50)
-
-        write_status(status_path, "done", total_images, total_images)
-
-        return {
-            "total_images": total_images,
-            "processed_images": processed_images,
-            "images_with_faces": images_with_faces,
-            "total_faces": total_faces,
-            "elapsed_time": elapsed,
+        # Statistics
+        self._stats = {
+            'photos_processed': 0,
+            'photos_skipped': 0,
+            'photos_failed': 0,
+            'faces_detected': 0
         }
 
+    def cancel(self):
+        """Cancel the detection process."""
+        self.cancelled = True
+        logger.info("[FaceDetectionWorker] Cancellation requested")
 
-def main():
-    """Main entry point for face detection worker."""
+    @Slot()
+    def run(self):
+        """Main worker execution."""
+        logger.info(f"[FaceDetectionWorker] Starting face detection for project {self.project_id}")
+        start_time = time.time()
+
+        try:
+            # Initialize services
+            db = ReferenceDB()
+            face_service = get_face_detection_service(model=self.model)
+
+            # Get all photos for this project
+            photos = self._get_photos_to_process(db)
+            total_photos = len(photos)
+
+            if total_photos == 0:
+                logger.info("[FaceDetectionWorker] No photos to process")
+                self.signals.finished.emit(0, 0, 0)
+                return
+
+            logger.info(f"[FaceDetectionWorker] Processing {total_photos} photos")
+
+            # Create face crops directory
+            face_crops_dir = os.path.join(os.getcwd(), ".memorymate", "faces")
+            os.makedirs(face_crops_dir, exist_ok=True)
+
+            # Process each photo
+            for idx, photo in enumerate(photos, 1):
+                if self.cancelled:
+                    logger.info("[FaceDetectionWorker] Cancelled by user")
+                    break
+
+                photo_path = photo['path']
+
+                # Emit progress
+                self.signals.progress.emit(
+                    idx, total_photos,
+                    f"Detecting faces: {os.path.basename(photo_path)}"
+                )
+
+                # Detect faces
+                try:
+                    faces = face_service.detect_faces(photo_path)
+
+                    if not faces:
+                        self._stats['photos_processed'] += 1
+                        continue
+
+                    # Limit faces per photo (prevent memory issues with large group photos)
+                    if len(faces) > self.max_faces_per_photo:
+                        logger.warning(
+                            f"[FaceDetectionWorker] {photo_path} has {len(faces)} faces, "
+                            f"keeping largest {self.max_faces_per_photo}"
+                        )
+                        # Sort by face size (bbox_w * bbox_h) and keep largest
+                        faces = sorted(faces, key=lambda f: f['bbox_w'] * f['bbox_h'], reverse=True)
+                        faces = faces[:self.max_faces_per_photo]
+
+                    # Save faces to database
+                    for face_idx, face in enumerate(faces):
+                        self._save_face(db, photo_path, face, face_idx, face_crops_dir)
+
+                    self._stats['photos_processed'] += 1
+                    self._stats['faces_detected'] += len(faces)
+
+                    # Emit face detected signal
+                    self.signals.face_detected.emit(photo_path, len(faces))
+
+                    logger.info(f"[FaceDetectionWorker] ✓ {photo_path}: {len(faces)} faces")
+
+                except Exception as e:
+                    self._stats['photos_failed'] += 1
+                    error_msg = str(e)
+                    logger.error(f"[FaceDetectionWorker] ✗ {photo_path}: {error_msg}")
+                    self.signals.error.emit(photo_path, error_msg)
+
+            # Finalize
+            duration = time.time() - start_time
+            logger.info(
+                f"[FaceDetectionWorker] Complete in {duration:.1f}s: "
+                f"{self._stats['photos_processed']} processed, "
+                f"{self._stats['faces_detected']} faces detected, "
+                f"{self._stats['photos_failed']} failed"
+            )
+
+            self.signals.finished.emit(
+                self._stats['photos_processed'],
+                self._stats['photos_failed'],
+                self._stats['faces_detected']
+            )
+
+        except Exception as e:
+            logger.error(f"[FaceDetectionWorker] Fatal error: {e}", exc_info=True)
+            self.signals.finished.emit(0, 0, 0)
+
+    def _get_photos_to_process(self, db: ReferenceDB) -> list:
+        """
+        Get list of photos to process.
+
+        Returns photos that haven't been processed yet (if skip_processed=True).
+        """
+        with db._connect() as conn:
+            cur = conn.cursor()
+
+            if self.skip_processed:
+                # Get photos not in face_crops table
+                cur.execute("""
+                    SELECT DISTINCT pm.path, pm.project_id
+                    FROM photo_metadata pm
+                    WHERE pm.project_id = ?
+                      AND pm.path NOT IN (
+                          SELECT DISTINCT image_path FROM face_crops WHERE project_id = ?
+                      )
+                    ORDER BY pm.path
+                """, (self.project_id, self.project_id))
+            else:
+                # Get all photos
+                cur.execute("""
+                    SELECT path, project_id
+                    FROM photo_metadata
+                    WHERE project_id = ?
+                    ORDER BY path
+                """, (self.project_id,))
+
+            return [{'path': row[0], 'project_id': row[1]} for row in cur.fetchall()]
+
+    def _save_face(self, db: ReferenceDB, image_path: str, face: dict,
+                   face_idx: int, face_crops_dir: str):
+        """
+        Save detected face to database and disk.
+
+        Args:
+            db: Database instance
+            image_path: Original photo path
+            face: Face dictionary with bbox and embedding
+            face_idx: Face index in photo (for naming)
+            face_crops_dir: Directory to save face crops
+        """
+        try:
+            # Generate crop filename
+            image_basename = os.path.splitext(os.path.basename(image_path))[0]
+            crop_filename = f"{image_basename}_face{face_idx}.jpg"
+            crop_path = os.path.join(face_crops_dir, crop_filename)
+
+            # Save face crop to disk
+            face_service = get_face_detection_service()
+            if not face_service.save_face_crop(image_path, face, crop_path):
+                logger.warning(f"Failed to save face crop: {crop_path}")
+                return
+
+            # Convert embedding to bytes for storage
+            embedding_bytes = face['embedding'].astype(np.float32).tobytes()
+
+            # Insert into database
+            with db._connect() as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT OR REPLACE INTO face_crops (
+                        project_id, image_path, crop_path, embedding,
+                        bbox_x, bbox_y, bbox_w, bbox_h, confidence
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    self.project_id,
+                    image_path,
+                    crop_path,
+                    embedding_bytes,
+                    face['bbox_x'],
+                    face['bbox_y'],
+                    face['bbox_w'],
+                    face['bbox_h'],
+                    face['confidence']
+                ))
+                conn.commit()
+
+        except Exception as e:
+            logger.error(f"Failed to save face: {e}")
+
+
+# Standalone script support
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtCore import QCoreApplication, QThreadPool
+
     if len(sys.argv) < 2:
         print("Usage: python face_detection_worker.py <project_id>")
         sys.exit(1)
 
     project_id = int(sys.argv[1])
 
-    # Check configuration
-    config = get_face_config()
-    if not config.is_enabled():
-        print("[FaceWorker] Face detection is disabled in configuration")
-        print("[FaceWorker] Enable it in settings to use this feature")
-        sys.exit(1)
+    app = QCoreApplication(sys.argv)
 
-    # Check backend availability
-    from services.face_detection_service import FaceDetectionService
-    availability = FaceDetectionService.check_backend_availability()
-    backend = config.get_backend()
+    def on_progress(current, total, message):
+        print(f"[{current}/{total}] {message}")
 
-    if not availability.get(backend, False):
-        print(f"[FaceWorker] Backend '{backend}' is not available")
-        print(f"[FaceWorker] Available backends: {[k for k, v in availability.items() if v]}")
-        if backend == "face_recognition":
-            print("[FaceWorker] Install with: pip install face-recognition")
-        elif backend == "insightface":
-            print("[FaceWorker] Install with: pip install insightface onnxruntime")
-        sys.exit(1)
+    def on_finished(success, failed, total_faces):
+        print(f"\nFinished: {success} photos processed, {failed} failed, {total_faces} faces detected")
+        app.quit()
 
-    # Run worker
-    try:
-        worker = FaceDetectionWorker(project_id)
-        stats = worker.run()
+    worker = FaceDetectionWorker(project_id=project_id)
+    worker.signals.progress.connect(on_progress)
+    worker.signals.finished.connect(on_finished)
 
-        print("\n✅ Face detection completed successfully!")
-        print(f"   Detected {stats['total_faces']} faces in {stats['images_with_faces']} images")
+    QThreadPool.globalInstance().start(worker)
 
-    except Exception as e:
-        print(f"\n❌ Face detection failed: {e}")
-        traceback.print_exc()
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+    sys.exit(app.exec())

@@ -33,10 +33,12 @@ from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageQt,ExifTags
 from datetime import datetime
 
 from PySide6.QtCore import (
-    Qt, QParallelAnimationGroup, QPropertyAnimation, 
-    QEasingCurve, QEvent, QTimer, QSize, 
+    Qt, QParallelAnimationGroup, QPropertyAnimation,
+    QEasingCurve, QEvent, QTimer, QSize,
     Signal, QRect, QPoint, QPointF, QUrl
 )
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 
 
 from PySide6.QtWidgets import (
@@ -526,15 +528,65 @@ class LightboxDialog(QDialog):
         hbox.setContentsMargins(0,0,0,0)
         hbox.setSpacing(0)
 
+        # === PHASE 1: Content stack for unified photo/video display ===
+        self.content_stack = QStackedWidget()
+
+        # Page 0: Image canvas (for photos)
         self.canvas = LightboxDialog._ImageCanvas(self)
         self.canvas.setCursor(Qt.OpenHandCursor)
         # keep viewer & editor zoom controls synchronized whenever canvas scale changes
         try:
             self.canvas.scaleChanged.connect(self._on_canvas_scale_changed)
         except Exception:
-            pass        
-        
-        hbox.addWidget(self.canvas, 1)
+            pass
+        self.content_stack.addWidget(self.canvas)  # index 0
+
+        # Page 1: Video player (for videos)
+        video_container = QWidget()
+        video_layout = QVBoxLayout(video_container)
+        video_layout.setContentsMargins(0, 0, 0, 0)
+        video_layout.setSpacing(0)
+
+        # Video widget with proper sizing
+        self.video_widget = QVideoWidget()
+        self.video_widget.setMinimumHeight(300)
+        self.video_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.video_widget.setStyleSheet("background-color: black;")
+        self.video_widget.installEventFilter(self)  # PHASE 2: Capture double-click for fullscreen
+        video_layout.addWidget(self.video_widget)
+
+        self.content_stack.addWidget(video_container)  # index 1
+
+        # Initialize media player for video playback
+        self.media_player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
+        self.media_player.setVideoOutput(self.video_widget)
+
+        # Connect signals for video playback
+        try:
+            self.media_player.playbackStateChanged.connect(self._on_video_playback_state_changed)
+            self.media_player.errorOccurred.connect(self._on_video_error)
+            self.media_player.positionChanged.connect(self._on_video_position_changed)
+            self.media_player.durationChanged.connect(self._on_video_duration_changed)
+            print("[LightboxDialog] Video player signals connected successfully")
+        except Exception as e:
+            print(f"[LightboxDialog] WARNING: Failed to connect video signals: {e}")
+
+        # Video position update timer
+        self._video_duration = 0
+        self._timeline_seeking = False  # Track if user is dragging timeline
+
+        # Track current media type
+        self._current_media_type = "photo"  # "photo" or "video"
+        self._is_video = False
+
+        # === PHASE 2: Fullscreen mode support ===
+        self._is_fullscreen = False
+        self._pre_fullscreen_geometry = None
+        self._pre_fullscreen_state = None
+
+        hbox.addWidget(self.content_stack, 1)
 
         # install event filter for canvas (if needed downstream)
         self.canvas.installEventFilter(self)
@@ -559,9 +611,9 @@ class LightboxDialog(QDialog):
         # right editor panel (created but not added until edit mode)
         self.right_editor_panel = self._build_right_editor_panel()
 
-        # load image file
+        # load media file (photo or video)
         if image_path:
-            self._load_image(image_path)
+            self._load_media(image_path)
 
         self._init_navigation_arrows()
         self.stack.setCurrentIndex(0)
@@ -1140,6 +1192,7 @@ class LightboxDialog(QDialog):
         h.setContentsMargins(0,0,0,0)
         h.setSpacing(6)
 
+        # Photo zoom controls
         self.btn_zoom_minus = QToolButton()
         self.btn_zoom_minus.setText("−")
         self.btn_zoom_minus.setStyleSheet("color:#000; font-size:16px; font-weight:bold;")
@@ -1167,6 +1220,76 @@ class LightboxDialog(QDialog):
         self.zoom_combo.editTextChanged.connect(self._on_zoom_combo_changed)
         self.zoom_combo.activated.connect(lambda _: self._on_zoom_combo_changed())
 
+        # === PHASE 1: Professional Video Controls ===
+
+        # Video playback button
+        self.btn_play_pause = QPushButton("▶ Play")
+        self.btn_play_pause.setStyleSheet(self._button_style())
+        self.btn_play_pause.clicked.connect(self._toggle_video_playback)
+        self.btn_play_pause.setFixedWidth(80)
+        self.btn_play_pause.hide()
+
+        # Video timeline slider (for seeking)
+        self.video_timeline_slider = QSlider(Qt.Horizontal)
+        self.video_timeline_slider.setRange(0, 1000)  # 0-1000 for smooth seeking
+        self.video_timeline_slider.setValue(0)
+        self.video_timeline_slider.setFixedWidth(300)
+        self.video_timeline_slider.setToolTip("Seek through video")
+        try:
+            self.video_timeline_slider.sliderMoved.connect(self._on_timeline_slider_moved)
+            self.video_timeline_slider.sliderPressed.connect(self._on_timeline_slider_pressed)
+            self.video_timeline_slider.sliderReleased.connect(self._on_timeline_slider_released)
+        except Exception as e:
+            print(f"[LightboxDialog] WARNING: Failed to connect timeline slider signals: {e}")
+        self.video_timeline_slider.hide()
+
+        # Video time label
+        self.video_position_label = QLabel("0:00 / 0:00")
+        self.video_position_label.setStyleSheet("color:#000;font-size:12px;")
+        self.video_position_label.setMinimumWidth(90)
+        self.video_position_label.hide()
+
+        # Volume mute button
+        self.btn_mute = QToolButton()
+        self.btn_mute.setText("🔊")
+        self.btn_mute.setToolTip("Mute/Unmute (M)")
+        self.btn_mute.setCheckable(True)
+        self.btn_mute.clicked.connect(self._toggle_mute)
+        self.btn_mute.setStyleSheet(self._button_style())
+        self.btn_mute.hide()
+
+        # Volume slider
+        self.video_volume_slider = QSlider(Qt.Horizontal)
+        self.video_volume_slider.setRange(0, 100)
+        self.video_volume_slider.setValue(100)  # Default 100%
+        self.video_volume_slider.setFixedWidth(80)
+        self.video_volume_slider.setToolTip("Volume")
+        self.video_volume_slider.valueChanged.connect(self._on_volume_changed)
+        self.video_volume_slider.hide()
+
+        # === PHASE 2: Playback Speed Controls ===
+        self.btn_playback_speed = QToolButton()
+        self.btn_playback_speed.setText("1x")
+        self.btn_playback_speed.setToolTip("Playback speed")
+        self.btn_playback_speed.setStyleSheet(self._button_style())
+        self.btn_playback_speed.setPopupMode(QToolButton.InstantPopup)
+        self.btn_playback_speed.setFixedWidth(50)
+        self.btn_playback_speed.hide()
+
+        # Speed menu
+        speed_menu = QMenu(self.btn_playback_speed)
+        self._playback_speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+        for speed in self._playback_speeds:
+            action = QAction(f"{speed}x", self)
+            action.setCheckable(True)
+            action.setChecked(speed == 1.0)  # Default 1x
+            action.triggered.connect(lambda checked, s=speed: self._set_playback_speed(s))
+            speed_menu.addAction(action)
+        self.btn_playback_speed.setMenu(speed_menu)
+        self._speed_menu = speed_menu
+        self._current_playback_speed = 1.0
+
+        # Common info controls
         self.info_label = QLabel()
         self.info_label.setStyleSheet("color:#000;font-size:12px;")
         self.info_label.setText("🖼️ — × —   💾 — KB")
@@ -1178,10 +1301,20 @@ class LightboxDialog(QDialog):
         self.btn_info_toggle.toggled.connect(self._toggle_metadata_panel)
         self.btn_info_toggle.setStyleSheet(self._button_style())
 
+        # Add photo controls
         h.addWidget(self.btn_zoom_minus)
         h.addWidget(self.zoom_slider)
         h.addWidget(self.btn_zoom_plus)
         h.addWidget(self.zoom_combo)
+
+        # Add video controls (Apple/Google Photos style layout)
+        h.addWidget(self.btn_play_pause)
+        h.addWidget(self.video_timeline_slider)
+        h.addWidget(self.video_position_label)
+        h.addWidget(self.btn_mute)
+        h.addWidget(self.video_volume_slider)
+        h.addWidget(self.btn_playback_speed)  # PHASE 2
+
         h.addStretch(1)
         h.addWidget(self.info_label, 0)
         h.addWidget(self.btn_info_toggle, 0)
@@ -1415,6 +1548,12 @@ class LightboxDialog(QDialog):
                    .replace("💻", "Software")
                    .replace("💾", "Database")
                    .replace("🏷️", "Tags")
+                   .replace("🎬", "Video")
+                   .replace("📐", "Resolution")
+                   .replace("🎞️", "Frame Rate")
+                   .replace("🎥", "Codec")
+                   .replace("📊", "Bitrate")
+                   .replace("📅", "Date Taken")
                    .strip()
             )
             words = key.split()
@@ -1429,6 +1568,10 @@ class LightboxDialog(QDialog):
         lines.append(f"📄 {base}")
         lines.append(f"📁 {folder}")
         lines.append("")
+
+        # Check if this is a video file
+        is_video = self._is_video_file(path)
+
         try:
             st = os.stat(path)
             dt_mod = datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
@@ -1441,35 +1584,85 @@ class LightboxDialog(QDialog):
         except Exception as e:
             lines.append(f"⚠️ File info error: {e}")
         lines.append("")
-        try:
-            img = Image.open(path)
-            exif = img._getexif() or {}
-            if exif:
-                exif_tags = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
-                wanted = [
-                    ("DateTimeOriginal", "🕰️ Captured"),
-                    ("Make", "🏭 Camera Make"),
-                    ("Model", "📷 Camera Model"),
-                    ("LensModel", "🔍 Lens"),
-                    ("FNumber", "ƒ Aperture"),
-                    ("ExposureTime", "⏱ Exposure"),
-                    ("ISOSpeedRatings", "ISO"),
-                    ("FocalLength", "🔭 Focal Length"),
-                    ("Software", "💻 Processed by"),
-                ]
-                for key, label in wanted:
-                    if key in exif_tags:
-                        lines.append(f"{label}: {exif_tags[key]}")
-            else:
-                lines.append("⚠️ No EXIF metadata found.")
-        except Exception:
-            lines.append("⚠️ Failed to read EXIF info.")
+
+        if is_video:
+            # Load video metadata from database
+            try:
+                db = getattr(self, "_shared_db_instance", None)
+                if not db and hasattr(self.parent(), "reference_db"):
+                    db = self.parent().reference_db
+                if db:
+                    # Get project_id from parent if available
+                    project_id = getattr(self.parent(), "project_id", None) if hasattr(self, "parent") else None
+                    if project_id:
+                        video_meta = db.get_video_by_path(path, project_id)
+                        if video_meta:
+                            lines.append("🎬 Video Metadata:")
+
+                            # Duration (formatted as MM:SS or H:MM:SS)
+                            if video_meta.get('duration_seconds'):
+                                duration_str = self._format_duration(video_meta['duration_seconds'])
+                                lines.append(f"⏱ Duration: {duration_str}")
+
+                            # Resolution
+                            if video_meta.get('width') and video_meta.get('height'):
+                                lines.append(f"📐 Resolution: {video_meta['width']}×{video_meta['height']}")
+
+                            # FPS
+                            if video_meta.get('fps'):
+                                lines.append(f"🎞️ Frame Rate: {video_meta['fps']:.2f} fps")
+
+                            # Codec
+                            if video_meta.get('codec'):
+                                lines.append(f"🎥 Codec: {video_meta['codec']}")
+
+                            # Bitrate
+                            if video_meta.get('bitrate'):
+                                bitrate_mbps = video_meta['bitrate'] / 1_000_000
+                                lines.append(f"📊 Bitrate: {bitrate_mbps:.2f} Mbps")
+
+                            # Date taken
+                            if video_meta.get('date_taken'):
+                                lines.append(f"📅 Date Taken: {video_meta['date_taken']}")
+                        else:
+                            lines.append("⚠️ No video metadata found in database.")
+                            lines.append("   (Video may need to be scanned)")
+                    else:
+                        lines.append("⚠️ No project context available.")
+            except Exception as e:
+                lines.append(f"⚠️ Video metadata error: {e}")
+        else:
+            # Load photo EXIF metadata
+            try:
+                img = Image.open(path)
+                exif = img._getexif() or {}
+                if exif:
+                    exif_tags = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
+                    wanted = [
+                        ("DateTimeOriginal", "🕰️ Captured"),
+                        ("Make", "🏭 Camera Make"),
+                        ("Model", "📷 Camera Model"),
+                        ("LensModel", "🔍 Lens"),
+                        ("FNumber", "ƒ Aperture"),
+                        ("ExposureTime", "⏱ Exposure"),
+                        ("ISOSpeedRatings", "ISO"),
+                        ("FocalLength", "🔭 Focal Length"),
+                        ("Software", "💻 Processed by"),
+                    ]
+                    for key, label in wanted:
+                        if key in exif_tags:
+                            lines.append(f"{label}: {exif_tags[key]}")
+                else:
+                    lines.append("⚠️ No EXIF metadata found.")
+            except Exception:
+                lines.append("⚠️ Failed to read EXIF info.")
+
         lines.append("")
         try:
             db = getattr(self, "_shared_db_instance", None)
             if not db and hasattr(self.parent(), "reference_db"):
                 db = self.parent().reference_db
-            if db:
+            if db and not is_video:  # Only for photos (videos handled above)
                 record = db.get_photo_metadata_by_path(path)
                 if record:
                     lines.append("💾 Database Metadata:")
@@ -1481,6 +1674,30 @@ class LightboxDialog(QDialog):
             lines.append(f"⚠️ DB error: {e}")
 
         return "\n".join(lines)
+
+    def _is_video_file(self, path: str) -> bool:
+        """Check if file is a video based on extension."""
+        if not path:
+            return False
+        ext = os.path.splitext(path)[1].lower()
+        video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                      '.avi', '.mkv', '.flv', '.webm', '.3gp', '.ogv', '.ts', '.mts'}
+        return ext in video_exts
+
+    def _format_duration(self, seconds: float) -> str:
+        """Format duration as MM:SS or H:MM:SS."""
+        if not seconds or seconds < 0:
+            return "0:00"
+
+        total_seconds = int(seconds)
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        secs = total_seconds % 60
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+        else:
+            return f"{minutes}:{secs:02d}"
 
     def _preload_metadata_async(self):
         if self._meta_preloader and self._meta_preloader.is_alive():
@@ -1512,17 +1729,434 @@ class LightboxDialog(QDialog):
     # -------------------------------
     # Load image and store original PIL image
     # -------------------------------
-    def _load_image(self, path: str):
+    def _load_media(self, path: str):
+        """Unified media loader: detects media type and routes to appropriate handler."""
+        if self._is_video_file(path):
+            self._is_video = True
+            self._current_media_type = "video"
+            self._load_video(path)
+            self._update_controls_visibility()
+        else:
+            self._is_video = False
+            self._current_media_type = "photo"
+            self._load_photo(path)
+            self._update_controls_visibility()
+
+    def _load_video(self, path: str):
+        """Load and display video in the unified preview panel."""
         try:
+            print(f"[LightboxDialog] Loading video: {path}")
+
+            # Ensure path is valid
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Video file not found: {path}")
+
+            # Switch to video widget page
+            self.content_stack.setCurrentIndex(1)
+            print(f"[LightboxDialog] Switched to video widget (index 1)")
+
+            # Stop any currently playing video
+            if hasattr(self, 'media_player'):
+                self.media_player.stop()
+
+            # Load video - use absolute path
+            abs_path = os.path.abspath(path)
+            video_url = QUrl.fromLocalFile(abs_path)
+            print(f"[LightboxDialog] Video URL: {video_url.toString()}")
+
+            self.media_player.setSource(video_url)
+
+            # Update window title
+            filename = os.path.basename(path)
+            if self._image_list:
+                idx_display = self._current_index + 1
+                total = len(self._image_list)
+                self.setWindowTitle(f"📹 {filename} ({idx_display} of {total})")
+            else:
+                self.setWindowTitle(f"📹 {filename}")
+
+            # Update info label for video
+            if hasattr(self, 'info_label'):
+                file_size = os.path.getsize(path) / (1024 * 1024)  # MB
+                self.info_label.setText(f"🎬 Video   💾 {file_size:.1f} MB")
+
+            # Auto-play video
+            self.media_player.play()
+            print(f"[LightboxDialog] Video playback started")
+
+        except Exception as e:
+            print(f"[LightboxDialog] Error loading video: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.warning(self, "Load failed", f"Couldn't load video: {e}")
+
+    def _load_photo(self, path: str):
+        """Load and display photo (renamed from _load_image for consistency)."""
+        try:
+            print(f"[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: {path}")
+            # Switch to image canvas page
+            self.content_stack.setCurrentIndex(0)
+
             img = Image.open(path)
             img = ImageOps.exif_transpose(img).convert("RGBA")
             self._orig_pil = img.copy()
+            print(f"[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: {self._orig_pil.size}")
             qimg = ImageQt.ImageQt(img)
             pm = QPixmap.fromImage(qimg)
             self.canvas.set_pixmap(pm)
             self._update_info(pm)
         except Exception as e:
+            print(f"[PhotoLoad] ❌ DIAGNOSTIC: Failed to load photo: {e}")
+            self._orig_pil = None  # Ensure it's None on failure
             QMessageBox.warning(self, "Load failed", f"Couldn't load image: {e}")
+
+    def _load_image(self, path: str):
+        """Legacy wrapper for backwards compatibility - calls _load_photo()."""
+        self._load_photo(path)
+
+    def _update_controls_visibility(self):
+        """Hide/show controls based on current media type."""
+        is_photo = self._current_media_type == "photo"
+        is_video = self._current_media_type == "video"
+
+        # Top bar controls (photo-only)
+        if hasattr(self, 'btn_edit'):
+            self.btn_edit.setVisible(is_photo)
+        if hasattr(self, 'btn_rotate'):
+            self.btn_rotate.setVisible(is_photo)
+
+        # Bottom bar zoom controls (photo-only)
+        if hasattr(self, 'btn_zoom_minus'):
+            self.btn_zoom_minus.setVisible(is_photo)
+        if hasattr(self, 'zoom_slider'):
+            self.zoom_slider.setVisible(is_photo)
+        if hasattr(self, 'btn_zoom_plus'):
+            self.btn_zoom_plus.setVisible(is_photo)
+        if hasattr(self, 'zoom_combo'):
+            self.zoom_combo.setVisible(is_photo)
+
+        # Bottom bar video controls (video-only) - PHASE 1 & 2 ENHANCED
+        if hasattr(self, 'btn_play_pause'):
+            self.btn_play_pause.setVisible(is_video)
+        if hasattr(self, 'video_timeline_slider'):
+            self.video_timeline_slider.setVisible(is_video)
+        if hasattr(self, 'video_position_label'):
+            self.video_position_label.setVisible(is_video)
+        if hasattr(self, 'btn_mute'):
+            self.btn_mute.setVisible(is_video)
+        if hasattr(self, 'video_volume_slider'):
+            self.video_volume_slider.setVisible(is_video)
+        if hasattr(self, 'btn_playback_speed'):  # PHASE 2
+            self.btn_playback_speed.setVisible(is_video)
+
+    def _toggle_video_playback(self):
+        """Toggle video play/pause."""
+        if not hasattr(self, 'media_player'):
+            return
+
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.media_player.pause()
+            self.btn_play_pause.setText("▶ Play")
+        else:
+            self.media_player.play()
+            self.btn_play_pause.setText("⏸ Pause")
+
+    def _on_video_playback_state_changed(self, state):
+        """Handle video playback state changes."""
+        state_names = {
+            QMediaPlayer.PlaybackState.StoppedState: "Stopped",
+            QMediaPlayer.PlaybackState.PlayingState: "Playing",
+            QMediaPlayer.PlaybackState.PausedState: "Paused"
+        }
+        state_name = state_names.get(state, "Unknown")
+        print(f"[LightboxDialog] Video playback state: {state_name}")
+
+        # Update button text based on state
+        if hasattr(self, 'btn_play_pause'):
+            if state == QMediaPlayer.PlaybackState.PlayingState:
+                self.btn_play_pause.setText("⏸ Pause")
+            else:
+                self.btn_play_pause.setText("▶ Play")
+
+    def _on_video_error(self, error, error_string):
+        """Handle media player errors."""
+        print(f"[LightboxDialog] Video error: {error} - {error_string}")
+        QMessageBox.critical(
+            self,
+            "Video Playback Error",
+            f"Failed to play video:\n{error_string}\n\nError code: {error}"
+        )
+
+    def _on_video_position_changed(self, position):
+        """Update video position display and timeline slider (Apple/Google-style)."""
+        if not self._is_video:
+            return
+
+        # Update time label
+        if hasattr(self, 'video_position_label'):
+            current = self._format_time(position)
+            total = self._format_time(self._video_duration)
+            self.video_position_label.setText(f"{current} / {total}")
+
+        # Update timeline slider position (only if not being dragged by user)
+        if hasattr(self, 'video_timeline_slider') and not getattr(self, '_timeline_seeking', False):
+            if self._video_duration > 0:
+                # Map position to slider range (0-1000)
+                slider_position = int((position / self._video_duration) * 1000)
+                self.video_timeline_slider.blockSignals(True)
+                self.video_timeline_slider.setValue(slider_position)
+                self.video_timeline_slider.blockSignals(False)
+
+    def _on_video_duration_changed(self, duration):
+        """Store video duration when loaded."""
+        self._video_duration = duration
+        print(f"[LightboxDialog] Video duration: {self._format_time(duration)}")
+
+    # === PHASE 1: Timeline Slider (Seeking) Functionality ===
+
+    def _on_timeline_slider_pressed(self):
+        """User started dragging timeline slider."""
+        self._timeline_seeking = True
+        print("[LightboxDialog] Timeline seeking started")
+
+    def _on_timeline_slider_moved(self, value):
+        """User is dragging timeline slider - show preview time."""
+        if not self._is_video or self._video_duration <= 0:
+            return
+
+        # Calculate target position in milliseconds
+        target_position = int((value / 1000.0) * self._video_duration)
+
+        # Update time label to show where we'll seek to
+        if hasattr(self, 'video_position_label'):
+            current = self._format_time(target_position)
+            total = self._format_time(self._video_duration)
+            self.video_position_label.setText(f"{current} / {total}")
+
+    def _on_timeline_slider_released(self):
+        """User released timeline slider - perform seek."""
+        self._timeline_seeking = False
+
+        if not self._is_video or not hasattr(self, 'media_player'):
+            return
+
+        # Get slider value (0-1000) and map to video position
+        slider_value = self.video_timeline_slider.value()
+        target_position = int((slider_value / 1000.0) * self._video_duration)
+
+        # Seek to target position
+        self.media_player.setPosition(target_position)
+        print(f"[LightboxDialog] Seeked to {self._format_time(target_position)}")
+
+    # === PHASE 1: Volume Control Functionality ===
+
+    def _toggle_mute(self):
+        """Toggle audio mute (Apple/Google Photos style)."""
+        if not hasattr(self, 'audio_output'):
+            return
+
+        is_muted = self.audio_output.isMuted()
+        self.audio_output.setMuted(not is_muted)
+
+        # Update button icon
+        if hasattr(self, 'btn_mute'):
+            self.btn_mute.setText("🔇" if not is_muted else "🔊")
+            self.btn_mute.setChecked(not is_muted)
+
+        print(f"[LightboxDialog] Audio {'muted' if not is_muted else 'unmuted'}")
+
+    def _on_volume_changed(self, value):
+        """Update video volume (0-100)."""
+        if not hasattr(self, 'audio_output'):
+            return
+
+        # Convert 0-100 to 0.0-1.0
+        volume = value / 100.0
+        self.audio_output.setVolume(volume)
+
+        # Auto-unmute if volume increased from 0
+        if value > 0 and self.audio_output.isMuted():
+            self.audio_output.setMuted(False)
+            if hasattr(self, 'btn_mute'):
+                self.btn_mute.setText("🔊")
+                self.btn_mute.setChecked(False)
+
+        print(f"[LightboxDialog] Volume set to {value}%")
+
+    # === PHASE 2: Playback Speed Control Functionality ===
+
+    def _set_playback_speed(self, speed: float):
+        """Set video playback speed (0.25x to 2x)."""
+        if not hasattr(self, 'media_player'):
+            return
+
+        self._current_playback_speed = speed
+        self.media_player.setPlaybackRate(speed)
+
+        # Update button text
+        if hasattr(self, 'btn_playback_speed'):
+            self.btn_playback_speed.setText(f"{speed}x")
+
+        # Update menu checkmarks
+        if hasattr(self, '_speed_menu'):
+            for action in self._speed_menu.actions():
+                # Extract speed from action text (e.g., "1.5x" -> 1.5)
+                action_speed = float(action.text().replace('x', ''))
+                action.setChecked(abs(action_speed - speed) < 0.01)
+
+        print(f"[LightboxDialog] Playback speed set to {speed}x")
+
+    def _format_time(self, milliseconds):
+        """Format milliseconds to M:SS or H:MM:SS."""
+        if milliseconds <= 0:
+            return "0:00"
+
+        seconds = int(milliseconds / 1000)
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        secs = seconds % 60
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+        else:
+            return f"{minutes}:{secs:02d}"
+
+    # === PHASE 2: Fullscreen Mode Functionality ===
+
+    def eventFilter(self, obj, event):
+        """Capture double-click on video widget for fullscreen toggle."""
+        if obj == self.video_widget and event.type() == QEvent.MouseButtonDblClick:
+            self._toggle_fullscreen()
+            return True  # Event handled
+        return super().eventFilter(obj, event)
+
+    def _toggle_fullscreen(self):
+        """Toggle fullscreen mode (F key or double-click on video)."""
+        if self._is_fullscreen:
+            # Exit fullscreen - restore window state
+            self.showNormal()
+
+            # Restore previous geometry if available
+            if self._pre_fullscreen_geometry:
+                self.setGeometry(self._pre_fullscreen_geometry)
+
+            # Show all UI elements
+            if hasattr(self, '_top_bar'):
+                self._top_bar.show()
+            if hasattr(self, '_bottom'):
+                self._bottom.show()
+
+            self._is_fullscreen = False
+            print("[LightboxDialog] Exited fullscreen mode")
+        else:
+            # Enter fullscreen - save current state
+            self._pre_fullscreen_geometry = self.geometry()
+
+            # Hide UI elements for immersive experience
+            if hasattr(self, '_top_bar'):
+                self._top_bar.hide()
+            if hasattr(self, '_bottom'):
+                self._bottom.hide()
+
+            # Go fullscreen
+            self.showFullScreen()
+            self._is_fullscreen = True
+            print("[LightboxDialog] Entered fullscreen mode")
+
+    # === PHASE 2: Frame-by-frame Navigation ===
+
+    def _step_frame(self, direction: int):
+        """Step forward (+1) or backward (-1) by one frame when video is paused."""
+        if not self._is_video or not hasattr(self, 'media_player'):
+            return
+
+        # Only allow frame stepping when paused
+        if self.media_player.playbackState() != QMediaPlayer.PlaybackState.PausedState:
+            return
+
+        # Estimate frame duration (assuming 30fps = ~33ms per frame)
+        # For more accuracy, could extract from video metadata
+        frame_duration_ms = 33  # ~30 FPS
+
+        current_pos = self.media_player.position()
+        new_pos = current_pos + (direction * frame_duration_ms)
+
+        # Clamp to valid range
+        new_pos = max(0, min(self._video_duration, new_pos))
+
+        self.media_player.setPosition(new_pos)
+        print(f"[LightboxDialog] Frame step {direction}: {self._format_time(new_pos)}")
+
+    def keyPressEvent(self, event):
+        """Handle keyboard shortcuts - Apple/Google Photos style."""
+        # PHASE 1: Enhanced keyboard shortcuts for video
+        if self._is_video:
+            # Space bar: Play/Pause
+            if event.key() == Qt.Key_Space:
+                self._toggle_video_playback()
+                event.accept()
+                return
+
+            # M key: Mute/Unmute
+            if event.key() == Qt.Key_M:
+                self._toggle_mute()
+                event.accept()
+                return
+
+            # PHASE 2: F key - Fullscreen toggle
+            if event.key() == Qt.Key_F:
+                self._toggle_fullscreen()
+                event.accept()
+                return
+
+            # Up/Down arrows: Volume control
+            if event.key() == Qt.Key_Up and hasattr(self, 'video_volume_slider'):
+                current = self.video_volume_slider.value()
+                self.video_volume_slider.setValue(min(100, current + 5))
+                event.accept()
+                return
+
+            if event.key() == Qt.Key_Down and hasattr(self, 'video_volume_slider'):
+                current = self.video_volume_slider.value()
+                self.video_volume_slider.setValue(max(0, current - 5))
+                event.accept()
+                return
+
+            # PHASE 2: Left/Right arrows - Frame-by-frame when paused, seek when playing
+            if event.key() == Qt.Key_Left:
+                if event.modifiers() == Qt.ShiftModifier:
+                    # Shift+Left: Seek backward 5 seconds (always)
+                    if hasattr(self, 'media_player'):
+                        pos = self.media_player.position()
+                        self.media_player.setPosition(max(0, pos - 5000))
+                        event.accept()
+                        return
+                else:
+                    # Plain Left: Frame-by-frame backward when paused, or navigate to prev media
+                    if hasattr(self, 'media_player') and self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+                        self._step_frame(-1)
+                        event.accept()
+                        return
+                    # Otherwise let parent handle navigation
+
+            if event.key() == Qt.Key_Right:
+                if event.modifiers() == Qt.ShiftModifier:
+                    # Shift+Right: Seek forward 5 seconds (always)
+                    if hasattr(self, 'media_player'):
+                        pos = self.media_player.position()
+                        self.media_player.setPosition(min(self._video_duration, pos + 5000))
+                        event.accept()
+                        return
+                else:
+                    # Plain Right: Frame-by-frame forward when paused, or navigate to next media
+                    if hasattr(self, 'media_player') and self.media_player.playbackState() == QMediaPlayer.PlaybackState.PausedState:
+                        self._step_frame(+1)
+                        event.accept()
+                        return
+                    # Otherwise let parent handle navigation
+
+        # Call parent implementation for other keys (arrow navigation, etc.)
+        super().keyPressEvent(event)
 
     def _pil_to_qpixmap(self, pil_img):
         """Convert a Pillow Image (RGBA) to QPixmap safely."""
@@ -1650,11 +2284,29 @@ class LightboxDialog(QDialog):
     # -------------------------------
     def _enter_edit_mode(self):
         """Switch UI to edit mode (reuse main canvas). Prepare edit staging but do not auto-open the panel."""
+        print(f"[EditMode] 🔍 DIAGNOSTIC: Entering edit mode, _orig_pil={'exists' if self._orig_pil else 'None'}")
+
+        # CRITICAL FIX: If _orig_pil is None, try to reload from current path
+        if not self._orig_pil and hasattr(self, 'current_path') and self.current_path:
+            print(f"[EditMode] 🔄 DIAGNOSTIC: _orig_pil is None, attempting to reload from {self.current_path}")
+            try:
+                img = Image.open(self.current_path)
+                img = ImageOps.exif_transpose(img).convert("RGBA")
+                self._orig_pil = img.copy()
+                print(f"[EditMode] ✅ DIAGNOSTIC: Successfully reloaded image, size: {self._orig_pil.size}")
+            except Exception as e:
+                print(f"[EditMode] ❌ DIAGNOSTIC: Failed to reload image: {e}")
+                QMessageBox.warning(self, "Edit Error", f"Cannot enter edit mode: Image not loaded.\n\nError: {e}")
+                return
+
         # Prepare edit staging
         if self._orig_pil:
             self._edit_base_pil = self._orig_pil.copy()
+            print(f"[EditMode] ✅ DIAGNOSTIC: Created _edit_base_pil copy")
         else:
-            self._edit_base_pil = None
+            print(f"[EditMode] ❌ DIAGNOSTIC: Cannot enter edit mode - no image loaded")
+            QMessageBox.warning(self, "Edit Error", "Cannot enter edit mode: No image loaded.")
+            return
         self._working_pil = self._edit_base_pil.copy() if self._edit_base_pil else None
 
         # Reset adjustments values & sliders
@@ -1666,12 +2318,14 @@ class LightboxDialog(QDialog):
                 slider.setValue(0)
                 slider.blockSignals(False)
 
-        # Show editor view and move canvas into editor container
+        # Show editor view and move content_stack into editor container
+        # CRITICAL FIX: Reparent content_stack (not just canvas) to avoid Qt visibility inheritance bug
         self.stack.setCurrentIndex(1)
         if hasattr(self, "edit_canvas_container"):
             container_layout = self.edit_canvas_container.layout()
-            if self.canvas.parent() is not self.edit_canvas_container:
-                container_layout.addWidget(self.canvas)
+            # Reparent the entire content_stack so canvas becomes visible in editor page
+            if self.content_stack.parent() is not self.edit_canvas_container:
+                container_layout.addWidget(self.content_stack)
         self.canvas.reset_view()
 
         # Make Save & Cancel visible in toolbar row (they are already created in page)
@@ -1698,17 +2352,18 @@ class LightboxDialog(QDialog):
             return
         if reply == QMessageBox.Yes:
             QMessageBox.information(self, "Saved", "Changes saved.")
-        # remove right editor panel (optional) - keep visible but no harm
+        # CRITICAL FIX: Reparent content_stack back to viewer page
         viewer_page = self.stack.widget(0)
         viewer_layout = viewer_page.layout()
         center_widget = viewer_layout.itemAt(1).widget() if viewer_layout.count() > 1 else None
         if center_widget:
-            canvas_row = center_widget.layout()
+            hbox_layout = center_widget.layout()
         else:
-            canvas_row = None
+            hbox_layout = None
 
-        if canvas_row and self.canvas.parent() is not center_widget:
-            canvas_row.insertWidget(0, self.canvas, 1)
+        # Reparent content_stack back to viewer page (not just canvas)
+        if hbox_layout and self.content_stack.parent() is not center_widget:
+            hbox_layout.insertWidget(0, self.content_stack, 1)
 
         self.stack.setCurrentIndex(0)
         self.canvas.reset_view()
@@ -1719,16 +2374,24 @@ class LightboxDialog(QDialog):
         self._current_index = max(0, min(start_index, len(self._image_list) - 1))
         if self._image_list:
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # FIX: Use unified loader for videos and photos
 
     def _update_titles_and_meta(self):
         base = os.path.basename(self._path) if self._path else ""
-        self.setWindowTitle(f"Photo Viewer – {base}")
+
+        # Update title based on media type
+        if self._is_video:
+            self.setWindowTitle(f"📹 {base}")
+        else:
+            self.setWindowTitle(f"Photo Viewer – {base}")
+
         if hasattr(self, "title_label"):
             self.title_label.setText(base)
         if hasattr(self, "lbl_edit_title"):
             self.lbl_edit_title.setText(base)
-        if hasattr(self, "canvas") and self.canvas._pixmap:
+
+        # Only update info for photos (videos don't have pixmaps)
+        if not self._is_video and hasattr(self, "canvas") and self.canvas._pixmap:
             self._update_info(self.canvas._pixmap)
         if hasattr(self, "_meta_panel") and self._meta_panel.isVisible():
             meta_dict = self._parse_metadata_to_dict(self._get_metadata_text())
@@ -1749,20 +2412,36 @@ class LightboxDialog(QDialog):
 
     def _go_prev(self):
         if self._image_list and self._current_index > 0:
+            # PHASE 2: Stop video playback when navigating
+            if self._is_video and hasattr(self, 'media_player'):
+                self.media_player.stop()
+
             self._current_index -= 1
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # Unified loader handles both photos and videos
             self._update_titles_and_meta()
-            self._fit_to_window()
+
+            # Only fit to window for photos
+            if self._current_media_type == "photo":
+                self._fit_to_window()
+
             self._refresh_metadata_panel()
 
     def _go_next(self):
         if self._image_list and self._current_index < len(self._image_list) - 1:
+            # PHASE 2: Stop video playback when navigating
+            if self._is_video and hasattr(self, 'media_player'):
+                self.media_player.stop()
+
             self._current_index += 1
             self._path = self._image_list[self._current_index]
-            self._load_image(self._path)
+            self._load_media(self._path)  # Unified loader handles both photos and videos
             self._update_titles_and_meta()
-            self._fit_to_window()
+
+            # Only fit to window for photos
+            if self._current_media_type == "photo":
+                self._fit_to_window()
+
             self._refresh_metadata_panel()
     
     # ---------- Utilities ----------
@@ -1937,7 +2616,15 @@ class LightboxDialog(QDialog):
             subprocess.run(["explorer", "/select,", os.path.normpath(self._path)])
 
     def closeEvent(self, ev):
+        """Clean up resources when closing - professional resource management."""
         self._preload_stop = True
+
+        # Stop video playback and release media player resources
+        if hasattr(self, 'media_player') and self._is_video:
+            self.media_player.stop()
+            self.media_player.setSource(QUrl())  # Release file handle
+            print("[LightboxDialog] Video playback stopped and resources released")
+
         super().closeEvent(ev)
 
     # -------------------------------

@@ -27,7 +27,8 @@ class DatabaseConnection:
     _instances: Dict[str, 'DatabaseConnection'] = {}
 
     def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
-        # Normalize path for consistent singleton lookup
+        # CRITICAL FIX: Normalize path to absolute for consistent singleton lookup
+        # This prevents different relative/absolute path references from creating multiple instances
         norm_path = os.path.abspath(db_path)
 
         if norm_path not in cls._instances:
@@ -41,7 +42,12 @@ class DatabaseConnection:
         if self._initialized:
             return
 
-        self._db_path = db_path
+        # CRITICAL FIX: Convert relative paths to absolute paths
+        # Worker threads in different contexts may resolve relative paths differently,
+        # causing database connection issues. Using absolute paths ensures all threads
+        # access the same database file.
+        import os
+        self._db_path = os.path.abspath(db_path)
         self._auto_init = auto_init
         self._initialized = True
 
@@ -49,7 +55,7 @@ class DatabaseConnection:
         if self._auto_init:
             self._ensure_schema()
 
-        logger.info(f"DatabaseConnection initialized with path: {db_path}")
+        logger.info(f"DatabaseConnection initialized with path: {self._db_path}")
 
     @contextmanager
     def get_connection(self, read_only: bool = False) -> Generator[sqlite3.Connection, None, None]:
@@ -400,6 +406,8 @@ class BaseRepository(ABC):
             where_clause: Optional WHERE clause
             params: Parameters for where clause
             order_by: Optional ORDER BY clause (e.g., "created_at DESC")
+                     WARNING: Not parameterized - only pass trusted/validated strings
+                     Never pass user input directly to prevent SQL injection
             limit: Optional maximum number of rows
             offset: Optional number of rows to skip
 
@@ -477,11 +485,17 @@ class TransactionContext:
                 logger.debug("Transaction committed successfully")
             except Exception as e:
                 logger.error(f"Commit failed: {e}", exc_info=True)
-                self.conn.rollback()
+                try:
+                    self.conn.rollback()
+                except Exception as rollback_err:
+                    logger.warning(f"Rollback after commit failure failed: {rollback_err}")
                 raise
         else:
             logger.warning(f"Transaction rolled back due to: {exc_val}")
-            self.conn.rollback()
+            try:
+                self.conn.rollback()
+            except Exception as rollback_err:
+                logger.warning(f"Rollback failed: {rollback_err}")
 
         try:
             self.conn.close()

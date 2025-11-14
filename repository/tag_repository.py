@@ -30,12 +30,13 @@ class TagRepository(BaseRepository):
     # TAG CRUD OPERATIONS
     # ========================================================================
 
-    def create(self, tag_name: str) -> int:
+    def create(self, tag_name: str, project_id: int) -> int:
         """
-        Create a new tag.
+        Create a new tag for a project (Schema v3.1.0).
 
         Args:
             tag_name: Tag name (case-insensitive)
+            project_id: Project ID for tag isolation
 
         Returns:
             Tag ID
@@ -46,14 +47,16 @@ class TagRepository(BaseRepository):
         tag_name = tag_name.strip()
         if not tag_name:
             raise ValueError("Tag name cannot be empty")
+        if project_id is None:
+            raise ValueError("project_id is required for tag creation (Schema v3.1.0)")
 
         with self.connection() as conn:
             cur = conn.cursor()
-            cur.execute("INSERT INTO tags (name) VALUES (?)", (tag_name,))
+            cur.execute("INSERT INTO tags (name, project_id) VALUES (?, ?)", (tag_name, project_id))
             conn.commit()
             tag_id = cur.lastrowid
 
-        self.logger.debug(f"Created tag: {tag_name} (id={tag_id})")
+        self.logger.debug(f"Created tag: {tag_name} (id={tag_id}, project={project_id})")
         return tag_id
 
     def get_by_id(self, tag_id: int) -> Optional[Dict[str, Any]]:
@@ -71,31 +74,44 @@ class TagRepository(BaseRepository):
             cur.execute("SELECT id, name FROM tags WHERE id = ?", (tag_id,))
             return cur.fetchone()
 
-    def get_by_name(self, tag_name: str) -> Optional[Dict[str, Any]]:
+    def get_by_name(self, tag_name: str, project_id: int) -> Optional[Dict[str, Any]]:
         """
-        Get tag by name (case-insensitive).
+        Get tag by name within a project (Schema v3.1.0).
 
         Args:
-            tag_name: Tag name
+            tag_name: Tag name (case-insensitive)
+            project_id: Project ID for tag isolation
 
         Returns:
-            Tag dict with 'id' and 'name', or None if not found
+            Tag dict with 'id', 'name', and 'project_id', or None if not found
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id, name FROM tags WHERE name = ? COLLATE NOCASE", (tag_name,))
+            cur.execute(
+                "SELECT id, name, project_id FROM tags WHERE name = ? AND project_id = ? COLLATE NOCASE",
+                (tag_name, project_id)
+            )
             return cur.fetchone()
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self, project_id: int | None = None) -> List[Dict[str, Any]]:
         """
-        Get all tags ordered alphabetically.
+        Get all tags ordered alphabetically (Schema v3.1.0).
+
+        Args:
+            project_id: Filter by project_id. If None, returns all tags globally (for migration).
 
         Returns:
-            List of tag dicts with 'id' and 'name'
+            List of tag dicts with 'id', 'name', and 'project_id'
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("SELECT id, name FROM tags ORDER BY name COLLATE NOCASE")
+            if project_id is not None:
+                cur.execute(
+                    "SELECT id, name, project_id FROM tags WHERE project_id = ? ORDER BY name COLLATE NOCASE",
+                    (project_id,)
+                )
+            else:
+                cur.execute("SELECT id, name, project_id FROM tags ORDER BY name COLLATE NOCASE")
             return cur.fetchall()
 
     def delete(self, tag_id: int) -> bool:
@@ -123,28 +139,30 @@ class TagRepository(BaseRepository):
         self.logger.debug(f"Deleted tag id={tag_id}")
         return True
 
-    def delete_by_name(self, tag_name: str) -> bool:
+    def delete_by_name(self, tag_name: str, project_id: int) -> bool:
         """
-        Delete a tag by name.
+        Delete a tag by name within a project (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             True if deleted, False if not found
         """
-        tag = self.get_by_name(tag_name)
+        tag = self.get_by_name(tag_name, project_id)
         if not tag:
             return False
         return self.delete(tag['id'])
 
-    def rename(self, old_name: str, new_name: str) -> bool:
+    def rename(self, old_name: str, new_name: str, project_id: int) -> bool:
         """
-        Rename a tag. If new_name exists, merge old into new.
+        Rename a tag within a project (Schema v3.1.0). If new_name exists, merge old into new.
 
         Args:
             old_name: Current tag name
             new_name: New tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             True if renamed/merged, False if old_name not found
@@ -162,12 +180,12 @@ class TagRepository(BaseRepository):
             cur = conn.cursor()
 
             # Get old tag
-            old_tag = self.get_by_name(old_name)
+            old_tag = self.get_by_name(old_name, project_id)
             if not old_tag:
                 return False
 
             # Check if new tag exists
-            new_tag = self.get_by_name(new_name)
+            new_tag = self.get_by_name(new_name, project_id)
 
             if new_tag:
                 # Merge: reassign all old_tag photos to new_tag
@@ -178,22 +196,23 @@ class TagRepository(BaseRepository):
 
                 # Delete old tag
                 cur.execute("DELETE FROM tags WHERE id = ?", (old_tag['id'],))
-                self.logger.info(f"Merged tag '{old_name}' into '{new_name}'")
+                self.logger.info(f"Merged tag '{old_name}' into '{new_name}' (project={project_id})")
             else:
                 # Simple rename
                 cur.execute("UPDATE tags SET name = ? WHERE id = ?", (new_name, old_tag['id']))
-                self.logger.info(f"Renamed tag '{old_name}' to '{new_name}'")
+                self.logger.info(f"Renamed tag '{old_name}' to '{new_name}' (project={project_id})")
 
             conn.commit()
 
         return True
 
-    def ensure_exists(self, tag_name: str) -> int:
+    def ensure_exists(self, tag_name: str, project_id: int) -> int:
         """
-        Ensure a tag exists, creating it if necessary.
+        Ensure a tag exists within a project, creating it if necessary (Schema v3.1.0).
 
         Args:
             tag_name: Tag name
+            project_id: Project ID for tag isolation
 
         Returns:
             Tag ID (existing or newly created)
@@ -202,21 +221,24 @@ class TagRepository(BaseRepository):
         if not tag_name:
             raise ValueError("Tag name cannot be empty")
 
-        # Try to get existing
-        tag = self.get_by_name(tag_name)
+        # Try to get existing tag for this project
+        tag = self.get_by_name(tag_name, project_id)
         if tag:
             return tag['id']
 
-        # Create new
-        return self.create(tag_name)
+        # Create new tag for this project
+        return self.create(tag_name, project_id)
 
     # ========================================================================
     # TAG STATISTICS & QUERIES
     # ========================================================================
 
-    def get_all_with_counts(self) -> List[Tuple[str, int]]:
+    def get_all_with_counts(self, project_id: int | None = None) -> List[Tuple[str, int]]:
         """
         Get all tags with their photo counts.
+
+        Args:
+            project_id: Filter by project_id (Schema v3.0.0). If None, returns all tags globally.
 
         Returns:
             List of tuples: (tag_name, photo_count)
@@ -224,13 +246,26 @@ class TagRepository(BaseRepository):
         """
         with self.connection(read_only=True) as conn:
             cur = conn.cursor()
-            cur.execute("""
-                SELECT t.name, COUNT(pt.photo_id) as count
-                FROM tags t
-                LEFT JOIN photo_tags pt ON pt.tag_id = t.id
-                GROUP BY t.id, t.name
-                ORDER BY t.name COLLATE NOCASE
-            """)
+            if project_id is not None:
+                # Schema v3.0.0: Filter by project_id by joining with photo_metadata
+                cur.execute("""
+                    SELECT t.name, COUNT(DISTINCT pt.photo_id) as count
+                    FROM tags t
+                    LEFT JOIN photo_tags pt ON pt.tag_id = t.id
+                    LEFT JOIN photo_metadata pm ON pm.id = pt.photo_id
+                    WHERE pm.project_id = ? OR pm.id IS NULL
+                    GROUP BY t.id, t.name
+                    ORDER BY t.name COLLATE NOCASE
+                """, (project_id,))
+            else:
+                # No project filter - get all tags globally
+                cur.execute("""
+                    SELECT t.name, COUNT(pt.photo_id) as count
+                    FROM tags t
+                    LEFT JOIN photo_tags pt ON pt.tag_id = t.id
+                    GROUP BY t.id, t.name
+                    ORDER BY t.name COLLATE NOCASE
+                """)
             return [(row['name'], row['count']) for row in cur.fetchall()]
 
     def get_photo_count(self, tag_id: int) -> int:

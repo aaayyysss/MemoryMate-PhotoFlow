@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "2.0.0"
+SCHEMA_VERSION = "3.3.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -34,7 +34,16 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 -- Insert initial version marker
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES ('2.0.0', 'Repository layer schema - migrated from reference_db.py');
+VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean project isolation');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.1.0', 'Added project_id to tags table for proper tag isolation between projects');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.2.0', 'Added complete video infrastructure (video_metadata, project_videos, video_tags)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES ('3.3.0', 'Added compound indexes for query optimization (project_id + folder/date patterns)');
 
 -- ============================================================================
 -- FACE RECOGNITION TABLES
@@ -94,19 +103,28 @@ CREATE TABLE IF NOT EXISTS project_images (
     branch_key TEXT,
     image_path TEXT NOT NULL,
     label TEXT,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(project_id, branch_key, image_path)
 );
 
 -- Face crops (face thumbnails for each branch)
+-- Phase 5: Added embedding column for face recognition clustering
 CREATE TABLE IF NOT EXISTS face_crops (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_id INTEGER NOT NULL,
-    branch_key TEXT NOT NULL,
+    branch_key TEXT,
     image_path TEXT NOT NULL,
     crop_path TEXT NOT NULL,
+    embedding BLOB,
+    bbox_x INTEGER,
+    bbox_y INTEGER,
+    bbox_w INTEGER,
+    bbox_h INTEGER,
+    confidence REAL,
     is_representative INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    UNIQUE(project_id, branch_key, crop_path)
+    UNIQUE(project_id, image_path, bbox_x, bbox_y, bbox_w, bbox_h)
 );
 
 -- Face branch representatives (cluster centroids and representative images)
@@ -138,20 +156,24 @@ CREATE TABLE IF NOT EXISTS export_history (
 -- PHOTO LIBRARY TABLES (Core photo management)
 -- ============================================================================
 
--- Photo folders (hierarchical folder structure)
+-- Photo folders (hierarchical folder structure with project ownership)
 CREATE TABLE IF NOT EXISTS photo_folders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    path TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
     parent_id INTEGER NULL,
-    FOREIGN KEY(parent_id) REFERENCES photo_folders(id)
+    project_id INTEGER NOT NULL,
+    FOREIGN KEY(parent_id) REFERENCES photo_folders(id),
+    FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
 );
 
--- Photo metadata (main photo index with all metadata)
+-- Photo metadata (main photo index with all metadata and project ownership)
 CREATE TABLE IF NOT EXISTS photo_metadata (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    path TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
     folder_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
     size_kb REAL,
     modified TEXT,
     width INTEGER,
@@ -165,7 +187,9 @@ CREATE TABLE IF NOT EXISTS photo_metadata (
     created_ts INTEGER,
     created_date TEXT,
     created_year INTEGER,
-    FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
+    FOREIGN KEY(folder_id) REFERENCES photo_folders(id),
+    FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
 );
 
 -- ============================================================================
@@ -173,9 +197,13 @@ CREATE TABLE IF NOT EXISTS photo_metadata (
 -- ============================================================================
 
 -- Tags (tag definitions)
+-- Schema v3.1.0: Added project_id for proper tag isolation between projects
 CREATE TABLE IF NOT EXISTS tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL COLLATE NOCASE
+    name TEXT NOT NULL COLLATE NOCASE,
+    project_id INTEGER NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(name, project_id)
 );
 
 -- Photo tags (many-to-many: photos to tags)
@@ -184,6 +212,66 @@ CREATE TABLE IF NOT EXISTS photo_tags (
     tag_id INTEGER NOT NULL,
     PRIMARY KEY (photo_id, tag_id),
     FOREIGN KEY (photo_id) REFERENCES photo_metadata(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- ============================================================================
+-- VIDEO TABLES (Schema v3.2.0: Complete video infrastructure)
+-- ============================================================================
+
+-- Video metadata (mirrors photo_metadata structure for videos)
+CREATE TABLE IF NOT EXISTS video_metadata (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    folder_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
+
+    -- File metadata
+    size_kb REAL,
+    modified TEXT,
+
+    -- Video-specific metadata
+    duration_seconds REAL,
+    width INTEGER,
+    height INTEGER,
+    fps REAL,
+    codec TEXT,
+    bitrate INTEGER,
+
+    -- Timestamps (for date-based browsing)
+    date_taken TEXT,
+    created_ts INTEGER,
+    created_date TEXT,
+    created_year INTEGER,
+    updated_at TEXT,
+
+    -- Processing status
+    metadata_status TEXT DEFAULT 'pending',
+    metadata_fail_count INTEGER DEFAULT 0,
+    thumbnail_status TEXT DEFAULT 'pending',
+
+    FOREIGN KEY (folder_id) REFERENCES photo_folders(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(path, project_id)
+);
+
+-- Project videos (mirrors project_images for videos)
+CREATE TABLE IF NOT EXISTS project_videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    branch_key TEXT,
+    video_path TEXT NOT NULL,
+    label TEXT,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE(project_id, branch_key, video_path)
+);
+
+-- Video tags (many-to-many: videos to tags)
+CREATE TABLE IF NOT EXISTS video_tags (
+    video_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    PRIMARY KEY (video_id, tag_id),
+    FOREIGN KEY (video_id) REFERENCES video_metadata(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
@@ -209,6 +297,14 @@ CREATE INDEX IF NOT EXISTS idx_projimgs_project ON project_images(project_id);
 CREATE INDEX IF NOT EXISTS idx_projimgs_branch ON project_images(project_id, branch_key);
 CREATE INDEX IF NOT EXISTS idx_projimgs_path ON project_images(image_path);
 
+-- Photo folders indexes
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project ON photo_folders(project_id);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_parent ON photo_folders(parent_id);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_path ON photo_folders(path);
+
+-- Photo metadata indexes (project_id for fast filtering)
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project ON photo_metadata(project_id);
+
 -- Photo metadata indexes (date and metadata)
 CREATE INDEX IF NOT EXISTS idx_meta_date ON photo_metadata(date_taken);
 CREATE INDEX IF NOT EXISTS idx_meta_modified ON photo_metadata(modified);
@@ -221,10 +317,38 @@ CREATE INDEX IF NOT EXISTS idx_photo_created_year ON photo_metadata(created_year
 CREATE INDEX IF NOT EXISTS idx_photo_created_date ON photo_metadata(created_date);
 CREATE INDEX IF NOT EXISTS idx_photo_created_ts ON photo_metadata(created_ts);
 
--- Tag indexes
+-- Tag indexes (v3.1.0: Added project_id indexes)
 CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name);
+CREATE INDEX IF NOT EXISTS idx_tags_project ON tags(project_id);
+CREATE INDEX IF NOT EXISTS idx_tags_project_name ON tags(project_id, name);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id);
+
+-- Video indexes (v3.2.0: Video infrastructure)
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project ON video_metadata(project_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_folder ON video_metadata(folder_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_date ON video_metadata(date_taken);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_year ON video_metadata(created_year);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_status ON video_metadata(metadata_status);
+CREATE INDEX IF NOT EXISTS idx_video_thumbnail_status ON video_metadata(thumbnail_status);
+
+CREATE INDEX IF NOT EXISTS idx_project_videos_project ON project_videos(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_videos_branch ON project_videos(project_id, branch_key);
+CREATE INDEX IF NOT EXISTS idx_project_videos_path ON project_videos(video_path);
+
+CREATE INDEX IF NOT EXISTS idx_video_tags_video ON video_tags(video_id);
+CREATE INDEX IF NOT EXISTS idx_video_tags_tag ON video_tags(tag_id);
+
+-- Compound indexes for performance (v3.3.0: Query optimization)
+-- These indexes optimize common filtering patterns by project + another column
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_folder ON photo_metadata(project_id, folder_id);
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project_date ON photo_metadata(project_id, created_year, created_date);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_folder ON video_metadata(project_id, folder_id);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_date ON video_metadata(project_id, created_year, created_date);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_thumb_status ON video_metadata(project_id, thumbnail_status);
+CREATE INDEX IF NOT EXISTS idx_video_metadata_project_meta_status ON video_metadata(project_id, metadata_status);
+CREATE INDEX IF NOT EXISTS idx_project_images_project_branch ON project_images(project_id, branch_key, image_path);
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project_parent ON photo_folders(project_id, parent_id);
 """
 
 
@@ -270,6 +394,10 @@ def get_expected_tables() -> list[str]:
         "photo_metadata",
         "tags",
         "photo_tags",
+        # Video tables (v3.2.0)
+        "video_metadata",
+        "project_videos",
+        "video_tags",
     ]
 
 
@@ -291,6 +419,10 @@ def get_expected_indexes() -> list[str]:
         "idx_projimgs_project",
         "idx_projimgs_branch",
         "idx_projimgs_path",
+        "idx_photo_folders_project",
+        "idx_photo_folders_parent",
+        "idx_photo_folders_path",
+        "idx_photo_metadata_project",
         "idx_meta_date",
         "idx_meta_modified",
         "idx_meta_updated",
@@ -300,8 +432,28 @@ def get_expected_indexes() -> list[str]:
         "idx_photo_created_date",
         "idx_photo_created_ts",
         "idx_tags_name",
+        "idx_tags_project",
+        "idx_tags_project_name",
         "idx_photo_tags_photo",
         "idx_photo_tags_tag",
+        # Video indexes (v3.2.0)
+        "idx_video_metadata_project",
+        "idx_video_metadata_folder",
+        "idx_video_metadata_date",
+        "idx_video_metadata_year",
+        "idx_video_metadata_status",
+        "idx_project_videos_project",
+        "idx_project_videos_branch",
+        "idx_project_videos_path",
+        "idx_video_tags_video",
+        "idx_video_tags_tag",
+        # Compound indexes (v3.3.0)
+        "idx_photo_metadata_project_folder",
+        "idx_photo_metadata_project_date",
+        "idx_video_metadata_project_folder",
+        "idx_video_metadata_project_date",
+        "idx_project_images_project_branch",
+        "idx_photo_folders_project_parent",
     ]
 
 
@@ -313,6 +465,10 @@ MIGRATIONS = {
     },
     "2.0.0": {
         "description": "Repository layer schema with all tables and indexes",
+        "sql": "-- Superseded by 3.0.0"
+    },
+    "3.0.0": {
+        "description": "Added project_id to photo_folders and photo_metadata for clean project isolation",
         "sql": SCHEMA_SQL
     }
 }

@@ -5,20 +5,23 @@
 import os, io, shutil, hashlib, json
 import time
 import sqlite3
+import threading
+from queue import Queue, Empty as QueueEmpty
+import queue  # For queue.Empty exception
 
 
 from pathlib import Path
 from typing import Optional
-from reference_db import ReferenceDB
 from PIL import Image, ImageOps, ExifTags
 from io import BytesIO
-from PySide6.QtGui import QPixmap, QImageReader, QImage
-from PySide6.QtCore import QSize, Qt, Signal, QObject
+
+# NOTE: Qt imports are lazy-loaded in functions that need them
+# This allows app_services to be imported in headless/CLI environments
+# ThumbnailService is also lazy-loaded since it requires Qt
 
 from reference_db import ReferenceDB
-from services import get_thumbnail_service
 
-DB_PATH = "photo_app.db"
+# Image file extensions
 SUPPORTED_EXT = {
     # JPEG family
     '.jpg', '.jpeg', '.jpe', '.jfif',
@@ -29,7 +32,7 @@ SUPPORTED_EXT = {
     # TIFF
     '.tif', '.tiff',
     # HEIF/HEIC (Apple/modern)
-    '.heic', '.heif',
+    '.heic', '.heif',  # ✅ iPhone photos, Live Photos (still image part)
     # BMP
     '.bmp', '.dib',
     # GIF
@@ -37,15 +40,94 @@ SUPPORTED_EXT = {
     # Modern formats
     '.avif', '.jxl',
     # RAW formats
-    '.cr2', '.cr3', '.nef', '.nrw', '.arw', '.srf', '.sr2',
-    '.dng', '.orf', '.rw2', '.pef', '.raf'
+    '.cr2', '.cr3',  # Canon
+    '.nef', '.nrw',  # Nikon
+    '.arw', '.srf', '.sr2',  # Sony
+    '.dng',  # Adobe Digital Negative (includes Apple ProRAW)
+    '.orf',  # Olympus
+    '.rw2',  # Panasonic
+    '.pef',  # Pentax
+    '.raf'   # Fujifilm
 }
+
+# Video file extensions
+VIDEO_EXT = {
+    # Apple/iPhone formats
+    '.mov',   # ✅ QuickTime, Live Photos (video part), Cinematic mode, ProRes
+    '.m4v',   # ✅ iTunes video, iPhone recordings
+    # Common video formats
+    '.mp4',   # MPEG-4
+    # MPEG family
+    '.mpeg', '.mpg', '.mpe',
+    # Windows Media
+    '.wmv', '.asf',
+    # AVI
+    '.avi',
+    # Matroska
+    '.mkv', '.webm',
+    # Flash
+    '.flv', '.f4v',
+    # Mobile/Other
+    '.3gp', '.3g2',  # Mobile phones
+    '.ogv',  # Ogg Video
+    '.ts', '.mts', '.m2ts'  # MPEG transport stream
+}
+
+# Combined: all supported media files (photos + videos)
+ALL_MEDIA_EXT = SUPPORTED_EXT | VIDEO_EXT
+
+
+def _extract_image_metadata_with_timeout(file_path, timeout=2.0):
+    """
+    Extract image metadata (dimensions, EXIF date) with timeout protection.
+
+    Args:
+        file_path: Path to image file
+        timeout: Maximum time in seconds to wait for PIL operations
+
+    Returns:
+        tuple: (width, height, date_taken) or (None, None, None) on timeout/error
+    """
+    result_queue = Queue()
+
+    def _extract():
+        try:
+            with Image.open(file_path) as img:
+                width, height = img.size
+                date_taken = None
+                exif = img.getexif()
+                if exif:
+                    for k, v in exif.items():
+                        tag = ExifTags.TAGS.get(k, k)
+                        if tag == "DateTimeOriginal":
+                            date_taken = str(v)
+                            break
+                result_queue.put((width, height, date_taken))
+        except Exception as e:
+            result_queue.put((None, None, None))
+
+    # Run extraction in separate thread with timeout
+    thread = threading.Thread(target=_extract, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout)
+
+    if thread.is_alive():
+        # Timeout occurred - PIL is hanging
+        print(f"[SCAN] ⚠️ Timeout extracting metadata from {file_path}")
+        return None, None, None
+
+    # Get result from queue
+    try:
+        return result_queue.get_nowait()
+    except queue.Empty:
+        # Queue is empty after timeout - metadata extraction failed
+        return None, None, None
+
 
 _db = ReferenceDB()
 
-# Get global thumbnail service (replaces old _thumbnail_cache and disk cache)
-_thumbnail_service = get_thumbnail_service(l1_capacity=500)
-_enable_thumbnail_cache = True  # toggle caching on/off
+# Toggle for thumbnail caching
+_enable_thumbnail_cache = True
 
 
 
@@ -55,7 +137,9 @@ def clear_disk_thumbnail_cache():
     Now delegates to ThumbnailService.clear_all().
     """
     try:
-        _thumbnail_service.clear_all()
+        from services import get_thumbnail_service
+        svc = get_thumbnail_service(l1_capacity=500)
+        svc.clear_all()
         print("[Cache] All thumbnail caches cleared (L1 + L2)")
         return True
     except Exception as e:
@@ -85,40 +169,88 @@ def list_projects():
             ]
 
 def list_branches(project_id: int):
+    """
+    Get list of branches for a project.
+
+    NOTE: Filters out video-specific branches (branch_key starting with 'videos:')
+    because video branches are displayed separately in the Videos section of the sidebar,
+    not in the general Branches section.
+    """
     try:
-        return _db.get_branches(project_id)
+        all_branches = _db.get_branches(project_id)
     except Exception:
         with _db._connect() as conn:
             cur = conn.cursor()
             cur.execute("SELECT branch_key, display_name FROM branches WHERE project_id=? ORDER BY id ASC", (project_id,))
-            return [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
+            all_branches = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
+
+    # Filter out video branches (they're displayed in Videos section, not Branches section)
+    return [b for b in all_branches if not b["branch_key"].startswith("videos:")]
 
 
-def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> QPixmap:
+def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixmap":
     """
-    Get thumbnail for an image file.
+    Get thumbnail for an image or video file.
 
-    Now uses ThumbnailService with unified L1 (memory) + L2 (database) caching.
-    The use_disk_cache parameter is kept for backward compatibility but ignored.
+    For images: Uses ThumbnailService with unified L1 (memory) + L2 (database) caching.
+    For videos: Loads pre-generated thumbnail from .thumb_cache directory.
 
     Args:
-        path: Image file path
+        path: Image or video file path
         height: Target thumbnail height in pixels
         use_disk_cache: Legacy parameter (ignored, caching always enabled)
 
     Returns:
         QPixmap thumbnail
     """
+    from PySide6.QtGui import QPixmap, QPainter, QFont, QColor
+    from PySide6.QtCore import Qt
+
     if not path:
         return QPixmap()
+
+    # 🎬 Check if this is a video file
+    from thumbnail_grid_qt import is_video_file
+    if is_video_file(path):
+        # For videos, load pre-generated thumbnail from .thumb_cache
+        from pathlib import Path
+        video_name = Path(path).stem
+        video_ext = Path(path).suffix.replace('.', '_')
+        thumb_path = Path(".thumb_cache") / f"{video_name}{video_ext}_thumb.jpg"
+
+        if thumb_path.exists():
+            # Load video thumbnail
+            pixmap = QPixmap(str(thumb_path))
+            if not pixmap.isNull():
+                # Scale to requested height maintaining aspect ratio
+                if pixmap.height() != height:
+                    pixmap = pixmap.scaledToHeight(height, Qt.SmoothTransformation)
+                return pixmap
+
+        # No thumbnail exists - return placeholder with video icon
+        placeholder = QPixmap(int(height * 4/3), height)
+        placeholder.fill(QColor(40, 40, 40))
+
+        painter = QPainter(placeholder)
+        painter.setPen(QColor(180, 180, 180))
+        font = QFont("Arial", int(height / 4))
+        painter.setFont(font)
+        painter.drawText(placeholder.rect(), Qt.AlignCenter, "🎬")
+        painter.end()
+
+        return placeholder
+
+    # For images, use ThumbnailService (lazy-loaded)
+    from services import get_thumbnail_service
+    svc = get_thumbnail_service(l1_capacity=500)
 
     if not _enable_thumbnail_cache:
         # Caching disabled - generate directly without caching
         # This is rare but supported for debugging
-        return _thumbnail_service._generate_thumbnail(path, height, timeout=5.0)
+        return svc._generate_thumbnail(path, height, timeout=5.0)
 
     # Use ThumbnailService which handles L1 (memory) + L2 (database) caching
-    return _thumbnail_service.get_thumbnail(path, height)
+    return svc.get_thumbnail(path, height)
 
 
 def get_project_images(project_id: int, branch_key: Optional[str]):
@@ -167,13 +299,26 @@ def set_thumbnail_cache_enabled(flag: bool):
  
 
 
-      
 
 
-class ScanSignals(QObject):
-    progress = Signal(int, str)  # percent, message
 
-scan_signals = ScanSignals()
+# Qt-dependent scan signals (lazy-loaded to support headless environments)
+try:
+    from PySide6.QtCore import Signal, QObject
+
+    class ScanSignals(QObject):
+        progress = Signal(int, str)  # percent, message
+
+    scan_signals = ScanSignals()
+except ImportError:
+    # Headless mode - no Qt available
+    class ScanSignals:
+        class progress:
+            @staticmethod
+            def emit(*args):
+                pass  # No-op in headless mode
+
+    scan_signals = ScanSignals()
 
 def scan_repository(root_folder, incremental=False, cancel_callback=None):
     """
@@ -187,27 +332,49 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
     if not root_folder.exists():
         raise ValueError(f"Folder not found: {root_folder}")
 
-    # --- Gather all files first for total count ---
-    all_files = []
+    # Get or create default project for this scan
+    project_id = db._get_or_create_default_project()
+
+    # --- Gather all media files (photos + videos) first for total count ---
+    all_photos = []
+    all_videos = []
+
     for current_dir, _, files in os.walk(root_folder):
         if cancel_callback and cancel_callback():
             print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
             return 0, 0
-                
+
         for fn in files:
-            if fn.lower().split(".")[-1] in ["jpg", "jpeg", "png", "heic", "tif", "tiff", "webp"]:
-                all_files.append(Path(current_dir) / fn)
-    total_files = len(all_files)
+            ext = fn.lower().split(".")[-1]
+            file_path = Path(current_dir) / fn
+
+            # Detect photos
+            if ext in ["jpg", "jpeg", "png", "heic", "tif", "tiff", "webp"]:
+                all_photos.append(file_path)
+            # Detect videos
+            elif ext in ["mp4", "m4v", "mov", "mpeg", "mpg", "mpe", "wmv", "asf",
+                        "avi", "mkv", "webm", "flv", "f4v", "3gp", "3g2", "ogv",
+                        "ts", "mts", "m2ts"]:
+                all_videos.append(file_path)
+
+    total_photos = len(all_photos)
+    total_videos = len(all_videos)
+    total_files = total_photos + total_videos
+
     if total_files == 0:
-        scan_signals.progress.emit(100, "No images found.")
+        scan_signals.progress.emit(100, "No media files found.")
         return 0, 0
+
+    print(f"[SCAN] Found {total_photos} photos and {total_videos} videos")
 
     folder_map = {}
     folder_count = 0
     photo_count = 0
+    video_count = 0
 
-    # --- Step 1: Walk folders ---
-    for idx, file_path in enumerate(all_files):
+    # --- Step 1: Process Photos ---
+    print(f"[SCAN] Processing {total_photos} photos...")
+    for idx, file_path in enumerate(all_photos):
         if cancel_callback and cancel_callback():
             print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
             return 0, 0
@@ -217,7 +384,7 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
         parent_id = folder_map.get(str(parent_path)) if parent_path else None
 
         if str(folder_path) not in folder_map:
-            folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id)
+            folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id, project_id)
             folder_map[str(folder_path)] = folder_id
             folder_count += 1
         else:
@@ -234,21 +401,12 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
                 # Skip unchanged
                 continue
 
-        # --- Step 3: Extract metadata ---
-        width = height = None
-        date_taken = None
-        try:
-            with Image.open(file_path) as img:
-                width, height = img.size
-                exif = img.getexif()
-                if exif:
-                    for k, v in exif.items():
-                        tag = ExifTags.TAGS.get(k, k)
-                        if tag == "DateTimeOriginal":
-                            date_taken = str(v)
-                            break
-        except Exception:
-            pass
+        # --- Step 3: Extract metadata with timeout protection ---
+        # Log every 10th file to track progress
+        if (idx + 1) % 10 == 0:
+            print(f"[SCAN] Processing {idx + 1}/{total_files}: {file_path.name}")
+
+        width, height, date_taken = _extract_image_metadata_with_timeout(file_path, timeout=2.0)
 
         # --- Step 4: Insert or update ---
         db.upsert_photo_metadata(
@@ -260,22 +418,147 @@ def scan_repository(root_folder, incremental=False, cancel_callback=None):
             height=height,
             date_taken=date_taken,
             tags=None,
+            project_id=project_id,
         )
         photo_count += 1
 
-        # --- Step 5: Progress reporting ---
-        pct = int((idx + 1) / total_files * 100)
-        scan_signals.progress.emit(pct, f"{photo_count} / {total_files} processed")
+        # --- Step 5: Progress reporting (photos only) ---
+        processed = idx + 1
+        pct = int(processed / total_files * 100)
+        scan_signals.progress.emit(pct, f"Photos: {processed}/{total_photos} | Videos: 0/{total_videos}")
 
+    # --- Step 2: Process Videos ---
+    if total_videos > 0:
+        print(f"[SCAN] Processing {total_videos} videos...")
+        try:
+            from services.video_service import VideoService
+            video_service = VideoService()
+
+            for v_idx, video_path in enumerate(all_videos):
+                if cancel_callback and cancel_callback():
+                    print("[SCAN] Cancel callback triggered — stopping scan gracefully.")
+                    break
+
+                # Ensure folder exists for video
+                folder_path = video_path.parent
+                parent_path = folder_path.parent if folder_path != root_folder else None
+                parent_id = folder_map.get(str(parent_path)) if parent_path else None
+
+                if str(folder_path) not in folder_map:
+                    folder_id = db.ensure_folder(str(folder_path), folder_path.name, parent_id, project_id)
+                    folder_map[str(folder_path)] = folder_id
+                    folder_count += 1
+                else:
+                    folder_id = folder_map[str(folder_path)]
+
+                # Get file stats
+                stat = os.stat(video_path)
+                size_kb = stat.st_size / 1024
+                modified = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+
+                # Index video (status will be 'pending' for metadata/thumbnail extraction)
+                video_service.index_video(
+                    path=str(video_path),
+                    project_id=project_id,
+                    folder_id=folder_id,
+                    size_kb=size_kb,
+                    modified=modified
+                )
+                video_count += 1
+
+                # Progress reporting (videos)
+                processed = total_photos + v_idx + 1
+                pct = int(processed / total_files * 100)
+                scan_signals.progress.emit(pct, f"Photos: {total_photos}/{total_photos} | Videos: {v_idx + 1}/{total_videos}")
+
+            print(f"[SCAN] Indexed {video_count} videos (metadata extraction pending)")
+
+        except ImportError as e:
+            print(f"[SCAN] ⚠️ VideoService not available, skipping videos: {e}")
+        except Exception as e:
+            print(f"[SCAN] ⚠️ Error processing videos: {e}")
 
     # --- Step 6: Rebuild date index ---
-    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {folder_count} folders")
-    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos")
+    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {video_count} videos, {folder_count} folders")
+    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos, {video_count} videos")
 
-    # Trigger post-scan date indexing
-    rebuild_date_index_with_progress()
+    # Trigger post-scan date indexing (wrapped in try-catch to prevent blocking)
+    try:
+        rebuild_date_index_with_progress()
+    except Exception as e:
+        print(f"[SCAN] ⚠️ Date indexing failed (non-critical): {e}")
+        # Continue anyway - date indexing is not critical for core functionality
 
-    return folder_count, photo_count
+    # --- Step 7: Launch background workers for video processing ---
+    if video_count > 0:
+        try:
+            from PySide6.QtCore import QThreadPool
+            from workers.video_metadata_worker import VideoMetadataWorker
+            from workers.video_thumbnail_worker import VideoThumbnailWorker
+
+            print(f"[SCAN] Launching background workers for {video_count} videos...")
+
+            # Define callback to rebuild video date branches after metadata extraction
+            def on_metadata_finished(success_count, failed_count):
+                """Rebuild video date branches with extracted dates."""
+                print(f"[SCAN] Video metadata extraction complete: {success_count} success, {failed_count} failed")
+
+                if success_count > 0:
+                    print("[SCAN] Rebuilding video date branches with extracted dates...")
+
+                    try:
+                        # Clear old video date branches (keep non-date branches like 'videos:all')
+                        with db._connect() as conn:
+                            cur = conn.cursor()
+                            cur.execute("""
+                                DELETE FROM project_videos
+                                WHERE project_id = ? AND branch_key LIKE 'videos:by_date:%'
+                            """, (project_id,))
+                            conn.commit()
+
+                        # Rebuild with updated dates from metadata
+                        video_branch_count = db.build_video_date_branches(project_id)
+                        print(f"[SCAN] ✓ Rebuilt {video_branch_count} video date branch entries with extracted dates")
+
+                        # Emit signal to refresh sidebar if available
+                        scan_signals.progress.emit(100, f"✓ Video dates updated: {success_count} videos processed")
+
+                    except Exception as e:
+                        print(f"[SCAN] ⚠️ Failed to rebuild video date branches: {e}")
+
+            # Launch metadata extraction worker
+            metadata_worker = VideoMetadataWorker(project_id=project_id)
+
+            # CRITICAL: Connect callback BEFORE starting worker to avoid race condition
+            metadata_worker.signals.finished.connect(on_metadata_finished)
+            print("[SCAN] ✓ Connected metadata finished callback for date branch rebuild")
+
+            QThreadPool.globalInstance().start(metadata_worker)
+            print(f"[SCAN] ✓ Metadata extraction worker started")
+
+            # Launch thumbnail generation worker
+            thumbnail_worker = VideoThumbnailWorker(project_id=project_id, thumbnail_height=200)
+
+            # CRITICAL: Connect callbacks BEFORE starting worker to avoid race condition
+            thumbnail_worker.signals.progress.connect(
+                lambda curr, total, path: print(f"[SCAN] Thumbnail progress: {curr}/{total}")
+            )
+            thumbnail_worker.signals.finished.connect(
+                lambda success, failed: print(f"[SCAN] ✓ Thumbnails complete: {success} successful, {failed} failed")
+            )
+            print("[SCAN] ✓ Connected thumbnail worker callbacks")
+
+            QThreadPool.globalInstance().start(thumbnail_worker)
+            print(f"[SCAN] ✓ Thumbnail generation worker started")
+
+            scan_signals.progress.emit(100, f"🎬 Processing {video_count} videos in background...")
+
+        except ImportError as e:
+            print(f"[SCAN] ⚠️ Video workers not available: {e}")
+        except Exception as e:
+            print(f"[SCAN] ⚠️ Error launching video workers: {e}")
+
+    return folder_count, photo_count, video_count
 
 #    scan_signals.progress.emit(100, f"✅ Scan complete: {photo_count} photos, {folder_count} folders")
 #    print(f"[SCAN] Completed: {folder_count} folders, {photo_count} photos")

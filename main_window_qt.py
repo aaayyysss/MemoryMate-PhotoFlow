@@ -4026,7 +4026,7 @@ class MainWindow(QMainWindow):
 
                     # Refresh the sidebar to show new People clusters
                     if hasattr(self, "sidebar"):
-                        self.sidebar.reload_tree()
+                        self.sidebar.reload()
 
                     # Show success notification
                     QMessageBox.information(
@@ -4139,7 +4139,7 @@ class MainWindow(QMainWindow):
 
                 # Refresh sidebar to show new clusters
                 if hasattr(self, "sidebar"):
-                    self.sidebar.reload_tree()
+                    self.sidebar.reload()
 
                 QMessageBox.information(
                     self,

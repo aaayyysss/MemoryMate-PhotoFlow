@@ -1,7 +1,7 @@
 # face_detection_service.py
-# Phase 5: Face Detection Service
-# Detects faces in photos and generates 128-dimensional embeddings
-# Uses face_recognition library (dlib-based)
+# Phase 5: Face Detection Service using InsightFace
+# Detects faces in photos and generates 512-dimensional embeddings
+# Uses InsightFace with buffalo_l model and OnnxRuntime backend
 # ------------------------------------------------------
 
 import os
@@ -9,59 +9,81 @@ import numpy as np
 from typing import List, Tuple, Optional
 from PIL import Image
 import logging
+import cv2
 
 logger = logging.getLogger(__name__)
 
-# Lazy import face_recognition (only load when needed)
-_face_recognition = None
+# Lazy import InsightFace (only load when needed)
+_insightface_app = None
 
-def _get_face_recognition():
-    """Lazy load face_recognition library."""
-    global _face_recognition
-    if _face_recognition is None:
+
+def _get_insightface_app():
+    """Lazy load InsightFace application."""
+    global _insightface_app
+    if _insightface_app is None:
         try:
-            import face_recognition
-            _face_recognition = face_recognition
-            logger.info("✅ face_recognition library loaded successfully")
+            from insightface.app import FaceAnalysis
+
+            # Initialize InsightFace with buffalo_l model
+            _insightface_app = FaceAnalysis(
+                name='buffalo_l',  # High accuracy model
+                providers=['CPUExecutionProvider']  # OnnxRuntime CPU backend
+            )
+
+            # Prepare model with detection size
+            _insightface_app.prepare(ctx_id=0, det_size=(640, 640))
+
+            logger.info("✅ InsightFace (buffalo_l) loaded successfully with OnnxRuntime")
         except ImportError as e:
-            logger.error(f"❌ face_recognition library not installed: {e}")
-            logger.error("Install with: pip install face_recognition")
+            logger.error(f"❌ InsightFace library not installed: {e}")
+            logger.error("Install with: pip install insightface onnxruntime")
             raise ImportError(
-                "face_recognition library required for face detection. "
-                "Install with: pip install face_recognition"
+                "InsightFace library required for face detection. "
+                "Install with: pip install insightface onnxruntime"
             ) from e
-    return _face_recognition
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize InsightFace: {e}")
+            raise
+    return _insightface_app
 
 
 class FaceDetectionService:
     """
-    Service for detecting faces and generating embeddings.
+    Service for detecting faces and generating embeddings using InsightFace.
 
-    Uses face_recognition library which provides:
-    - Face detection via HOG or CNN
-    - 128-dimensional face embeddings via dlib's ResNet model
+    Uses InsightFace library which provides:
+    - Face detection via RetinaFace (accurate, fast)
+    - 512-dimensional face embeddings via ArcFace ResNet
     - High accuracy face recognition
+    - OnnxRuntime backend for CPU/GPU inference
+
+    Model: buffalo_l (large model, high accuracy)
+    - Detection: RetinaFace
+    - Recognition: ArcFace (ResNet100)
+    - Embedding dimension: 512 (vs 128 for dlib)
+    - Backend: OnnxRuntime
 
     Usage:
         service = FaceDetectionService()
         faces = service.detect_faces("photo.jpg")
         for face in faces:
             print(f"Found face at {face['bbox']} with confidence {face['confidence']}")
-            print(f"Embedding shape: {face['embedding'].shape}")
+            print(f"Embedding shape: {face['embedding'].shape}")  # (512,)
     """
 
-    def __init__(self, model: str = "hog"):
+    def __init__(self, model: str = "buffalo_l"):
         """
         Initialize face detection service.
 
         Args:
-            model: Detection model to use
-                   - "hog" (faster, CPU-friendly, good for most cases)
-                   - "cnn" (slower, GPU-optimized, more accurate)
+            model: Detection model to use (buffalo_l, buffalo_s, antelopev2)
+                   - "buffalo_l" (recommended, high accuracy)
+                   - "buffalo_s" (smaller, faster, lower accuracy)
+                   - "antelopev2" (latest model)
         """
         self.model = model
-        self.fr = _get_face_recognition()
-        logger.info(f"[FaceDetection] Initialized with model={model}")
+        self.app = _get_insightface_app()
+        logger.info(f"[FaceDetection] Initialized InsightFace with model={model}")
 
     def detect_faces(self, image_path: str) -> List[dict]:
         """
@@ -73,12 +95,12 @@ class FaceDetectionService:
         Returns:
             List of face dictionaries with:
             {
-                'bbox': (top, right, bottom, left),  # Face bounding box
-                'bbox_x': int,  # X coordinate
-                'bbox_y': int,  # Y coordinate
+                'bbox': [x1, y1, x2, y2],  # Face bounding box
+                'bbox_x': int,  # X coordinate (top-left)
+                'bbox_y': int,  # Y coordinate (top-left)
                 'bbox_w': int,  # Width
                 'bbox_h': int,  # Height
-                'embedding': np.array (128,),  # Face embedding vector
+                'embedding': np.array (512,),  # Face embedding vector (ArcFace)
                 'confidence': float  # Detection confidence (0-1)
             }
 
@@ -92,49 +114,50 @@ class FaceDetectionService:
                 logger.warning(f"Image not found: {image_path}")
                 return []
 
-            # Load image using face_recognition (handles various formats)
+            # Load image using OpenCV (InsightFace expects BGR format)
             try:
-                image = self.fr.load_image_file(image_path)
+                img = cv2.imread(image_path)
+                if img is None:
+                    logger.warning(f"Failed to load image {image_path}")
+                    return []
             except Exception as e:
                 logger.warning(f"Failed to load image {image_path}: {e}")
                 return []
 
-            # Detect face locations
-            # Returns: [(top, right, bottom, left), ...]
-            face_locations = self.fr.face_locations(image, model=self.model)
+            # Detect faces and extract embeddings
+            # Returns list of Face objects with bbox, embedding, det_score, etc.
+            detected_faces = self.app.get(img)
 
-            if not face_locations:
+            if not detected_faces:
                 logger.debug(f"No faces found in {image_path}")
                 return []
 
-            # Generate embeddings for all detected faces
-            # Returns: [array(128,), array(128,), ...]
-            face_encodings = self.fr.face_encodings(image, face_locations)
-
-            # Combine locations and embeddings
+            # Convert InsightFace results to our format
             faces = []
-            for location, encoding in zip(face_locations, face_encodings):
-                top, right, bottom, left = location
+            for face in detected_faces:
+                # Get bounding box: [x1, y1, x2, y2]
+                bbox = face.bbox.astype(int)
+                x1, y1, x2, y2 = bbox
 
-                # Calculate bounding box dimensions
-                bbox_x = left
-                bbox_y = top
-                bbox_w = right - left
-                bbox_h = bottom - top
+                # Calculate dimensions
+                bbox_x = int(x1)
+                bbox_y = int(y1)
+                bbox_w = int(x2 - x1)
+                bbox_h = int(y2 - y1)
 
-                # Estimate confidence (face_recognition doesn't provide confidence scores)
-                # We use a heuristic based on face size (larger faces = more confident)
-                face_area = bbox_w * bbox_h
-                image_area = image.shape[0] * image.shape[1]
-                confidence = min(0.95, 0.7 + (face_area / image_area) * 0.25)
+                # Get confidence score from detection
+                confidence = float(face.det_score)
+
+                # Get embedding (512-dimensional ArcFace embedding)
+                embedding = face.normed_embedding  # Already normalized to unit length
 
                 faces.append({
-                    'bbox': location,
+                    'bbox': bbox.tolist(),
                     'bbox_x': bbox_x,
                     'bbox_y': bbox_y,
                     'bbox_w': bbox_w,
                     'bbox_h': bbox_h,
-                    'embedding': encoding,
+                    'embedding': embedding,
                     'confidence': confidence
                 })
 
@@ -177,8 +200,8 @@ class FaceDetectionService:
             # Crop face
             face_img = img.crop((x1, y1, x2, y2))
 
-            # Resize to standard size for consistency (128x128)
-            face_img = face_img.resize((128, 128), Image.Resampling.LANCZOS)
+            # Resize to standard size for consistency (160x160 for better quality)
+            face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -244,7 +267,7 @@ class FaceDetectionService:
 # Singleton instance
 _face_detection_service = None
 
-def get_face_detection_service(model: str = "hog") -> FaceDetectionService:
+def get_face_detection_service(model: str = "buffalo_l") -> FaceDetectionService:
     """Get or create singleton FaceDetectionService instance."""
     global _face_detection_service
     if _face_detection_service is None:

@@ -92,7 +92,7 @@ class FaceSettingsDialog(QDialog):
         backend_layout = QFormLayout(backend_group)
 
         self.backend_combo = QComboBox()
-        self.backend_combo.addItems(["face_recognition", "insightface"])
+        self.backend_combo.addItems(["insightface"])  # Only InsightFace supported (buffalo_l + OnnxRuntime)
         self.backend_combo.currentTextChanged.connect(self.on_backend_changed)
         backend_layout.addRow("Backend:", self.backend_combo)
 
@@ -136,28 +136,8 @@ class FaceSettingsDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
-        # face_recognition settings
-        fr_group = QGroupBox("face_recognition Backend")
-        fr_layout = QFormLayout(fr_group)
-
-        self.fr_model_combo = QComboBox()
-        self.fr_model_combo.addItems(["hog", "cnn"])
-        self.fr_model_combo.setToolTip(
-            "hog: Faster, CPU-based (recommended)\n"
-            "cnn: More accurate, requires GPU"
-        )
-        fr_layout.addRow("Model:", self.fr_model_combo)
-
-        self.upsample_spin = QSpinBox()
-        self.upsample_spin.setRange(0, 3)
-        self.upsample_spin.setValue(1)
-        self.upsample_spin.setToolTip("Number of times to upsample image (higher = slower but detects smaller faces)")
-        fr_layout.addRow("Upsample times:", self.upsample_spin)
-
-        layout.addWidget(fr_group)
-
-        # InsightFace settings
-        if_group = QGroupBox("InsightFace Backend")
+        # InsightFace settings (only backend supported)
+        if_group = QGroupBox("InsightFace Backend (buffalo_l + OnnxRuntime)")
         if_layout = QFormLayout(if_group)
 
         self.if_model_combo = QComboBox()
@@ -300,16 +280,14 @@ class FaceSettingsDialog(QDialog):
         self.auto_cluster_check.setChecked(self.config.get("auto_cluster_after_scan", True))
         self.require_confirm_check.setChecked(self.config.get("require_confirmation", True))
 
-        backend = self.config.get("backend", "face_recognition")
+        backend = self.config.get("backend", "insightface")
         self.backend_combo.setCurrentText(backend)
 
         self.save_crops_check.setChecked(self.config.get("save_face_crops", True))
         self.crop_size_spin.setValue(self.config.get("crop_size", 160))
         self.crop_quality_spin.setValue(self.config.get("crop_quality", 95))
 
-        # Detection
-        self.fr_model_combo.setCurrentText(self.config.get("detection_model", "hog"))
-        self.upsample_spin.setValue(self.config.get("upsample_times", 1))
+        # Detection (InsightFace only)
         self.if_model_combo.setCurrentText(self.config.get("insightface_model", "buffalo_l"))
         self.min_face_spin.setValue(self.config.get("min_face_size", 20))
         self.confidence_spin.setValue(self.config.get("confidence_threshold", 0.6))
@@ -341,9 +319,7 @@ class FaceSettingsDialog(QDialog):
         self.config.set("crop_size", self.crop_size_spin.value())
         self.config.set("crop_quality", self.crop_quality_spin.value())
 
-        # Detection
-        self.config.set("detection_model", self.fr_model_combo.currentText())
-        self.config.set("upsample_times", self.upsample_spin.value())
+        # Detection (InsightFace only)
         self.config.set("insightface_model", self.if_model_combo.currentText())
         self.config.set("min_face_size", self.min_face_spin.value())
         self.config.set("confidence_threshold", self.confidence_spin.value())

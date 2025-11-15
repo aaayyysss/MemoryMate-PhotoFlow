@@ -2112,6 +2112,7 @@ class SidebarQt(QWidget):
     def _build_tree_model(self):
         # Build tree synchronously for folders (counts populated right away),
         # and register branch targets for async fill to keep responsiveness.
+        print(f"[SidebarQt] _build_tree_model() called with project_id={self.project_id}")
 
         # CRITICAL: Prevent concurrent rebuilds that cause Qt crashes during rapid project switching
         # Similar to grid reload() guard pattern
@@ -2195,6 +2196,12 @@ class SidebarQt(QWidget):
                 branch_count_item = _make_count_item(total_photos)
                 self.model.appendRow([branch_root, branch_count_item])
                 branches = list_branches(self.project_id) if self.project_id else []
+
+                # DEBUG: Log branches loaded
+                print(f"[SidebarQt] list_branches() returned {len(branches)} branches")
+                if len(branches) > 0:
+                    print(f"[SidebarQt] Sample branches: {branches[:5]}")
+
                 for b in branches:
                     name_item = QStandardItem(b["display_name"])
                     count_item = QStandardItem("")
@@ -2848,11 +2855,17 @@ class SidebarQt(QWidget):
                     try:
                         cnt = 0
                         if typ == "branch":
+                            # DEBUG: Check if project_id is set
+                            if self.project_id is None:
+                                print(f"[Sidebar][counts worker] WARNING: project_id is None for branch '{key}'")
                             if hasattr(self.db, "count_images_by_branch"):
                                 cnt = int(self.db.count_images_by_branch(self.project_id, key) or 0)
                             else:
                                 rows = self.db.get_images_by_branch(self.project_id, key) or []
                                 cnt = len(rows)
+                            # DEBUG: Log count result for date branches
+                            if key.startswith("by_date:"):
+                                print(f"[Sidebar][counts worker] Date branch '{key}' has {cnt} photos")
 
                         elif typ == "folder":
                             # Use recursive count including all subfolders
@@ -3218,8 +3231,10 @@ class SidebarQt(QWidget):
             self.on_folder_selected(folder_id)
 
     def set_project(self, project_id: int):
+        print(f"[SidebarQt] set_project({project_id}) called")
         self.project_id = project_id
         self.tabs_controller.set_project(project_id)   # <-- delegate
+        print(f"[SidebarQt] Calling reload() after setting project_id")
         self.reload()
 
     def _show_menu(self, pos: QPoint):

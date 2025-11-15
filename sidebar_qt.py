@@ -2215,24 +2215,9 @@ class SidebarQt(QWidget):
                     # register branch for async counts
                     self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
 
-                quick_root = QStandardItem("📅 Quick Dates")
-                quick_root.setEditable(False)
-                quick_count_item = _make_count_item(total_photos)
-                self.model.appendRow([quick_root, quick_count_item])
-                try:
-                    quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
-                except Exception:
-                    quick_rows = []
-                for row in quick_rows:
-                    name_item = QStandardItem(row["label"])
-                    count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
-                    name_item.setEditable(False)
-                    count_item.setEditable(False)
-                    name_item.setData("branch", Qt.UserRole)
-                    name_item.setData(row["key"], Qt.UserRole + 1)
-                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                    count_item.setForeground(QColor("#BBBBBB"))
-                    quick_root.appendRow([name_item, count_item])
+                # Expand the Branches section to show date branches by default
+                print(f"[SidebarQt] Expanding Branches section with {len(branches)} branches")
+                self.tree.expand(self.model.indexFromItem(branch_root))
 
                 # IMPORTANT FIX: use synchronous folder population as in the previous working version,
                 # so folder counts are calculated and displayed immediately.
@@ -2243,80 +2228,8 @@ class SidebarQt(QWidget):
                 # synchronous (restores the previous working behavior)
                 self._add_folder_items(folder_root, None)
 
-                # >>> NEW: 👥 People / Face Albums section
-                try:
-                    clusters = self.db.get_face_clusters(self.project_id)
-                except Exception as e:
-                    print("[Sidebar] get_face_clusters failed:", e)
-                    clusters = []
-
-                # ALWAYS show People section (even if empty)
-                people_root = QStandardItem("👥 People")
-                people_count_item = QStandardItem("")
-                people_root.setEditable(False)
-                people_count_item.setEditable(False)
-                self.model.appendRow([people_root, people_count_item])
-
-                if clusters:
-                    # Show clustered faces
-                    for row in clusters:
-                        raw_name = row.get("display_name") or row.get("branch_key")
-                        count = row.get("member_count", 0)
-                        rep = row.get("rep_path", "")
-
-                        # ========== IMPROVEMENT: Humanize unnamed clusters ==========
-                        # Convert "face_003" to "Unnamed #3" in tree view
-                        if raw_name.startswith("face_"):
-                            try:
-                                cluster_num = int(raw_name.split("_")[1])
-                                display_name = f"Unnamed #{cluster_num}"
-                            except (IndexError, ValueError):
-                                display_name = raw_name
-                        else:
-                            display_name = raw_name
-
-                        name_item = QStandardItem(display_name)
-                        name_item.setEditable(False)
-                        count_item = QStandardItem(str(count) if count else "")
-                        count_item.setEditable(False)
-                        name_item.setData("facecluster", Qt.UserRole)
-                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
-                        count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                        count_item.setForeground(QColor("#888888"))
-                        people_root.appendRow([name_item, count_item])
-
-                    print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
-                else:
-                    # No clusters yet - check if faces were detected
-                    try:
-                        with self.db._connect() as conn:
-                            cur = conn.execute("""
-                                SELECT COUNT(*) FROM face_crops WHERE project_id = ?
-                            """, (self.project_id,))
-                            face_count = cur.fetchone()[0]
-                    except Exception:
-                        face_count = 0
-
-                    if face_count > 0:
-                        # Faces detected but not clustered
-                        status_item = QStandardItem(f"⚠️ {face_count} faces detected - Click Re-Cluster")
-                        status_item.setEditable(False)
-                        status_item.setForeground(QColor("#FF8800"))
-                        status_item.setData("people_status", Qt.UserRole)
-                        people_root.appendRow([status_item, QStandardItem("")])
-                        print(f"[Sidebar] 👥 People: {face_count} faces detected, awaiting clustering")
-                    else:
-                        # No faces detected yet
-                        status_item = QStandardItem("ℹ️ No faces detected yet")
-                        status_item.setEditable(False)
-                        status_item.setForeground(QColor("#888888"))
-                        status_item.setData("people_status", Qt.UserRole)
-                        people_root.appendRow([status_item, QStandardItem("")])
-                        print("[Sidebar] 👥 People: No faces detected yet")
-                # <<< NEW
-
+                # Build "By Date" section (hierarchical year/month/day)
                 self._build_by_date_section()
-                self._build_tag_section()
 
                 # >>> NEW: 🎬 Videos section
                 try:
@@ -2703,13 +2616,15 @@ class SidebarQt(QWidget):
                     print("[Sidebar] get_face_clusters failed:", e)
                     clusters = []
 
-                if clusters:
-                    root_name_item = QStandardItem("👥 People")
-                    root_cnt_item = QStandardItem("")
-                    root_name_item.setEditable(False)
-                    root_cnt_item.setEditable(False)
-                    self.model.appendRow([root_name_item, root_cnt_item])
+                # ALWAYS show People section (even if empty)
+                people_root = QStandardItem("👥 People")
+                people_count_item = QStandardItem("")
+                people_root.setEditable(False)
+                people_count_item.setEditable(False)
+                self.model.appendRow([people_root, people_count_item])
 
+                if clusters:
+                    # Show clustered faces
                     for row in clusters:
                         raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
@@ -2728,19 +2643,46 @@ class SidebarQt(QWidget):
 
                         name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
-                        name_item.setData("people", Qt.UserRole)
-                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
-                        name_item.setToolTip(rep)
-
                         count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
+                        name_item.setData("facecluster", Qt.UserRole)
+                        name_item.setData(row["branch_key"], Qt.UserRole + 1)
                         count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         count_item.setForeground(QColor("#888888"))
-
-                        root_name_item.appendRow([name_item, count_item])
+                        people_root.appendRow([name_item, count_item])
 
                     print(f"[Sidebar] Added 👥 People section with {len(clusters)} clusters.")
+                else:
+                    # No clusters yet - check if faces were detected
+                    try:
+                        with self.db._connect() as conn:
+                            cur = conn.execute("""
+                                SELECT COUNT(*) FROM face_crops WHERE project_id = ?
+                            """, (self.project_id,))
+                            face_count = cur.fetchone()[0]
+                    except Exception:
+                        face_count = 0
+
+                    if face_count > 0:
+                        # Faces detected but not clustered
+                        status_item = QStandardItem(f"⚠️ {face_count} faces detected - Click Re-Cluster")
+                        status_item.setEditable(False)
+                        status_item.setForeground(QColor("#FF8800"))
+                        status_item.setData("people_status", Qt.UserRole)
+                        people_root.appendRow([status_item, QStandardItem("")])
+                        print(f"[Sidebar] 👥 People: {face_count} faces detected, awaiting clustering")
+                    else:
+                        # No faces detected yet
+                        status_item = QStandardItem("ℹ️ No faces detected yet")
+                        status_item.setEditable(False)
+                        status_item.setForeground(QColor("#888888"))
+                        status_item.setData("people_status", Qt.UserRole)
+                        people_root.appendRow([status_item, QStandardItem("")])
+                        print("[Sidebar] 👥 People: No faces detected yet")
                 # <<< NEW
+
+                # Build Tags section
+                self._build_tag_section()
 
                 for r in range(self.model.rowCount()):
                     idx = self.model.index(r, 0)

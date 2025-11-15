@@ -1328,39 +1328,197 @@ class SidebarTabs(QWidget):
                     st.setText("No faces detected")
             return
 
-        # Create 2-column table: Person | Photos
+        # ========== IMPROVEMENT: Add search/filter box ==========
+        search_container = QWidget()
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(0, 4, 0, 4)
+
+        search_label = QLabel("🔍 Search:")
+        search_box = QLineEdit()
+        search_box.setPlaceholderText("Filter people by name...")
+        search_box.setClearButtonEnabled(True)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(search_box, 1)
+        layout.addWidget(search_container)
+
+        # ========== IMPROVEMENT: 3-column table with thumbnails ==========
         table = QTableWidget()
-        table.setColumnCount(2)
-        table.setHorizontalHeaderLabels(["Person", "Photos"])
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels(["Face", "Person", "Photos"])
         table.setRowCount(len(rows))
         table.setSelectionBehavior(QTableWidget.SelectRows)
         table.setSelectionMode(QTableWidget.SingleSelection)
         table.setEditTriggers(QTableWidget.NoEditTriggers)
         table.verticalHeader().setVisible(False)
         table.horizontalHeader().setStretchLastSection(False)
-        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
+        # Column sizing: Face (32px icon) | Person (stretch) | Photos (fit content)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        table.setColumnWidth(0, 40)  # Face thumbnail column
+        table.setIconSize(QSize(32, 32))  # 32x32 thumbnails
+
+        # ========== IMPROVEMENT: Enable table sorting ==========
+        table.setSortingEnabled(True)
+
+        # Store reference to all rows for search filtering
+        all_table_rows = []
 
         for row_idx, row in enumerate(rows):
-            name = row.get("display_name") or row.get("branch_key")
+            branch_key = row['branch_key']
+            raw_name = row.get("display_name") or row.get("branch_key")
             count = row.get("member_count", 0)
-            rep = row.get("rep_path", "")
+            rep_path = row.get("rep_path", "")
+            rep_thumb_png = row.get("rep_thumb_png")
 
-            # Column 0: Person name
-            item_name = QTableWidgetItem(str(name))
-            item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
-            if rep:
-                item_name.setToolTip(rep)
-            table.setItem(row_idx, 0, item_name)
+            # ========== IMPROVEMENT: Humanize unnamed clusters ==========
+            # Convert "face_003" to "Unnamed #3"
+            if raw_name.startswith("face_"):
+                try:
+                    cluster_num = int(raw_name.split("_")[1])
+                    display_name = f"Unnamed #{cluster_num}"
+                except (IndexError, ValueError):
+                    display_name = raw_name
+            else:
+                display_name = raw_name
 
-            # Column 1: Count (right-aligned, grey like List view)
-            item_count = QTableWidgetItem(str(count))
+            # Column 0: Face thumbnail
+            item_thumb = QTableWidgetItem()
+            item_thumb.setData(Qt.UserRole, f"facecluster:{branch_key}")
+
+            # Load thumbnail icon from PNG bytes or file path
+            icon_loaded = False
+            if rep_thumb_png:
+                try:
+                    from PySide6.QtCore import QByteArray
+                    pixmap = QPixmap()
+                    if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                        icon_loaded = True
+                        item_thumb.setIcon(QIcon(pixmap))
+                except Exception as e:
+                    print(f"[People] Failed to load PNG thumbnail: {e}")
+
+            if not icon_loaded and rep_path and os.path.exists(rep_path):
+                try:
+                    pixmap = QPixmap(rep_path)
+                    if not pixmap.isNull():
+                        # Scale to 32x32 while preserving aspect ratio
+                        scaled = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        item_thumb.setIcon(QIcon(scaled))
+                except Exception as e:
+                    print(f"[People] Failed to load face thumbnail from {rep_path}: {e}")
+
+            table.setItem(row_idx, 0, item_thumb)
+
+            # Column 1: Person name
+            item_name = QTableWidgetItem(display_name)
+            item_name.setData(Qt.UserRole, f"facecluster:{branch_key}")
+            item_name.setData(Qt.UserRole + 1, branch_key)  # Store branch_key for rename
+            if rep_path:
+                item_name.setToolTip(f"{display_name}\n{rep_path}")
+            table.setItem(row_idx, 1, item_name)
+
+            # Column 2: Photo count (right-aligned, grey)
+            item_count = QTableWidgetItem()
+            item_count.setData(Qt.DisplayRole, count)  # Use int for proper sorting
             item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
             item_count.setForeground(QColor("#888888"))
-            table.setItem(row_idx, 1, item_count)
+            table.setItem(row_idx, 2, item_count)
+
+            # Store row data for search filtering
+            all_table_rows.append({
+                'row_idx': row_idx,
+                'name': display_name.lower(),
+                'branch_key': branch_key
+            })
+
+        # ========== IMPROVEMENT: Search filter implementation ==========
+        def on_search_changed(text):
+            """Filter table rows based on search text"""
+            search_term = text.lower().strip()
+
+            # Disable sorting temporarily for performance
+            was_sorting = table.isSortingEnabled()
+            if was_sorting:
+                table.setSortingEnabled(False)
+
+            for row_data in all_table_rows:
+                row_idx = row_data['row_idx']
+                if not search_term or search_term in row_data['name']:
+                    table.setRowHidden(row_idx, False)
+                else:
+                    table.setRowHidden(row_idx, True)
+
+            # Re-enable sorting
+            if was_sorting:
+                table.setSortingEnabled(True)
+
+        search_box.textChanged.connect(on_search_changed)
+
+        # ========== IMPROVEMENT: Context menu for rename ==========
+        table.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        def show_context_menu(pos):
+            """Show context menu with rename option"""
+            row = table.rowAt(pos.y())
+            if row < 0:
+                return
+
+            item = table.item(row, 1)  # Get name item
+            if not item:
+                return
+
+            branch_key = item.data(Qt.UserRole + 1)
+            current_name = item.text()
+
+            menu = QMenu(table)
+            act_rename = menu.addAction("✏️ Rename Person…")
+            menu.addSeparator()
+            act_export = menu.addAction("📁 Export Photos to Folder…")
+
+            chosen = menu.exec(table.viewport().mapToGlobal(pos))
+
+            if chosen is act_rename:
+                from PySide6.QtWidgets import QInputDialog
+                new_name, ok = QInputDialog.getText(
+                    table, "Rename Person",
+                    "Person name:",
+                    text=current_name if not current_name.startswith("Unnamed #") else ""
+                )
+                if ok and new_name.strip() and new_name.strip() != current_name:
+                    try:
+                        # Use the helper method from reference_db
+                        if hasattr(self.db, 'rename_branch_display_name'):
+                            self.db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+                        else:
+                            # Fallback: direct SQL update
+                            with self.db._connect() as conn:
+                                conn.execute("""
+                                    UPDATE branches SET display_name = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.execute("""
+                                    UPDATE face_branch_reps SET label = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.commit()
+
+                        # Update UI immediately
+                        item.setText(new_name.strip())
+                        QMessageBox.information(table, "Renamed", f"Person renamed to '{new_name.strip()}'")
+                    except Exception as e:
+                        QMessageBox.critical(table, "Rename Failed", str(e))
+
+            elif chosen is act_export:
+                # Trigger export (if _do_export exists in parent)
+                if hasattr(self, '_do_export'):
+                    self._do_export(branch_key)
+
+        table.customContextMenuRequested.connect(show_context_menu)
 
         table.cellDoubleClicked.connect(
-            lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole))
+            lambda row, col: self.selectBranch.emit(table.item(row, 1).data(Qt.UserRole))
         )
         layout.addWidget(self._wrap_in_scroll_area(table), 1)
 
@@ -2095,11 +2253,22 @@ class SidebarQt(QWidget):
                 if clusters:
                     # Show clustered faces
                     for row in clusters:
-                        name = row.get("display_name") or row.get("branch_key")
+                        raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
                         rep = row.get("rep_path", "")
 
-                        name_item = QStandardItem(name)
+                        # ========== IMPROVEMENT: Humanize unnamed clusters ==========
+                        # Convert "face_003" to "Unnamed #3" in tree view
+                        if raw_name.startswith("face_"):
+                            try:
+                                cluster_num = int(raw_name.split("_")[1])
+                                display_name = f"Unnamed #{cluster_num}"
+                            except (IndexError, ValueError):
+                                display_name = raw_name
+                        else:
+                            display_name = raw_name
+
+                        name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
                         count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
@@ -2535,11 +2704,22 @@ class SidebarQt(QWidget):
                     self.model.appendRow([root_name_item, root_cnt_item])
 
                     for row in clusters:
-                        name = row.get("display_name") or row.get("branch_key")
+                        raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
                         rep = row.get("rep_path", "")
 
-                        name_item = QStandardItem(name)
+                        # ========== IMPROVEMENT: Humanize unnamed clusters ==========
+                        # Convert "face_003" to "Unnamed #3" in tree view
+                        if raw_name.startswith("face_"):
+                            try:
+                                cluster_num = int(raw_name.split("_")[1])
+                                display_name = f"Unnamed #{cluster_num}"
+                            except (IndexError, ValueError):
+                                display_name = raw_name
+                        else:
+                            display_name = raw_name
+
+                        name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
                         name_item.setData("people", Qt.UserRole)
                         name_item.setData(row["branch_key"], Qt.UserRole + 1)
@@ -3070,26 +3250,28 @@ class SidebarQt(QWidget):
             chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
             if chosen is act_rename:
                 from PySide6.QtWidgets import QInputDialog
-                new_name, ok = QInputDialog.getText(self, "Rename Person", "Person name:", text=current_name)
+                # Clear the input field if it's an "Unnamed #" label
+                default_text = "" if current_name.startswith("Unnamed #") else current_name
+                new_name, ok = QInputDialog.getText(self, "Rename Person", "Person name:", text=default_text)
                 if ok and new_name.strip() and new_name.strip() != current_name:
                     try:
-                        # Update display_name in branches table
-                        with db._connect() as conn:
-                            conn.execute("""
-                                UPDATE branches
-                                SET display_name = ?
-                                WHERE project_id = ? AND branch_key = ?
-                            """, (new_name.strip(), self.project_id, branch_key))
-                            conn.commit()
-
-                        # Also update label in face_branch_reps if it exists
-                        with db._connect() as conn:
-                            conn.execute("""
-                                UPDATE face_branch_reps
-                                SET label = ?
-                                WHERE project_id = ? AND branch_key = ?
-                            """, (new_name.strip(), self.project_id, branch_key))
-                            conn.commit()
+                        # Use the helper method from reference_db if available
+                        if hasattr(db, 'rename_branch_display_name'):
+                            db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+                        else:
+                            # Fallback: direct SQL update
+                            with db._connect() as conn:
+                                conn.execute("""
+                                    UPDATE branches
+                                    SET display_name = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.execute("""
+                                    UPDATE face_branch_reps
+                                    SET label = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.commit()
 
                         # Reload sidebar to show new name
                         self.reload()

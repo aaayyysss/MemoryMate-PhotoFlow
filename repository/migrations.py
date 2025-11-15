@@ -240,10 +240,38 @@ VALUES ('2.0.0', 'Repository layer schema with full migration', CURRENT_TIMESTAM
 )
 
 
+# Migration to v3.0.0 (add project_id for project isolation)
+MIGRATION_3_0_0 = Migration(
+    version="3.0.0",
+    description="Add project_id to photo_folders and photo_metadata for clean project isolation",
+    sql="""
+-- This migration adds project_id columns to photo_folders and photo_metadata
+-- for proper project isolation at the schema level
+
+-- 1. Add project_id columns with default value of 1 (first project)
+--    Note: ALTER TABLE will be handled in code (see _add_project_id_columns_if_missing)
+
+-- 2. Create indexes for project_id (if they don't exist yet)
+CREATE INDEX IF NOT EXISTS idx_photo_folders_project ON photo_folders(project_id);
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_project ON photo_metadata(project_id);
+
+-- 3. Ensure default project exists
+INSERT OR IGNORE INTO projects (id, name, folder, mode, created_at)
+VALUES (1, 'Default Project', '', 'date', CURRENT_TIMESTAMP);
+
+-- 4. Record migration
+INSERT OR REPLACE INTO schema_version (version, description, applied_at)
+VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean project isolation', CURRENT_TIMESTAMP);
+""",
+    rollback_sql=""
+)
+
+
 # Ordered list of all migrations
 ALL_MIGRATIONS = [
     MIGRATION_1_5_0,
     MIGRATION_2_0_0,
+    MIGRATION_3_0_0,
 ]
 
 
@@ -283,61 +311,42 @@ class MigrationManager:
         """
         import os
         db_path = self.db_connection._db_path
-        print(f"[MIGRATION-DEBUG] get_current_version() called for db: {db_path}")
-        print(f"[MIGRATION-DEBUG] Database file exists: {os.path.exists(db_path)}")
 
         # CRITICAL FIX: If database file doesn't exist, return 0.0.0 immediately
         # Cannot open non-existent file in read-only mode - SQLite will fail
         if not os.path.exists(db_path):
-            print(f"[MIGRATION-DEBUG] Database file doesn't exist, returning version 0.0.0")
             return "0.0.0"
-
-        print(f"[MIGRATION-DEBUG] Database file size: {os.path.getsize(db_path)} bytes")
 
         try:
             with self.db_connection.get_connection(read_only=True) as conn:
                 cur = conn.cursor()
-                print(f"[MIGRATION-DEBUG] Connection opened, cursor created")
-
-                # First, list ALL tables in the database for diagnostic purposes
-                print(f"[MIGRATION-DEBUG] Listing all tables in database...")
-                cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-                all_tables = [row[0] if isinstance(row, tuple) else row['name'] for row in cur.fetchall()]
-                print(f"[MIGRATION-DEBUG] Found {len(all_tables)} tables: {all_tables}")
 
                 # Check if schema_version table exists
-                print(f"[MIGRATION-DEBUG] Checking for schema_version table...")
                 cur.execute("""
                     SELECT name FROM sqlite_master
                     WHERE type='table' AND name='schema_version'
                 """)
 
                 schema_version_result = cur.fetchone()
-                print(f"[MIGRATION-DEBUG] schema_version table check result: {schema_version_result}")
 
                 if not schema_version_result:
                     # No schema_version table - this is a legacy database
                     # Check if photo_metadata exists to distinguish v0 from v1
-                    print(f"[MIGRATION-DEBUG] schema_version table NOT found, checking for photo_metadata...")
                     cur.execute("""
                         SELECT name FROM sqlite_master
                         WHERE type='table' AND name='photo_metadata'
                     """)
 
                     photo_metadata_result = cur.fetchone()
-                    print(f"[MIGRATION-DEBUG] photo_metadata table check result: {photo_metadata_result}")
 
                     if photo_metadata_result:
                         # Has tables but no versioning - legacy v1.0
-                        print(f"[MIGRATION-DEBUG] Returning version: 1.0.0 (legacy database)")
                         return "1.0.0"
                     else:
                         # No tables at all - fresh database
-                        print(f"[MIGRATION-DEBUG] Returning version: 0.0.0 (no tables found)")
                         return "0.0.0"
 
                 # Get latest version from schema_version table
-                print(f"[MIGRATION-DEBUG] schema_version table exists, querying version...")
                 cur.execute("""
                     SELECT version FROM schema_version
                     ORDER BY applied_at DESC
@@ -345,16 +354,11 @@ class MigrationManager:
                 """)
 
                 result = cur.fetchone()
-                print(f"[MIGRATION-DEBUG] Version query result: {result}")
 
                 version = result['version'] if result else "0.0.0"
-                print(f"[MIGRATION-DEBUG] Returning version: {version}")
                 return version
 
         except Exception as e:
-            print(f"[MIGRATION-DEBUG] ❌ Exception in get_current_version(): {e}")
-            import traceback
-            traceback.print_exc()
             self.logger.error(f"Error getting current version: {e}", exc_info=True)
             return "0.0.0"
 
@@ -418,6 +422,8 @@ class MigrationManager:
                 elif migration.version == "2.0.0":
                     self._add_created_columns_if_missing(conn)
                     self._add_metadata_columns_if_missing(conn)
+                elif migration.version == "3.0.0":
+                    self._add_project_id_columns_if_missing(conn)
 
                 # Execute migration SQL
                 conn.executescript(migration.sql)
@@ -588,6 +594,45 @@ class MigrationManager:
             cur.execute("ALTER TABLE photo_metadata ADD COLUMN metadata_fail_count INTEGER DEFAULT 0")
 
         conn.commit()
+
+    def _add_project_id_columns_if_missing(self, conn: sqlite3.Connection):
+        """
+        Add project_id columns to photo_folders and photo_metadata if they don't exist.
+
+        This is the core of the v3.0.0 migration - adds project ownership to photos and folders.
+        Existing rows will default to project_id=1 (default project).
+
+        Args:
+            conn: Database connection
+        """
+        cur = conn.cursor()
+
+        # Check photo_folders for project_id column
+        cur.execute("PRAGMA table_info(photo_folders)")
+        folder_columns = {row['name'] for row in cur.fetchall()}
+
+        if 'project_id' not in folder_columns:
+            self.logger.info("Adding column photo_folders.project_id (default=1)")
+            cur.execute("""
+                ALTER TABLE photo_folders
+                ADD COLUMN project_id INTEGER NOT NULL DEFAULT 1
+            """)
+            # Add foreign key constraint note: SQLite doesn't enforce FK on ALTER,
+            # but new schema creation will have proper FK
+
+        # Check photo_metadata for project_id column
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        metadata_columns = {row['name'] for row in cur.fetchall()}
+
+        if 'project_id' not in metadata_columns:
+            self.logger.info("Adding column photo_metadata.project_id (default=1)")
+            cur.execute("""
+                ALTER TABLE photo_metadata
+                ADD COLUMN project_id INTEGER NOT NULL DEFAULT 1
+            """)
+
+        conn.commit()
+        self.logger.info("✓ Project ID columns added successfully")
 
 
 def get_migration_status(db_connection) -> Dict[str, Any]:

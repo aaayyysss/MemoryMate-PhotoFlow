@@ -1,6 +1,7 @@
 # services/thumbnail_service.py
-# Version 01.00.00.00 dated 20251102
+# Version 01.01.00.00 dated 20251105
 # Unified thumbnail caching service with L1 (memory) + L2 (database) cache
+# Enhanced TIFF support and Qt message suppression for unsupported formats
 
 import os
 import io
@@ -11,34 +12,134 @@ from pathlib import Path
 
 from PIL import Image
 from PySide6.QtGui import QPixmap, QImage, QImageReader
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, qInstallMessageHandler, QtMsgType
 
 from logging_config import get_logger
 from thumb_cache_db import ThumbCacheDB, get_cache
 
 logger = get_logger(__name__)
 
+# Global flag to track if message handler is installed
+_qt_message_handler_installed = False
+
+# Formats that should always use PIL (not Qt) due to compatibility issues
+PIL_PREFERRED_FORMATS = {
+    '.tif', '.tiff',  # TIFF with various compressions (JPEG, LZW, etc.)
+    '.tga',           # TGA files
+    '.psd',           # Photoshop files
+    '.ico',           # Icons with multiple sizes
+    '.bmp',           # Some BMP variants
+}
+
+def _qt_message_handler(msg_type, context, message):
+    """
+    Custom Qt message handler to suppress known TIFF compression warnings.
+
+    This suppresses repetitive Qt warnings about unsupported TIFF compression
+    methods (like JPEG compression in TIFF), since we handle these with PIL fallback.
+
+    CRITICAL FIX: Check context.category instead of message text, since Qt puts
+    the category in context.category, not in the message itself.
+    """
+    # Check if this is a TIFF category message
+    is_tiff_category = (
+        context and
+        hasattr(context, 'category') and
+        context.category and
+        'tiff' in str(context.category).lower()
+    )
+
+    # Check if this is a compression warning message
+    compression_warnings = [
+        'JPEG compression support is not configured',
+        'Sorry, requested compression method is not configured',
+        'LZW compression support is not configured',
+        'Deflate compression support is not configured',
+        'compression support is not configured',  # Catch-all pattern
+        'requested compression method is not configured'  # Catch-all pattern
+    ]
+    is_compression_warning = any(x in message for x in compression_warnings)
+
+    # Suppress TIFF compression warnings (we handle these with PIL)
+    if is_tiff_category and is_compression_warning:
+        return  # Silently ignore
+
+    # Also suppress ANY compression warning regardless of category (belt and suspenders)
+    # This catches cases where the category might not be set correctly
+    if is_compression_warning:
+        return  # Silently ignore
+
+    # For other Qt messages, log them appropriately
+    if msg_type == QtMsgType.QtDebugMsg:
+        logger.debug(f"Qt: {message}")
+    elif msg_type == QtMsgType.QtWarningMsg:
+        # Don't spam warnings for image format issues
+        if 'imageformat' not in message.lower():
+            logger.warning(f"Qt: {message}")
+    elif msg_type == QtMsgType.QtCriticalMsg:
+        logger.error(f"Qt Critical: {message}")
+    elif msg_type == QtMsgType.QtFatalMsg:
+        logger.critical(f"Qt Fatal: {message}")
+
+def install_qt_message_handler():
+    """
+    Install custom Qt message handler to suppress TIFF warnings.
+
+    Call this once at application startup to prevent spam from
+    unsupported TIFF compression methods.
+    """
+    global _qt_message_handler_installed
+    if not _qt_message_handler_installed:
+        qInstallMessageHandler(_qt_message_handler)
+        _qt_message_handler_installed = True
+        logger.info("Installed Qt message handler to suppress TIFF warnings")
+
 
 class LRUCache:
     """
-    Least Recently Used cache with size limit.
+    Least Recently Used cache with size limit and memory tracking.
 
     Maintains an OrderedDict to track access order and evicts
-    the least recently used items when capacity is exceeded.
+    the least recently used items when capacity or memory limit is exceeded.
+
+    Phase 1B Enhancement: Added memory-aware eviction to prevent OOM situations.
     """
 
-    def __init__(self, capacity: int = 500):
+    def __init__(self, capacity: int = 200, max_memory_mb: float = 100.0):
         """
-        Initialize LRU cache.
+        Initialize LRU cache with entry and memory limits.
 
         Args:
-            capacity: Maximum number of entries before eviction
+            capacity: Maximum number of entries before eviction (default: 200 per Phase 1B)
+            max_memory_mb: Maximum memory usage in MB before eviction (default: 100MB per Phase 1B)
         """
         self.capacity = capacity
+        self.max_memory_bytes = int(max_memory_mb * 1024 * 1024)
         self.cache: OrderedDict[str, Dict[str, Any]] = OrderedDict()
+        self.current_memory_bytes = 0
         self.hits = 0
         self.misses = 0
-        logger.info(f"LRUCache initialized with capacity={capacity}")
+        self.evictions = 0
+        self.memory_evictions = 0
+        logger.info(f"LRUCache initialized with capacity={capacity}, max_memory={max_memory_mb}MB")
+
+    def _estimate_pixmap_size(self, pixmap: QPixmap) -> int:
+        """
+        Estimate memory size of a QPixmap in bytes.
+
+        Args:
+            pixmap: QPixmap to estimate
+
+        Returns:
+            Estimated size in bytes
+        """
+        if pixmap is None or pixmap.isNull():
+            return 0
+
+        # QPixmap memory ≈ width × height × bytes_per_pixel
+        # Most thumbnails are 32-bit ARGB (4 bytes per pixel)
+        bytes_per_pixel = 4
+        return pixmap.width() * pixmap.height() * bytes_per_pixel
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
         """
@@ -61,27 +162,51 @@ class LRUCache:
 
     def put(self, key: str, value: Dict[str, Any]):
         """
-        Put value in cache, evicting oldest if at capacity.
+        Put value in cache, evicting oldest if at capacity or memory limit.
+
+        Phase 1B Enhancement: Evicts based on BOTH entry count AND memory usage.
 
         Args:
             key: Cache key
-            value: Value to cache
+            value: Value to cache (must contain 'pixmap' key)
         """
+        pixmap = value.get("pixmap")
+        new_size = self._estimate_pixmap_size(pixmap) if pixmap else 0
+
         if key in self.cache:
-            # Update existing entry and move to end
+            # Update existing entry - remove old size, add new size
+            old_entry = self.cache[key]
+            old_pixmap = old_entry.get("pixmap")
+            old_size = self._estimate_pixmap_size(old_pixmap) if old_pixmap else 0
+            self.current_memory_bytes -= old_size
             self.cache.move_to_end(key)
         else:
-            # Add new entry
-            if len(self.cache) >= self.capacity:
+            # Add new entry - check if eviction needed
+            # Evict based on entry count OR memory limit
+            while (len(self.cache) >= self.capacity or
+                   self.current_memory_bytes + new_size > self.max_memory_bytes):
+                if len(self.cache) == 0:
+                    break  # Safety: don't infinite loop
+
                 # Evict oldest (first) entry
-                evicted_key, _ = self.cache.popitem(last=False)
-                logger.debug(f"LRU evicted: {evicted_key}")
+                evicted_key, evicted_value = self.cache.popitem(last=False)
+                evicted_pixmap = evicted_value.get("pixmap")
+                evicted_size = self._estimate_pixmap_size(evicted_pixmap) if evicted_pixmap else 0
+                self.current_memory_bytes -= evicted_size
+                self.evictions += 1
+
+                if self.current_memory_bytes + new_size > self.max_memory_bytes:
+                    self.memory_evictions += 1
+                    logger.debug(f"Memory-based eviction: {evicted_key} ({evicted_size / 1024:.1f}KB)")
+                else:
+                    logger.debug(f"Capacity-based eviction: {evicted_key}")
 
         self.cache[key] = value
+        self.current_memory_bytes += new_size
 
     def invalidate(self, key: str) -> bool:
         """
-        Remove entry from cache.
+        Remove entry from cache and update memory tracking.
 
         Args:
             key: Cache key to remove
@@ -90,20 +215,37 @@ class LRUCache:
             True if entry was removed
         """
         if key in self.cache:
+            entry = self.cache[key]
+            pixmap = entry.get("pixmap")
+            size = self._estimate_pixmap_size(pixmap) if pixmap else 0
+            self.current_memory_bytes -= size
             del self.cache[key]
             return True
         return False
 
     def clear(self):
-        """Clear all entries from cache."""
+        """Clear all entries from cache and reset memory tracking."""
         self.cache.clear()
+        self.current_memory_bytes = 0
         self.hits = 0
         self.misses = 0
+        self.evictions = 0
+        self.memory_evictions = 0
         logger.info("LRUCache cleared")
 
     def size(self) -> int:
         """Return current number of entries."""
         return len(self.cache)
+
+    def memory_usage_mb(self) -> float:
+        """Return current memory usage in MB."""
+        return self.current_memory_bytes / (1024 * 1024)
+
+    def memory_usage_percent(self) -> float:
+        """Return current memory usage as percentage of limit."""
+        if self.max_memory_bytes == 0:
+            return 0.0
+        return (self.current_memory_bytes / self.max_memory_bytes) * 100
 
     def hit_rate(self) -> float:
         """Calculate cache hit rate."""
@@ -133,21 +275,31 @@ class ThumbnailService:
     """
 
     def __init__(self,
-                 l1_capacity: int = 500,
+                 l1_capacity: int = 200,
+                 l1_max_memory_mb: float = 100.0,
                  db_cache: Optional[ThumbCacheDB] = None,
                  default_timeout: float = 5.0):
         """
-        Initialize thumbnail service.
+        Initialize thumbnail service with Phase 1B memory management.
 
         Args:
-            l1_capacity: Maximum entries in memory cache
+            l1_capacity: Maximum entries in memory cache (default: 200 per Phase 1B)
+            l1_max_memory_mb: Maximum memory for L1 cache in MB (default: 100MB per Phase 1B)
             db_cache: Optional database cache instance (uses global if None)
             default_timeout: Default decode timeout in seconds
         """
-        self.l1_cache = LRUCache(capacity=l1_capacity)
+        # Install Qt message handler to suppress TIFF warnings
+        install_qt_message_handler()
+
+        self.l1_cache = LRUCache(capacity=l1_capacity, max_memory_mb=l1_max_memory_mb)
         self.l2_cache = db_cache or get_cache()
         self.default_timeout = default_timeout
-        logger.info(f"ThumbnailService initialized (L1 capacity={l1_capacity}, timeout={default_timeout}s)")
+
+        # Track files that failed to load (corrupted/unsupported)
+        # This prevents infinite retries of broken images
+        self._failed_images: set[str] = set()
+
+        logger.info(f"ThumbnailService initialized (L1 capacity={l1_capacity}, max_memory={l1_max_memory_mb}MB, timeout={default_timeout}s)")
 
     def _normalize_path(self, path: str) -> str:
         """
@@ -221,6 +373,13 @@ class ThumbnailService:
             return QPixmap()
 
         norm_path = self._normalize_path(path)
+
+        # Check if this file previously failed to load (corrupted/unsupported)
+        # This prevents infinite retries of broken images
+        if norm_path in self._failed_images:
+            logger.debug(f"Skipping previously failed image: {path}")
+            return QPixmap()
+
         current_mtime = self._get_mtime(path)
 
         if current_mtime is None:
@@ -259,9 +418,11 @@ class ThumbnailService:
         Generate thumbnail from image file.
 
         Handles:
-        - TIFF with PIL fallback
+        - PIL-preferred formats (TIFF, TGA, PSD, etc.) - always use PIL
+        - Qt-native formats (JPEG, PNG, WebP) - use Qt for speed
         - EXIF auto-rotation
         - Decode timeout protection
+        - Automatic fallback to PIL on Qt failures
 
         Args:
             path: Image file path
@@ -272,13 +433,21 @@ class ThumbnailService:
             Generated QPixmap thumbnail
         """
         ext = os.path.splitext(path)[1].lower()
-        is_tiff = ext in (".tif", ".tiff")
 
-        # TIFF files often need PIL fallback
-        if is_tiff:
+        # 🎬 Skip video files - they need special thumbnail generation
+        video_exts = {'.mp4', '.m4v', '.mov', '.mpeg', '.mpg', '.mpe', '.wmv',
+                      '.asf', '.avi', '.mkv', '.webm', '.flv', '.f4v', '.3gp',
+                      '.3g2', '.ogv', '.ts', '.mts', '.m2ts'}
+        if ext in video_exts:
+            logger.debug(f"Skipping video file (use VideoThumbnailService): {path}")
+            return QPixmap()
+
+        # Use PIL directly for formats known to have Qt compatibility issues
+        if ext in PIL_PREFERRED_FORMATS:
+            logger.debug(f"Using PIL for {ext} format: {path}")
             return self._generate_thumbnail_pil(path, height, timeout)
 
-        # Try Qt's fast QImageReader first
+        # Try Qt's fast QImageReader for common formats
         try:
             start = time.time()
             reader = QImageReader(path)
@@ -291,7 +460,8 @@ class ThumbnailService:
 
             img = reader.read()
             if img.isNull():
-                # Fallback to PIL
+                # Qt couldn't read it, fallback to PIL
+                logger.debug(f"Qt returned null image for {path}, trying PIL")
                 return self._generate_thumbnail_pil(path, height, timeout)
 
             if height > 0:
@@ -307,6 +477,12 @@ class ThumbnailService:
         """
         Generate thumbnail using PIL (fallback for TIFF and unsupported formats).
 
+        Handles:
+        - All TIFF compression types (JPEG, LZW, Deflate, PackBits, None)
+        - CMYK and other color modes (converts to RGB)
+        - Multi-page images (uses first page)
+        - Transparency (preserves alpha channel)
+
         Args:
             path: Image file path
             height: Target height in pixels
@@ -316,10 +492,86 @@ class ThumbnailService:
             Generated QPixmap thumbnail
         """
         try:
+            # Check file exists and is readable
+            if not os.path.exists(path):
+                logger.warning(f"File does not exist: {path}")
+                return QPixmap()
+
+            if not os.access(path, os.R_OK):
+                logger.warning(f"File is not readable: {path}")
+                return QPixmap()
+
+            # Check file is not empty
+            file_size = os.path.getsize(path)
+            if file_size == 0:
+                logger.warning(f"File is empty (0 bytes): {path}")
+                return QPixmap()
+
             start = time.time()
 
-            with Image.open(path) as img:
-                # Calculate target dimensions
+            # First, try to verify the image
+            needs_reopen = False
+            try:
+                with Image.open(path) as img:
+                    if img is None:
+                        logger.warning(f"PIL returned None for: {path}")
+                        return QPixmap()
+                    img.verify()
+            except Exception as verify_err:
+                logger.debug(f"Image verification check for {path}: {verify_err}")
+                needs_reopen = True
+
+            # Now open the image for actual processing
+            # (verify() closes the file, so we always need to reopen)
+            try:
+                img = Image.open(path)
+            except Exception as open_err:
+                # Image is corrupted or unsupported format
+                logger.warning(f"Cannot open image file {path}: {open_err}")
+                self._failed_images.add(self._normalize_path(path))
+                logger.info(f"Marked as failed (will not retry): {path}")
+                return QPixmap()
+
+            with img:
+                # Verify image loaded successfully
+                if img is None:
+                    logger.warning(f"PIL returned None for: {path}")
+                    return QPixmap()
+
+                # Check if image has a valid file pointer
+                if not hasattr(img, 'fp') or img.fp is None:
+                    logger.warning(f"PIL image has no file pointer for: {path}")
+                    self._failed_images.add(self._normalize_path(path))
+                    logger.info(f"Marked as failed (will not retry): {path}")
+                    return QPixmap()
+
+                # Load image data (forces actual file read)
+                try:
+                    img.load()
+                except Exception as e:
+                    logger.warning(f"PIL failed to load image data for {path}: {e}")
+                    # Mark as failed to prevent retries
+                    self._failed_images.add(self._normalize_path(path))
+                    logger.info(f"Marked as failed (will not retry): {path}")
+                    return QPixmap()
+
+                # For multi-page images (TIFF, ICO), try to use first page
+                try:
+                    if hasattr(img, 'n_frames') and img.n_frames > 1:
+                        img.seek(0)  # Go to first frame
+                except Exception as e:
+                    # Some images report n_frames but can't seek - just use current frame
+                    logger.debug(f"Could not seek to first frame for {path}: {e}")
+
+                # Check if image has valid dimensions
+                if not hasattr(img, 'height') or not hasattr(img, 'width'):
+                    logger.warning(f"Image missing dimensions: {path}")
+                    return QPixmap()
+
+                if img.width <= 0 or img.height <= 0:
+                    logger.warning(f"Invalid image dimensions ({img.width}x{img.height}): {path}")
+                    return QPixmap()
+
                 ratio = height / float(img.height)
                 target_w = int(img.width * ratio)
 
@@ -328,29 +580,73 @@ class ThumbnailService:
                     logger.warning(f"PIL decode timeout: {path}")
                     return QPixmap()
 
-                # Convert to RGB if needed
-                if img.mode not in ("RGB", "RGBA"):
-                    img = img.convert("RGB")
+                # Handle various color modes
+                try:
+                    if img.mode == 'CMYK':
+                        # Convert CMYK to RGB
+                        img = img.convert('RGB')
+                    elif img.mode in ('P', 'PA'):
+                        # Convert palette mode with/without alpha
+                        img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
+                    elif img.mode in ('L', 'LA'):
+                        # Convert grayscale to RGB
+                        img = img.convert('RGBA' if img.mode == 'LA' else 'RGB')
+                    elif img.mode not in ("RGB", "RGBA"):
+                        # Convert any other mode to RGB
+                        img = img.convert("RGB")
+                except Exception as e:
+                    logger.warning(f"Color mode conversion failed for {path}: {e}")
+                    # Try to continue with original mode
+                    pass
 
                 # Resize
-                img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
+                try:
+                    img.thumbnail((target_w, height), Image.Resampling.LANCZOS)
+                except Exception as e:
+                    logger.warning(f"Thumbnail resize failed for {path}: {e}")
+                    return QPixmap()
 
                 # Convert to QPixmap
-                buf = io.BytesIO()
-                img.save(buf, format="PNG")
-                qimg = QImage.fromData(buf.getvalue())
+                try:
+                    buf = io.BytesIO()
+                    # Use PNG to preserve alpha channel if present
+                    save_format = "PNG" if img.mode == "RGBA" else "PNG"
+                    img.save(buf, format=save_format, optimize=False)
+                    qimg = QImage.fromData(buf.getvalue())
 
-                return QPixmap.fromImage(qimg)
+                    if qimg.isNull():
+                        logger.warning(f"Failed to convert PIL image to QImage: {path}")
+                        return QPixmap()
 
+                    return QPixmap.fromImage(qimg)
+                except Exception as e:
+                    logger.warning(f"Failed to convert PIL image to QPixmap for {path}: {e}")
+                    return QPixmap()
+
+        except FileNotFoundError:
+            logger.warning(f"File not found during processing: {path}")
+            return QPixmap()
+        except PermissionError:
+            logger.warning(f"Permission denied accessing file: {path}")
+            self._failed_images.add(self._normalize_path(path))
+            return QPixmap()
+        except OSError as e:
+            # Handle PIL-specific errors (corrupt files, unsupported formats, etc.)
+            logger.warning(f"OS error processing {path}: {e}")
+            self._failed_images.add(self._normalize_path(path))
+            return QPixmap()
         except Exception as e:
-            logger.error(f"PIL thumbnail generation failed for {path}: {e}")
+            # Unexpected errors - log with details but don't spam with stack traces
+            logger.warning(f"PIL thumbnail generation failed for {path}: {e}")
+            self._failed_images.add(self._normalize_path(path))
             return QPixmap()
 
     def invalidate(self, path: str):
         """
         Invalidate cached thumbnail for a file.
 
-        Removes from both L1 (memory) and L2 (database) caches.
+        Removes from both L1 (memory) and L2 (database) caches, and clears
+        failed image status so the file will be retried.
         Call this when a file is modified or deleted.
 
         Args:
@@ -364,25 +660,98 @@ class ThumbnailService:
         # Remove from L2
         self.l2_cache.invalidate(path)
 
-        logger.info(f"Invalidated thumbnail: {path} (L1={'yes' if l1_removed else 'no'})")
+        # Remove from failed images (allow retry after file is fixed)
+        was_failed = norm_path in self._failed_images
+        if was_failed:
+            self._failed_images.discard(norm_path)
+
+        logger.info(f"Invalidated thumbnail: {path} (L1={'yes' if l1_removed else 'no'}, was_failed={was_failed})")
 
     def clear_all(self):
         """
-        Clear all caches (L1 and L2).
+        Clear all caches (L1 and L2) and reset failed images tracking.
 
-        WARNING: This removes all cached thumbnails.
+        WARNING: This removes all cached thumbnails and clears the failed
+        images list, so previously failed images will be retried.
         """
         self.l1_cache.clear()
         # L2 cache doesn't have a clear method, but we can purge stale entries
         self.l2_cache.purge_stale(max_age_days=0)  # Purge everything
-        logger.info("All thumbnail caches cleared")
+
+        # Clear failed images list
+        failed_count = len(self._failed_images)
+        self._failed_images.clear()
+
+        logger.info(f"All thumbnail caches cleared ({failed_count} failed images reset)")
+
+    def diagnose_image(self, path: str) -> Dict[str, Any]:
+        """
+        Diagnose why an image file might be failing to load.
+
+        Useful for troubleshooting problematic files.
+
+        Args:
+            path: Image file path to diagnose
+
+        Returns:
+            Dictionary with diagnostic information
+        """
+        diagnosis = {
+            "path": path,
+            "exists": False,
+            "readable": False,
+            "size_bytes": 0,
+            "is_valid_image": False,
+            "pil_format": None,
+            "dimensions": None,
+            "mode": None,
+            "errors": []
+        }
+
+        try:
+            # Check existence
+            diagnosis["exists"] = os.path.exists(path)
+            if not diagnosis["exists"]:
+                diagnosis["errors"].append("File does not exist")
+                return diagnosis
+
+            # Check readability
+            diagnosis["readable"] = os.access(path, os.R_OK)
+            if not diagnosis["readable"]:
+                diagnosis["errors"].append("File is not readable (permission denied)")
+
+            # Check size
+            diagnosis["size_bytes"] = os.path.getsize(path)
+            if diagnosis["size_bytes"] == 0:
+                diagnosis["errors"].append("File is empty (0 bytes)")
+
+            # Try PIL
+            try:
+                with Image.open(path) as img:
+                    diagnosis["is_valid_image"] = True
+                    diagnosis["pil_format"] = img.format
+                    diagnosis["dimensions"] = (img.width, img.height)
+                    diagnosis["mode"] = img.mode
+
+                    # Verify image
+                    try:
+                        img.verify()
+                    except Exception as e:
+                        diagnosis["errors"].append(f"Image verification failed: {e}")
+            except Exception as e:
+                diagnosis["errors"].append(f"PIL cannot open: {e}")
+
+        except Exception as e:
+            diagnosis["errors"].append(f"Unexpected error: {e}")
+
+        return diagnosis
 
     def get_statistics(self) -> Dict[str, Any]:
         """
-        Get unified cache statistics.
+        Get unified cache statistics with Phase 1B memory metrics.
 
         Returns:
-            Dictionary with L1 and L2 cache stats
+            Dictionary with L1 and L2 cache stats including memory usage
         """
         l1_stats = {
             "size": self.l1_cache.size(),
@@ -390,6 +759,12 @@ class ThumbnailService:
             "hits": self.l1_cache.hits,
             "misses": self.l1_cache.misses,
             "hit_rate": round(self.l1_cache.hit_rate() * 100, 2),
+            # Phase 1B: Memory tracking
+            "memory_mb": round(self.l1_cache.memory_usage_mb(), 2),
+            "memory_limit_mb": round(self.l1_cache.max_memory_bytes / (1024 * 1024), 2),
+            "memory_percent": round(self.l1_cache.memory_usage_percent(), 1),
+            "evictions": self.l1_cache.evictions,
+            "memory_evictions": self.l1_cache.memory_evictions,
         }
 
         l2_stats = self.l2_cache.get_stats()
@@ -400,20 +775,46 @@ class ThumbnailService:
             "l2_database_cache": {
                 **l2_stats,
                 **l2_metrics
+            },
+            # Phase 1B: Summary metrics
+            "summary": {
+                "total_entries": l1_stats["size"] + l2_stats.get("entries", 0),
+                "l1_memory_mb": l1_stats["memory_mb"],
+                "l1_memory_status": "OK" if l1_stats["memory_percent"] < 80 else "HIGH",
+                "failed_images": len(self._failed_images),
             }
         }
+
+    def log_memory_stats(self):
+        """
+        Log current memory statistics for debugging.
+
+        Phase 1B: Use this to monitor memory usage during development and testing.
+        """
+        stats = self.get_statistics()
+        l1 = stats["l1_memory_cache"]
+        summary = stats["summary"]
+
+        logger.info(
+            f"[Phase 1B Memory] L1 Cache: {l1['size']}/{l1['capacity']} entries, "
+            f"{l1['memory_mb']}/{l1['memory_limit_mb']}MB ({l1['memory_percent']}%), "
+            f"Hit rate: {l1['hit_rate']}%, "
+            f"Evictions: {l1['evictions']} total ({l1['memory_evictions']} memory-based), "
+            f"Status: {summary['l1_memory_status']}"
+        )
 
 
 # Global singleton instance
 _thumbnail_service: Optional[ThumbnailService] = None
 
 
-def get_thumbnail_service(l1_capacity: int = 500) -> ThumbnailService:
+def get_thumbnail_service(l1_capacity: int = 200, l1_max_memory_mb: float = 100.0) -> ThumbnailService:
     """
-    Get global ThumbnailService singleton.
+    Get global ThumbnailService singleton with Phase 1B defaults.
 
     Args:
-        l1_capacity: L1 cache capacity (only used on first call)
+        l1_capacity: L1 cache capacity (default: 200 per Phase 1B, only used on first call)
+        l1_max_memory_mb: L1 max memory in MB (default: 100MB per Phase 1B, only used on first call)
 
     Returns:
         Global ThumbnailService instance
@@ -421,7 +822,10 @@ def get_thumbnail_service(l1_capacity: int = 500) -> ThumbnailService:
     global _thumbnail_service
 
     if _thumbnail_service is None:
-        _thumbnail_service = ThumbnailService(l1_capacity=l1_capacity)
-        logger.info("Global ThumbnailService created")
+        _thumbnail_service = ThumbnailService(
+            l1_capacity=l1_capacity,
+            l1_max_memory_mb=l1_max_memory_mb
+        )
+        logger.info("Global ThumbnailService created with Phase 1B memory limits")
 
     return _thumbnail_service

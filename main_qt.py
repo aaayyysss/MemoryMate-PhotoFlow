@@ -30,6 +30,21 @@ logger = get_logger(__name__)
 # ✅ Other imports
 from splash_qt import SplashScreen, StartupWorker
 
+# ✅ Global exception hook to catch unhandled exceptions
+import traceback
+
+def exception_hook(exctype, value, tb):
+    """Global exception handler to catch and log unhandled exceptions"""
+    print("=" * 80)
+    print("UNHANDLED EXCEPTION CAUGHT:")
+    print("=" * 80)
+    traceback.print_exception(exctype, value, tb)
+    logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+    print("=" * 80)
+    sys.__excepthook__(exctype, value, tb)
+
+sys.excepthook = exception_hook
+
 
 #if __name__ == "__main__":
 #    # HiDPI/Retina pixmaps
@@ -42,9 +57,28 @@ from splash_qt import SplashScreen, StartupWorker
 
 
 if __name__ == "__main__":
+    # Install global exception handler to catch crashes
+    import traceback
+    def exception_hook(exctype, value, tb):
+        print("=" * 80)
+        print("UNHANDLED EXCEPTION CAUGHT:")
+        print("=" * 80)
+        traceback.print_exception(exctype, value, tb)
+        print("=" * 80)
+        logger.error("Unhandled exception", exc_info=(exctype, value, tb))
+        sys.__excepthook__(exctype, value, tb)
+
+    sys.excepthook = exception_hook
+
     # Qt app
     app = QApplication(sys.argv)
     app.setApplicationName("Memory Mate - Photo Flow")
+
+    # Install Qt message handler IMMEDIATELY after QApplication creation
+    # This must happen before any image loading to suppress TIFF warnings
+    from services import install_qt_message_handler
+    install_qt_message_handler()
+    logger.info("Qt message handler installed to suppress TIFF warnings")
 
     # 1️: Show splash screen immediately
     splash = SplashScreen()
@@ -72,9 +106,55 @@ if __name__ == "__main__":
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "Startup Error", "Failed to initialize the app.")
             sys.exit(1)
+
         # Launch main window after worker completes
         win = MainWindow()
         win.show()
+
+        # Check FFmpeg availability and notify user if needed
+        try:
+            from utils.ffmpeg_check import show_ffmpeg_status_once
+            ffmpeg_message = show_ffmpeg_status_once()
+            if ffmpeg_message and "⚠️" in ffmpeg_message:
+                # Only show warning if FFmpeg/FFprobe are missing or misconfigured
+                print(ffmpeg_message)
+                from PySide6.QtWidgets import QMessageBox
+                msg_box = QMessageBox(win)
+                msg_box.setIcon(QMessageBox.Warning)
+
+                # Check if it's a configuration issue
+                if "configured at" in ffmpeg_message and "not working" in ffmpeg_message:
+                    msg_box.setWindowTitle("Video Support - FFprobe Configuration Issue")
+                    msg_box.setText("The configured FFprobe path is not working.")
+                    msg_box.setInformativeText(
+                        "Please verify the path in Preferences:\n"
+                        "  1. Press Ctrl+, to open Preferences\n"
+                        "  2. Go to '🎬 Video Settings'\n"
+                        "  3. Use 'Browse' to select ffprobe.exe (not ffmpeg.exe)\n"
+                        "  4. Click 'Test' to verify it works\n"
+                        "  5. Click OK and restart the app"
+                    )
+                else:
+                    msg_box.setWindowTitle("Video Support - FFmpeg Not Found")
+                    msg_box.setText("FFmpeg and/or FFprobe are not installed on your system.")
+                    msg_box.setInformativeText(
+                        "Video features will be limited:\n"
+                        "  • Videos can be indexed and played\n"
+                        "  • Video thumbnails won't be generated\n"
+                        "  • Duration/resolution won't be extracted\n\n"
+                        "Options:\n"
+                        "  1. Install FFmpeg system-wide (requires admin)\n"
+                        "  2. Configure custom path in Preferences (Ctrl+,)"
+                    )
+
+                msg_box.setDetailedText(ffmpeg_message)
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.exec()
+            elif ffmpeg_message:
+                # FFmpeg is available, just log it
+                print(ffmpeg_message)
+        except Exception as e:
+            logger.warning(f"Failed to check FFmpeg availability: {e}")
 
     worker.finished.connect(on_finished)
     

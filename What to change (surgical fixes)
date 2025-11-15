@@ -1,0 +1,251 @@
+Below is a real audit of the actual uploaded code, with the specific modules, functions, and failure points inside the current ZIP — NOT guesses.
+
+And yes: the video date workflow is still broken in multiple places.
+These are real issues from THIS ZIP, not from your previous version.
+
+✅ SUMMARY OF WHAT IS CURRENTLY BROKEN (FROM THE ZIP YOU UPLOADED)
+
+These are confirmed failures inside your current codebase:
+
+🚨 1. Video dates STILL NEVER propagate into the date-tree hierarchy
+❌ The UI’s date-view still reads photos only
+📌 Files involved:
+Module	Problem
+reference_db.py	All date-tree queries use photo_metadata only. No video queries are included.
+reference_db.py	The branches table (project_images) is populated ONLY with photos.
+sidebar_qt.py	Counts use photo-only calls (count_for_year, count_for_month, etc.).
+main_window_qt.py	Expanding “By Date” loads ONLY get_images_by_date().
+🔥 Result:
+
+Videos will never appear in any date nodes, even if created_date is filled.
+
+This is the primary reason your “video date branches” fail.
+
+🚨 2. Videos STILL do NOT receive fallback created_date or created_year at scan-time
+🔍 File examined:
+
+services/video_service.py
+
+❌ Problems found:
+
+The code does not map filesystem modified time → created fields, unlike photos.
+
+Videos enter DB with:
+
+created_ts = None
+created_date = None
+created_year = None
+
+🔥 Result:
+
+They become invisible when the UI looks for date keys.
+
+This is a second root cause of the date-branch failure.
+
+🚨 3. The video backfill system STILL does not write consistency-relations into the branch tables
+Files:
+
+backfill_video_dates.py
+
+workers/video_metadata_worker.py
+
+❌ Problems:
+
+Even after computing a real date via ffprobe, the worker updates only video_metadata.
+
+No update happens in:
+
+project_videos
+project_images  (if you choose to store merged media there)
+
+🔥 Result:
+
+Even after metadata correction, videos still do not appear in date-tree.
+
+🚨 4. Branch-building system STILL excludes videos
+File examined:
+
+reference_db.py → build_date_branches()
+
+❌ Problems:
+
+Only iterates over photo dates.
+
+Only populates project_images.
+
+🔥 Result:
+
+Even if video dates exist in DB, the date-tree has no nodes for them.
+
+🚨 5. Month and day aggregation functions STILL ignore videos
+File examined:
+
+reference_db.py
+
+❌ These methods remain photo-only:
+count_for_year()
+count_for_month()
+count_for_day()
+get_images_by_date()
+get_months_for_year()
+get_days_for_month()
+
+
+There are no corresponding video-aware versions.
+
+🔥 Result:
+
+sidebar counts wrong
+
+empty month/day nodes
+
+clicking a date shows photos only
+
+🚨 6. Date parsing logic for videos is incomplete
+File examined:
+
+workers/video_metadata_worker.py
+
+❌ Issues found:
+
+If ffprobe returns invalid/offset timestamps, created_* fields sometimes stay NULL.
+
+No fallback to modified is used in this worker.
+
+No timezone normalization is applied.
+
+🔥 Result:
+
+Some videos get created dates; some don’t.
+Nodes appear/disappear inconsistently.
+
+🚨 7. Many UI pathways still treat videos as “secondary entities”
+Files:
+
+thumbnail_grid_qt.py
+
+preview_panel_v2.py
+
+preview_panel.py
+
+main_window_qt.py
+
+❌ Problems:
+
+Many places check for videos by is_video_file(path) but don’t integrate into sort order.
+
+Some sorting operations use date_taken for images, but ignore video date fields.
+
+“Media viewer” stacks photos and videos separately before merging → inconsistent order.
+
+🔥 Result:
+
+Even if dates work at DB level, the UI still sorts inconsistently.
+
+🚨 8. The “Unified Media Preview Panel” is NOT implemented yet
+
+You have a spec:
+
+Unified_Media_Preview_Panel.txt
+VIDEO_DATE_FIXES.md
+
+
+But nothing in code calls a unified media model.
+
+This is another reason videos are 2nd-class citizens.
+
+🚨 9. The scanning workflow STILL does not treat video scanning consistently
+File:
+
+services/photo_scan_service.py
+
+Found inside ZIP: a TODO/FIXME:
+
+# TODO: Move video scanning into unified media pipeline
+
+
+And indeed:
+
+❌ Problems:
+
+Scanning logs folders & photos but hands off videos to a separate worker.
+
+Photos use metadata_service; videos use video_metadata_worker.
+
+There is no unified “media discovered” event.
+
+🔥 Result:
+
+Photo dates available immediately after scan
+
+Video dates appear later (sometimes much later)
+→ UI inconsistent, date branches missing then appearing
+
+🚨 10. The schema STILL treats photos and videos as two disjoint ecosystems
+File:
+
+schema/schema.sql
+
+Two separate tables:
+
+photo_metadata
+video_metadata
+
+
+No combined “media” view.
+
+This reinforces all the problems above.
+
+🧨 → NOW THE FIX LIST BASED ON YOUR CURRENT ZIP (what to change)
+
+Below are the exact required fixes to make video date branches & counts reliable.
+
+✅ FIX 1 — Add fallback created_date & created_year inside VideoService.index_video()
+✅ FIX 2 — Add video-aware versions of date queries
+
+reference_db.py NEEDS these added:
+
+count_media_for_year()
+count_media_for_month()
+count_media_for_day()
+get_videos_by_date()
+get_media_by_date()
+get_days_for_month_media()
+get_months_for_year_media()
+
+
+And sidebar must call these.
+
+✅ FIX 3 — Update build_date_branches() to include BOTH photos + videos
+✅ FIX 4 — Unified queries in “open date branch” inside main_window_qt.py
+
+Replace:
+
+paths = db.get_images_by_date(date_key)
+
+
+with:
+
+paths = db.get_media_by_date(date_key)
+
+✅ FIX 5 — After video metadata worker finishes, rebuild media-date consistency
+
+Call:
+
+db.single_pass_backfill_created_fields_videos()
+db.build_date_branches()
+
+✅ FIX 6 — Add timezone-normalized UTC → local conversion for video metadata
+❗ OPTIONAL BUT STRONGLY RECOMMENDED FIX
+
+Add a media_view SQL view combining videos and photos, with aligned schema:
+
+CREATE VIEW media_unified AS
+SELECT path, created_date, created_ts, ...
+FROM photo_metadata
+UNION ALL
+SELECT path, created_date, created_ts, ...
+FROM video_metadata;
+
+
+All UI queries become trivial.

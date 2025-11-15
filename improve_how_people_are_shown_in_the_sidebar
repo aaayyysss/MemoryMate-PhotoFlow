@@ -1,0 +1,481 @@
+Right now the “👥 People” tab basically works, but it’s very bare-bones and it leaves a lot of data (and UX potential) unused. Here’s what your current code actually does, and then concrete ways to improve how people are shown in the sidebar.
+
+1. How the People sidebar works today (from your code)
+1.1 Data source: face_branch_reps and face_crops
+
+From repository/schema.py:
+
+CREATE TABLE IF NOT EXISTS face_crops (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    branch_key TEXT NOT NULL,
+    image_path TEXT NOT NULL,
+    crop_path TEXT NOT NULL,
+    is_representative INTEGER DEFAULT 0,
+    ...
+);
+
+CREATE TABLE IF NOT EXISTS face_branch_reps (
+    project_id INTEGER NOT NULL,
+    branch_key TEXT NOT NULL,
+    label TEXT,
+    count INTEGER DEFAULT 0,
+    centroid BLOB,
+    rep_path TEXT,          -- path to chosen rep crop on disk
+    rep_thumb_png BLOB,     -- optional in-DB PNG
+    PRIMARY KEY (project_id, branch_key),
+    ...
+);
+
+
+workers/face_cluster_worker.py clusters faces and writes rows into face_branch_reps and face_crops (using crop_path as the representative face image).
+
+1.2 DB helper for sidebar: ReferenceDB.get_face_clusters
+
+In reference_db.py:
+
+def get_face_clusters(self, project_id: int):
+    try:
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT 
+                    branch_key,
+                    COALESCE(label, branch_key) AS display_name,
+                    count AS member_count,
+                    rep_path,
+                    rep_thumb_png
+                FROM face_branch_reps
+                WHERE project_id = ?
+                ORDER BY count DESC, branch_key ASC
+            """, (project_id,))
+            rows = cur.fetchall()
+    except Exception as e:
+        # fallback legacy: face_clusters table
+        ...
+    return [
+        {
+            "branch_key": r[0],
+            "display_name": r[1],
+            "member_count": r[2] or 0,
+            "rep_path": r[3],
+            "rep_thumb_png": r[4],
+        }
+        for r in rows
+    ]
+
+
+So each “person” row has:
+
+display_name
+
+member_count
+
+rep_path (face crop file path)
+
+rep_thumb_png (optional PNG blob, currently unused by UI)
+
+1.3 Async loading of the People tab
+
+In sidebar_qt.py:
+
+self._finishPeopleSig   = Signal(int, list, float, int)
+
+...
+
+def _load_people(self, idx: int, gen: int):
+    started = time.time()
+    def work():
+        try:
+            rows = []
+            if self.project_id and hasattr(self.db, "get_face_clusters"):
+                rows = self.db.get_face_clusters(self.project_id) or []
+            self._dbg(f"_load_people → got {len(rows)} clusters")
+        except Exception:
+            traceback.print_exc()
+            rows = []
+        self._finishPeopleSig.emit(idx, rows, started, gen)
+    threading.Thread(target=work, daemon=True).start()
+
+
+So it loads clusters in a worker thread and then calls _finish_people in the GUI thread.
+
+1.4 How the People list is rendered
+
+Still in sidebar_qt.py (_finish_people):
+
+def _finish_people(self, idx: int, rows: list, started: float, gen: int):
+    if self._is_stale("people", gen):
+        ...
+    self._cancel_timeout(idx)
+    self._clear_tab(idx)
+
+    tab = self.tab_widget.widget(idx)
+    layout = tab.layout()
+
+    # header with label + Re-Cluster button
+    header = QWidget()
+    ...
+    lbl = QLabel("<b>👥 People / Face Clusters</b>")
+    btn_recluster = QPushButton("🔁 Re-Cluster")
+    ...
+    layout.addWidget(header)
+
+    # if no clusters:
+    if not rows:
+        self._set_tab_empty(idx, "No face clusters found")
+        ...
+        return
+
+    # 2-column table: Person | Photos
+    table = QTableWidget()
+    table.setColumnCount(2)
+    table.setHorizontalHeaderLabels(["Person", "Photos"])
+    ...
+
+    for row_idx, row in enumerate(rows):
+        name = row.get("display_name") or row.get("branch_key")
+        count = row.get("member_count", 0)
+        rep = row.get("rep_path", "")
+
+        # col 0: name
+        item_name = QTableWidgetItem(str(name))
+        item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
+        if rep:
+            item_name.setToolTip(rep)
+        table.setItem(row_idx, 0, item_name)
+
+        # col 1: count
+        item_count = QTableWidgetItem(str(count))
+        item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        item_count.setForeground(QColor("#888888"))
+        table.setItem(row_idx, 1, item_count)
+
+    table.cellDoubleClicked.connect(
+        lambda row, col: self.selectBranch.emit(table.item(row, 0).data(Qt.UserRole))
+    )
+    layout.addWidget(self._wrap_in_scroll_area(table), 1)
+
+
+So current behavior:
+
+Just a text table with:
+
+Person name
+
+Number of photos
+
+Re-cluster button at top.
+
+No thumbnails, no search/filter, no inline rename.
+
+1.5 What happens when you click a person
+
+Later in sidebar_qt.py:
+
+elif mode == "people" and value:
+    # Load all images belonging to this face cluster
+    try:
+        paths = self.db.get_paths_for_cluster(self.project_id, value)
+        if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+            mw.grid.display_thumbnails(paths)
+        else:
+            print(f"[Sidebar] Unable to display thumbnails for people cluster {value}")
+    except Exception as e:
+        print(f"[Sidebar] Failed to open people cluster {value}: {e}")
+
+
+And in reference_db.py:
+
+def get_paths_for_cluster(self, project_id: int, branch_key: str):
+    with self._connect() as conn:
+        cur = conn.execute("""
+            SELECT crop_path FROM face_crops
+            WHERE project_id=? AND branch_key=?
+            ORDER BY id    
+        """, (project_id, branch_key))
+        return [r[0] for r in cur.fetchall()]
+
+
+So double-clicking a person loads the face crop images (not full photo) into the main grid. That’s okay and intentional.
+
+2. Problems / limitations in the current People sidebar
+
+From this code, the main pain points are:
+
+No face thumbnails in the list
+
+You have rep_path and rep_thumb_png, but the People tab doesn’t show any picture, only text.
+
+No distinction between “named” and “unnamed” clusters
+
+If label is empty, display_name falls back to branch_key like face_003, which is not user-friendly.
+
+The UI doesn’t highlight “Unknown” / “Unlabeled” people.
+
+No search/filter
+
+If you have many clusters, scrolling through a plain table is painful.
+
+There’s no way to quickly type “Anna” and jump to that cluster.
+
+No inline rename / edit
+
+reference_db already has face label merge and branch rename utilities, but the People tab doesn’t expose a simple “Rename person…” action.
+
+Rep thumbnail bytes (rep_thumb_png) are never used
+
+Your DB is prepared to store precomputed PNGs, but the UI doesn’t try to load them.
+
+If they’re not yet populated, you at least can fall back to loading from rep_path.
+
+No sort toggling in UI
+
+Query orders by count DESC, but you don’t enable table.setSortingEnabled(True).
+
+Users can’t click on the “Person” header to sort alphabetically.
+
+3. Concrete improvements to “showing” people in the sidebar
+
+Here are targeted, code-level improvements that stay within your existing design.
+
+3.1 Add a thumbnail column for each person
+
+Goal: show a small face thumbnail next to the name.
+
+In _finish_people, change the table to 3 columns:
+
+Face (icon)
+
+Person
+
+Photos
+
+Roughly:
+
+# Instead of 2 columns:
+table.setColumnCount(3)
+table.setHorizontalHeaderLabels(["Face", "Person", "Photos"])
+table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+
+table.setIconSize(QSize(32, 32))
+table.verticalHeader().setDefaultSectionSize(40)
+
+
+Then in the row loop, load an icon from either rep_thumb_png or rep_path:
+
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtCore import QSize
+
+for row_idx, row in enumerate(rows):
+    name = row.get("display_name") or row.get("branch_key")
+    count = row.get("member_count", 0)
+    rep = row.get("rep_path", "")
+    thumb_blob = row.get("rep_thumb_png")
+
+    # Column 0: thumbnail
+    icon_item = QTableWidgetItem()
+    pix = QPixmap()
+
+    if thumb_blob:
+        pix.loadFromData(thumb_blob)
+    elif rep:
+        pix.load(rep)
+
+    if not pix.isNull():
+        thumb = pix.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        icon_item.setIcon(QIcon(thumb))
+    icon_item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+    # store branch key for selection logic
+    icon_item.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
+    table.setItem(row_idx, 0, icon_item)
+
+    # Column 1: Person name
+    item_name = QTableWidgetItem(str(name))
+    item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
+    if rep:
+        item_name.setToolTip(rep)
+    table.setItem(row_idx, 1, item_name)
+
+    # Column 2: Count (right aligned, grey)
+    item_count = QTableWidgetItem(str(count))
+    item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    item_count.setForeground(QColor("#888888"))
+    table.setItem(row_idx, 2, item_count)
+
+
+Also update the double-click handler to read the facecluster: from the name or icon cell:
+
+def _on_people_double_click(row, col):
+    key_item = table.item(row, 1) or table.item(row, 0)
+    if not key_item:
+        return
+    branch_id = key_item.data(Qt.UserRole)
+    if branch_id:
+        self.selectBranch.emit(branch_id)
+
+table.cellDoubleClicked.connect(_on_people_double_click)
+
+3.2 Make unnamed clusters more human-friendly
+
+Instead of showing face_003, map labels like that to “Unnamed #3”:
+
+In _finish_people:
+
+raw_name = row.get("display_name") or row.get("branch_key") or ""
+branch_key = row["branch_key"]
+
+name = raw_name
+if raw_name == branch_key and branch_key.startswith("face_"):
+    # derive a friendly "Unnamed #N"
+    try:
+        n = int(branch_key.split("_", 1)[1])
+        name = f"Unnamed #{n+1}"
+    except Exception:
+        name = "Unnamed person"
+
+
+Use name for the label, but keep the real branch_key in Qt.UserRole for lookups.
+
+This way an unlabelled cluster shows as:
+
+👤 Unnamed #1 — 23 photos
+
+instead of face_000.
+
+3.3 Add a search/filter box above the people table
+
+Right after creating the People tab’s layout:
+
+# In _finish_people, after creating layout and before the table
+search_box = QLineEdit()
+search_box.setPlaceholderText("Filter people…")
+layout.addWidget(search_box)
+...
+layout.addWidget(self._wrap_in_scroll_area(table), 1)
+
+
+Connect filtering:
+
+def _filter_people(text: str):
+    text_lower = text.strip().lower()
+    for r in range(table.rowCount()):
+        name_item = table.item(r, 1)
+        if not name_item:
+            continue
+        name_text = name_item.text().lower()
+        match = text_lower in name_text
+        table.setRowHidden(r, not match)
+
+search_box.textChanged.connect(_filter_people)
+
+
+Now the user can type “ann” and only rows where the name contains “ann” will stay visible.
+
+3.4 Let users rename a person from the sidebar
+
+You already have merge/rename helpers in reference_db.py (e.g. merge_face_labels, rename_branch_display_name). Exposing a simple rename is enough for most users.
+
+Add a context menu on the table:
+
+table.setContextMenuPolicy(Qt.CustomContextMenu)
+
+def _on_people_context_menu(pos):
+    item = table.itemAt(pos)
+    if not item:
+        return
+    row = item.row()
+    key_item = table.item(row, 1) or table.item(row, 0)
+    branch_id = key_item.data(Qt.UserRole) if key_item else None
+    if not branch_id or not branch_id.startswith("facecluster:"):
+        return
+    branch_key = branch_id.split(":", 1)[1]
+
+    menu = QMenu(table)
+    act_rename = menu.addAction("Rename person…")
+    action = menu.exec(table.viewport().mapToGlobal(pos))
+    if action == act_rename:
+        from PySide6.QtWidgets import QInputDialog
+        current_name = key_item.text()
+        new_name, ok = QInputDialog.getText(table, "Rename person", "Name:", text=current_name)
+        if ok and new_name.strip():
+            try:
+                self.db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+                # refresh just the People tab
+                self._load_tab("people", force=True)
+            except Exception as e:
+                QMessageBox.critical(self, "Rename failed", str(e))
+
+table.customContextMenuRequested.connect(_on_people_context_menu)
+
+
+That gives you:
+
+Right-click a person → “Rename person…”
+
+Updates branches.display_name and you re-load the tab.
+
+3.5 Allow the user to sort the table
+
+After configuring the table:
+
+table.setSortingEnabled(True)
+table.sortItems(1, Qt.AscendingOrder)  # sort by Person name by default
+
+
+Now clicking headers “Person” / “Photos” toggles sort order.
+
+4. Small, but important correctness issues affecting People
+
+While you asked about “showing” people, there are a couple of bugs that hurt this feature indirectly:
+
+Face cluster worker vs schema mismatch
+
+repository/schema.py uses count column in face_branch_reps.
+
+reference_db.get_face_clusters selects count AS member_count — correct.
+
+If any older code still does INSERT ... member_count instead of count, it will fail. Make sure face_cluster_worker.py is updated to use either:
+
+ReferenceDB.upsert_face_branch_rep(...), or
+
+INSERT INTO face_branch_reps (..., count, ...) VALUES (..., member_count).
+
+rep_thumb_png is never populated
+
+For now, we loaded thumbnails from rep_path.
+
+You can later add a background step that creates small PNGs and writes rep_thumb_png so sidebar doesn’t need to hit disk for each row.
+
+get_paths_for_cluster uses crop_path
+
+That’s fine if you want a “face album” view.
+
+If you ever want to jump to the original photos instead, use image_path from face_crops instead of crop_path.
+
+5. Summary
+
+Current state:
+
+People tab is wired correctly but visually minimal:
+
+no thumbnails
+
+no search
+
+no rename
+
+unlabelled clusters appear as face_XXX
+
+Improvements I’d implement:
+
+Add a thumbnail column using rep_thumb_png or rep_path.
+
+Show nicer names for face_XXX clusters (e.g., “Unnamed #3”).
+
+Add a search box to filter people by name.
+
+Add context menu → “Rename person…” wired to rename_branch_display_name.
+
+Enable sorting in the People table.

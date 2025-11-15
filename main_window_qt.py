@@ -1,7 +1,8 @@
 # main_window_qt.py
-# Version 09.19.00.00 dated 20251102
-# Removed old embedded ScanWorker class (316 LOC) - using services/photo_scan_service.py
-# Current LOC: ~2,540 (down from original 2,855)
+# Version 09.20.00.00 dated 20251105
+# Added PhotoDeletionService with comprehensive delete functionality
+# Enhanced repositories with utility methods for future migrations
+# Current LOC: ~2,640 (added photo deletion feature)
 
 # [ Tree View  ]
 #     │
@@ -42,7 +43,7 @@
 #  Store a hash or last_modified so we can incrementally update later.
 
 from splash_qt import SplashScreen, StartupWorker
-import os, traceback, time as _time
+import os, platform, traceback, time as _time, logging
 from thumb_cache_db import get_cache
 
 from db_writer import DBWriter
@@ -53,19 +54,19 @@ from services.scan_worker_adapter import ScanWorkerAdapter as ScanWorker
 
 # Add imports near top if not present:
 
-from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer
+from PySide6.QtCore import Qt, QThread, QSize, QThreadPool, Signal, QObject, QRunnable, QEvent, QTimer, QProcess
 
-from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QIcon, QTransform, QPalette, QColor, QGuiApplication
+from PySide6.QtGui import QPixmap, QImage, QImageReader, QAction, QActionGroup, QIcon, QTransform, QPalette, QColor, QGuiApplication
 
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QSplitter, 
-    QHBoxLayout, QVBoxLayout, QLabel, 
+    QMainWindow, QWidget, QSplitter,
+    QHBoxLayout, QVBoxLayout, QLabel,
     QComboBox, QSizePolicy, QToolBar, QMessageBox,
     QDialog, QPushButton, QFileDialog, QScrollArea,
     QCheckBox, QComboBox as QSortComboBox,
-    QProgressDialog, QApplication, QStyle,
+    QProgressDialog, QProgressBar, QApplication, QStyle,
     QDialogButtonBox, QMenu, QGroupBox, QFrame,
-    QSlider, QFormLayout, QTextEdit
+    QSlider, QFormLayout, QTextEdit, QButtonGroup, QLineEdit
 )
 
 
@@ -86,6 +87,10 @@ from sidebar_qt import SidebarQt
 
 from thumbnail_grid_qt import ThumbnailGridQt
 
+# 🎬 Phase 4.4: Video player support
+from video_player_qt import VideoPlayerPanel
+from thumbnail_grid_qt import is_video_file
+
 from app_services import (
     list_projects, get_default_project_id, 
     scan_signals, scan_repository, 
@@ -105,6 +110,12 @@ from settings_manager_qt import apply_decoder_warning_policy
 apply_decoder_warning_policy()
 
 from preview_panel_qt import LightboxDialog
+
+# --- Search UI imports ---
+from search_widget_qt import SearchBarWidget, AdvancedSearchDialog
+
+# --- Video backfill dialog ---
+from video_backfill_dialog import VideoBackfillDialog
 
 # --- Backfill / process management imports ---
 import subprocess, shlex, sys
@@ -136,6 +147,27 @@ def _clamp_pct(v):
         return 0
 
 
+def _get_default_ignore_folders():
+    """
+    Get platform-specific default ignore folders for scanning.
+    Returns a list of folder names to skip during repository scans.
+    """
+    common = ["__pycache__", "node_modules", ".git", ".svn", ".hg",
+              "venv", ".venv", "env", ".env"]
+
+    if platform.system() == "Windows":
+        return common + [
+            "AppData", "Program Files", "Program Files (x86)", "Windows",
+            "$Recycle.Bin", "System Volume Information", "Temp", "Cache",
+            "Microsoft", "Installer", "Recovery", "Logs",
+            "ThumbCache", "ActionCenterCache"
+        ]
+    elif platform.system() == "Darwin":  # macOS
+        return common + ["Library", ".Trash", "Caches", "Logs",
+                        "Application Support"]
+    else:  # Linux and others
+        return common + [".cache", ".local/share/Trash", "tmp"]
+
 
 # ---------------------------
 # Note: Old embedded ScanWorker class removed - now using services/photo_scan_service.py
@@ -154,6 +186,7 @@ class ScanController:
         self.worker = None
         self.db_writer = None
         self.cancel_requested = False
+        self.logger = logging.getLogger(__name__)
 
     def start_scan(self, folder, incremental: bool):
         """Entry point called from MainWindow toolbar action."""
@@ -190,6 +223,17 @@ class ScanController:
             self.main.statusBar().showMessage(f"❌ Database initialization failed: {e}")
             return
 
+        # Get current project_id
+        current_project_id = self.main.grid.project_id
+        if current_project_id is None:
+            # Fallback to default project if grid doesn't have a project yet
+            from app_services import get_default_project_id
+            current_project_id = get_default_project_id()
+            if current_project_id is None:
+                # No projects exist - will be created during scan
+                current_project_id = 1  # Default to first project
+            print(f"[ScanController] Using project_id: {current_project_id}")
+
         # Scan worker
         try:
             print(f"[ScanController] Creating ScanWorker for folder: {folder}")
@@ -199,8 +243,45 @@ class ScanController:
             self.thread = QThread(self.main)
             print(f"[ScanController] QThread created")
 
-            self.worker = ScanWorker(folder, incremental, self.main.settings, db_writer=self.db_writer)
-            print(f"[ScanController] ScanWorker instance created")
+            # CRITICAL: Define callback for video metadata extraction completion
+            # This will refresh the sidebar counts after metadata extraction finishes
+            def on_video_metadata_finished(success, failed):
+                """Refresh sidebar video counts after metadata extraction completes."""
+                self.logger.info(f"Video metadata extraction complete ({success} success, {failed} failed)")
+
+                # CRITICAL FIX: ALWAYS run video date backfill after scan (not conditional)
+                # Without this, video date branches show 0 count and no dates appear
+                if success > 0:
+                    self.logger.info("Auto-running video metadata backfill...")
+                    # Run backfill in background to populate date fields
+                    from backfill_video_dates import backfill_video_dates
+                    try:
+                        stats = backfill_video_dates(
+                            project_id=current_project_id,
+                            dry_run=False,
+                            progress_callback=lambda c, t, m: self.logger.info(f"[Backfill] {c}/{t}: {m}")
+                        )
+                        self.logger.info(f"✓ Video backfill complete: {stats['updated']} videos updated")
+                    except Exception as e:
+                        self.logger.error(f"Video backfill failed: {e}", exc_info=True)
+
+                # Schedule sidebar refresh in main thread
+                self.logger.info("Refreshing sidebar to update video filter counts...")
+                from PySide6.QtCore import QTimer
+                def refresh_sidebar_videos():
+                    try:
+                        if hasattr(self.main, 'sidebar') and hasattr(self.main.sidebar, "refresh_all"):
+                            self.main.sidebar.refresh_all(force=True)
+                            self.logger.info("✓ Sidebar refreshed after video metadata extraction")
+                    except Exception as e:
+                        self.logger.error(f"Error refreshing sidebar after metadata extraction: {e}")
+
+                QTimer.singleShot(0, refresh_sidebar_videos)
+
+            self.worker = ScanWorker(folder, current_project_id, incremental, self.main.settings,
+                                    db_writer=self.db_writer,
+                                    on_video_metadata_finished=on_video_metadata_finished)
+            print(f"[ScanController] ScanWorker instance created with project_id={current_project_id}")
 
             self.worker.moveToThread(self.thread)
             print(f"[ScanController] Worker moved to thread")
@@ -210,7 +291,7 @@ class ScanController:
             self.worker.error.connect(self._on_error)
             self.thread.started.connect(lambda: print("[ScanController] QThread STARTED!"))
             self.thread.started.connect(self.worker.run)
-            self.worker.finished.connect(lambda f, p: self.thread.quit())
+            self.worker.finished.connect(lambda f, p, v=0: self.thread.quit())
             self.thread.finished.connect(self._cleanup)
             print(f"[ScanController] Signals connected")
 
@@ -260,9 +341,9 @@ class ScanController:
         if self.main._scan_progress.wasCanceled():
             self.cancel()
 
-    def _on_finished(self, folders, photos):
-        print(f"[ScanController] scan finished: {folders} folders, {photos} photos")
-        self.main._scan_result = (folders, photos)
+    def _on_finished(self, folders, photos, videos=0):
+        print(f"[ScanController] scan finished: {folders} folders, {photos} photos, {videos} videos")
+        self.main._scan_result = (folders, photos, videos)
 
     def _on_error(self, err_text: str):
         try:
@@ -282,68 +363,229 @@ class ScanController:
             if self.db_writer:
                 self.db_writer.shutdown(wait=True)
         except Exception as e:
-            print(f"[ScanController] cleanup error: {e}")
+            self.logger.error(f"Cleanup error: {e}", exc_info=True)
+
+        # Get scan results BEFORE heavy operations
+        f, p, v = self.main._scan_result if len(self.main._scan_result) == 3 else (*self.main._scan_result, 0)
+
+        # Show completion message IMMEDIATELY (before heavy operations)
+        # This prevents UI freeze perception and gives user feedback
+        msg = f"Indexed {p} photos"
+        if v > 0:
+            msg += f" and {v} videos"
+        msg += f" in {f} folders.\n\n"
+        msg += "📊 Processing metadata and updating views...\nThis may take a few seconds."
+        QMessageBox.information(self.main, "Scan Complete", msg)
+
+        # Show progress indicator for post-scan processing
+        progress = QProgressDialog("Building date branches...", None, 0, 4, self.main)
+        progress.setWindowTitle("Processing...")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoClose(True)
+        progress.setValue(0)
+        progress.show()
+        QApplication.processEvents()
 
         # Build date branches after scan completes
+        sidebar_was_updated = False
         try:
-            print("[ScanController] Building date branches...")
+            progress.setLabelText("Building photo date branches...")
+            progress.setValue(1)
+            QApplication.processEvents()
+
+            self.logger.info("Building date branches...")
             from reference_db import ReferenceDB
+            from app_services import get_default_project_id
             db = ReferenceDB()
-            branch_count = db.build_date_branches()
-            print(f"[ScanController] Created {branch_count} date branch entries")
+
+            # CRITICAL FIX: Get current project_id to associate scanned photos with correct project
+            # Without this, all photos go to project_id=1 regardless of which project is active
+            current_project_id = self.main.grid.project_id
+            if current_project_id is None:
+                self.logger.warning("Grid project_id is None, using default project")
+                current_project_id = get_default_project_id()
+
+            if current_project_id is None:
+                self.logger.error("No project found! Cannot build date branches.")
+                raise ValueError("No project available to associate scanned photos")
+
+            self.logger.info(f"Building date branches for project_id={current_project_id}")
+            branch_count = db.build_date_branches(current_project_id)
+            self.logger.info(f"Created {branch_count} photo date branch entries for project {current_project_id}")
+
+            # CRITICAL FIX: Build video date branches too (videos need branches like photos!)
+            self.logger.info(f"Building video date branches for project_id={current_project_id}")
+            video_branch_count = db.build_video_date_branches(current_project_id)
+            self.logger.info(f"Created {video_branch_count} video date branch entries for project {current_project_id}")
+
+            progress.setLabelText("Backfilling photo metadata...")
+            progress.setValue(2)
+            QApplication.processEvents()
+
+            # CRITICAL: Backfill created_date field immediately after scan
+            # This populates created_date from date_taken so get_date_hierarchy() works
+            # Without this, the "By Date" section won't appear until app restart
+            self.logger.info("Backfilling created_date fields for photos...")
+            backfilled = db.single_pass_backfill_created_fields()
+            if backfilled:
+                self.logger.info(f"Backfilled {backfilled} photo rows with created_date")
+
+            # SURGICAL FIX E: Backfill video created_date fields too
+            self.logger.info("Backfilling created_date fields for videos...")
+            video_backfilled = db.single_pass_backfill_created_fields_videos()
+            if video_backfilled:
+                self.logger.info(f"Backfilled {video_backfilled} video rows with created_date")
+
+            # PHASE 3: Face Detection Integration (Optional Post-Scan Step)
+            # Check if face detection is enabled in configuration
+            try:
+                # NOTE: QMessageBox is already imported at module level (line 64)
+                # Do NOT re-import here as it makes QMessageBox a local variable
+                from config.face_detection_config import get_face_config
+                face_config = get_face_config()
+
+                if face_config.is_enabled() and face_config.get("auto_cluster_after_scan", True):
+                    self.logger.info("Face detection is enabled - starting face detection worker...")
+
+                    # Check if backend is available
+                    from services.face_detection_service import FaceDetectionService
+                    availability = FaceDetectionService.check_backend_availability()
+                    backend = face_config.get_backend()
+
+                    if availability.get(backend, False):
+                        # Ask user for confirmation if required
+                        if face_config.get("require_confirmation", True):
+                            reply = QMessageBox.question(
+                                self.main,
+                                "Face Detection",
+                                f"Scan completed!\n\nWould you like to detect faces in the scanned images?\n\n"
+                                f"Backend: {backend}\n"
+                                f"This may take a few minutes depending on the number of images.",
+                                QMessageBox.Yes | QMessageBox.No,
+                                QMessageBox.Yes
+                            )
+
+                            if reply != QMessageBox.Yes:
+                                self.logger.info("User declined face detection")
+                                face_detection_enabled = False
+                            else:
+                                face_detection_enabled = True
+                        else:
+                            face_detection_enabled = True
+
+                        if face_detection_enabled:
+                            self.logger.info(f"Starting face detection with backend: {backend}")
+
+                            # Run face detection worker
+                            from workers.face_detection_worker import FaceDetectionWorker
+                            face_worker = FaceDetectionWorker(current_project_id)
+
+                            # Run with progress reporting
+                            stats = face_worker.run()
+
+                            self.logger.info(f"Face detection completed: {stats['total_faces']} faces detected in {stats['images_with_faces']} images")
+
+                            # Run clustering if enabled
+                            if face_config.get("clustering_enabled", True) and stats['total_faces'] > 0:
+                                self.logger.info("Starting face clustering...")
+
+                                from workers.face_cluster_worker import cluster_faces
+                                cluster_params = face_config.get_clustering_params()
+
+                                cluster_faces(
+                                    current_project_id,
+                                    eps=cluster_params["eps"],
+                                    min_samples=cluster_params["min_samples"]
+                                )
+
+                                self.logger.info("Face clustering completed")
+                    else:
+                        self.logger.warning(f"Face detection backend '{backend}' is not available")
+                        self.logger.warning(f"Available backends: {[k for k, v in availability.items() if v]}")
+                else:
+                    self.logger.debug("Face detection is disabled or auto-clustering is off")
+
+            except ImportError as e:
+                self.logger.debug(f"Face detection modules not available: {e}")
+            except Exception as e:
+                self.logger.error(f"Face detection error: {e}", exc_info=True)
+                # Don't fail the entire scan if face detection fails
+                QMessageBox.warning(
+                    self.main,
+                    "Face Detection Error",
+                    f"Face detection failed:\n{str(e)}\n\nThe scan completed successfully, but faces were not detected."
+                )
 
             # CRITICAL: Update sidebar project_id if it was None (fresh database)
             # The scan creates the first project, so we need to tell the sidebar about it
             if self.main.sidebar.project_id is None:
-                print("[ScanController] Sidebar project_id was None, getting default project...")
+                self.logger.info("Sidebar project_id was None, updating to default project")
                 from app_services import get_default_project_id
                 default_pid = get_default_project_id()
-                print(f"[ScanController] Setting sidebar project_id to {default_pid}")
+                self.logger.debug(f"Setting sidebar project_id to {default_pid}")
                 self.main.sidebar.set_project(default_pid)
                 if hasattr(self.main.sidebar, "tabs_controller"):
                     self.main.sidebar.tabs_controller.project_id = default_pid
-                    print(f"[ScanController] Set tabs_controller.project_id to {default_pid}")
+                sidebar_was_updated = True
 
             # CRITICAL: Also update grid's project_id if it was None
             if self.main.grid.project_id is None:
-                print("[ScanController] Grid project_id was None, getting default project...")
+                self.logger.info("Grid project_id was None, updating to default project")
                 from app_services import get_default_project_id
                 default_pid = get_default_project_id()
-                print(f"[ScanController] Setting grid project_id to {default_pid}")
+                self.logger.debug(f"Setting grid project_id to {default_pid}")
                 self.main.grid.project_id = default_pid
         except Exception as e:
-            print(f"[ScanController] Error building date branches: {e}")
-            import traceback
-            traceback.print_exc()
+            self.logger.error(f"Error building date branches: {e}", exc_info=True)
 
         # Sidebar & grid refresh
-        try:
-            print("[ScanController] Reloading sidebar after date branches built...")
-            # Always refresh tabs, regardless of current display mode
-            if hasattr(self.main.sidebar, "tabs_controller"):
-                print("[ScanController] Refreshing tabs_controller...")
-                self.main.sidebar.tabs_controller.refresh_all(force=True)
-                print("[ScanController] Tabs refresh completed")
-            # Also reload the sidebar (tree view if in list mode)
-            if hasattr(self.main.sidebar, "reload"):
-                self.main.sidebar.reload()
-                print("[ScanController] Sidebar reload completed")
-        except Exception as e:
-            print(f"[ScanController] ERROR reloading sidebar: {e}")
-            import traceback
-            traceback.print_exc()
-        try:
-            if hasattr(self.main.grid, "reload"):
-                self.main.grid.reload()
-        except Exception:
-            pass
-        # reload thumbnails after scan
-        if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
-            self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+        # CRITICAL: Schedule UI updates in main thread (this method may run in worker thread)
+        def refresh_ui():
+            try:
+                progress.setLabelText("Refreshing sidebar...")
+                progress.setValue(3)
+                QApplication.processEvents()
 
-        # summary
-        f, p = self.main._scan_result
-        QMessageBox.information(self.main, "Scan Complete", f"Indexed {p} photos in {f} folders.\nCommitted: {self.main._committed_total} rows.")
+                self.logger.info("Reloading sidebar after date branches built...")
+                # CRITICAL FIX: Only reload sidebar if it wasn't just updated via set_project()
+                # set_project() already calls reload(), so reloading again causes double refresh crash
+                if not sidebar_was_updated and hasattr(self.main.sidebar, "reload"):
+                    self.main.sidebar.reload()
+                    self.logger.debug("Sidebar reload completed (mode-aware)")
+                elif sidebar_was_updated:
+                    self.logger.debug("Skipping sidebar reload - already updated by set_project()")
+            except Exception as e:
+                self.logger.error(f"Error reloading sidebar: {e}", exc_info=True)
+            try:
+                if hasattr(self.main.grid, "reload"):
+                    self.main.grid.reload()
+            except Exception:
+                pass
+
+            progress.setLabelText("Loading thumbnails...")
+            progress.setValue(4)
+            QApplication.processEvents()
+
+            # reload thumbnails after scan
+            if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
+                self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+
+            # Close progress dialog
+            progress.close()
+
+            # Final status message
+            self.main.statusBar().showMessage(f"✓ Scan complete: {p} photos, {v} videos indexed", 5000)
+
+        # Schedule refresh in main thread's event loop
+        if sidebar_was_updated:
+            # Wait 500ms before refreshing if sidebar was just updated
+            QTimer.singleShot(500, refresh_ui)
+        else:
+            # Immediate refresh (next event loop iteration)
+            QTimer.singleShot(0, refresh_ui)
+
+        # Note: Video metadata worker callback is now connected at worker creation time
+        # in start_scan() to avoid race conditions with worker finishing before cleanup runs
 
 
 class SidebarController:
@@ -353,26 +595,42 @@ class SidebarController:
 
     def on_folder_selected(self, folder_id: int):
         self.main.grid.set_folder(folder_id)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
 
     def on_branch_selected(self, branch_key: str):
         self.main.grid.set_branch(branch_key)
-        
+
         if getattr(self.main, "active_tag_filter", "all") != "all":
             self.main._apply_tag_filter(self.main.active_tag_filter)
-            
+
         if hasattr(self.main.grid, "_on_slider_changed"):
             self.main.grid._on_slider_changed(self.main.grid.zoom_slider.value())
-            
+
         if hasattr(self.main.grid, "list_view"):
             self.main.grid.list_view.scrollToTop()
-            
+
+        if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
+            self.main.thumbnails.clear()
+            self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
+
+    def on_videos_selected(self):
+        """Handle videos tab selection - show all videos for current project"""
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.main.grid, "set_videos"):
+            self.main.grid.set_videos()
+
+        if getattr(self.main, "active_tag_filter", "all") != "all":
+            self.main._apply_tag_filter(self.main.active_tag_filter)
+
+        if hasattr(self.main.grid, "list_view"):
+            self.main.grid.list_view.scrollToTop()
+
         if self.main.thumbnails and hasattr(self.main.grid, "get_visible_paths"):
             self.main.thumbnails.clear()
             self.main.thumbnails.load_thumbnails(self.main.grid.get_visible_paths())
@@ -655,12 +913,8 @@ class PreferencesDialog(QDialog):
         ignore_layout = QVBoxLayout(ignore_group)
         self.txt_ignore_folders = QTextEdit()
         self.txt_ignore_folders.setPlaceholderText("One folder name per line (case-sensitive)...")
-        current_ignore = settings.get("ignore_folders", [
-            "AppData", "Program Files", "Program Files (x86)", "Windows",
-            "$Recycle.Bin", "System Volume Information", "__pycache__",
-            "node_modules", "Temp", "Cache", "Microsoft", "Installer",
-            "Recovery", "Logs", "ThumbCache", "ActionCenterCache"
-        ])
+        # Use platform-specific defaults
+        current_ignore = settings.get("ignore_folders", _get_default_ignore_folders())
         self.txt_ignore_folders.setText("\n".join(current_ignore))
         ignore_layout.addWidget(self.txt_ignore_folders)
         layout.addWidget(ignore_group)
@@ -932,6 +1186,116 @@ class PreferencesDialog(QDialog):
 
         layout.addWidget(meta_group)
 
+        # --- Video Settings (FFmpeg/FFprobe Configuration) ---
+        video_group = QGroupBox("🎬 Video Settings")
+        video_layout = QVBoxLayout(video_group)
+        video_layout.setSpacing(8)
+
+        # FFprobe path configuration
+        ffprobe_row = QWidget()
+        ffprobe_layout = QHBoxLayout(ffprobe_row)
+        ffprobe_layout.setContentsMargins(0, 0, 0, 0)
+
+        ffprobe_label = QLabel("FFprobe Path:")
+        ffprobe_label.setToolTip(
+            "Path to ffprobe executable for video metadata extraction.\n"
+            "Leave empty to use system PATH.\n"
+            "Required for video thumbnails, duration, and date filtering."
+        )
+
+        self.txt_ffprobe_path = QLineEdit()
+        self.txt_ffprobe_path.setPlaceholderText("Leave empty to use system PATH")
+        current_ffprobe = settings.get("ffprobe_path", "")
+        self.txt_ffprobe_path.setText(current_ffprobe)
+
+        btn_browse_ffprobe = QPushButton("Browse...")
+        btn_browse_ffprobe.setMaximumWidth(80)
+
+        def browse_ffprobe():
+            from PySide6.QtWidgets import QFileDialog
+            import platform
+            if platform.system() == "Windows":
+                filter_str = "Executable Files (*.exe);;All Files (*.*)"
+            else:
+                filter_str = "All Files (*)"
+
+            path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select FFprobe Executable",
+                "",
+                filter_str
+            )
+            if path:
+                self.txt_ffprobe_path.setText(path)
+
+        btn_browse_ffprobe.clicked.connect(browse_ffprobe)
+
+        btn_test_ffprobe = QPushButton("Test")
+        btn_test_ffprobe.setMaximumWidth(60)
+
+        def test_ffprobe():
+            import subprocess
+            from pathlib import Path
+
+            path = self.txt_ffprobe_path.text().strip()
+            if not path:
+                path = "ffprobe"  # Test system PATH
+
+            try:
+                result = subprocess.run(
+                    [path, '-version'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    version_line = result.stdout.split('\n')[0] if result.stdout else 'Version info unavailable'
+                    QMessageBox.information(
+                        self,
+                        "FFprobe Test - Success",
+                        f"✓ FFprobe is working!\n\n{version_line}\n\n"
+                        f"💡 Remember to click OK to save settings, then restart the app."
+                    )
+                else:
+                    QMessageBox.warning(
+                        self,
+                        "FFprobe Test - Failed",
+                        f"✗ FFprobe returned error code {result.returncode}\n\n{result.stderr}"
+                    )
+            except FileNotFoundError:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Not Found",
+                    f"✗ FFprobe not found at:\n{path}\n\n"
+                    "Please install FFmpeg or specify the correct path."
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "FFprobe Test - Error",
+                    f"✗ Error testing ffprobe:\n{str(e)}"
+                )
+
+        btn_test_ffprobe.clicked.connect(test_ffprobe)
+
+        ffprobe_layout.addWidget(ffprobe_label)
+        ffprobe_layout.addWidget(self.txt_ffprobe_path, 1)
+        ffprobe_layout.addWidget(btn_browse_ffprobe)
+        ffprobe_layout.addWidget(btn_test_ffprobe)
+
+        video_layout.addWidget(ffprobe_row)
+
+        # Help text
+        help_label = QLabel(
+            "💡 <b>Note:</b> FFmpeg/FFprobe is required for video support.<br>"
+            "Without it, videos won't have thumbnails or date information."
+        )
+        help_label.setWordWrap(True)
+        help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
+        video_layout.addWidget(help_label)
+
+        layout.addWidget(video_group)
+
         # --- Buttons ---
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         layout.addWidget(buttons)
@@ -979,6 +1343,46 @@ class PreferencesDialog(QDialog):
         ignore_list = [x.strip() for x in self.txt_ignore_folders.toPlainText().splitlines() if x.strip()]
         self.settings.set("ignore_folders", ignore_list)
 
+        # Save video settings
+        ffprobe_path = self.txt_ffprobe_path.text().strip()
+        old_ffprobe_path = self.settings.get("ffprobe_path", "")
+        self.settings.set("ffprobe_path", ffprobe_path)
+
+        # If FFprobe path changed, delete flag file so check runs on next startup
+        ffprobe_path_changed = (ffprobe_path != old_ffprobe_path)
+        if ffprobe_path_changed:
+            from pathlib import Path
+            flag_file = Path('.ffmpeg_check_done')
+            if flag_file.exists():
+                try:
+                    flag_file.unlink()
+                    print("🔄 FFmpeg check flag cleared - will re-check on next startup")
+                except Exception as e:
+                    print(f"⚠️ Failed to clear FFmpeg check flag: {e}")
+
+            print(f"🎬 FFprobe path configured: {ffprobe_path or '(using system PATH)'}")
+
+            # Offer to restart app immediately
+            reply = QMessageBox.question(
+                self,
+                "Restart Required - FFmpeg Configuration",
+                "FFmpeg/FFprobe configuration has been updated.\n\n"
+                "The application needs to restart for the changes to take effect.\n"
+                "The FFmpeg availability check will run on next startup.\n\n"
+                "Would you like to restart now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes  # Default button
+            )
+
+            if reply == QMessageBox.Yes:
+                # Accept the dialog first to save all settings
+                self.accept()
+
+                # Restart the application
+                print("🔄 Restarting application...")
+                QProcess.startDetached(sys.executable, sys.argv)
+                QGuiApplication.quit()
+                return  # Don't call self.accept() again
 
         self.accept()
 
@@ -1447,6 +1851,516 @@ class DetailsPanel(QWidget):
             return None
 
 
+class BreadcrumbNavigation(QWidget):
+    """
+    Phase 2 (High Impact): Breadcrumb navigation widget with project management.
+    - Home button: Opens project selector/creator
+    - Breadcrumb trail: Shows current location (Project > Folder/Date/Tag)
+    - Clickable segments: Navigate to parent levels
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMaximumHeight(32)
+        self.main_window = parent
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        # Home icon button - opens project management menu
+        self.btn_home = QPushButton("🏠")
+        self.btn_home.setFixedSize(28, 28)
+        self.btn_home.setToolTip("Project Management (Create/Switch Projects)")
+        self.btn_home.setStyleSheet("""
+            QPushButton {
+                border: none;
+                background-color: transparent;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+                border-radius: 4px;
+            }
+        """)
+        self.btn_home.clicked.connect(self._show_project_menu)
+        layout.addWidget(self.btn_home)
+
+        # Breadcrumb labels container (will be populated dynamically)
+        self.breadcrumb_container = QWidget()
+        self.breadcrumb_layout = QHBoxLayout(self.breadcrumb_container)
+        self.breadcrumb_layout.setContentsMargins(0, 0, 0, 0)
+        self.breadcrumb_layout.setSpacing(4)
+        layout.addWidget(self.breadcrumb_container)
+
+        layout.addStretch()
+
+        # Store breadcrumb path
+        self.breadcrumbs = []
+
+    def _show_project_menu(self):
+        """Show project management menu (create new, switch project)."""
+        from PySide6.QtWidgets import QMenu
+        menu = QMenu(self)
+
+        # Add "Create New Project" action
+        act_new_project = menu.addAction("📁 Create New Project...")
+        act_new_project.triggered.connect(self._create_new_project)
+
+        menu.addSeparator()
+
+        # Add existing projects
+        if hasattr(self.main_window, "_projects") and self.main_window._projects:
+            for project in self.main_window._projects:
+                proj_id = project.get("id")
+                proj_name = project.get("name", f"Project {proj_id}")
+                proj_mode = project.get("mode", "scan")
+
+                action = menu.addAction(f"  {proj_name} ({proj_mode})")
+                action.setData(proj_id)
+                action.triggered.connect(lambda checked=False, pid=proj_id: self._switch_project(pid))
+
+        # Show menu below the home button
+        menu.exec(self.btn_home.mapToGlobal(self.btn_home.rect().bottomLeft()))
+
+    def _create_new_project(self):
+        """Create a new project via dialog."""
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+        project_name, ok = QInputDialog.getText(
+            self,
+            "Create New Project",
+            "Enter project name:",
+            text="My New Project"
+        )
+
+        if ok and project_name.strip():
+            try:
+                # Create project with scan mode
+                db = ReferenceDB()
+                proj_id = db.create_project(project_name.strip(), folder="", mode="scan")
+
+                QMessageBox.information(
+                    self,
+                    "Project Created",
+                    f"Project '{project_name}' created successfully!\n\nProject ID: {proj_id}"
+                )
+
+                # Switch to new project
+                self._switch_project(proj_id)
+
+                # Refresh project list
+                if hasattr(self.main_window, "_refresh_project_list"):
+                    self.main_window._refresh_project_list()
+
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    f"Failed to create project:\n{e}"
+                )
+
+    def _switch_project(self, project_id: int):
+        """Switch to a different project."""
+        if hasattr(self.main_window, "_on_project_changed_by_id"):
+            self.main_window._on_project_changed_by_id(project_id)
+        elif hasattr(self.main_window, "project_controller"):
+            # Fallback to project controller
+            self.main_window.project_controller.switch_project(project_id)
+
+        print(f"[Breadcrumb] Switched to project ID: {project_id}")
+
+    def set_path(self, segments: list[tuple[str, callable]]):
+        """
+        Set breadcrumb path with clickable segments.
+
+        Args:
+            segments: List of (label, callback) tuples
+                     Example: [("My Photos", lambda: navigate_home()),
+                              ("2024", lambda: navigate_to_year(2024))]
+        """
+        # Clear existing breadcrumbs
+        while self.breadcrumb_layout.count():
+            item = self.breadcrumb_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        self.breadcrumbs = segments
+
+        for i, (label, callback) in enumerate(segments):
+            # Add separator before each segment (except first)
+            if i > 0:
+                sep = QLabel(">")
+                sep.setStyleSheet("color: #999; font-size: 12px;")
+                self.breadcrumb_layout.addWidget(sep)
+
+            # Add clickable segment
+            btn = QPushButton(label)
+            btn.setStyleSheet("""
+                QPushButton {
+                    border: none;
+                    background-color: transparent;
+                    color: #333;
+                    font-size: 13px;
+                    padding: 4px 8px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(0, 0, 0, 0.1);
+                    border-radius: 4px;
+                    text-decoration: underline;
+                }
+            """)
+            btn.setCursor(Qt.PointingHandCursor)
+            if callback:
+                btn.clicked.connect(callback)
+
+            # Last segment is bold (current location)
+            if i == len(segments) - 1:
+                btn.setStyleSheet(btn.styleSheet() + "QPushButton { font-weight: bold; color: #000; }")
+
+            self.breadcrumb_layout.addWidget(btn)
+
+
+class SelectionToolbar(QWidget):
+    """
+    Phase 2.3: Selection toolbar with batch operations.
+    Always visible, buttons disabled when no selection.
+    Provides quick access to: Favorite, Delete, Clear Selection
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMaximumHeight(44)
+        self.setStyleSheet("""
+            SelectionToolbar {
+                background-color: #E8F4FD;
+                border: 1px solid #B3D9F2;
+                border-radius: 4px;
+                padding: 4px;
+            }
+        """)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 6, 12, 6)
+        layout.setSpacing(8)
+
+        # Selection count label
+        self.label_count = QLabel("No photos selected")
+        self.label_count.setStyleSheet("color: #333; font-weight: bold; font-size: 13px;")
+        layout.addWidget(self.label_count)
+
+        layout.addStretch()
+
+        # Action buttons (black text, disabled when no selection)
+        self.btn_favorite = QPushButton("⭐ Favorite")
+        self.btn_favorite.setStyleSheet("""
+            QPushButton {
+                background-color: #4A90E2;
+                color: black;
+                border: 1px solid #3A7BC8;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover:enabled {
+                background-color: #357ABD;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
+            }
+        """)
+        layout.addWidget(self.btn_favorite)
+
+        self.btn_delete = QPushButton("🗑️ Delete")
+        self.btn_delete.setStyleSheet("""
+            QPushButton {
+                background-color: #DC3545;
+                color: black;
+                border: 1px solid #C82333;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover:enabled {
+                background-color: #C82333;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
+            }
+        """)
+        layout.addWidget(self.btn_delete)
+
+        self.btn_clear = QPushButton("✕ Clear Selection")
+        self.btn_clear.setStyleSheet("""
+            QPushButton {
+                background-color: #6C757D;
+                color: black;
+                border: 1px solid #5A6268;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover:enabled {
+                background-color: #5A6268;
+            }
+            QPushButton:disabled {
+                background-color: #D0D0D0;
+                color: #888;
+                border: 1px solid #B0B0B0;
+            }
+        """)
+        layout.addWidget(self.btn_clear)
+
+        # Start with buttons disabled
+        self.btn_favorite.setEnabled(False)
+        self.btn_delete.setEnabled(False)
+        self.btn_clear.setEnabled(False)
+
+    def update_selection(self, count: int):
+        """Update selection count and enable/disable buttons."""
+        if count > 0:
+            self.label_count.setText(f"{count} photo{'s' if count > 1 else ''} selected")
+            self.btn_favorite.setEnabled(True)
+            self.btn_delete.setEnabled(True)
+            self.btn_clear.setEnabled(True)
+        else:
+            self.label_count.setText("No photos selected")
+            self.btn_favorite.setEnabled(False)
+            self.btn_delete.setEnabled(False)
+            self.btn_clear.setEnabled(False)
+
+
+class CompactBackfillIndicator(QWidget):
+    """
+    Phase 2.3: Compact progress indicator for metadata backfill.
+    Shows an 8px progress bar with percentage and icon when backfilling is active.
+    Auto-hides when not backfilling. Click to show details dialog.
+    Similar to Google Photos / iPhone Photos subtle progress indicators.
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMaximumHeight(28)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        # Progress bar (8px tall, compact)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximumHeight(8)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background-color: #f0f0f0;
+            }
+            QProgressBar::chunk {
+                background-color: #4A90E2;
+                border-radius: 3px;
+            }
+        """)
+
+        # Status label with icon
+        self.label = QLabel("Backfilling metadata... 0%")
+        self.label.setStyleSheet("font-size: 11px; color: #666;")
+
+        # Icon label (animated when active)
+        self.icon_label = QLabel("⚡")
+        self.icon_label.setStyleSheet("font-size: 14px;")
+
+        layout.addStretch()
+        layout.addWidget(self.label)
+        layout.addWidget(self.progress_bar)
+        layout.addWidget(self.icon_label)
+
+        # Set fixed width for progress bar
+        self.progress_bar.setFixedWidth(150)
+
+        # Click to show details
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip("Click to view backfill details")
+
+        # Hide by default
+        self.hide()
+
+        # Animation timer for pulsing icon
+        self._pulse_state = False
+        self._pulse_timer = QTimer(self)
+        self._pulse_timer.timeout.connect(self._pulse_icon)
+
+    def _pulse_icon(self):
+        """Animate the icon to show activity."""
+        self._pulse_state = not self._pulse_state
+        if self._pulse_state:
+            self.icon_label.setStyleSheet("font-size: 16px; color: #4A90E2;")
+        else:
+            self.icon_label.setStyleSheet("font-size: 14px; color: #666;")
+
+    def start_backfill(self):
+        """Show indicator and start animation."""
+        self.show()
+        self.progress_bar.setValue(0)
+        self.label.setText("Backfilling metadata... 0%")
+        self._pulse_timer.start(500)  # Pulse every 500ms
+
+    def update_progress(self, processed: int, total: int):
+        """Update progress bar and label."""
+        if total > 0:
+            percent = int((processed / total) * 100)
+            self.progress_bar.setValue(percent)
+            self.label.setText(f"Backfilling metadata... {percent}%")
+
+    def finish_backfill(self):
+        """Hide indicator when backfill is complete."""
+        self._pulse_timer.stop()
+        self.progress_bar.setValue(100)
+        self.label.setText("Backfill complete!")
+        # Auto-hide after 2 seconds
+        QTimer.singleShot(2000, self.hide)
+
+    def mousePressEvent(self, event):
+        """Show details dialog when clicked."""
+        if event.button() == Qt.LeftButton:
+            self._show_details()
+        super().mousePressEvent(event)
+
+    def _show_details(self):
+        """Show a dialog with detailed backfill status."""
+        try:
+            from pathlib import Path
+            p = Path.cwd() / "app_log.txt"
+            if not p.exists():
+                log_text = "(no log file yet)"
+            else:
+                lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()[-20:]
+                filtered = [l for l in lines if "meta_backfill" in l or "worker" in l or "supervisor" in l]
+                if not filtered:
+                    filtered = lines[-10:]
+                log_text = "\n".join(filtered[-10:])
+
+            dialog = QDialog(self)
+            dialog.setWindowTitle("Metadata Backfill Details")
+            dialog.setMinimumSize(600, 300)
+
+            layout = QVBoxLayout(dialog)
+            text_edit = QTextEdit()
+            text_edit.setPlainText(log_text)
+            text_edit.setReadOnly(True)
+            text_edit.setStyleSheet("font-family: monospace; font-size: 10px;")
+            layout.addWidget(text_edit)
+
+            # Buttons
+            btn_layout = QHBoxLayout()
+            btn_close = QPushButton("Close")
+            btn_close.clicked.connect(dialog.accept)
+            btn_layout.addStretch()
+            btn_layout.addWidget(btn_close)
+            layout.addLayout(btn_layout)
+
+            dialog.exec()
+        except Exception as e:
+            QMessageBox.warning(self, "Log Error", f"Could not read backfill log:\n{e}")
+
+    # ===== Compatibility methods for menu actions =====
+    def _get_config(self):
+        """Get settings from parent MainWindow or create new instance."""
+        try:
+            top = self.window()
+            if top is not None and hasattr(top, "settings"):
+                return top.settings
+        except Exception:
+            pass
+        try:
+            from settings_manager_qt import SettingsManager
+            return SettingsManager()
+        except Exception:
+            return None
+
+    def _launch_detached(self):
+        """Launch backfill process in detached mode."""
+        from pathlib import Path
+        script = Path(__file__).resolve().parent / "workers" / "meta_backfill_pool.py"
+        if not script.exists():
+            QMessageBox.warning(self, "Backfill Script Missing", f"{script} not found.")
+            return
+
+        settings = self._get_config()
+        workers = settings.get("meta_workers", 4) if settings else 4
+        timeout = settings.get("meta_timeout_secs", 8.0) if settings else 8.0
+        batch = settings.get("meta_batch", 200) if settings else 200
+
+        import sys, subprocess, os
+        args = [sys.executable, str(script),
+                "--workers", str(int(workers)),
+                "--timeout", str(float(timeout)),
+                "--batch", str(int(batch))]
+        kwargs = {"close_fds": True}
+
+        if os.name == "nt":
+            import shutil
+            pythonw = shutil.which("pythonw")
+            if pythonw:
+                args[0] = pythonw
+            else:
+                try:
+                    kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+                except Exception:
+                    kwargs["creationflags"] = 0x08000000
+                try:
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    si.wShowWindow = subprocess.SW_HIDE
+                    kwargs["startupinfo"] = si
+                except Exception:
+                    pass
+        else:
+            kwargs["start_new_session"] = True
+
+        try:
+            subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
+            QMessageBox.information(self, "Backfill", "Persistent backfill started in background.")
+            self.start_backfill()  # Show progress indicator
+        except Exception as e:
+            QMessageBox.critical(self, "Backfill Error", str(e))
+
+    def _on_start_background(self):
+        """Start backfill in background (menu action)."""
+        try:
+            self._launch_detached()
+        except Exception as e:
+            QMessageBox.critical(self, "Backfill Error", str(e))
+
+    def _on_run_foreground(self):
+        """Run backfill in foreground (menu action)."""
+        from threading import Thread
+        from pathlib import Path
+        import sys, subprocess
+
+        def run():
+            script = Path(__file__).resolve().parent / "workers" / "meta_backfill_pool.py"
+            settings = self._get_config()
+            workers = settings.get("meta_workers", 4) if settings else 4
+            timeout = settings.get("meta_timeout_secs", 8.0) if settings else 8.0
+            batch = settings.get("meta_batch", 200) if settings else 200
+
+            cmd = [sys.executable, str(script),
+                   "--workers", str(int(workers)),
+                   "--timeout", str(float(timeout)),
+                   "--batch", str(int(batch))]
+            try:
+                subprocess.run(cmd)
+                QMessageBox.information(self, "Backfill", "Foreground backfill finished.")
+                self.finish_backfill()  # Hide progress indicator
+            except Exception as e:
+                QMessageBox.critical(self, "Backfill", str(e))
+
+        self.start_backfill()  # Show progress indicator
+        Thread(target=run, daemon=True).start()
+
+
 class BackfillStatusPanel(QWidget):
     """
     Simple panel that shows last lines of app_log.txt related to backfill and offers
@@ -1658,70 +2572,232 @@ class MainWindow(QMainWindow):
         ui.separator()
 
         # === Menu Bar ===
+        # === Phase 3: Enhanced Menus (Modern Structure) ===
         menu_bar = self.menuBar()
-        menu_settings = menu_bar.addMenu("⚙️ Settings")
+
+        # ========== FILE MENU ==========
+        menu_file = menu_bar.addMenu("File")
+
+        act_scan_repo_menu = QAction("Scan Repository…", self)
+        act_scan_repo_menu.setShortcut("Ctrl+O")
+        act_scan_repo_menu.setToolTip("Scan a directory to add photos to the current project")
+        menu_file.addAction(act_scan_repo_menu)
+
+        menu_file.addSeparator()
 
         act_preferences = QAction("Preferences…", self)
         act_preferences.setShortcut("Ctrl+,")
         act_preferences.setIcon(QIcon.fromTheme("preferences-system"))
-        menu_settings.addAction(act_preferences)
+        menu_file.addAction(act_preferences)
         act_preferences.triggered.connect(self._open_preferences)
 
+        # ========== VIEW MENU ==========
+        menu_view = menu_bar.addMenu("View")
 
-        # ... after act_preferences created ...
-        act_toggle_sidebar_mode = QAction("Toggle Sidebar Mode (List/Tabs)", self)
+        # Zoom controls
+        act_zoom_in = QAction("Zoom In", self)
+        act_zoom_in.setShortcut("Ctrl++")
+        act_zoom_in.setToolTip("Increase thumbnail size")
+        menu_view.addAction(act_zoom_in)
+
+        act_zoom_out = QAction("Zoom Out", self)
+        act_zoom_out.setShortcut("Ctrl+-")
+        act_zoom_out.setToolTip("Decrease thumbnail size")
+        menu_view.addAction(act_zoom_out)
+
+        menu_view.addSeparator()
+
+        # Grid Size submenu
+        menu_grid_size = menu_view.addMenu("Grid Size")
+
+        act_grid_small_menu = QAction("Small (90px)", self)
+        act_grid_small_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_small_menu)
+
+        act_grid_medium_menu = QAction("Medium (120px)", self)
+        act_grid_medium_menu.setCheckable(True)
+        act_grid_medium_menu.setChecked(True)  # Default
+        menu_grid_size.addAction(act_grid_medium_menu)
+
+        act_grid_large_menu = QAction("Large (200px)", self)
+        act_grid_large_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_large_menu)
+
+        act_grid_xl_menu = QAction("XL (280px)", self)
+        act_grid_xl_menu.setCheckable(True)
+        menu_grid_size.addAction(act_grid_xl_menu)
+
+        # Group grid size actions for exclusive selection
+        self.grid_size_menu_group = QActionGroup(self)
+        self.grid_size_menu_group.addAction(act_grid_small_menu)
+        self.grid_size_menu_group.addAction(act_grid_medium_menu)
+        self.grid_size_menu_group.addAction(act_grid_large_menu)
+        self.grid_size_menu_group.addAction(act_grid_xl_menu)
+
+        menu_view.addSeparator()
+
+        # Sort By submenu
+        menu_sort = menu_view.addMenu("Sort By")
+
+        act_sort_date = QAction("Date", self)
+        act_sort_date.setCheckable(True)
+        menu_sort.addAction(act_sort_date)
+
+        act_sort_filename = QAction("Filename", self)
+        act_sort_filename.setCheckable(True)
+        act_sort_filename.setChecked(True)  # Default
+        menu_sort.addAction(act_sort_filename)
+
+        act_sort_size = QAction("Size", self)
+        act_sort_size.setCheckable(True)
+        menu_sort.addAction(act_sort_size)
+
+        # Group sort actions for exclusive selection
+        self.sort_menu_group = QActionGroup(self)
+        self.sort_menu_group.addAction(act_sort_date)
+        self.sort_menu_group.addAction(act_sort_filename)
+        self.sort_menu_group.addAction(act_sort_size)
+
+        menu_view.addSeparator()
+
+        # Sidebar submenu
+        menu_sidebar = menu_view.addMenu("Sidebar")
+
+        act_toggle_sidebar = QAction("Show/Hide Sidebar", self)
+        act_toggle_sidebar.setShortcut("Ctrl+B")
+        act_toggle_sidebar.setCheckable(True)
+        act_toggle_sidebar.setChecked(True)  # Default visible
+        menu_sidebar.addAction(act_toggle_sidebar)
+
+        act_toggle_sidebar_mode = QAction("Toggle List/Tabs Mode", self)
         act_toggle_sidebar_mode.setShortcut("Ctrl+Alt+S")
         act_toggle_sidebar_mode.setToolTip("Toggle Sidebar between List and Tabs (Ctrl+Alt+S)")
-        menu_settings.addAction(act_toggle_sidebar_mode)
+        menu_sidebar.addAction(act_toggle_sidebar_mode)
 
-        menu_settings.addSeparator()
-        menu_settings.addAction("About Photo App", lambda: QMessageBox.information(self, "About", "MemoryMate PhotoFlow  (Alpha)\n© 2025"))
+        # ========== FILTERS MENU ==========
+        menu_filters = menu_bar.addMenu("Filters")
 
-        # === Database Menu ===
-        menu_db = menu_bar.addMenu("🗄️ Database")
+        self.btn_all = QAction("All Photos", self)
+        self.btn_all.setCheckable(True)
+        self.btn_all.setChecked(True)
+        menu_filters.addAction(self.btn_all)
 
-        act_db_fresh = QAction("Fresh Start (delete DB)…", self)
-        act_db_check = QAction("Self-Check / Report…", self)
-        act_db_rebuild_dates = QAction("Rebuild Date Index", self)  # safe no-op if not implemented
-        act_migrate = QAction("Data Migration… (created_ts / year / date)", self)
-        
-        menu_db.addAction(act_db_fresh)
-        menu_db.addAction(act_db_check)
-        menu_db.addSeparator()
-        menu_db.addAction(act_db_rebuild_dates)
-        menu_db.addAction(act_migrate)
-                
-        # Metadata Backfill submenu (use menu_bar which is already defined above)
-        meta_menu = menu_bar.addMenu("🔍 Metadata Backfill")
-        act_meta_start = meta_menu.addAction("Start Persistent Backfill (background)")
-        act_meta_single = meta_menu.addAction("Run Backfill (foreground)")
-        act_meta_auto = meta_menu.addAction("Auto-run after scan")
+        self.btn_fav = QAction("Favorites", self)
+        self.btn_fav.setCheckable(True)
+        menu_filters.addAction(self.btn_fav)
+
+        self.btn_faces = QAction("Faces", self)
+        self.btn_faces.setCheckable(True)
+        menu_filters.addAction(self.btn_faces)
+
+        # Group filter actions for exclusive selection
+        self.filter_menu_group = QActionGroup(self)
+        self.filter_menu_group.addAction(self.btn_all)
+        self.filter_menu_group.addAction(self.btn_fav)
+        self.filter_menu_group.addAction(self.btn_faces)
+
+        # ========== TOOLS MENU ==========
+        menu_tools = menu_bar.addMenu("Tools")
+
+        act_scan_repo_tools = QAction("Scan Repository…", self)
+        act_scan_repo_tools.setToolTip("Scan a directory to add photos to the current project")
+        menu_tools.addAction(act_scan_repo_tools)
+
+        menu_tools.addSeparator()
+
+        # Metadata Backfill submenu
+        menu_backfill = menu_tools.addMenu("Metadata Backfill")
+
+        act_meta_start = menu_backfill.addAction("Start Background Backfill (Photos)")
+        act_meta_single = menu_backfill.addAction("Run Foreground Backfill (Photos)")
+        menu_backfill.addSeparator()
+        act_video_backfill = menu_backfill.addAction("🎬 Video Metadata Backfill...")
+        act_video_backfill.setToolTip("Re-extract metadata (dates, duration, resolution) for all videos")
+        menu_backfill.addSeparator()
+        act_meta_auto = menu_backfill.addAction("Auto-run after scan (Photos & Videos)")
         act_meta_auto.setCheckable(True)
         act_meta_auto.setChecked(self.settings.get("auto_run_backfill_after_scan", False))
+        act_meta_auto.setToolTip("Automatically backfill metadata for both photos and videos after scanning")
+
+        act_clear_cache = QAction("Clear Thumbnail Cache…", self)
+        menu_tools.addAction(act_clear_cache)
+        act_clear_cache.triggered.connect(self._on_clear_thumbnail_cache)
+
+        menu_tools.addSeparator()
+
+        # Database submenu (advanced operations)
+        menu_db = menu_tools.addMenu("Database")
+
+        act_db_fresh = QAction("Fresh Start (delete DB)…", self)
+        menu_db.addAction(act_db_fresh)
+
+        act_db_check = QAction("Self-Check / Report…", self)
+        menu_db.addAction(act_db_check)
+
+        menu_db.addSeparator()
+
+        act_db_rebuild_dates = QAction("Rebuild Date Index", self)
+        menu_db.addAction(act_db_rebuild_dates)
+
+        act_migrate = QAction("Data Migration… (created_ts / year / date)", self)
+        menu_db.addAction(act_migrate)
+
+        act_optimize = QAction("Optimize Indexes (date/updated)", self)
+        menu_db.addAction(act_optimize)
+
+        # ========== HELP MENU ==========
+        menu_help = menu_bar.addMenu("Help")
+
+        act_about = QAction("About MemoryMate PhotoFlow", self)
+        menu_help.addAction(act_about)
+
+        act_shortcuts = QAction("Keyboard Shortcuts", self)
+        act_shortcuts.setShortcut("F1")
+        menu_help.addAction(act_shortcuts)
+
+        menu_help.addSeparator()
+
+        act_report_bug = QAction("Report Bug…", self)
+        menu_help.addAction(act_report_bug)
+
+        # ========== MENU ACTION CONNECTIONS ==========
+
+        # File menu connections
+        act_scan_repo_menu.triggered.connect(lambda: self._on_scan_repository() if hasattr(self, '_on_scan_repository') else None)
+
+        # View menu connections
+        act_zoom_in.triggered.connect(self._on_zoom_in)
+        act_zoom_out.triggered.connect(self._on_zoom_out)
+
+        act_grid_small_menu.triggered.connect(lambda: self._set_grid_preset("small"))
+        act_grid_medium_menu.triggered.connect(lambda: self._set_grid_preset("medium"))
+        act_grid_large_menu.triggered.connect(lambda: self._set_grid_preset("large"))
+        act_grid_xl_menu.triggered.connect(lambda: self._set_grid_preset("xl"))
+
+        act_sort_date.triggered.connect(lambda: self._apply_menu_sort("Date"))
+        act_sort_filename.triggered.connect(lambda: self._apply_menu_sort("Filename"))
+        act_sort_size.triggered.connect(lambda: self._apply_menu_sort("Size"))
+
+        act_toggle_sidebar.toggled.connect(self._on_toggle_sidebar_visibility)
+        # act_toggle_sidebar_mode connection happens later (line ~2430)
+
+        # Filter menu connections
+        self.btn_all.triggered.connect(lambda: self._apply_tag_filter("all"))
+        self.btn_fav.triggered.connect(lambda: self._apply_tag_filter("favorite"))
+        self.btn_faces.triggered.connect(lambda: self._apply_tag_filter("face"))
+
+        # Tools menu connections
+        act_scan_repo_tools.triggered.connect(lambda: self._on_scan_repository() if hasattr(self, '_on_scan_repository') else None)
 
         act_meta_start.triggered.connect(lambda: self.backfill_panel._on_start_background())
         act_meta_single.triggered.connect(lambda: self.backfill_panel._on_run_foreground())
+        act_video_backfill.triggered.connect(self._on_video_backfill)
         act_meta_auto.toggled.connect(lambda v: self.settings.set("auto_run_backfill_after_scan", bool(v)))
- 
-        # === 🧠 Tag Filters ===
-        tool_tag_bar = ui.menu("🧠 Tags")
-        self.btn_all = ui.menu_action(tool_tag_bar, "All", checkable=True, handler=lambda: self._apply_tag_filter("all"))
-        self.btn_all.setChecked(True)
-        self.btn_fav = ui.menu_action(tool_tag_bar, "⭐ Favorites", checkable=True, handler=lambda: self._apply_tag_filter("favorite"))
-        self.btn_faces = ui.menu_action(tool_tag_bar, "🧍 Faces", checkable=True, handler=lambda: self._apply_tag_filter("face")) 
 
-        tools_menu = self.menuBar().addMenu("🧰 Tools")
-
-        act_clear_cache = tools_menu.addAction("🧹 Clear Thumbnail Cache…")
-        act_clear_cache.triggered.connect(self._on_clear_thumbnail_cache)
-
-        act_migrate.triggered.connect(self._run_date_migration)
         act_db_fresh.triggered.connect(self._db_fresh_start)
         act_db_check.triggered.connect(self._db_self_check)
         act_db_rebuild_dates.triggered.connect(self._db_rebuild_date_index)
-        
-        act_optimize = QAction("Optimize Indexes (date/updated)", self)
-        menu_db.addAction(act_optimize)
+        act_migrate.triggered.connect(self._run_date_migration)
 
         def _optimize_db():
             try:
@@ -1730,7 +2806,12 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", str(e))
 
-        act_optimize.triggered.connect(_optimize_db)    
+        act_optimize.triggered.connect(_optimize_db)
+
+        # Help menu connections
+        act_about.triggered.connect(lambda: QMessageBox.information(self, "About", "MemoryMate PhotoFlow (Alpha)\n© 2025"))
+        act_shortcuts.triggered.connect(self._show_keyboard_shortcuts)
+        act_report_bug.triggered.connect(lambda: self._open_url("https://github.com/anthropics/memorymate-photoflow/issues"))    
 
         # 📂 Scan Repository Action
         act_scan_repo = tb.addAction("📂 Scan Repository…")
@@ -1770,38 +2851,98 @@ class MainWindow(QMainWindow):
         self.chk_incremental = ui.checkbox("Incremental", checked=True)
         ui.separator()
 
+        # 🔍 Search Bar
+        self.search_bar = SearchBarWidget(self)
+        self.search_bar.searchTriggered.connect(self._on_quick_search)
+        self.search_bar.advancedSearchRequested.connect(self._on_advanced_search)
+        tb.addWidget(self.search_bar)
+        ui.separator()
+
         # 🔽 Sorting and filtering controls
         self.sort_combo = ui.combo_sort("Sort:", ["Filename", "Date", "Size"], self._apply_sort_filter)
         self.sort_order_combo = QSortComboBox()
         self.sort_order_combo.addItems(["Ascending", "Descending"])
         self.sort_order_combo.currentIndexChanged.connect(lambda *_: self._apply_sort_filter())
         tb.addWidget(self.sort_order_combo)
+        ui.separator()
+
+        # Phase 2.3: Grid Size Presets (Google Photos style)
+        # Quick resize buttons: Small / Medium / Large / XL
+        tb.addWidget(QLabel("Grid:"))
+
+        # Create button group for exclusive selection
+        self.grid_size_group = QButtonGroup(self)
+
+        # Small preset
+        self.btn_grid_small = QPushButton("S")
+        self.btn_grid_small.setFixedSize(28, 28)
+        self.btn_grid_small.setCheckable(True)
+        self.btn_grid_small.setToolTip("Small thumbnails (90px)")
+        self.btn_grid_small.setStyleSheet("font-weight: bold;")
+        self.btn_grid_small.clicked.connect(lambda: self._set_grid_preset("small"))
+        self.grid_size_group.addButton(self.btn_grid_small, 0)
+        tb.addWidget(self.btn_grid_small)
+
+        # Medium preset
+        self.btn_grid_medium = QPushButton("M")
+        self.btn_grid_medium.setFixedSize(28, 28)
+        self.btn_grid_medium.setCheckable(True)
+        self.btn_grid_medium.setChecked(True)  # Default
+        self.btn_grid_medium.setToolTip("Medium thumbnails (120px)")
+        self.btn_grid_medium.setStyleSheet("font-weight: bold;")
+        self.btn_grid_medium.clicked.connect(lambda: self._set_grid_preset("medium"))
+        self.grid_size_group.addButton(self.btn_grid_medium, 1)
+        tb.addWidget(self.btn_grid_medium)
+
+        # Large preset
+        self.btn_grid_large = QPushButton("L")
+        self.btn_grid_large.setFixedSize(28, 28)
+        self.btn_grid_large.setCheckable(True)
+        self.btn_grid_large.setToolTip("Large thumbnails (200px)")
+        self.btn_grid_large.setStyleSheet("font-weight: bold;")
+        self.btn_grid_large.clicked.connect(lambda: self._set_grid_preset("large"))
+        self.grid_size_group.addButton(self.btn_grid_large, 2)
+        tb.addWidget(self.btn_grid_large)
+
+        # XL preset
+        self.btn_grid_xl = QPushButton("XL")
+        self.btn_grid_xl.setFixedSize(32, 28)
+        self.btn_grid_xl.setCheckable(True)
+        self.btn_grid_xl.setToolTip("Extra large thumbnails (280px)")
+        self.btn_grid_xl.setStyleSheet("font-weight: bold;")
+        self.btn_grid_xl.clicked.connect(lambda: self._set_grid_preset("xl"))
+        self.grid_size_group.addButton(self.btn_grid_xl, 3)
+        tb.addWidget(self.btn_grid_xl)
 
         # --- Central container
         container = QWidget()
         self.setCentralWidget(container)
         main_layout = QVBoxLayout(container)
 
-        # Backfill status panel
-        try:
-            self.backfill_panel = BackfillStatusPanel(self)
-            main_layout.addWidget(self.backfill_panel)
-        except Exception:
-            pass
-            
-        # --- Top bar
+        # Phase 2.3: Removed huge BackfillStatusPanel (120-240px)
+        # Replaced with compact indicator in top bar
+
+        # --- Top bar (with breadcrumb navigation + compact backfill indicator)
         topbar = QWidget()
         top_layout = QHBoxLayout(topbar)
         top_layout.setContentsMargins(6, 6, 6, 6)
 
-        self.project_combo = QComboBox()
-        self._projects = list_projects()
-        for p in self._projects:
-            self.project_combo.addItem(f"{p['id']} — {p['name']} ({p['mode']})", p["id"])
-        self.project_combo.currentIndexChanged.connect(self._on_project_changed)
+        # Phase 2 (High Impact): Breadcrumb Navigation replaces project dropdown
+        self.breadcrumb_nav = BreadcrumbNavigation(self)
+        top_layout.addWidget(self.breadcrumb_nav, 1)
 
-        top_layout.addWidget(QLabel("Project:"))
-        top_layout.addWidget(self.project_combo, 1)
+        # Keep project data for backwards compatibility
+        self._projects = list_projects()
+
+        # Phase 2.3: Add compact backfill indicator (right-aligned)
+        try:
+            self.backfill_indicator = CompactBackfillIndicator(self)
+            top_layout.addWidget(self.backfill_indicator)
+            # Keep reference to old panel for compatibility with menu actions
+            self.backfill_panel = self.backfill_indicator
+        except Exception as e:
+            print(f"[MainWindow] Could not create backfill indicator: {e}")
+
         main_layout.addWidget(topbar)
 
         # --- Main layout (Sidebar + Grid + Details)
@@ -1847,11 +2988,33 @@ class MainWindow(QMainWindow):
 
         self.sidebar.on_branch_selected = self.sidebar_controller.on_branch_selected
         self.sidebar.folderSelected.connect(self.sidebar_controller.on_folder_selected)
-        
+        # 🎬 Phase 4: Videos support
+        if hasattr(self.sidebar, 'selectVideos'):
+            self.sidebar.selectVideos.connect(self.sidebar_controller.on_videos_selected)
+
         self.splitter.addWidget(self.sidebar)
 
+        # Phase 2.3: Grid container with selection toolbar
+        self.grid_container = QWidget()
+        grid_layout = QVBoxLayout(self.grid_container)
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+        grid_layout.setSpacing(4)
+
+        # Selection toolbar (hidden by default, shows when items selected)
+        self.selection_toolbar = SelectionToolbar(self)
+        grid_layout.addWidget(self.selection_toolbar)
+
+        # Thumbnail grid
         self.grid = ThumbnailGridQt(project_id=default_pid)
-        self.splitter.addWidget(self.grid)
+        grid_layout.addWidget(self.grid)
+
+        # 🎬 Phase 4.4: Video player panel (hidden by default)
+        self.video_player = VideoPlayerPanel(self)
+        self.video_player.hide()
+        self.video_player.closed.connect(self._on_video_player_closed)
+        grid_layout.addWidget(self.video_player)
+
+        self.splitter.addWidget(self.grid_container)
 
         # 🔗 Now that grid exists — connect toolbar actions safely
         act_select_all.triggered.connect(self.grid.list_view.selectAll)
@@ -1885,12 +3048,13 @@ class MainWindow(QMainWindow):
         self.splitter.setStretchFactor(1, 1)
         self.splitter.setStretchFactor(2, 0)
 
-        main_layout.addWidget(self.splitter, 1)
+        # Phase 3: Set initial splitter sizes for better usability
+        # Sidebar: 250px, Grid: takes remaining, Details: 300px
+        self.splitter.setSizes([250, 1000, 300])
+        # Make splitter handle more visible and easier to grab
+        self.splitter.setHandleWidth(3)
 
-        if default_pid is not None:
-            idx = self.project_combo.findData(default_pid)
-            if idx >= 0:
-                self.project_combo.setCurrentIndex(idx)
+        main_layout.addWidget(self.splitter, 1)
 
         # --- Wire toolbar actions
         act_select_all.triggered.connect(self.grid.list_view.selectAll)
@@ -1904,11 +3068,27 @@ class MainWindow(QMainWindow):
         self.sort_order_combo.currentIndexChanged.connect(lambda *_: self._apply_sort_filter())
 
         # --- Grid signals
-        self.grid.selectionChanged.connect(
-            lambda n: self.statusBar().showMessage(f"{n} selected")
-        )
+        # Phase 2.3: Use rich status bar instead of simple message
+        self.grid.selectionChanged.connect(lambda n: self._update_status_bar(selection_count=n))
         self.grid.openRequested.connect(lambda p: self._open_lightbox(p))
         self.grid.deleteRequested.connect(lambda paths: self._confirm_delete(paths))
+        # Phase 2.3: Update status bar when grid data is reloaded
+        self.grid.gridReloaded.connect(lambda: self._update_status_bar())
+        # Phase 2: Update breadcrumb navigation when grid changes
+        self.grid.gridReloaded.connect(lambda: self._update_breadcrumb())
+        # Phase 2.3: Update selection toolbar when selection changes
+        self.grid.selectionChanged.connect(lambda n: self.selection_toolbar.update_selection(n))
+
+        # --- Wire selection toolbar buttons
+        self.selection_toolbar.btn_favorite.clicked.connect(self._toggle_favorite_selection)
+        self.selection_toolbar.btn_delete.clicked.connect(self._request_delete_from_selection)
+        self.selection_toolbar.btn_clear.clicked.connect(self.grid.list_view.clearSelection)
+
+        # --- Phase 8: Wire face grouping buttons (moved to grid toolbar)
+        if hasattr(self.grid, "btn_detect_and_group"):
+            self.grid.btn_detect_and_group.clicked.connect(self._on_detect_and_group_faces)
+        if hasattr(self.grid, "btn_recluster"):
+            self.grid.btn_recluster.clicked.connect(self._on_recluster_faces)
 
         # --- Auto-update details panel on selection change
         def _update_details_from_selection():
@@ -1920,10 +3100,20 @@ class MainWindow(QMainWindow):
         # === Initialize periodic progress pollers (for detached workers) ===
         try:
             self.app_root = os.getcwd()  # base path for 'status/' folder
-            os.makedirs(os.path.join(self.app_root, "status"), exist_ok=True)
+            status_dir = os.path.join(self.app_root, "status")
+
+            # More defensive directory creation (fixes WinError 183 on Windows)
+            if not os.path.exists(status_dir):
+                os.makedirs(status_dir)
+            elif not os.path.isdir(status_dir):
+                raise ValueError(f"'status' exists but is not a directory: {status_dir}")
+
             self._init_progress_pollers()
         except Exception as e:
             print(f"[MainWindow] ⚠️ Progress pollers init failed: {e}")
+
+        # Phase 2: Initialize breadcrumb navigation
+        QTimer.singleShot(100, self._update_breadcrumb)
 
         # === Initialize database schema at startup ===
         try:
@@ -1984,13 +3174,13 @@ class MainWindow(QMainWindow):
 
         if tag in (None, "", "all"):
             self.grid.apply_tag_filter(None)
-            self.statusBar().showMessage("Showing all photos")
             print("[TAG FILTER] Cleared.")
         else:
             self.grid.apply_tag_filter(tag)
-            msg = f"Filtered by tag '{tag}'"
-            self.statusBar().showMessage(msg)
             print(f"[TAG FILTER] Applied: {tag}")
+
+        # Phase 2.3: Update rich status bar after filter change
+        self._update_status_bar()
 
 
     def _clear_tag_filter(self):
@@ -2017,6 +3207,96 @@ class MainWindow(QMainWindow):
         if hasattr(self.grid, "reload"):
             self.grid.reload()
 
+    # ============================================================
+    # 🔍 Search handlers
+    # ============================================================
+    def _on_quick_search(self, query: str):
+        """Handle quick search from search bar."""
+        try:
+            from services import SearchService
+            search_service = SearchService()
+            paths = search_service.quick_search(query, limit=100)
+
+            # Display results in grid
+            if paths:
+                self.grid.load_paths(paths)
+                self.statusBar().showMessage(f"🔍 Found {len(paths)} photos matching '{query}'")
+                print(f"[SEARCH] Quick search found {len(paths)} results for '{query}'")
+            else:
+                self.statusBar().showMessage(f"🔍 No photos found matching '{query}'")
+                QMessageBox.information(self, "Search Results", f"No photos found matching '{query}'")
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Quick search failed: {e}")
+            QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
+
+    def _on_advanced_search(self):
+        """Show advanced search dialog."""
+        try:
+            dialog = AdvancedSearchDialog(self)
+            if dialog.exec() == QDialog.Accepted:
+                criteria = dialog.get_search_criteria()
+
+                from services import SearchService
+                search_service = SearchService()
+                result = search_service.search(criteria)
+
+                if result.paths:
+                    self.grid.load_paths(result.paths)
+                    self.statusBar().showMessage(
+                        f"🔍 Found {result.filtered_count} photos in {result.execution_time_ms:.1f}ms"
+                    )
+                    print(f"[SEARCH] Advanced search found {result.filtered_count} results in {result.execution_time_ms:.1f}ms")
+                else:
+                    QMessageBox.information(self, "Search Results", "No photos match the search criteria")
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Advanced search failed: {e}")
+            QMessageBox.critical(self, "Search Error", f"Search failed:\n{e}")
+
+
+    def _on_video_backfill(self):
+        """Open the video metadata backfill dialog."""
+        try:
+            # Get project_id from grid or sidebar
+            project_id = None
+            if hasattr(self, 'grid') and hasattr(self.grid, 'project_id'):
+                project_id = self.grid.project_id
+            elif hasattr(self, 'sidebar') and hasattr(self.sidebar, 'project_id'):
+                project_id = self.sidebar.project_id
+
+            # Fallback to default project if not found
+            if project_id is None:
+                from app_services import get_default_project_id
+                project_id = get_default_project_id()
+
+            if project_id is None:
+                QMessageBox.warning(
+                    self,
+                    "No Project",
+                    "No project is currently active.\n"
+                    "Please create a project or scan a folder first."
+                )
+                return
+
+            dialog = VideoBackfillDialog(self, project_id=project_id)
+            result = dialog.exec()
+
+            # If backfill completed successfully, refresh sidebar to update video counts
+            if result == QDialog.Accepted and dialog.stats:
+                if dialog.stats.get('updated', 0) > 0:
+                    print(f"✓ Video backfill completed: {dialog.stats['updated']} videos updated")
+                    # Refresh sidebar to show updated video date counts
+                    if hasattr(self, 'sidebar') and hasattr(self.sidebar, 'refresh_sidebar'):
+                        self.sidebar.refresh_sidebar()
+                        print("✓ Sidebar refreshed with new video metadata")
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Video Backfill Error",
+                f"Failed to open video backfill dialog:\n{str(e)}"
+            )
+            print(f"✗ Video backfill error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _on_clear_thumbnail_cache(self):
         if QMessageBox.question(
@@ -2350,7 +3630,54 @@ class MainWindow(QMainWindow):
 
     def _on_project_changed(self, idx: int):
         self.project_controller.on_project_changed(idx)
-        
+
+    def _on_project_changed_by_id(self, project_id: int):
+        """
+        Phase 2: Switch to a project by ID (used by breadcrumb navigation).
+        Updates the sidebar and grid to show the selected project.
+        """
+        try:
+            # CRITICAL: Check if already on this project to prevent redundant reloads and crashes
+            current_project_id = getattr(self.grid, 'project_id', None) if hasattr(self, 'grid') else None
+            if current_project_id == project_id:
+                print(f"[MainWindow] Already on project {project_id}, skipping switch")
+                return
+
+            # CRITICAL ORDER: Update grid FIRST before sidebar to prevent race condition
+            # Sidebar.set_project() triggers callbacks that reload grid, so grid.project_id
+            # must be set BEFORE those callbacks fire
+            if hasattr(self, "grid") and self.grid:
+                self.grid.project_id = project_id
+                print(f"[MainWindow] Set grid.project_id = {project_id}")
+
+            # Now update sidebar (this triggers reload which will use the new grid.project_id)
+            if hasattr(self, "sidebar") and self.sidebar:
+                self.sidebar.set_project(project_id)
+
+            # Finally, explicitly reload grid to show all photos
+            if hasattr(self, "grid") and self.grid:
+                self.grid.set_branch("all")  # Reset to show all photos
+
+            # Update breadcrumb
+            if hasattr(self, "_update_breadcrumb"):
+                QTimer.singleShot(100, self._update_breadcrumb)
+
+            print(f"[MainWindow] Switched to project ID: {project_id}")
+        except Exception as e:
+            print(f"[MainWindow] Error switching project: {e}")
+
+    def _refresh_project_list(self):
+        """
+        Phase 2: Refresh the project list (called after creating a new project).
+        Updates the cached project list for breadcrumb navigation.
+        """
+        try:
+            from app_services import list_projects
+            self._projects = list_projects()
+            print(f"[MainWindow] Refreshed project list: {len(self._projects)} projects")
+        except Exception as e:
+            print(f"[MainWindow] Error refreshing project list: {e}")
+
     def _on_folder_selected(self, folder_id: int):
         # DELEGATED to SidebarController (legacy stub kept for compatibility)
         self.sidebar_controller.on_folder_selected(folder_id)
@@ -2380,6 +3707,146 @@ class MainWindow(QMainWindow):
         descending = self.sort_order_combo.currentText() == "Descending"
         self.grid.apply_sorting(sort_field, descending)
 
+        # Phase 2.3: Update rich status bar after sorting
+        self._update_status_bar()
+
+    def _set_grid_preset(self, size: str):
+        """
+        Phase 2.3: Set grid thumbnail size using preset (Google Photos style).
+        Instantly resizes grid to Small (90px), Medium (120px), Large (200px), or XL (280px).
+
+        Args:
+            size: One of "small", "medium", "large", "xl"
+        """
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        # Map presets to zoom factors
+        # Formula: zoom_factor = target_height / _thumb_base (where _thumb_base = 120)
+        presets = {
+            "small": 0.75,    # 90px
+            "medium": 1.0,    # 120px (default)
+            "large": 1.67,    # 200px
+            "xl": 2.33        # 280px
+        }
+
+        zoom_factor = presets.get(size, 1.0)
+
+        # Apply zoom with animation
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(zoom_factor, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(zoom_factor)
+
+        print(f"[Grid Preset] Set to {size} (zoom: {zoom_factor})")
+
+    # === Phase 3: Enhanced Menu Handlers ===
+
+    def _on_zoom_in(self):
+        """Phase 3: Zoom in (increase thumbnail size)."""
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        current_zoom = getattr(self.grid, "_zoom_factor", 1.0)
+        new_zoom = min(current_zoom + 0.25, 3.0)  # Max zoom 3.0
+
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(new_zoom, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(new_zoom)
+
+        print(f"[Menu Zoom] Zoom In: {current_zoom:.2f} → {new_zoom:.2f}")
+
+    def _on_zoom_out(self):
+        """Phase 3: Zoom out (decrease thumbnail size)."""
+        if not hasattr(self, "grid") or not self.grid:
+            return
+
+        current_zoom = getattr(self.grid, "_zoom_factor", 1.0)
+        new_zoom = max(current_zoom - 0.25, 0.5)  # Min zoom 0.5
+
+        if hasattr(self.grid, "_animate_zoom_to"):
+            self.grid._animate_zoom_to(new_zoom, duration=150)
+        elif hasattr(self.grid, "_set_zoom_factor"):
+            self.grid._set_zoom_factor(new_zoom)
+
+        print(f"[Menu Zoom] Zoom Out: {current_zoom:.2f} → {new_zoom:.2f}")
+
+    def _apply_menu_sort(self, sort_type: str):
+        """Phase 3: Apply sorting from View menu."""
+        if not hasattr(self, "sort_combo"):
+            return
+
+        # Map menu sort type to combo box index
+        sort_map = {
+            "Filename": 0,
+            "Date": 1,
+            "Size": 2
+        }
+
+        index = sort_map.get(sort_type, 0)
+        self.sort_combo.setCurrentIndex(index)
+        self._apply_sort_filter()
+
+        print(f"[Menu Sort] Applied: {sort_type}")
+
+    def _on_toggle_sidebar_visibility(self, checked: bool):
+        """Phase 3: Show/hide sidebar from View menu."""
+        if hasattr(self, "sidebar") and self.sidebar:
+            self.sidebar.setVisible(checked)
+            print(f"[Menu Sidebar] Visibility: {checked}")
+
+    def _show_keyboard_shortcuts(self):
+        """Phase 3: Show keyboard shortcuts help dialog."""
+        shortcuts_text = """
+<h2>Keyboard Shortcuts</h2>
+
+<h3>Navigation</h3>
+<table>
+<tr><td><b>Arrow Keys</b></td><td>Navigate grid</td></tr>
+<tr><td><b>Space / Enter</b></td><td>Open lightbox</td></tr>
+<tr><td><b>Escape</b></td><td>Clear selection / Close lightbox</td></tr>
+</table>
+
+<h3>Selection</h3>
+<table>
+<tr><td><b>Ctrl+Click</b></td><td>Toggle selection</td></tr>
+<tr><td><b>Shift+Click</b></td><td>Range selection</td></tr>
+<tr><td><b>Ctrl+A</b></td><td>Select all</td></tr>
+</table>
+
+<h3>View</h3>
+<table>
+<tr><td><b>Ctrl++</b></td><td>Zoom in</td></tr>
+<tr><td><b>Ctrl+-</b></td><td>Zoom out</td></tr>
+<tr><td><b>Ctrl+B</b></td><td>Toggle sidebar</td></tr>
+<tr><td><b>Ctrl+Alt+S</b></td><td>Toggle sidebar mode (List/Tabs)</td></tr>
+</table>
+
+<h3>Actions</h3>
+<table>
+<tr><td><b>Ctrl+O</b></td><td>Scan repository</td></tr>
+<tr><td><b>Ctrl+,</b></td><td>Preferences</td></tr>
+<tr><td><b>F1</b></td><td>Show keyboard shortcuts</td></tr>
+</table>
+        """
+
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Keyboard Shortcuts")
+        msg_box.setTextFormat(Qt.TextFormat.RichText)
+        msg_box.setText(shortcuts_text)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg_box.exec()
+
+    def _open_url(self, url: str):
+        """Phase 3: Open URL in default browser."""
+        try:
+            import webbrowser
+            webbrowser.open(url)
+            print(f"[Menu] Opened URL: {url}")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Could not open URL:\n{url}\n\nError: {e}")
+
     def _open_lightbox_from_selection(self):
         """Open the last selected image in lightbox."""
         paths = self.grid.get_selected_paths()
@@ -2387,26 +3854,385 @@ class MainWindow(QMainWindow):
         if paths:
             self._open_lightbox(paths[-1])
 
+    def _toggle_favorite_selection(self):
+        """
+        Phase 2.3: Toggle favorite tag for all selected photos.
+        Called from selection toolbar.
+        """
+        paths = self.grid.get_selected_paths()
+        if not paths:
+            return
+
+        # Check if any photo is already favorited
+        db = ReferenceDB()
+        has_favorite = False
+        for path in paths:
+            tags = db.get_tags_for_paths([path], self.grid.project_id).get(path, [])
+            if "favorite" in tags:
+                has_favorite = True
+                break
+
+        # Toggle: if any is favorite, unfavorite all; otherwise favorite all
+        if has_favorite:
+            # Unfavorite all
+            for path in paths:
+                db.remove_tag(path, "favorite", self.grid.project_id)
+            msg = f"Removed favorite from {len(paths)} photo(s)"
+        else:
+            # Favorite all
+            for path in paths:
+                db.add_tag(path, "favorite", self.grid.project_id)
+            msg = f"Added {len(paths)} photo(s) to favorites"
+
+        # Refresh grid to show updated tag icons
+        if hasattr(self.grid, "reload"):
+            self.grid.reload()
+
+        self.statusBar().showMessage(msg, 3000)
+        print(f"[Favorite] {msg}")
+
     def _request_delete_from_selection(self):
         """Trigger delete for currently selected images."""
         paths = self.grid.get_selected_paths()
         if paths:
             self._confirm_delete(paths)
 
+    # ============================================================
+    # Phase 8: Face Grouping Handlers (moved from People tab)
+    # ============================================================
+
+    def _on_detect_and_group_faces(self):
+        """
+        Launch automatic face grouping pipeline.
+
+        Pipeline: Detection → Clustering → UI Refresh
+        - Detection: Scans photos, detects faces, generates embeddings
+        - Clustering: Groups similar faces using DBSCAN
+        - Refresh: Auto-updates People tab with results
+
+        User sees: Single button click → Automatic results ✅
+        """
+        try:
+            from PySide6.QtCore import QThreadPool
+            from PySide6.QtWidgets import QMessageBox, QProgressBar, QVBoxLayout, QDialog, QLabel, QPushButton
+            from workers.face_detection_worker import FaceDetectionWorker
+            from workers.face_cluster_worker import FaceClusterWorker
+
+            # Get current project ID
+            project_id = getattr(self.grid, "project_id", None)
+            if not project_id:
+                QMessageBox.warning(
+                    self,
+                    "No Project",
+                    "Please select a project first."
+                )
+                return
+
+            # Confirm action
+            reply = QMessageBox.question(
+                self,
+                "Detect & Group Faces",
+                f"This will automatically:\n"
+                f"1. Detect faces in all photos\n"
+                f"2. Group similar faces into person albums\n"
+                f"3. Show results in the People tab\n\n"
+                f"This may take 10-20 minutes for large photo collections.\n\n"
+                f"Continue?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+
+            if reply != QMessageBox.Yes:
+                return
+
+            print(f"[MainWindow] Launching automatic face grouping pipeline for project {project_id}")
+
+            # Create progress dialog
+            progress_dialog = QDialog(self)
+            progress_dialog.setWindowTitle("Grouping Faces")
+            progress_dialog.setModal(True)
+            progress_dialog.setMinimumWidth(500)
+
+            layout = QVBoxLayout()
+            status_label = QLabel("Starting face detection...")
+            progress_bar = QProgressBar()
+            progress_bar.setRange(0, 100)
+            progress_bar.setValue(0)
+
+            cancel_btn = QPushButton("Cancel")
+            cancel_btn.setStyleSheet("QPushButton{padding:5px 15px;}")
+
+            layout.addWidget(status_label)
+            layout.addWidget(progress_bar)
+            layout.addWidget(cancel_btn)
+            progress_dialog.setLayout(layout)
+
+            # Worker references (for cancellation)
+            current_detection_worker = None
+            current_cluster_worker = None
+
+            def cancel_pipeline():
+                """Cancel the entire pipeline."""
+                if current_detection_worker:
+                    current_detection_worker.cancel()
+                if current_cluster_worker:
+                    current_cluster_worker.cancel()
+                progress_dialog.close()
+                print("[MainWindow] Face grouping pipeline cancelled by user")
+
+            cancel_btn.clicked.connect(cancel_pipeline)
+
+            # Step 1: Start detection worker
+            detection_worker = FaceDetectionWorker(project_id=project_id)
+            current_detection_worker = detection_worker
+
+            def on_detection_progress(current, total, message):
+                """Update progress during detection (0-50%)."""
+                pct = int((current / total) * 50) if total > 0 else 0
+                progress_bar.setValue(pct)
+                status_label.setText(f"[1/2] {message}")
+                print(f"[FaceDetection] [{current}/{total}] {message}")
+
+            def on_detection_finished(success, failed, total_faces):
+                """Detection complete → Auto-start clustering."""
+                print(f"[FaceDetection] Complete: {success} photos, {total_faces} faces detected")
+
+                if total_faces == 0:
+                    progress_dialog.close()
+                    QMessageBox.information(
+                        self,
+                        "No Faces Found",
+                        f"No faces detected in {success} photos.\n\n"
+                        f"Try photos with clear, front-facing faces for best results."
+                    )
+                    return
+
+                # Step 2: Auto-start clustering worker
+                nonlocal current_cluster_worker
+                cluster_worker = FaceClusterWorker(project_id=project_id)
+                current_cluster_worker = cluster_worker
+
+                def on_cluster_progress(current, total, message):
+                    """Update progress during clustering (50-100%)."""
+                    pct = int(50 + (current / total) * 50) if total > 0 else 50
+                    progress_bar.setValue(pct)
+                    status_label.setText(f"[2/2] {message}")
+                    print(f"[FaceCluster] {message}")
+
+                def on_cluster_finished(cluster_count, total_clustered):
+                    """Clustering complete → Auto-refresh UI."""
+                    progress_dialog.close()
+                    print(f"[FaceCluster] Complete: {cluster_count} person groups created")
+
+                    # Refresh the sidebar to show new People clusters
+                    if hasattr(self, "sidebar"):
+                        self.sidebar.reload()
+
+                    # Show success notification
+                    QMessageBox.information(
+                        self,
+                        "Face Grouping Complete",
+                        f"✅ Found {cluster_count} people in your photos!\n\n"
+                        f"Grouped {total_clustered} faces from {success} photos.\n\n"
+                        f"View results in the People section of the sidebar."
+                    )
+
+                def on_cluster_error(error_msg):
+                    """Handle clustering errors."""
+                    progress_dialog.close()
+                    QMessageBox.warning(
+                        self,
+                        "Clustering Failed",
+                        f"Face detection succeeded ({total_faces} faces found),\n"
+                        f"but clustering failed:\n\n{error_msg}\n\n"
+                        f"Try clicking 🔁 Re-Cluster to retry."
+                    )
+
+                cluster_worker.signals.progress.connect(on_cluster_progress)
+                cluster_worker.signals.finished.connect(on_cluster_finished)
+                cluster_worker.signals.error.connect(on_cluster_error)
+
+                QThreadPool.globalInstance().start(cluster_worker)
+
+            detection_worker.signals.progress.connect(on_detection_progress)
+            detection_worker.signals.finished.connect(on_detection_finished)
+
+            # Start detection worker
+            QThreadPool.globalInstance().start(detection_worker)
+
+            # Show progress dialog
+            progress_dialog.show()
+
+        except ImportError as e:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                self,
+                "Missing Library",
+                f"InsightFace library not installed.\n\n"
+                f"Install with:\npip install insightface onnxruntime\n\n"
+                f"Error: {e}"
+            )
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Face Grouping Failed", str(e))
+
+    def _on_recluster_faces(self):
+        """
+        Manually re-run clustering on existing face detections.
+
+        Use case: User wants to re-group faces without re-detecting
+        (e.g., after adjusting clustering parameters, or if auto-clustering failed)
+        """
+        try:
+            from PySide6.QtCore import QThreadPool
+            from PySide6.QtWidgets import QMessageBox, QProgressDialog
+            from workers.face_cluster_worker import FaceClusterWorker
+            from reference_db import ReferenceDB
+
+            # Get current project ID
+            project_id = getattr(self.grid, "project_id", None)
+            if not project_id:
+                QMessageBox.warning(
+                    self,
+                    "No Project",
+                    "Please select a project first."
+                )
+                return
+
+            # Check if faces exist
+            db = ReferenceDB()
+            with db._connect() as conn:
+                cur = conn.execute("SELECT COUNT(*) FROM face_crops WHERE project_id = ?", (project_id,))
+                face_count = cur.fetchone()[0]
+
+            if face_count == 0:
+                QMessageBox.warning(
+                    self,
+                    "No Faces Detected",
+                    "No faces have been detected yet.\n\n"
+                    f"Click ⚡ Detect & Group Faces first to scan your photos."
+                )
+                return
+
+            print(f"[MainWindow] Launching clustering worker for {face_count} detected faces")
+
+            # Create progress dialog
+            progress = QProgressDialog("Grouping faces...", "Cancel", 0, 100, self)
+            progress.setWindowTitle("Re-Clustering Faces")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setMinimumDuration(0)
+            progress.setValue(0)
+
+            # Create worker
+            worker = FaceClusterWorker(project_id=project_id)
+
+            def on_progress(current, total, message):
+                progress.setLabelText(message)
+                progress.setValue(current)
+                print(f"[FaceCluster] {message}")
+
+            def on_finished(cluster_count, total_faces):
+                progress.close()
+                print(f"[FaceCluster] Complete: {cluster_count} person groups created")
+
+                # Refresh sidebar to show new clusters
+                if hasattr(self, "sidebar"):
+                    self.sidebar.reload()
+
+                QMessageBox.information(
+                    self,
+                    "Clustering Complete",
+                    f"✅ Grouped {total_faces} faces into {cluster_count} person albums.\n\n"
+                    f"View results in the People section of the sidebar."
+                )
+
+            def on_error(error_msg):
+                progress.close()
+                QMessageBox.critical(
+                    self,
+                    "Clustering Failed",
+                    f"Failed to cluster faces:\n\n{error_msg}"
+                )
+
+            def on_cancel():
+                worker.cancel()
+
+            worker.signals.progress.connect(on_progress)
+            worker.signals.finished.connect(on_finished)
+            worker.signals.error.connect(on_error)
+            progress.canceled.connect(on_cancel)
+
+            # Start worker
+            QThreadPool.globalInstance().start(worker)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Re-Cluster Failed", str(e))
+
     def _confirm_delete(self, paths: list[str]):
-        """Simple delete confirmation dialog (you can plug real logic later)."""
+        """Delete photos from database (and optionally from disk)."""
         if not paths:
             return
-        ret = QMessageBox.question(
-            self,
-            "Delete",
-            f"Delete {len(paths)} photo(s)?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if ret == QMessageBox.Yes:
-            # TODO: your real delete logic here
-            print("🗑 Deleting:", paths)
+
+        # Ask user about deletion scope
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        msg.setWindowTitle("Delete Photos")
+        msg.setText(f"Delete {len(paths)} photo(s)?")
+        msg.setInformativeText("Choose deletion scope:")
+
+        # Add custom buttons
+        db_only_btn = msg.addButton("Database Only", QMessageBox.ActionRole)
+        db_and_files_btn = msg.addButton("Database && Files", QMessageBox.DestructiveRole)
+        cancel_btn = msg.addButton(QMessageBox.Cancel)
+
+        msg.setDefaultButton(db_only_btn)
+        msg.exec()
+
+        clicked = msg.clickedButton()
+
+        if clicked == cancel_btn or clicked is None:
+            return
+
+        delete_files = (clicked == db_and_files_btn)
+
+        # Import and use deletion service
+        from services import PhotoDeletionService
+        deletion_service = PhotoDeletionService()
+
+        try:
+            result = deletion_service.delete_photos(
+                paths=paths,
+                delete_files=delete_files,
+                invalidate_cache=True
+            )
+
+            # Show result summary
+            summary = f"Deleted {result.photos_deleted_from_db} photos from database"
+            if delete_files:
+                summary += f"\nDeleted {result.files_deleted_from_disk} files from disk"
+                if result.files_not_found > 0:
+                    summary += f"\n{result.files_not_found} files not found"
+
+            if result.errors:
+                summary += f"\n\nErrors:\n" + "\n".join(result.errors[:5])
+                QMessageBox.warning(self, "Deletion Completed with Errors", summary)
+            else:
+                QMessageBox.information(self, "Deletion Successful", summary)
+
+            # Reload grid to reflect changes
             self.grid.reload()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Deletion Failed",
+                f"Failed to delete photos: {e}"
+            )
 
     def _open_lightbox(self, path: str):
         """
@@ -2430,7 +4256,8 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] folder_id={folder_id}")
         if folder_id is not None:
             try:
-                paths = db.get_images_by_folder(folder_id)
+                project_id = getattr(self.grid, "project_id", None)
+                paths = db.get_images_by_folder(folder_id, project_id=project_id)
                 context = f"folder({folder_id})"
                 
             except Exception as e:
@@ -2461,7 +4288,8 @@ class MainWindow(QMainWindow):
                     context = f"month({date_key})"
                 elif len(date_key) == 10 and date_key[4] == "-" and date_key[7] == "-":
                     # format "YYYY-MM-DD"
-                    paths = db.get_images_by_date(date_key)
+                    # SURGICAL FIX C: Load both photos and videos for date nodes
+                    paths = db.get_media_by_date(date_key, project_id=self.db_handler.project_id)
                     context = f"day({date_key})"
             except Exception as e:
                 print(f"[open_lightbox] date fetch failed: {e}")
@@ -2504,12 +4332,66 @@ class MainWindow(QMainWindow):
         print(f"[open_lightbox] paths={paths}")
         print(f"[open_lightbox] path={path}")
 
-        # 3) Launch dialog
+        # 🎬 UNIFIED MEDIA PREVIEW: Open LightboxDialog for BOTH photos AND videos
+        # The LightboxDialog now handles both media types with adaptive controls
+        print(f"[UnifiedPreview] Opening media in unified dialog: {path}")
+        print(f"[UnifiedPreview] Media type: {'video' if is_video_file(path) else 'photo'}")
+
+        # No filtering - pass ALL media paths (mixed photos and videos)
+        # LightboxDialog will detect media type and show appropriate controls
         dlg = LightboxDialog(path, self)
-        dlg.set_image_list(paths, idx)   # <-- THIS ENABLES next/prev
-        dlg.resize(900, 700)
+        dlg.set_image_list(paths, idx)  # Pass full mixed media list
+        dlg.resize(1200, 800)  # Larger default size for video viewing
         dlg.exec()
 
+    def _open_video_player(self, video_path: str, video_list: list = None, start_index: int = 0):
+        """
+        Open video player for the given video path with navigation support.
+        🎬 Phase 4.4: Video playback support
+        🎬 Enhanced: Added video list and navigation support
+
+        Args:
+            video_path: Path to the video file
+            video_list: List of video paths for navigation (optional)
+            start_index: Index of current video in the list (optional)
+        """
+        if not video_path:
+            return
+
+        # Get video metadata from database
+        metadata = None
+        try:
+            from reference_db import ReferenceDB
+            db = ReferenceDB()
+            project_id = getattr(self.grid, 'project_id', None)
+            if project_id:
+                metadata = db.get_video_by_path(video_path, project_id)
+        except Exception as e:
+            print(f"[VideoPlayer] Failed to load metadata: {e}")
+
+        # Hide grid, show video player
+        self.grid.hide()
+        self.video_player.show()
+
+        # Load and play video with navigation support
+        # BUG FIX #5: Pass project_id explicitly to support tagging
+        self.video_player.load_video(video_path, metadata, project_id=project_id)
+
+        # BUG FIX: Set video list for next/previous navigation
+        if video_list:
+            self.video_player.set_video_list(video_list, start_index)
+            print(f"[VideoPlayer] Opened: {video_path} ({start_index+1}/{len(video_list)})")
+        else:
+            print(f"[VideoPlayer] Opened: {video_path}")
+
+    def _on_video_player_closed(self):
+        """
+        Handle video player close event.
+        🎬 Phase 4.4: Return to grid view when player closes
+        """
+        self.video_player.hide()
+        self.grid.show()
+        print("[VideoPlayer] Closed, returning to grid")
 
     def resizeEvent(self, event):
         """
@@ -2576,6 +4458,141 @@ class MainWindow(QMainWindow):
             print(f"[Shutdown] Thumb cache clear error: {e}")
 
         super().closeEvent(event)
+
+    def _update_breadcrumb(self):
+        """
+        Phase 2 (High Impact): Update breadcrumb navigation based on current grid state.
+        Shows: Project > Folder/Date/Branch path
+        """
+        try:
+            if not hasattr(self, "breadcrumb_nav") or not hasattr(self, "grid"):
+                return
+
+            segments = []
+
+            # Get current project name
+            project_name = "My Photos"
+            if hasattr(self, "_projects") and self._projects:
+                default_pid = get_default_project_id()
+                for p in self._projects:
+                    if p.get("id") == default_pid:
+                        project_name = p.get("name", "My Photos")
+                        break
+
+            # Always start with project
+            segments.append((project_name, None))  # No callback for current project
+
+            # Add navigation context
+            if self.grid.navigation_mode == "folder" and hasattr(self.grid, "navigation_key"):
+                # For folder mode, show folder path
+                folder_id = self.grid.navigation_key
+                # Get folder name from DB
+                folder_name = f"Folder #{folder_id}"  # Fallback
+                try:
+                    with self.db._connect() as conn:
+                        cur = conn.cursor()
+                        cur.execute("SELECT name FROM photo_folders WHERE id = ?", (folder_id,))
+                        row = cur.fetchone()
+                        if row:
+                            folder_name = row[0]
+                except Exception as e:
+                    self.logger.warning(f"Failed to get folder name for ID {folder_id}: {e}")
+
+                segments.append(("Folder View", lambda: self.grid.set_branch("all")))
+                segments.append((folder_name, None))
+            elif self.grid.navigation_mode == "date" and hasattr(self.grid, "navigation_key"):
+                # For date mode, show date path
+                date_key = str(self.grid.navigation_key)
+                segments.append(("Timeline", lambda: self.grid.set_branch("all")))
+                segments.append((date_key, None))
+            elif self.grid.navigation_mode == "branch":
+                # For branch mode, show "All Photos"
+                segments.append(("All Photos", None))
+            elif hasattr(self.grid, "active_tag_filter") and self.grid.active_tag_filter:
+                # Tag filter mode
+                tag = self.grid.active_tag_filter
+                segments.append(("Tags", lambda: self._apply_tag_filter("all")))
+                if tag == "favorite":
+                    segments.append(("Favorites", None))
+                elif tag == "face":
+                    segments.append(("Faces", None))
+                else:
+                    segments.append((tag, None))
+            else:
+                segments.append(("All Photos", None))
+
+            self.breadcrumb_nav.set_path(segments)
+        except Exception as e:
+            print(f"[MainWindow] _update_breadcrumb error: {e}")
+
+    def _update_status_bar(self, selection_count=None):
+        """
+        Phase 2.3: Rich status bar with context-aware information.
+
+        Shows: Total photos | Current view | Selection count | Zoom level | Filter status
+
+        Similar to Google Photos / iPhone Photos status bars.
+        """
+        try:
+            parts = []
+
+            # 1. Total photo count
+            if hasattr(self, "grid") and self.grid:
+                total = self.grid.model.rowCount() if hasattr(self.grid, "model") else 0
+                parts.append(f"📸 {total:,} photo{'' if total == 1 else 's'}")
+
+            # 2. Current view/context
+            current_view = None
+            if hasattr(self, "grid") and self.grid:
+                # Determine what's being shown
+                if hasattr(self.grid, "navigation_mode") and self.grid.navigation_mode:
+                    mode = self.grid.navigation_mode
+                    if mode == "folder":
+                        current_view = "Folder view"
+                    elif mode == "date":
+                        key = getattr(self.grid, "navigation_key", None)
+                        current_view = f"📅 {key}" if key else "Date view"
+                    elif mode == "branch":
+                        current_view = "All Photos"
+                elif hasattr(self.grid, "active_tag_filter") and self.grid.active_tag_filter:
+                    tag = self.grid.active_tag_filter
+                    if tag == "favorite":
+                        current_view = "⭐ Favorites"
+                    elif tag == "face":
+                        current_view = "👥 Faces"
+                    else:
+                        current_view = f"🏷️ {tag}"
+                else:
+                    current_view = "All Photos"
+
+            if current_view:
+                parts.append(current_view)
+
+            # 3. Selection count (only if > 0)
+            if selection_count is not None and selection_count > 0:
+                parts.append(f"Selected: {selection_count}")
+
+            # 4. Zoom level (if grid has zoom info)
+            if hasattr(self, "grid") and hasattr(self.grid, "thumb_height"):
+                height = self.grid.thumb_height
+                if height <= 100:
+                    zoom = "Small"
+                elif height <= 160:
+                    zoom = "Medium"
+                elif height <= 220:
+                    zoom = "Large"
+                else:
+                    zoom = "XL"
+                parts.append(f"Zoom: {zoom}")
+
+            # Combine all parts with separator
+            message = " • ".join(parts) if parts else "Ready"
+            self.statusBar().showMessage(message)
+
+        except Exception as e:
+            print(f"[MainWindow] _update_status_bar error: {e}")
+            # Fallback to simple message
+            self.statusBar().showMessage("Ready")
 
 
     def _init_progress_pollers(self):

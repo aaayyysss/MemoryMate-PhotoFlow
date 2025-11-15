@@ -229,9 +229,12 @@ class MetadataService:
         Fast EXIF date extraction (used by extract_basic_metadata).
 
         Returns normalized date string or None.
+        Works with all image formats including TIFF, JPEG, PNG, HEIC, etc.
         """
         try:
-            exif = img._getexif()
+            # Use getexif() instead of deprecated _getexif()
+            # getexif() works with all formats including TIFF
+            exif = img.getexif()
             if not exif:
                 return None
 
@@ -243,7 +246,12 @@ class MetadataService:
 
             return None
 
-        except Exception:
+        except AttributeError:
+            # Fallback for very old PIL/Pillow versions or exotic formats
+            logger.debug(f"Image type {img.format} does not support EXIF extraction")
+            return None
+        except Exception as e:
+            logger.debug(f"EXIF date extraction error: {e}")
             return None
 
     def _extract_exif_date(self, exif_dict: Dict[str, Any]) -> Optional[str]:

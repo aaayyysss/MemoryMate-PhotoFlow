@@ -1623,12 +1623,26 @@ class SidebarQt(QWidget):
         self.tree.photoDropped.connect(self._on_photos_dropped_to_folder)
         self.tree.tagDropped.connect(self._on_photos_dropped_to_tag)
 
+        # ========== IMPROVEMENT: Add search/filter box for tree view ==========
+        search_container = QWidget()
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(4, 2, 4, 2)
+        search_layout.setSpacing(4)
+
+        search_label = QLabel("🔍")
+        self.tree_search_box = QLineEdit()
+        self.tree_search_box.setPlaceholderText("Filter sidebar...")
+        self.tree_search_box.setClearButtonEnabled(True)
+        self.tree_search_box.textChanged.connect(self._on_tree_search_changed)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.tree_search_box, 1)
 
         # Layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
         layout.setSpacing(2)
         layout.addWidget(header_bar)
+        layout.addWidget(search_container)  # Search box
         layout.addWidget(self.tree, 1)
         
         # Tabs controller (new owner of tab UI)
@@ -1713,6 +1727,54 @@ class SidebarQt(QWidget):
         self._start_spinner()
         self.reload()
         QTimer.singleShot(150, self._stop_spinner)
+
+    def _on_tree_search_changed(self, text):
+        """
+        Filter tree view based on search text.
+        Shows/hides items recursively based on whether they match the search term.
+        """
+        search_term = text.lower().strip()
+
+        def should_show_item(item):
+            """Recursively determine if an item or any of its children match the search."""
+            if not search_term:
+                return True
+
+            # Check if this item matches
+            item_text = item.text().lower()
+            if search_term in item_text:
+                return True
+
+            # Check if any children match
+            for row_idx in range(item.rowCount()):
+                child = item.child(row_idx, 0)
+                if child and should_show_item(child):
+                    return True
+
+            return False
+
+        def set_item_visibility(item, index):
+            """Set visibility for an item and its children."""
+            should_show = should_show_item(item)
+            self.tree.setRowHidden(index.row(), index.parent(), not should_show)
+
+            # Recursively process children
+            for row_idx in range(item.rowCount()):
+                child = item.child(row_idx, 0)
+                if child:
+                    child_index = self.model.indexFromItem(child)
+                    set_item_visibility(child, child_index)
+
+        # Process all top-level items
+        for row_idx in range(self.model.rowCount()):
+            item = self.model.item(row_idx, 0)
+            if item:
+                index = self.model.indexFromItem(item)
+                set_item_visibility(item, index)
+
+        # If searching, expand all visible sections to show matches
+        if search_term:
+            self.tree.expandAll()
 
     def _on_collapse_clicked(self):
         try:
@@ -2262,7 +2324,8 @@ class SidebarQt(QWidget):
                     for row in clusters:
                         raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
-                        rep = row.get("rep_path", "")
+                        rep_path = row.get("rep_path", "")
+                        rep_thumb_png = row.get("rep_thumb_png")
 
                         # ========== IMPROVEMENT: Humanize unnamed clusters ==========
                         # Convert "face_003" to "Unnamed #3" in tree view
@@ -2277,6 +2340,31 @@ class SidebarQt(QWidget):
 
                         name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
+
+                        # ========== IMPROVEMENT: Add thumbnail icons to tree view ==========
+                        icon_loaded = False
+                        if rep_thumb_png:
+                            try:
+                                from PySide6.QtCore import QByteArray
+                                pixmap = QPixmap()
+                                if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                                    # Scale to 16x16 for tree view (smaller than table)
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                                    icon_loaded = True
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load PNG thumbnail: {e}")
+
+                        if not icon_loaded and rep_path and os.path.exists(rep_path):
+                            try:
+                                pixmap = QPixmap(rep_path)
+                                if not pixmap.isNull():
+                                    # Scale to 16x16 for tree view
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load face thumbnail from {rep_path}: {e}")
+
                         count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
                         name_item.setData("facecluster", Qt.UserRole)
@@ -2713,7 +2801,8 @@ class SidebarQt(QWidget):
                     for row in clusters:
                         raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
-                        rep = row.get("rep_path", "")
+                        rep_path = row.get("rep_path", "")
+                        rep_thumb_png = row.get("rep_thumb_png")
 
                         # ========== IMPROVEMENT: Humanize unnamed clusters ==========
                         # Convert "face_003" to "Unnamed #3" in tree view
@@ -2728,9 +2817,34 @@ class SidebarQt(QWidget):
 
                         name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
+
+                        # ========== IMPROVEMENT: Add thumbnail icons to tree view ==========
+                        icon_loaded = False
+                        if rep_thumb_png:
+                            try:
+                                from PySide6.QtCore import QByteArray
+                                pixmap = QPixmap()
+                                if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                                    # Scale to 16x16 for tree view (smaller than table)
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                                    icon_loaded = True
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load PNG thumbnail: {e}")
+
+                        if not icon_loaded and rep_path and os.path.exists(rep_path):
+                            try:
+                                pixmap = QPixmap(rep_path)
+                                if not pixmap.isNull():
+                                    # Scale to 16x16 for tree view
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load face thumbnail from {rep_path}: {e}")
+
                         name_item.setData("people", Qt.UserRole)
                         name_item.setData(row["branch_key"], Qt.UserRole + 1)
-                        name_item.setToolTip(rep)
+                        name_item.setToolTip(rep_path)
 
                         count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)

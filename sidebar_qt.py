@@ -2219,6 +2219,26 @@ class SidebarQt(QWidget):
                 print(f"[SidebarQt] Expanding Branches section with {len(branches)} branches")
                 self.tree.expand(self.model.indexFromItem(branch_root))
 
+                # Quick Dates section - Today, This Week, This Month, etc.
+                quick_root = QStandardItem("📅 Quick Dates")
+                quick_root.setEditable(False)
+                quick_count_item = _make_count_item(total_photos)
+                self.model.appendRow([quick_root, quick_count_item])
+                try:
+                    quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
+                except Exception:
+                    quick_rows = []
+                for row in quick_rows:
+                    name_item = QStandardItem(row["label"])
+                    count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
+                    name_item.setEditable(False)
+                    count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(row["key"], Qt.UserRole + 1)
+                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    quick_root.appendRow([name_item, count_item])
+
                 # IMPORTANT FIX: use synchronous folder population as in the previous working version,
                 # so folder counts are calculated and displayed immediately.
                 folder_root = QStandardItem("📁 Folders")

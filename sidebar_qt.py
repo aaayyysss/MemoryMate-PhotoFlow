@@ -7,9 +7,9 @@ from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
     QVBoxLayout, QMessageBox, QTreeWidgetItem, QTreeWidget,
     QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar,
-    QTableWidget, QTableWidgetItem, QScrollArea
+    QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit
 )
-from PySide6.QtCore import Qt, QPoint, Signal, QTimer
+from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
 from PySide6.QtGui import (
     QStandardItemModel, QStandardItem,
     QFont, QColor, QIcon,
@@ -24,6 +24,7 @@ import threading
 import traceback
 import time
 import re
+import os
 
 from datetime import datetime
 

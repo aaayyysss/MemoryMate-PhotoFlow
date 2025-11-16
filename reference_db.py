@@ -4216,7 +4216,7 @@ class ReferenceDB:
 
             # face_branch_reps (NOTE: table has NO 'id' column, uses composite PK)
             cur.execute(
-                f"SELECT project_id, branch_key, rep_path, rep_thumb_png, label, centroid "
+                f"SELECT project_id, branch_key, rep_path, rep_thumb_png, label, centroid, count "
                 f"FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
                 [project_id] + all_keys,
             )
@@ -4238,6 +4238,7 @@ class ReferenceDB:
                         "rep_thumb_png": rep_thumb_b64,  # base64 string, not bytes
                         "label": row["label"],
                         "centroid": centroid_b64,  # base64 string, not bytes
+                        "count": row["count"],  # CRITICAL: Include count for undo
                     }
                 )
 
@@ -4328,6 +4329,23 @@ class ReferenceDB:
                 [project_id] + src_list,
             )
 
+            # 5) CRITICAL: Update count for target cluster to reflect merged face_crops
+            # Without this, the sidebar shows stale counts even after refresh
+            cur.execute(
+                """
+                UPDATE face_branch_reps
+                SET count = (
+                    SELECT COUNT(*)
+                    FROM face_crops
+                    WHERE project_id = ? AND branch_key = ?
+                )
+                WHERE project_id = ? AND branch_key = ?
+                """,
+                [project_id, target_branch, project_id, target_branch],
+            )
+            updated_count = cur.rowcount
+            print(f"[merge_face_clusters] Updated count for target '{target_branch}' (rowcount={updated_count})")
+
             conn.commit()
 
             result = {
@@ -4416,8 +4434,8 @@ class ReferenceDB:
                     cur.execute(
                         """
                         INSERT INTO face_branch_reps
-                            (project_id, branch_key, rep_path, rep_thumb_png, label, centroid)
-                        VALUES (?, ?, ?, ?, ?, ?)
+                            (project_id, branch_key, rep_path, rep_thumb_png, label, centroid, count)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
                         """,
                         (
                             r["project_id"],
@@ -4426,6 +4444,7 @@ class ReferenceDB:
                             rep_thumb_bytes,  # bytes, decoded from base64
                             r["label"],
                             centroid_bytes,  # bytes, decoded from base64
+                            r.get("count", 0),  # CRITICAL: Restore count from snapshot
                         ),
                     )
 

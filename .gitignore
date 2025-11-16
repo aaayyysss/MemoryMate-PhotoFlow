@@ -76,3 +76,7 @@ temp/
 # IDE
 *.sublime-project
 *.sublime-workspace
+
+# Runtime status files
+status/
+*.status.json

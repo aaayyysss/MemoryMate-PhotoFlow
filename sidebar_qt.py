@@ -1574,7 +1574,9 @@ class SidebarTabs(QWidget):
         self._tab_loading.discard("people")
         st = self._tab_status_labels.get(idx)
         if st:
-            st.setText(f"{len(rows)} cluster(s) • {time.time()-started:.2f}s")
+            # Calculate total faces across all clusters
+            total_faces = sum(row.get("member_count", 0) for row in rows)
+            st.setText(f"{len(rows)} people • {total_faces} faces • {time.time()-started:.2f}s")
 
 # =====================================================================
 # 2️ SidebarQt — main sidebar container with toggle

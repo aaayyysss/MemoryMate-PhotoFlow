@@ -549,9 +549,12 @@ class ThumbnailGridQt(QWidget):
         self._placeholder_pixmap = make_placeholder_pixmap(QSize(self.thumb_height, self.thumb_height))
         self._current_reload_token = self._reload_token  # initialize for safety
 
-                
-        # --- Thumbnail grid
-        self.thumb_spacing = 3
+
+        # --- Thumbnail grid spacing (consistent with zoom system)
+        # Use settings-based padding for consistent spacing across all modes
+        from settings_manager_qt import SettingsManager
+        settings = SettingsManager()
+        self.thumb_spacing = settings.get("thumb_padding", 8)
         self.cell_width_factor = 1.25
         
         # Use the global thread pool for better reuse across grid instances.

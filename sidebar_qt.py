@@ -1668,6 +1668,7 @@ class SidebarQt(QWidget):
 
         # Click handlers
         self.tree.clicked.connect(self._on_item_clicked)
+        self.tree.doubleClicked.connect(self._on_item_double_clicked)
 
         # Start with persisted mode
         try:
@@ -2396,6 +2397,38 @@ class SidebarQt(QWidget):
             mw.grid.list_view.doItemsLayout(),
             mw.grid.list_view.viewport().update()
         ))
+
+
+    def _on_item_double_clicked(self, index):
+        """
+        Handle double-click on tree items.
+        For People items: trigger rename dialog
+        For other items: do nothing (single-click already handles navigation)
+        """
+        if not index.isValid():
+            return
+
+        # Always normalize to the first column
+        index = index.sibling(index.row(), 0)
+        item = self.model.itemFromIndex(index)
+        if not item:
+            return
+
+        mode = item.data(Qt.UserRole)
+        value = item.data(Qt.UserRole + 1)
+
+        # Double-click on People items triggers rename
+        if mode in ("facecluster", "people"):
+            branch_key = value
+            if isinstance(branch_key, str) and branch_key.startswith("facecluster:"):
+                branch_key = branch_key.split(":", 1)[1]
+
+            # Trigger rename dialog
+            self._rename_face_cluster(branch_key, item.text())
+            return
+
+        # For all other items, double-click does nothing
+        # (single-click already handles navigation to the content)
 
 
     # ---- tree mode builder ----

@@ -334,6 +334,20 @@ class FaceDetectionService:
             # Resize to standard size for consistency (160x160 for better quality)
             face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
 
+            # Convert RGBA to RGB if needed (for PNG screenshots with alpha channel)
+            # JPEG doesn't support transparency, so we need to convert RGBA -> RGB
+            if face_img.mode == 'RGBA':
+                # Create white background
+                rgb_img = Image.new('RGB', face_img.size, (255, 255, 255))
+                # Paste using alpha channel as mask
+                rgb_img.paste(face_img, mask=face_img.split()[3])  # 3 is the alpha channel
+                face_img = rgb_img
+                logger.debug(f"Converted RGBA to RGB for {os.path.basename(image_path)}")
+            elif face_img.mode not in ('RGB', 'L'):
+                # Convert any other modes (P, LA, etc.) to RGB
+                face_img = face_img.convert('RGB')
+                logger.debug(f"Converted {face_img.mode} to RGB for {os.path.basename(image_path)}")
+
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 

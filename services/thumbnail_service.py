@@ -523,7 +523,16 @@ class ThumbnailService:
 
             # Now open the image for actual processing
             # (verify() closes the file, so we always need to reopen)
-            with Image.open(path) as img:
+            try:
+                img = Image.open(path)
+            except Exception as open_err:
+                # Image is corrupted or unsupported format
+                logger.warning(f"Cannot open image file {path}: {open_err}")
+                self._failed_images.add(self._normalize_path(path))
+                logger.info(f"Marked as failed (will not retry): {path}")
+                return QPixmap()
+
+            with img:
                 # Verify image loaded successfully
                 if img is None:
                     logger.warning(f"PIL returned None for: {path}")
@@ -619,14 +628,17 @@ class ThumbnailService:
             return QPixmap()
         except PermissionError:
             logger.warning(f"Permission denied accessing file: {path}")
+            self._failed_images.add(self._normalize_path(path))
             return QPixmap()
         except OSError as e:
             # Handle PIL-specific errors (corrupt files, unsupported formats, etc.)
             logger.warning(f"OS error processing {path}: {e}")
+            self._failed_images.add(self._normalize_path(path))
             return QPixmap()
         except Exception as e:
-            # Log detailed error info for debugging
-            logger.error(f"PIL thumbnail generation failed for {path}: {e}", exc_info=True)
+            # Unexpected errors - log with details but don't spam with stack traces
+            logger.warning(f"PIL thumbnail generation failed for {path}: {e}")
+            self._failed_images.add(self._normalize_path(path))
             return QPixmap()
 
     def invalidate(self, path: str):

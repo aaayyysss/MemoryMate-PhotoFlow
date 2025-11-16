@@ -108,15 +108,23 @@ CREATE TABLE IF NOT EXISTS project_images (
 );
 
 -- Face crops (face thumbnails for each branch)
+-- Phase 5: Added embedding column for face recognition clustering
 CREATE TABLE IF NOT EXISTS face_crops (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_id INTEGER NOT NULL,
-    branch_key TEXT NOT NULL,
+    branch_key TEXT,
     image_path TEXT NOT NULL,
     crop_path TEXT NOT NULL,
+    embedding BLOB,
+    bbox_x INTEGER,
+    bbox_y INTEGER,
+    bbox_w INTEGER,
+    bbox_h INTEGER,
+    confidence REAL,
     is_representative INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    UNIQUE(project_id, branch_key, crop_path)
+    UNIQUE(project_id, image_path, bbox_x, bbox_y, bbox_w, bbox_h)
 );
 
 -- Face branch representatives (cluster centroids and representative images)
@@ -129,6 +137,17 @@ CREATE TABLE IF NOT EXISTS face_branch_reps (
     rep_path TEXT,
     rep_thumb_png BLOB,
     PRIMARY KEY (project_id, branch_key),
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+-- Face merge history (for undo functionality)
+CREATE TABLE IF NOT EXISTS face_merge_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    target_branch TEXT NOT NULL,
+    source_branches TEXT NOT NULL,
+    snapshot TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 

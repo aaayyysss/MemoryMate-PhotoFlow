@@ -577,7 +577,19 @@ class ThumbnailGridQt(QWidget):
         except Exception:
             self._prefetch_radius = 8
 
-        # --- Toolbar (Zoom controls)
+        # --- Toolbar (Face Grouping + Zoom controls)
+        # Phase 8: Face grouping buttons (moved from People tab for global access)
+        self.btn_detect_and_group = QPushButton("⚡ Detect & Group Faces")
+        self.btn_detect_and_group.setToolTip("Automatically detect faces and group them into person albums")
+        self.btn_detect_and_group.setStyleSheet("QPushButton{padding:5px 12px; font-weight:bold;}")
+        # Handler will be connected from main_window_qt.py after grid is created
+
+        self.btn_recluster = QPushButton("🔁 Re-Cluster")
+        self.btn_recluster.setToolTip("Re-group detected faces (without re-detecting)")
+        self.btn_recluster.setStyleSheet("QPushButton{padding:5px 12px;}")
+        # Handler will be connected from main_window_qt.py after grid is created
+
+        # Zoom controls
         self.zoom_out_btn = QPushButton("-")
         self.zoom_out_btn.setFixedWidth(30)
         self.zoom_out_btn.clicked.connect(self.zoom_out)
@@ -646,6 +658,15 @@ class ThumbnailGridQt(QWidget):
 
         # Toolbar
         toolbar_layout = QHBoxLayout()
+        toolbar_layout.setSpacing(10)
+
+        # Face grouping buttons (left side)
+        toolbar_layout.addWidget(self.btn_detect_and_group)
+        toolbar_layout.addWidget(self.btn_recluster)
+        toolbar_layout.addSpacing(20)  # Add space between face buttons and zoom controls
+
+        # Zoom controls (right side)
+        toolbar_layout.addStretch()  # Push zoom controls to the right
         toolbar_layout.addWidget(self.zoom_out_btn)
         toolbar_layout.addWidget(self.zoom_slider)
         toolbar_layout.addWidget(self.zoom_in_btn)
@@ -1899,7 +1920,7 @@ class ThumbnailGridQt(QWidget):
 
             # CRITICAL FIX: Update load_mode to match context mode
             # This ensures grid state stays synchronized when switching between photo/video navigation
-            if mode in ("folder", "branch", "date", "videos", "tag"):
+            if mode in ("folder", "branch", "date", "videos", "tag", "people"):
                 self.load_mode = mode
             elif mode is None and tag:
                 # Tag filter without specific navigation context
@@ -1918,6 +1939,10 @@ class ThumbnailGridQt(QWidget):
                 elif mode == "branch" and key:
                     paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
                     print(f"[TAG FILTER] Branch {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
+                elif mode == "people" and key:
+                    # 👥 Face cluster + tag filter
+                    paths = db.get_images_by_branch_and_tag(self.project_id, key, tag)
+                    print(f"[TAG FILTER] People {key} + tag '{tag}' → {len(paths)} photos (efficient query)")
                 elif mode == "date" and key:
                     dk = str(key)
                     paths = db.get_images_by_date_and_tag(self.project_id, dk, tag)
@@ -1934,6 +1959,10 @@ class ThumbnailGridQt(QWidget):
                     paths = db.get_images_by_folder(key, project_id=self.project_id)
                 elif mode == "branch" and key:
                     paths = db.get_images_by_branch(self.project_id, key)
+                elif mode == "people" and key:
+                    # 👥 Face cluster navigation - load photos containing faces from this cluster
+                    paths = db.get_images_by_branch(self.project_id, key)
+                    print(f"[GRID] Loaded {len(paths)} photos for face cluster {key}")
                 elif mode == "date" and key:
                     dk = str(key)
                     if len(dk) == 4 and dk.isdigit():
@@ -1971,7 +2000,8 @@ class ThumbnailGridQt(QWidget):
                 "branch": "Branch",
                 "date": "Date",
                 "tag": "Tag",
-                "videos": "Videos"
+                "videos": "Videos",
+                "people": "People"
             }.get(mode or "unknown", "Unknown")
 
             tag_label = f" [Tag: {tag}]" if tag else ""

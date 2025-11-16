@@ -27,6 +27,8 @@ import re
 import os
 
 from datetime import datetime
+from PIL import Image, ImageOps
+from io import BytesIO
 
 
 # SettingsManager is used to persist sidebar display preference
@@ -1353,12 +1355,12 @@ class SidebarTabs(QWidget):
         table.verticalHeader().setVisible(False)
         table.horizontalHeader().setStretchLastSection(False)
 
-        # Column sizing: Face (32px icon) | Person (stretch) | Photos (fit content)
+        # Column sizing: Face (96px icon) | Person (stretch) | Photos (fit content)
         table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        table.setColumnWidth(0, 40)  # Face thumbnail column
-        table.setIconSize(QSize(32, 32))  # 32x32 thumbnails
+        table.setColumnWidth(0, 110)  # Face thumbnail column (increased from 40 to 110)
+        table.setIconSize(QSize(96, 96))  # 96x96 thumbnails (increased from 32x32)
 
         # ========== IMPROVEMENT: Enable table sorting ==========
         table.setSortingEnabled(True)
@@ -1367,7 +1369,7 @@ class SidebarTabs(QWidget):
         all_table_rows = []
 
         # Set row height for better thumbnail display
-        table.verticalHeader().setDefaultSectionSize(72)  # 64px thumbnail + 8px padding
+        table.verticalHeader().setDefaultSectionSize(110)  # 96px thumbnail + 14px padding (increased from 72)
 
         for row_idx, row in enumerate(rows):
             branch_key = row['branch_key']
@@ -1417,20 +1419,41 @@ class SidebarTabs(QWidget):
             item_name = QTableWidgetItem(str(name))
             item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
 
-            # Load and display face thumbnail (64x64 like Apple Photos/Google Photos)
+            # Load and display face thumbnail with EXIF correction (increased from 64x64 to 96x96)
             if rep and os.path.exists(rep):
                 try:
-                    pixmap = QPixmap(rep)
-                    if not pixmap.isNull():
-                        # Scale to 64x64 maintaining aspect ratio
-                        scaled = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    # Load with PIL and apply EXIF orientation correction
+                    pil_image = Image.open(rep)
+                    pil_image = ImageOps.exif_transpose(pil_image)  # Auto-rotate based on EXIF
+
+                    # Convert PIL Image to QPixmap
+                    if pil_image.mode != 'RGB':
+                        pil_image = pil_image.convert('RGB')
+
+                    # Convert to bytes and load into QImage
+                    buffer = BytesIO()
+                    pil_image.save(buffer, format='PNG')
+                    image = QImage.fromData(buffer.getvalue())
+
+                    if not image.isNull():
+                        pixmap = QPixmap.fromImage(image)
+                        # Scale to 96x96 maintaining aspect ratio (increased from 64x64)
+                        scaled = pixmap.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                         item_name.setIcon(QIcon(scaled))
                         item_name.setToolTip(f"{name}\n{count} photo(s)")
                     else:
                         item_name.setToolTip(f"{name}\n{count} photo(s)\n(Thumbnail not available)")
                 except Exception as e:
-                    print(f"[Sidebar] Failed to load face thumbnail {rep}: {e}")
-                    item_name.setToolTip(f"{name}\n{count} photo(s)\n(Error loading thumbnail)")
+                    print(f"[Sidebar] Failed to load face thumbnail with EXIF correction {rep}: {e}")
+                    # Fallback to direct QPixmap loading
+                    try:
+                        pixmap = QPixmap(rep)
+                        if not pixmap.isNull():
+                            scaled = pixmap.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                            item_name.setIcon(QIcon(scaled))
+                            item_name.setToolTip(f"{name}\n{count} photo(s)")
+                    except:
+                        item_name.setToolTip(f"{name}\n{count} photo(s)\n(Error loading thumbnail)")
             else:
                 item_name.setToolTip(f"{name}\n{count} photo(s)\n(No thumbnail)")
 

@@ -1366,6 +1366,9 @@ class SidebarTabs(QWidget):
         # Store reference to all rows for search filtering
         all_table_rows = []
 
+        # Set row height for better thumbnail display
+        table.verticalHeader().setDefaultSectionSize(72)  # 64px thumbnail + 8px padding
+
         for row_idx, row in enumerate(rows):
             branch_key = row['branch_key']
             raw_name = row.get("display_name") or row.get("branch_key")
@@ -1410,7 +1413,28 @@ class SidebarTabs(QWidget):
                 except Exception as e:
                     print(f"[People] Failed to load face thumbnail from {rep_path}: {e}")
 
-            table.setItem(row_idx, 0, item_thumb)
+            # Column 0: Person name with face thumbnail
+            item_name = QTableWidgetItem(str(name))
+            item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
+
+            # Load and display face thumbnail (64x64 like Apple Photos/Google Photos)
+            if rep and os.path.exists(rep):
+                try:
+                    pixmap = QPixmap(rep)
+                    if not pixmap.isNull():
+                        # Scale to 64x64 maintaining aspect ratio
+                        scaled = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        item_name.setIcon(QIcon(scaled))
+                        item_name.setToolTip(f"{name}\n{count} photo(s)")
+                    else:
+                        item_name.setToolTip(f"{name}\n{count} photo(s)\n(Thumbnail not available)")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to load face thumbnail {rep}: {e}")
+                    item_name.setToolTip(f"{name}\n{count} photo(s)\n(Error loading thumbnail)")
+            else:
+                item_name.setToolTip(f"{name}\n{count} photo(s)\n(No thumbnail)")
+
+            table.setItem(row_idx, 0, item_name)
 
             # Column 1: Person name
             item_name = QTableWidgetItem(display_name)
@@ -1868,11 +1892,44 @@ class SidebarQt(QWidget):
             # Date branch
             if val_str.startswith("date:"):
                 mw.grid.set_context("date", val_str.replace("date:", ""))
-                return
-            
-            # People branch rewritten elsewhere, not here.
-            mw.grid.set_context("branch", val_str)
-            return
+            elif val_str.startswith("facecluster:"):
+                branch_key = val_str.split(":", 1)[1]
+                mw.grid.set_context("people", branch_key)
+
+                # Update status bar like folders/dates do
+                try:
+                    paths = self.db.get_paths_for_cluster(self.project_id, branch_key) if self.project_id else []
+                    # Get person name from face_branch_reps
+                    clusters = self.db.get_face_clusters(self.project_id) if self.project_id else []
+                    person_name = next(
+                        (c["display_name"] for c in clusters if c["branch_key"] == branch_key),
+                        branch_key
+                    )
+                    mw.statusBar().showMessage(f"👤 Showing {len(paths)} photo(s) of {person_name}")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to update status bar for people: {e}")
+
+            else:
+                mw.grid.set_context("branch", val_str)
+        
+        elif mode == "people" and value:
+            # Load all images belonging to this face cluster
+            try:
+                paths = self.db.get_paths_for_cluster(self.project_id, value)
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    mw.grid.display_thumbnails(paths)
+                else:
+                    print(f"[Sidebar] Unable to display thumbnails for people cluster {value}")
+            except Exception as e:
+                print(f"[Sidebar] Failed to open people cluster {value}: {e}")
+                        
+                
+        elif mode == "date" and value:
+            _clear_tag_if_needed()
+            mw.grid.set_context("date", value)
+        elif mode == "tag" and value:
+            if hasattr(mw, "_apply_tag_filter"):
+                mw._apply_tag_filter(value)
 
         # ==========================================================
         # People (face clusters) — FIX: route through branch pipeline

@@ -479,30 +479,75 @@ class ReferenceDB:
 
     def merge_face_branches(self, project_id, src_branch, target_branch, keep_label=None):
         """
-        Move all images from src_branch to target_branch for a given project.
-        Returns number of rows moved.
+        Merge face clusters: move all faces from src_branch to target_branch.
+        Updates face_crops table and recalculates counts in face_branch_reps.
+        Returns number of faces moved.
         """
         with self._connect() as conn:
             cur = conn.cursor()
+
+            # Update face_crops table - move all faces from source to target
             cur.execute(
-                "UPDATE project_images SET branch_key=?, label=? WHERE project_id=? AND branch_key=?",
-                (target_branch, keep_label, project_id, src_branch),
+                "UPDATE face_crops SET branch_key=? WHERE project_id=? AND branch_key=?",
+                (target_branch, project_id, src_branch),
             )
             moved = cur.rowcount
+
+            # Recalculate count for target branch in face_branch_reps
+            cur.execute("""
+                UPDATE face_branch_reps
+                SET count = (
+                    SELECT COUNT(*)
+                    FROM face_crops
+                    WHERE project_id=? AND branch_key=?
+                )
+                WHERE project_id=? AND branch_key=?
+            """, (project_id, target_branch, project_id, target_branch))
+
+            # Update label if provided
+            if keep_label:
+                cur.execute(
+                    "UPDATE face_branch_reps SET label=? WHERE project_id=? AND branch_key=?",
+                    (keep_label, project_id, target_branch)
+                )
+
+            # Delete source branch from face_branch_reps
+            cur.execute(
+                "DELETE FROM face_branch_reps WHERE project_id=? AND branch_key=?",
+                (project_id, src_branch)
+            )
+
+            # Also update legacy project_images table if it exists (for backward compatibility)
+            try:
+                cur.execute(
+                    "UPDATE project_images SET branch_key=?, label=? WHERE project_id=? AND branch_key=?",
+                    (target_branch, keep_label, project_id, src_branch),
+                )
+            except Exception:
+                pass  # Table might not exist in new installations
+
             conn.commit()
             cur.close()
-            print(f"✅ merge_face_branches: moved {moved} images from {src_branch} → {target_branch} (project {project_id})")
+            print(f"✅ merge_face_branches: moved {moved} faces from {src_branch} → {target_branch} (project {project_id})")
             return moved
 
 
     def delete_branch(self, project_id, branch_key):
         """
         Delete a branch and all its associated entries from the DB.
+        Handles both legacy branches and face clusters.
         """
         with self._connect() as conn:
             cur = conn.cursor()
+
+            # Delete from legacy tables
             cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key=?", (project_id, branch_key))
             cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key=?", (project_id, branch_key))
+
+            # Delete from face detection tables
+            cur.execute("DELETE FROM face_crops WHERE project_id=? AND branch_key=?", (project_id, branch_key))
+            cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key=?", (project_id, branch_key))
+
             conn.commit()
             cur.close()
             print(f"🗑️ delete_branch: removed branch '{branch_key}' from project {project_id}")

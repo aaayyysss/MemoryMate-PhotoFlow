@@ -6,10 +6,10 @@
 from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
     QVBoxLayout, QMessageBox, QTreeWidgetItem, QTreeWidget,
-    QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar,
-    QTableWidget, QTableWidgetItem, QScrollArea
+    QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar, QAbstractItemView,
+    QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit
 )
-from PySide6.QtCore import Qt, QPoint, Signal, QTimer
+from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
 from PySide6.QtGui import (
     QStandardItemModel, QStandardItem,
     QFont, QColor, QIcon,
@@ -24,6 +24,7 @@ import threading
 import traceback
 import time
 import re
+import os
 
 from datetime import datetime
 
@@ -1618,17 +1619,34 @@ class SidebarQt(QWidget):
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self._show_menu)
+        
+        # Allow selecting multiple face clusters for batch merge
+        self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         # Phase 3: Connect drag & drop signals
         self.tree.photoDropped.connect(self._on_photos_dropped_to_folder)
         self.tree.tagDropped.connect(self._on_photos_dropped_to_tag)
 
+        # ========== IMPROVEMENT: Add search/filter box for tree view ==========
+        search_container = QWidget()
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(4, 2, 4, 2)
+        search_layout.setSpacing(4)
+
+        search_label = QLabel("🔍")
+        self.tree_search_box = QLineEdit()
+        self.tree_search_box.setPlaceholderText("Filter sidebar...")
+        self.tree_search_box.setClearButtonEnabled(True)
+        self.tree_search_box.textChanged.connect(self._on_tree_search_changed)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.tree_search_box, 1)
 
         # Layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
         layout.setSpacing(2)
         layout.addWidget(header_bar)
+        layout.addWidget(search_container)  # Search box
         layout.addWidget(self.tree, 1)
         
         # Tabs controller (new owner of tab UI)
@@ -1714,6 +1732,54 @@ class SidebarQt(QWidget):
         self.reload()
         QTimer.singleShot(150, self._stop_spinner)
 
+    def _on_tree_search_changed(self, text):
+        """
+        Filter tree view based on search text.
+        Shows/hides items recursively based on whether they match the search term.
+        """
+        search_term = text.lower().strip()
+
+        def should_show_item(item):
+            """Recursively determine if an item or any of its children match the search."""
+            if not search_term:
+                return True
+
+            # Check if this item matches
+            item_text = item.text().lower()
+            if search_term in item_text:
+                return True
+
+            # Check if any children match
+            for row_idx in range(item.rowCount()):
+                child = item.child(row_idx, 0)
+                if child and should_show_item(child):
+                    return True
+
+            return False
+
+        def set_item_visibility(item, index):
+            """Set visibility for an item and its children."""
+            should_show = should_show_item(item)
+            self.tree.setRowHidden(index.row(), index.parent(), not should_show)
+
+            # Recursively process children
+            for row_idx in range(item.rowCount()):
+                child = item.child(row_idx, 0)
+                if child:
+                    child_index = self.model.indexFromItem(child)
+                    set_item_visibility(child, child_index)
+
+        # Process all top-level items
+        for row_idx in range(self.model.rowCount()):
+            item = self.model.item(row_idx, 0)
+            if item:
+                index = self.model.indexFromItem(item)
+                set_item_visibility(item, index)
+
+        # If searching, expand all visible sections to show matches
+        if search_term:
+            self.tree.expandAll()
+
     def _on_collapse_clicked(self):
         try:
             mode = self._effective_display_mode()
@@ -1751,13 +1817,16 @@ class SidebarQt(QWidget):
             return 0
 
     # ---- click handling ----
-    def _on_item_clicked(self, index):
+    def _on_item_clicked_1st(self, index):
         if not index.isValid():
             return
+        
+        # Always normalize to the first column        
         index = index.sibling(index.row(), 0)
         item = self.model.itemFromIndex(index)
         if not item:
             return
+            
         mode = item.data(Qt.UserRole)
         value = item.data(Qt.UserRole + 1)
         mw = self.window()
@@ -1766,7 +1835,8 @@ class SidebarQt(QWidget):
             return
 
         def _clear_tag_if_needed():
-            if mode in ("folder", "branch", "date") and hasattr(mw, "_clear_tag_filter"):
+            """Clear any tag filters when navigating into folders/branches."""
+            if mode in ("folder", "branch", "date", "people") and hasattr(mw, "_clear_tag_filter"):
                 mw._clear_tag_filter()
 
         def _ensure_video_paths_only(paths):
@@ -1814,7 +1884,19 @@ class SidebarQt(QWidget):
             except Exception as e:
                 print(f"[Sidebar] Failed to open people cluster {value}: {e}")
                         
-                
+        # --- NEW: Ensure legacy "facecluster" mode still opens correctly ---
+        elif mode == "facecluster" and value:
+            # Treat exactly same as "people"
+            try:
+                paths = self.db.get_paths_for_cluster(self.project_id, value)
+                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
+                    mw.grid.display_thumbnails(paths)
+                else:
+                    print(f"[Sidebar] Unable to display thumbnails for facecluster {value}")
+            except Exception as e:
+                print(f"[Sidebar] Failed to open facecluster {value}: {e}")
+
+
         elif mode == "date" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("date", value)
@@ -2108,6 +2190,214 @@ class SidebarQt(QWidget):
         QTimer.singleShot(0, _reflow)
 
 
+    def _on_item_clicked(self, index):
+        if not index.isValid():
+            return
+
+        # Always normalize to the first column
+        index = index.sibling(index.row(), 0)
+        item = self.model.itemFromIndex(index)
+        if not item:
+            return
+
+        mode = item.data(Qt.UserRole)
+        value = item.data(Qt.UserRole + 1)
+        mw = self.window()
+
+        if not hasattr(mw, "grid"):
+            return
+
+        # ==========================================================
+        # Helpers
+        # ==========================================================
+
+        def _clear_tag_if_needed():
+            """Clear any tag filters when navigating into folders/branches."""
+            if mode in ("folder", "branch", "date", "people") and hasattr(mw, "_clear_tag_filter"):
+                mw._clear_tag_filter()
+
+        def _ensure_video_paths_only(paths):
+            """Guarantees that mixed content is filtered down to videos only."""
+            from main_window_qt import is_video_file
+            filtered = [p for p in paths if is_video_file(p)]
+            return filtered
+
+        # ==========================================================
+        # Folder
+        # ==========================================================
+        if mode == "folder" and value:
+            _clear_tag_if_needed()
+            mw.grid.set_context("folder", value)
+            return
+
+        # ==========================================================
+        # Branch (photos)
+        # ==========================================================
+        if mode == "branch" and value:
+            _clear_tag_if_needed()
+            val_str = str(value)
+
+            # Date branch
+            if val_str.startswith("date:"):
+                mw.grid.set_context("date", val_str.replace("date:", ""))
+                return
+            
+            # People branch rewritten elsewhere, not here.
+            mw.grid.set_context("branch", val_str)
+            return
+
+        # ==========================================================
+        # People (face clusters) — FIX: route through branch pipeline
+        # ==========================================================
+        if mode == "people" and value:
+            _clear_tag_if_needed()
+
+            branch_val = str(value)
+
+            # Normalize: Accept "facecluster:face_000" or "face_000"
+            if branch_val.startswith("facecluster:"):
+                branch_key = branch_val.split(":", 1)[1]
+            else:
+                branch_key = branch_val
+
+            # 🔥 CRITICAL FIX:
+            # People clusters **must** be routed through branch mode.
+            # This is the only path that correctly calls:
+            #   get_images_by_branch()
+            # which is exactly what your logs show is working.
+            mw.grid.set_context("branch", branch_key)
+            mw.statusBar().showMessage(f"👥 Showing photos for {branch_key}")
+
+            return
+
+        # ==========================================================
+        # Date (photos)
+        # ==========================================================
+        if mode == "date" and value:
+            _clear_tag_if_needed()
+            mw.grid.set_context("date", value)
+            return
+
+        # ==========================================================
+        # Tags
+        # ==========================================================
+        if mode == "tag" and value:
+            if hasattr(mw, "_apply_tag_filter"):
+                mw._apply_tag_filter(value)
+            return
+
+        # ==========================================================
+        # VIDEO MODES
+        # ==========================================================
+
+        from services.video_service import VideoService
+        video_service = VideoService()
+
+        # All videos
+        if mode == "videos" and value == "all":
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+            paths = _ensure_video_paths_only([v["path"] for v in videos])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            mw.statusBar().showMessage(f"🎬 Showing {len(paths)} videos")
+            return
+
+        # Duration filter
+        if mode == "videos_duration" and value:
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id)
+            filtered = video_service.filter_by_duration_key(videos, value)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            mw.statusBar().showMessage(f"⏱ Showing {len(paths)} {value} videos")
+            return
+
+        # Resolution filter
+        if mode == "videos_resolution" and value:
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id)
+            filtered = video_service.filter_by_resolution_key(videos, value)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # Codec filter
+        if mode == "videos_codec" and value:
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id)
+            filtered = video_service.filter_by_codec_key(videos, value)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # File size filter
+        if mode == "videos_size" and value:
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id)
+            filtered = video_service.filter_by_file_size(videos, value)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # Video by year
+        if mode == "videos_year" and value:
+            _clear_tag_if_needed()
+            videos = video_service.get_videos_by_project(self.project_id)
+            year = int(value)
+            filtered = video_service.filter_by_date(videos, year=year)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # Video by month
+        if mode == "videos_month" and value:
+            _clear_tag_if_needed()
+            parts = value.split("-")
+            year, month = int(parts[0]), int(parts[1])
+            videos = video_service.get_videos_by_project(self.project_id)
+            filtered = video_service.filter_by_date(videos, year=year, month=month)
+            paths = _ensure_video_paths_only([v["path"] for v in filtered])
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # Video by day
+        if mode == "videos_day" and value:
+            _clear_tag_if_needed()
+            paths = self.db.get_videos_by_date(value, project_id=self.project_id)
+            paths = _ensure_video_paths_only(paths)
+            mw.grid.model.clear()
+            mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # Search videos
+        if mode == "videos_search" and value == "search":
+            _clear_tag_if_needed()
+            from PySide6.QtWidgets import QInputDialog
+            query, ok = QInputDialog.getText(self, "Search Videos", "Search:")
+            if ok and query:
+                videos = video_service.get_videos_by_project(self.project_id)
+                filtered = video_service.search_videos(videos, query)
+                paths = _ensure_video_paths_only([v["path"] for v in filtered])
+                mw.grid.model.clear()
+                mw.grid.load_custom_paths(paths, content_type="videos")
+            return
+
+        # ------------------------------------------------------
+        # After any content change: reflow
+        # ------------------------------------------------------
+        QTimer.singleShot(0, lambda: (
+            mw.grid.list_view.doItemsLayout(),
+            mw.grid.list_view.viewport().update()
+        ))
+
+
     # ---- tree mode builder ----
     def _build_tree_model(self):
         # Build tree synchronously for folders (counts populated right away),
@@ -2155,6 +2445,7 @@ class SidebarQt(QWidget):
             # CRITICAL FIX: Create a completely fresh model instead of clearing the old one
             # This is safer than model.clear() which can cause Qt C++ segfaults
             print("[Sidebar] Creating fresh model (avoiding Qt segfault)")
+            
             old_model = self.model
             self.model = QStandardItemModel(self.tree)
             self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
@@ -2168,6 +2459,7 @@ class SidebarQt(QWidget):
 
             # Attach the fresh model to the tree view
             print("[Sidebar] Attaching fresh model to tree view")
+            
             self.tree.setModel(self.model)
 
             self._count_targets = []
@@ -2215,11 +2507,6 @@ class SidebarQt(QWidget):
                     # register branch for async counts
                     self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
 
-                # Expand the Branches section to show date branches by default
-                print(f"[SidebarQt] Expanding Branches section with {len(branches)} branches")
-                self.tree.expand(self.model.indexFromItem(branch_root))
-
-                # Quick Dates section - Today, This Week, This Month, etc.
                 quick_root = QStandardItem("📅 Quick Dates")
                 quick_root.setEditable(False)
                 quick_count_item = _make_count_item(total_photos)
@@ -2248,8 +2535,637 @@ class SidebarQt(QWidget):
                 # synchronous (restores the previous working behavior)
                 self._add_folder_items(folder_root, None)
 
-                # Build "By Date" section (hierarchical year/month/day)
+
+
                 self._build_by_date_section()
+#                self._build_tag_section()
+
+                # >>> NEW: 🎬 Videos section
+                try:
+                    from services.video_service import VideoService
+                    video_service = VideoService()
+                    print(f"[Sidebar] Loading videos for project_id={self.project_id}")
+                    videos = video_service.get_videos_by_project(self.project_id) if self.project_id else []
+                    total_videos = len(videos)
+                    print(f"[Sidebar] Found {total_videos} videos in project {self.project_id}")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to load videos: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    total_videos = 0
+                    videos = []
+
+                if videos:
+                    root_name_item = QStandardItem("🎬 Videos")
+                    root_cnt_item = _make_count_item(total_videos)
+                    root_name_item.setEditable(False)
+                    root_cnt_item.setEditable(False)
+                    self.model.appendRow([root_name_item, root_cnt_item])
+
+                    # Add "All Videos" option
+                    all_videos_item = QStandardItem("All Videos")
+                    all_videos_item.setEditable(False)
+                    all_videos_item.setData("videos", Qt.UserRole)
+                    all_videos_item.setData("all", Qt.UserRole + 1)
+                    all_count = QStandardItem(str(total_videos))
+                    all_count.setEditable(False)
+                    all_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    all_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([all_videos_item, all_count])
+
+                    # 🎯 Filter by Duration
+                    duration_parent = QStandardItem("⏱️ By Duration")
+                    duration_parent.setEditable(False)
+
+                    # Count videos by duration
+                    short_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] < 30]
+                    medium_videos = [v for v in videos if v.get('duration_seconds') and 30 <= v['duration_seconds'] < 300]
+                    long_videos = [v for v in videos if v.get('duration_seconds') and v['duration_seconds'] >= 300]
+
+                    # CRITICAL FIX: Show sum count for Duration section
+                    total_duration_videos = len(short_videos) + len(medium_videos) + len(long_videos)
+                    duration_count = QStandardItem(str(total_duration_videos))
+                    duration_count.setEditable(False)
+                    duration_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    duration_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([duration_parent, duration_count])
+
+                    # Short videos (< 30s)
+                    short_item = QStandardItem("Short (< 30s)")
+                    short_item.setEditable(False)
+                    short_item.setData("videos_duration", Qt.UserRole)
+                    short_item.setData("short", Qt.UserRole + 1)
+                    short_count = QStandardItem(str(len(short_videos)))
+                    short_count.setEditable(False)
+                    short_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    short_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([short_item, short_count])
+
+                    # Medium videos (30s - 5min)
+                    medium_item = QStandardItem("Medium (30s - 5min)")
+                    medium_item.setEditable(False)
+                    medium_item.setData("videos_duration", Qt.UserRole)
+                    medium_item.setData("medium", Qt.UserRole + 1)
+                    medium_count = QStandardItem(str(len(medium_videos)))
+                    medium_count.setEditable(False)
+                    medium_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    medium_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([medium_item, medium_count])
+
+                    # Long videos (> 5min)
+                    long_item = QStandardItem("Long (> 5min)")
+                    long_item.setEditable(False)
+                    long_item.setData("videos_duration", Qt.UserRole)
+                    long_item.setData("long", Qt.UserRole + 1)
+                    long_count = QStandardItem(str(len(long_videos)))
+                    long_count.setEditable(False)
+                    long_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    long_count.setForeground(QColor("#888888"))
+                    duration_parent.appendRow([long_item, long_count])
+
+                    # 📺 Filter by Resolution
+                    res_parent = QStandardItem("📺 By Resolution")
+                    res_parent.setEditable(False)
+
+                    # Count videos by resolution (require both width and height metadata)
+                    sd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] < 720]
+                    hd_videos = [v for v in videos if v.get('width') and v.get('height') and 720 <= v['height'] < 1080]
+                    fhd_videos = [v for v in videos if v.get('width') and v.get('height') and 1080 <= v['height'] < 2160]
+                    uhd_videos = [v for v in videos if v.get('width') and v.get('height') and v['height'] >= 2160]
+
+                    # CRITICAL FIX: Show sum count for Resolution section
+                    total_res_videos = len(sd_videos) + len(hd_videos) + len(fhd_videos) + len(uhd_videos)
+                    res_count = QStandardItem(str(total_res_videos))
+                    res_count.setEditable(False)
+                    res_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    res_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([res_parent, res_count])
+
+                    # SD videos (< 720p)
+                    sd_item = QStandardItem("SD (< 720p)")
+                    sd_item.setEditable(False)
+                    sd_item.setData("videos_resolution", Qt.UserRole)
+                    sd_item.setData("sd", Qt.UserRole + 1)
+                    sd_cnt = QStandardItem(str(len(sd_videos)))
+                    sd_cnt.setEditable(False)
+                    sd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    sd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([sd_item, sd_cnt])
+
+                    # HD videos (720p)
+                    hd_item = QStandardItem("HD (720p)")
+                    hd_item.setEditable(False)
+                    hd_item.setData("videos_resolution", Qt.UserRole)
+                    hd_item.setData("hd", Qt.UserRole + 1)
+                    hd_cnt = QStandardItem(str(len(hd_videos)))
+                    hd_cnt.setEditable(False)
+                    hd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    hd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([hd_item, hd_cnt])
+
+                    # Full HD videos (1080p)
+                    fhd_item = QStandardItem("Full HD (1080p)")
+                    fhd_item.setEditable(False)
+                    fhd_item.setData("videos_resolution", Qt.UserRole)
+                    fhd_item.setData("fhd", Qt.UserRole + 1)
+                    fhd_cnt = QStandardItem(str(len(fhd_videos)))
+                    fhd_cnt.setEditable(False)
+                    fhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    fhd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([fhd_item, fhd_cnt])
+
+                    # 4K videos (2160p+)
+                    uhd_item = QStandardItem("4K (2160p+)")
+                    uhd_item.setEditable(False)
+                    uhd_item.setData("videos_resolution", Qt.UserRole)
+                    uhd_item.setData("4k", Qt.UserRole + 1)
+                    uhd_cnt = QStandardItem(str(len(uhd_videos)))
+                    uhd_cnt.setEditable(False)
+                    uhd_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    uhd_cnt.setForeground(QColor("#888888"))
+                    res_parent.appendRow([uhd_item, uhd_cnt])
+
+                    # 🎞️ Filter by Codec (Option 7)
+                    codec_parent = QStandardItem("🎞️ By Codec")
+                    codec_parent.setEditable(False)
+
+                    # Count videos by codec
+                    h264_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['h264', 'avc']]
+                    hevc_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['hevc', 'h265']]
+                    vp9_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'vp9']
+                    av1_videos = [v for v in videos if v.get('codec') and v['codec'].lower() == 'av1']
+                    mpeg4_videos = [v for v in videos if v.get('codec') and v['codec'].lower() in ['mpeg4', 'xvid', 'divx']]
+
+                    # CRITICAL FIX: Show sum count for Codec section
+                    total_codec_videos = len(h264_videos) + len(hevc_videos) + len(vp9_videos) + len(av1_videos) + len(mpeg4_videos)
+                    codec_count = QStandardItem(str(total_codec_videos))
+                    codec_count.setEditable(False)
+                    codec_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    codec_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([codec_parent, codec_count])
+
+                    # H.264
+                    h264_item = QStandardItem("H.264 / AVC")
+                    h264_item.setEditable(False)
+                    h264_item.setData("videos_codec", Qt.UserRole)
+                    h264_item.setData("h264", Qt.UserRole + 1)
+                    h264_cnt = QStandardItem(str(len(h264_videos)))
+                    h264_cnt.setEditable(False)
+                    h264_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    h264_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([h264_item, h264_cnt])
+
+                    # H.265 / HEVC
+                    hevc_item = QStandardItem("H.265 / HEVC")
+                    hevc_item.setEditable(False)
+                    hevc_item.setData("videos_codec", Qt.UserRole)
+                    hevc_item.setData("hevc", Qt.UserRole + 1)
+                    hevc_cnt = QStandardItem(str(len(hevc_videos)))
+                    hevc_cnt.setEditable(False)
+                    hevc_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    hevc_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([hevc_item, hevc_cnt])
+
+                    # VP9
+                    vp9_item = QStandardItem("VP9")
+                    vp9_item.setEditable(False)
+                    vp9_item.setData("videos_codec", Qt.UserRole)
+                    vp9_item.setData("vp9", Qt.UserRole + 1)
+                    vp9_cnt = QStandardItem(str(len(vp9_videos)))
+                    vp9_cnt.setEditable(False)
+                    vp9_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    vp9_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([vp9_item, vp9_cnt])
+
+                    # AV1
+                    av1_item = QStandardItem("AV1")
+                    av1_item.setEditable(False)
+                    av1_item.setData("videos_codec", Qt.UserRole)
+                    av1_item.setData("av1", Qt.UserRole + 1)
+                    av1_cnt = QStandardItem(str(len(av1_videos)))
+                    av1_cnt.setEditable(False)
+                    av1_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    av1_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([av1_item, av1_cnt])
+
+                    # MPEG-4
+                    mpeg4_item = QStandardItem("MPEG-4")
+                    mpeg4_item.setEditable(False)
+                    mpeg4_item.setData("videos_codec", Qt.UserRole)
+                    mpeg4_item.setData("mpeg4", Qt.UserRole + 1)
+                    mpeg4_cnt = QStandardItem(str(len(mpeg4_videos)))
+                    mpeg4_cnt.setEditable(False)
+                    mpeg4_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    mpeg4_cnt.setForeground(QColor("#888888"))
+                    codec_parent.appendRow([mpeg4_item, mpeg4_cnt])
+
+                    # 📦 Filter by File Size (Option 7)
+                    size_parent = QStandardItem("📦 By File Size")
+                    size_parent.setEditable(False)
+
+                    # Count videos by file size
+                    small_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 < 100]
+                    medium_size_videos = [v for v in videos if v.get('size_kb') and 100 <= v['size_kb'] / 1024 < 1024]
+                    large_videos = [v for v in videos if v.get('size_kb') and 1024 <= v['size_kb'] / 1024 < 5120]
+                    xlarge_videos = [v for v in videos if v.get('size_kb') and v['size_kb'] / 1024 >= 5120]
+
+                    # CRITICAL FIX: Show sum count for File Size section
+                    total_size_videos = len(small_videos) + len(medium_size_videos) + len(large_videos) + len(xlarge_videos)
+                    size_count = QStandardItem(str(total_size_videos))
+                    size_count.setEditable(False)
+                    size_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    size_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([size_parent, size_count])
+
+                    # Small (< 100MB)
+                    small_size_item = QStandardItem("Small (< 100MB)")
+                    small_size_item.setEditable(False)
+                    small_size_item.setData("videos_size", Qt.UserRole)
+                    small_size_item.setData("small", Qt.UserRole + 1)
+                    small_size_cnt = QStandardItem(str(len(small_videos)))
+                    small_size_cnt.setEditable(False)
+                    small_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    small_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([small_size_item, small_size_cnt])
+
+                    # Medium (100MB - 1GB)
+                    medium_size_item = QStandardItem("Medium (100MB - 1GB)")
+                    medium_size_item.setEditable(False)
+                    medium_size_item.setData("videos_size", Qt.UserRole)
+                    medium_size_item.setData("medium", Qt.UserRole + 1)
+                    medium_size_cnt = QStandardItem(str(len(medium_size_videos)))
+                    medium_size_cnt.setEditable(False)
+                    medium_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    medium_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([medium_size_item, medium_size_cnt])
+
+                    # Large (1GB - 5GB)
+                    large_size_item = QStandardItem("Large (1GB - 5GB)")
+                    large_size_item.setEditable(False)
+                    large_size_item.setData("videos_size", Qt.UserRole)
+                    large_size_item.setData("large", Qt.UserRole + 1)
+                    large_size_cnt = QStandardItem(str(len(large_videos)))
+                    large_size_cnt.setEditable(False)
+                    large_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    large_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([large_size_item, large_size_cnt])
+
+                    # XLarge (> 5GB)
+                    xlarge_size_item = QStandardItem("XLarge (> 5GB)")
+                    xlarge_size_item.setEditable(False)
+                    xlarge_size_item.setData("videos_size", Qt.UserRole)
+                    xlarge_size_item.setData("xlarge", Qt.UserRole + 1)
+                    xlarge_size_cnt = QStandardItem(str(len(xlarge_videos)))
+                    xlarge_size_cnt.setEditable(False)
+                    xlarge_size_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    xlarge_size_cnt.setForeground(QColor("#888888"))
+                    size_parent.appendRow([xlarge_size_item, xlarge_size_cnt])
+
+                    # 📅 Filter by Date - Full Year/Month/Day Hierarchy for Videos
+                    date_parent = QStandardItem("📅 By Date")
+                    date_parent.setEditable(False)
+
+                    # Get video date hierarchy: {year: {month: [days...]}}
+                    try:
+                        video_hier = self.db.get_video_date_hierarchy(self.project_id) or {}
+                    except Exception as e:
+                        print(f"[Sidebar] Failed to get video date hierarchy: {e}")
+                        video_hier = {}
+
+                    # Count total videos with dates
+                    total_dated_videos = sum(
+                        self.db.count_videos_for_year(year, self.project_id)
+                        for year in video_hier.keys()
+                    ) if video_hier else 0
+
+                    # Build full year/month/day hierarchy (like photos)
+                    for year in sorted(video_hier.keys(), key=lambda y: int(str(y)), reverse=True):
+                        # Year node
+                        year_count = self.db.count_videos_for_year(year, self.project_id)
+                        year_item = QStandardItem(str(year))
+                        year_item.setEditable(False)
+                        year_item.setData("videos_year", Qt.UserRole)
+                        year_item.setData(year, Qt.UserRole + 1)
+
+                        year_cnt = QStandardItem(str(year_count))
+                        year_cnt.setEditable(False)
+                        year_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        year_cnt.setForeground(QColor("#888888"))
+
+                        date_parent.appendRow([year_item, year_cnt])
+
+                        # Month nodes under year
+                        months = video_hier[year]
+                        for month in sorted(months.keys(), key=lambda m: int(str(m))):
+                            month_label = f"{int(month):02d}"
+                            month_count = self.db.count_videos_for_month(year, month, self.project_id)
+                            month_item = QStandardItem(month_label)
+                            month_item.setEditable(False)
+                            month_item.setData("videos_month", Qt.UserRole)
+                            month_item.setData(f"{year}-{month_label}", Qt.UserRole + 1)
+                            month_cnt = QStandardItem(str(month_count))
+                            month_cnt.setEditable(False)
+                            month_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                            month_cnt.setForeground(QColor("#888888"))
+                            year_item.appendRow([month_item, month_cnt])
+
+                            # Day nodes under month
+                            days = months[month]
+                            day_numbers = set()
+                            for ymd in days:
+                                try:
+                                    parts = ymd.split("-")
+                                    if len(parts) == 3:
+                                        day_numbers.add(int(parts[2]))
+                                except:
+                                    pass
+
+                            for day in sorted(day_numbers):
+                                day_label = f"{day:02d}"
+                                ymd = f"{year}-{month_label}-{day_label}"
+                                day_count = self.db.count_videos_for_day(ymd, self.project_id)
+                                day_item = QStandardItem(day_label)
+                                day_item.setEditable(False)
+                                day_item.setData("videos_day", Qt.UserRole)
+                                day_item.setData(ymd, Qt.UserRole + 1)
+                                day_cnt = QStandardItem(str(day_count))
+                                day_cnt.setEditable(False)
+                                day_cnt.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                                day_cnt.setForeground(QColor("#888888"))
+                                month_item.appendRow([day_item, day_cnt])
+
+                    # Set total count on date parent
+                    date_count = QStandardItem(str(total_dated_videos))
+                    date_count.setEditable(False)
+                    date_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    date_count.setForeground(QColor("#888888"))
+                    root_name_item.appendRow([date_parent, date_count])
+
+                    # Log the hierarchy build (for debugging)
+                    year_count_total = len(video_hier)
+                    month_count_total = sum(len(months) for months in video_hier.values())
+                    print(f"[VideoDateHierarchy] Building: {year_count_total} years, {month_count_total} months, {total_dated_videos} videos")
+
+                    # 🔍 Search Videos
+                    search_item = QStandardItem("🔍 Search Videos...")
+                    search_item.setEditable(False)
+                    search_item.setData("videos_search", Qt.UserRole)
+                    search_item.setData("search", Qt.UserRole + 1)
+                    search_count = QStandardItem("")
+                    search_count.setEditable(False)
+                    root_name_item.appendRow([search_item, search_count])
+
+                    print(f"[Sidebar] Added 🎬 Videos section with {total_videos} videos and filters.")
+                # <<< NEW
+
+                # ---------------------------------------------------------
+                # 👥 PEOPLE SECTION — CLEAN, FIXED, UNIFIED
+                # ---------------------------------------------------------
+                try:
+                    clusters = self.db.get_face_clusters(self.project_id)
+                except Exception as e:
+                    print("[Sidebar] get_face_clusters failed:", e)
+                    clusters = []
+
+                # Create People root
+                people_root = QStandardItem("👥 People")
+                people_count_item = QStandardItem("")
+                people_root.setEditable(False)
+                people_count_item.setEditable(False)
+                self.model.appendRow([people_root, people_count_item])
+
+                if clusters:
+                    total_faces = 0
+
+                    for row in clusters:
+                        raw_name = row.get("display_name") or row.get("branch_key")
+                        cluster_id = str(row.get("branch_key"))
+                        count = row.get("member_count", 0) or 0
+                        rep_path = row.get("rep_path", "")
+                        rep_thumb_png = row.get("rep_thumb_png")
+
+                        total_faces += count
+
+                        # Humanize unnamed clusters
+                        if raw_name.startswith("face_"):
+                            try:
+                                num = int(raw_name.split("_")[1])
+                                display_name = f"Unnamed #{num}"
+                            except:
+                                display_name = raw_name
+                        else:
+                            display_name = raw_name
+
+                        name_item = QStandardItem(display_name)
+                        name_item.setEditable(False)
+
+                        # Load thumbnail icon
+                        icon_loaded = False
+                        if rep_thumb_png:
+                            try:
+                                from PySide6.QtCore import QByteArray
+                                pixmap = QPixmap()
+                                if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                                    icon_loaded = True
+                            except Exception as e:
+                                print("[Sidebar] PNG icon load failed:", e)
+
+                        if not icon_loaded and rep_path and os.path.exists(rep_path):
+                            pixmap = QPixmap(rep_path)
+                            if not pixmap.isNull():
+                                scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                name_item.setIcon(QIcon(scaled))
+
+                        # Set mode + cluster ID (unified)
+                        name_item.setData("people", Qt.UserRole)
+                        name_item.setData(f"facecluster:{cluster_id}", Qt.UserRole + 1)
+
+                        # Count item
+                        count_item = QStandardItem(str(count) if count > 0 else "")
+                        count_item.setEditable(False)
+                        count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        count_item.setForeground(QColor("#888888"))
+
+                        people_root.appendRow([name_item, count_item])
+
+                    # Show total count on root
+                    people_count_item.setText(str(total_faces))
+
+                else:
+                    # No clusters or no faces
+                    status_item = QStandardItem("ℹ️ No faces detected")
+                    status_item.setEditable(False)
+                    status_item.setForeground(QColor("#888888"))
+                    status_item.setData("people", Qt.UserRole)
+                    people_root.appendRow([status_item, QStandardItem("")])
+
+
+                # ---------------------------------------------------------
+                # NEW POSITION: Build Tags AFTER People
+                # ---------------------------------------------------------
+                self._build_tag_section()
+
+                for r in range(self.model.rowCount()):
+                    idx = self.model.index(r, 0)
+                    self.tree.expand(idx)
+
+                # Force column width recalculation after building tree
+                QTimer.singleShot(0, self._recalculate_columns)
+            except Exception as e:
+                QMessageBox.warning(self, "Load Error", f"Failed to build navigation:\n{e}")
+
+            # populate branch counts asynchronously while folder counts are already set
+            if self._count_targets:
+                print(f"[Sidebar] starting async count population for {len(self._count_targets)} branch targets")
+                self._async_populate_counts()
+
+        finally:
+            # Always reset flag even if exception occurs
+            self._rebuilding_tree = False
+
+
+    def _build_tree_model_1st(self):
+        # Build tree synchronously for folders (counts populated right away),
+        # and register branch targets for async fill to keep responsiveness.
+        print(f"[SidebarQt] _build_tree_model() called with project_id={self.project_id}")
+
+        # CRITICAL: Prevent concurrent rebuilds that cause Qt crashes during rapid project switching
+        # Similar to grid reload() guard pattern
+        if getattr(self, '_rebuilding_tree', False):
+            print("[Sidebar] _build_tree_model() blocked - already rebuilding (prevents concurrent rebuild crash)")
+            return
+
+        try:
+            self._rebuilding_tree = True
+
+            # CRITICAL FIX: Cancel any pending count workers before rebuilding
+            self._list_worker_gen = (self._list_worker_gen + 1) % 1_000_000
+
+            # CRITICAL FIX: Process pending deleteLater() and worker callbacks before rebuilding
+            # This ensures:
+            # 1. Old widgets from tabs are fully cleaned up
+            # 2. Async count workers have checked their generation and aborted
+            # 3. No pending model item updates are in the event queue
+            # Without this, workers can access model items during clear() causing crashes
+            if self._initialized:
+                from PySide6.QtCore import QCoreApplication
+                print("[Sidebar] Processing pending events before model clear")
+                QCoreApplication.processEvents()
+                # Process events twice to catch worker callbacks scheduled during first pass
+                QCoreApplication.processEvents()
+                print("[Sidebar] Pending events processed")
+
+            # CRITICAL FIX: Detach model from view before clearing to prevent Qt segfault
+            # Qt can crash if the view has active selections/iterators when model is cleared
+            print("[Sidebar] Detaching old model from tree view")
+            self.tree.setModel(None)
+
+            # Clear selection to release any Qt internal references
+            if hasattr(self.tree, 'selectionModel') and self.tree.selectionModel():
+                try:
+                    self.tree.selectionModel().clear()
+                except Exception:
+                    pass
+
+            # CRITICAL FIX: Create a completely fresh model instead of clearing the old one
+            # This is safer than model.clear() which can cause Qt C++ segfaults
+            print("[Sidebar] Creating fresh model (avoiding Qt segfault)")
+            
+            old_model = self.model
+            self.model = QStandardItemModel(self.tree)
+            self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
+
+            # Schedule old model for deletion (let Qt clean it up safely)
+            if old_model is not None:
+                try:
+                    old_model.deleteLater()
+                except Exception as e:
+                    print(f"[Sidebar] Warning: Could not schedule old model for deletion: {e}")
+
+            # Attach the fresh model to the tree view
+            print("[Sidebar] Attaching fresh model to tree view")
+            
+            self.tree.setModel(self.model)
+
+            self._count_targets = []
+            try:
+                # Get total photo count for displaying on top-level sections
+                total_photos = 0
+                if self.project_id:
+                    try:
+                        # Get count from "all" branch
+                        all_photos = self.db.get_project_images(self.project_id, branch_key='all')
+                        total_photos = len(all_photos) if all_photos else 0
+                    except Exception as e:
+                        print(f"[Sidebar] Could not get total photo count: {e}")
+                        total_photos = 0
+
+                # Helper to create styled count item
+                def _make_count_item(count_val):
+                    item = QStandardItem(str(count_val) if count_val else "")
+                    item.setEditable(False)
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    item.setForeground(QColor("#BBBBBB"))
+                    return item
+
+                branch_root = QStandardItem("🌿 Branches")
+                branch_root.setEditable(False)
+                branch_count_item = _make_count_item(total_photos)
+                self.model.appendRow([branch_root, branch_count_item])
+                branches = list_branches(self.project_id) if self.project_id else []
+
+                # DEBUG: Log branches loaded
+                print(f"[SidebarQt] list_branches() returned {len(branches)} branches")
+                if len(branches) > 0:
+                    print(f"[SidebarQt] Sample branches: {branches[:5]}")
+
+                for b in branches:
+                    name_item = QStandardItem(b["display_name"])
+                    count_item = QStandardItem("")
+                    name_item.setEditable(False)
+                    count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(b["branch_key"], Qt.UserRole + 1)
+                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    branch_root.appendRow([name_item, count_item])
+                    # register branch for async counts
+                    self._count_targets.append(("branch", b["branch_key"], name_item, count_item))
+
+                quick_root = QStandardItem("📅 Quick Dates")
+                quick_root.setEditable(False)
+                quick_count_item = _make_count_item(total_photos)
+                self.model.appendRow([quick_root, quick_count_item])
+                try:
+                    quick_rows = self.db.get_quick_date_counts(project_id=self.project_id)
+                except Exception:
+                    quick_rows = []
+                for row in quick_rows:
+                    name_item = QStandardItem(row["label"])
+                    count_item = QStandardItem(str(row["count"]) if row and row.get("count") else "")
+                    name_item.setEditable(False)
+                    count_item.setEditable(False)
+                    name_item.setData("branch", Qt.UserRole)
+                    name_item.setData(row["key"], Qt.UserRole + 1)
+                    count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    count_item.setForeground(QColor("#BBBBBB"))
+                    quick_root.appendRow([name_item, count_item])
+
+                # IMPORTANT FIX: use synchronous folder population as in the previous working version,
+                # so folder counts are calculated and displayed immediately.
+                folder_root = QStandardItem("📁 Folders")
+                folder_root.setEditable(False)
+                folder_count_item = _make_count_item(total_photos)
+                self.model.appendRow([folder_root, folder_count_item])
+                # synchronous (restores the previous working behavior)
+                self._add_folder_items(folder_root, None)
+
+
+
+                self._build_by_date_section()
+#                self._build_tag_section()
 
                 # >>> NEW: 🎬 Videos section
                 try:
@@ -2642,13 +3558,15 @@ class SidebarQt(QWidget):
                 people_root.setEditable(False)
                 people_count_item.setEditable(False)
                 self.model.appendRow([people_root, people_count_item])
-
+                
+                
                 if clusters:
                     # Show clustered faces
                     for row in clusters:
                         raw_name = row.get("display_name") or row.get("branch_key")
                         count = row.get("member_count", 0)
-                        rep = row.get("rep_path", "")
+                        rep_path = row.get("rep_path", "")
+                        rep_thumb_png = row.get("rep_thumb_png")
 
                         # ========== IMPROVEMENT: Humanize unnamed clusters ==========
                         # Convert "face_003" to "Unnamed #3" in tree view
@@ -2663,9 +3581,38 @@ class SidebarQt(QWidget):
 
                         name_item = QStandardItem(display_name)
                         name_item.setEditable(False)
+
+                        # ========== IMPROVEMENT: Add thumbnail icons to tree view ==========
+                        icon_loaded = False
+                        if rep_thumb_png:
+                            try:
+                                from PySide6.QtCore import QByteArray
+                                pixmap = QPixmap()
+                                if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                                    # Scale to 16x16 for tree view (smaller than table)
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                                    icon_loaded = True
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load PNG thumbnail: {e}")
+
+                        if not icon_loaded and rep_path and os.path.exists(rep_path):
+                            try:
+                                pixmap = QPixmap(rep_path)
+                                if not pixmap.isNull():
+                                    # Scale to 16x16 for tree view
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
+                            except Exception as e:
+                                print(f"[Sidebar] Failed to load face thumbnail from {rep_path}: {e}")
+
                         count_item = QStandardItem(str(count) if count else "")
                         count_item.setEditable(False)
-                        name_item.setData("facecluster", Qt.UserRole)
+#                        name_item.setData("facecluster", Qt.UserRole)
+                        
+                        # Always use unified mode "people"
+                        name_item.setData("people", Qt.UserRole)
+                        
                         name_item.setData(row["branch_key"], Qt.UserRole + 1)
                         count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                         count_item.setForeground(QColor("#888888"))
@@ -2701,7 +3648,9 @@ class SidebarQt(QWidget):
                         print("[Sidebar] 👥 People: No faces detected yet")
                 # <<< NEW
 
-                # Build Tags section
+                # ---------------------------------------------------------
+                # NEW POSITION: Build Tags AFTER People
+                # ---------------------------------------------------------
                 self._build_tag_section()
 
                 for r in range(self.model.rowCount()):
@@ -2721,6 +3670,7 @@ class SidebarQt(QWidget):
         finally:
             # Always reset flag even if exception occurs
             self._rebuilding_tree = False
+
 
     def _add_folder_items_async(self, parent_item, parent_id=None):
         # kept for folder-tab lazy usage if desired, but not used for tree-mode counts
@@ -3199,7 +4149,7 @@ class SidebarQt(QWidget):
         print(f"[SidebarQt] Calling reload() after setting project_id")
         self.reload()
 
-    def _show_menu(self, pos: QPoint):
+    def _show_menu_1st(self, pos: QPoint):
         index = self.tree.indexAt(pos)
         if not index.isValid():
             return
@@ -3312,6 +4262,431 @@ class SidebarQt(QWidget):
         chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
         if chosen is act_export:
             self._do_export(item.data(Qt.UserRole + 1))
+
+    def _show_menu(self, pos: QPoint):
+        # Always convert local click position to global screen position
+        global_pos = self.tree.viewport().mapToGlobal(pos)
+        
+        index = self.tree.indexAt(pos)
+        if not index.isValid():
+            return
+        index = index.sibling(index.row(), 0)
+        item = self.model.itemFromIndex(index)
+        if not item:
+            return
+
+        mode = item.data(Qt.UserRole)
+        value = item.data(Qt.UserRole + 1)
+        label = item.text().strip()
+        db = self.db
+        menu = QMenu(self)
+
+        # Face cluster context menu (People)
+        if mode in ("facecluster", "people"):
+            branch_key = value
+            if isinstance(branch_key, str) and branch_key.startswith("facecluster:"):
+                branch_key = branch_key.split(":", 1)[1]
+
+            menu.addSeparator()
+            rename_action = menu.addAction("Rename person…")
+            export_action = menu.addAction("Export photos of this person…")
+
+            # NEW: batch-merge, suggestions, undo
+            merge_action = menu.addAction("Merge selected into…")
+            suggest_action = menu.addAction("💡 Smart merge suggestions…")
+            undo_action = menu.addAction("Undo last face merge")
+
+            chosen = menu.exec(global_pos)
+            if chosen == rename_action:
+                self._rename_face_cluster(branch_key, item.text())
+            elif chosen == export_action:
+                self._export_face_cluster_photos(branch_key, item.text())
+            elif chosen == merge_action:
+                self._merge_selected_people_clusters()
+            elif chosen == suggest_action:
+                self._show_face_merge_suggestions()
+            elif chosen == undo_action:
+                self._undo_last_face_merge()
+            return
+
+        if mode == "tag" and isinstance(value, str):
+            tag_name = value
+            act_filter = menu.addAction(f"Filter by tag: {tag_name}")
+            menu.addSeparator()
+            act_rename = menu.addAction("✏️ Rename Tag…")
+            act_delete = menu.addAction("🗑 Delete Tag")
+
+            chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+            if chosen is act_filter:
+                if hasattr(self.parent(), "_apply_tag_filter"):
+                    self.parent()._apply_tag_filter(tag_name)
+            elif chosen is act_rename:
+                from PySide6.QtWidgets import QInputDialog
+                new_name, ok = QInputDialog.getText(self, "Rename Tag", "New name:", text=tag_name)
+                if ok and new_name.strip() and new_name.strip() != tag_name:
+                    try:
+                        if hasattr(db, "rename_tag"):
+                            db.rename_tag(tag_name, new_name.strip())
+                        self.reload_tags_only()
+                    except Exception as e:
+                        QMessageBox.critical(self, "Rename Failed", str(e))
+            elif chosen is act_delete:
+                ret = QMessageBox.question(self, "Delete Tag",
+                                           f"Delete tag '{tag_name}'?\nThis will unassign it from all photos.",
+                                           QMessageBox.Yes | QMessageBox.No)
+                if ret == QMessageBox.Yes:
+                    try:
+                        if hasattr(db, "delete_tag"):
+                            db.delete_tag(tag_name)
+                        self.reload_tags_only()
+                    except Exception as e:
+                        QMessageBox.critical(self, "Delete Failed", str(e))
+            return
+
+        if label.startswith("🏷️ Tags"):
+            act_new = menu.addAction("➕ New Tag…")
+            chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+            if chosen is act_new:
+                from PySide6.QtWidgets import QInputDialog
+                name, ok = QInputDialog.getText(self, "New Tag", "Tag name:")
+                if ok and name.strip():
+                    try:
+                        if hasattr(db, "ensure_tag"):
+                            db.ensure_tag(name.strip())
+                        self.reload_tags_only()
+                    except Exception as e:
+                        QMessageBox.critical(self, "Create Failed", str(e))
+            return
+
+        act_export = menu.addAction("📁 Export Photos to Folder…")
+        chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+        if chosen is act_export:
+            self._do_export(item.data(Qt.UserRole + 1))
+
+
+
+    # --------------------------------------------------
+    # PEOPLE / FACE CLUSTER MERGE HELPERS
+    # --------------------------------------------------
+
+    def _rename_face_cluster(self, branch_key: str, current_label: str):
+        """
+        Rename a face cluster / person.
+        """
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+        # Extract current name from label (remove count if present)
+        current_name = current_label.split("(")[0].strip() if "(" in current_label else current_label
+
+        # Clear the input field if it's an "Unnamed #" label
+        default_text = "" if current_name.startswith("Unnamed #") else current_name
+        new_name, ok = QInputDialog.getText(self, "Rename Person", "Person name:", text=default_text)
+
+        if not ok or not new_name.strip() or new_name.strip() == current_name:
+            return
+
+        try:
+            # Use the helper method from reference_db if available
+            if hasattr(self.db, 'rename_branch_display_name'):
+                self.db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+            else:
+                # Fallback: direct SQL update
+                with self.db._connect() as conn:
+                    conn.execute("""
+                        UPDATE branches
+                        SET display_name = ?
+                        WHERE project_id = ? AND branch_key = ?
+                    """, (new_name.strip(), self.project_id, branch_key))
+                    conn.execute("""
+                        UPDATE face_branch_reps
+                        SET label = ?
+                        WHERE project_id = ? AND branch_key = ?
+                    """, (new_name.strip(), self.project_id, branch_key))
+                    conn.commit()
+
+            # Reload sidebar to show new name
+            self._build_tree_model()
+            QMessageBox.information(self, "Renamed", f"Person renamed to '{new_name.strip()}'")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Rename Failed", str(e))
+
+
+    def _export_face_cluster_photos(self, branch_key: str, label: str):
+        """
+        Export all photos containing faces from this cluster.
+        """
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        dest = QFileDialog.getExistingDirectory(self, f"Export photos of: {label}")
+        if not dest:
+            return
+
+        try:
+            # Get all image paths for this face cluster
+            if hasattr(self.db, 'get_images_by_branch'):
+                paths = self.db.get_images_by_branch(self.project_id, branch_key) or []
+            else:
+                paths = []
+
+            if not paths:
+                QMessageBox.information(self, "Export", "No photos found for this person.")
+                return
+
+            # Copy photos to destination
+            import shutil
+            import os
+            copied = 0
+            for src_path in paths:
+                if not os.path.exists(src_path):
+                    continue
+                filename = os.path.basename(src_path)
+                dest_path = os.path.join(dest, filename)
+
+                # Handle duplicate filenames
+                if os.path.exists(dest_path):
+                    base, ext = os.path.splitext(filename)
+                    counter = 1
+                    while os.path.exists(dest_path):
+                        dest_path = os.path.join(dest, f"{base}_{counter}{ext}")
+                        counter += 1
+
+                shutil.copy2(src_path, dest_path)
+                copied += 1
+
+            QMessageBox.information(self, "Export Completed",
+                                  f"Exported {copied} photos from '{label}' to:\n{dest}")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Export Failed", str(e))
+
+
+    def _collect_selected_people_clusters(self):
+        """
+        Return a list of (branch_key, display_name) for all selected
+        tree rows that are 'people' items.
+        """
+        result = []
+        sel_model = self.tree.selectionModel()
+        if not sel_model:
+            return result
+
+        # We only care about the first column
+        selected_rows = sel_model.selectedRows(0)
+        for idx in selected_rows:
+            item = self.model.itemFromIndex(idx.sibling(idx.row(), 0))
+            if not item:
+                continue
+            mode = item.data(Qt.UserRole)
+            value = item.data(Qt.UserRole + 1)
+            if mode != "people" or not value:
+                continue
+
+            branch_key = value
+            if isinstance(branch_key, str) and branch_key.startswith("facecluster:"):
+                branch_key = branch_key.split(":", 1)[1]
+
+            result.append((str(branch_key), item.text()))
+
+        # Deduplicate by branch_key, preserving first label
+        seen = set()
+        final = []
+        for key, label in result:
+            if key in seen:
+                continue
+            seen.add(key)
+            final.append((key, label))
+        return final
+
+
+    def _merge_selected_people_clusters(self):
+        """
+        Batch-merge mode:
+          1. User selects multiple people in the tree
+          2. Right-click → 'Merge selected into…'
+          3. Choose target person
+          4. Confirm preview
+          5. Call DB merge (with undo snapshot)
+        """
+        from PySide6.QtWidgets import QInputDialog
+
+        clusters = self._collect_selected_people_clusters()
+        if len(clusters) < 2:
+            QMessageBox.information(
+                self,
+                "Merge People",
+                "Select at least two people in the list, then choose\n"
+                "‘Merge selected into…’ from the context menu.",
+            )
+            return
+
+        # Build label list for the target picker
+        label_list = [f"{name}   [{key}]" for key, name in clusters]
+
+        target_label, ok = QInputDialog.getItem(
+            self,
+            "Merge into…",
+            "Choose the person to merge *into*:",
+            label_list,
+            0,
+            False,
+        )
+        if not ok or not target_label:
+            return
+
+        try:
+            target_index = label_list.index(target_label)
+        except ValueError:
+            return
+
+        target_key, target_name = clusters[target_index]
+        source_keys = [key for i, (key, _) in enumerate(clusters) if i != target_index]
+
+        # --- Safety preview / confirmation ---
+        try:
+            cluster_rows = {
+                row["branch_key"]: row
+                for row in self.db.get_face_clusters(self.project_id)
+            }
+        except Exception:
+            cluster_rows = {}
+
+        total_faces = 0
+        for key in [target_key] + source_keys:
+            row = cluster_rows.get(key)
+            if row:
+                total_faces += row.get("member_count", 0) or 0
+
+        lines = [
+            f"Target: {target_name} [{target_key}]",
+            "",
+            "Sources to merge:",
+        ]
+        for key, name in clusters:
+            if key == target_key:
+                continue
+            row = cluster_rows.get(key) if cluster_rows else None
+            cnt = (row.get("member_count") if row else None) or ""
+            if cnt != "":
+                lines.append(f"  • {name} [{key}]  ({cnt} faces)")
+            else:
+                lines.append(f"  • {name} [{key}]")
+
+        if total_faces:
+            lines.append("")
+            lines.append(f"Approx. faces affected: {total_faces}")
+
+        lines.append("")
+        lines.append("You can undo this once via “Undo last face merge”.")
+
+        confirm = QMessageBox.question(
+            self,
+            "Confirm merge",
+            "\n".join(lines),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        # --- Perform merge via DB ---
+        try:
+            stats = self.db.merge_face_clusters(self.project_id, target_key, source_keys)
+            moved = stats.get("moved_faces", 0) if isinstance(stats, dict) else 0
+            QMessageBox.information(
+                self,
+                "Merge complete",
+                f"Merged {len(source_keys)} people into “{target_name}”.\n"
+                f"Approx. {moved} face crops were reassigned.",
+            )
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Merge failed",
+                f"Could not merge people:\n{e}",
+            )
+            return
+
+        # Refresh sidebar to reflect new clusters
+        self._build_tree_model()
+
+
+    def _show_face_merge_suggestions(self):
+        """
+        Uses centroid distance to suggest likely duplicates.
+        """
+        try:
+            suggestions = self.db.get_face_merge_suggestions(self.project_id)
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Suggestions failed",
+                f"Could not compute merge suggestions:\n{e}",
+            )
+            return
+
+        if not suggestions:
+            QMessageBox.information(
+                self,
+                "Merge suggestions",
+                "No obvious merge suggestions were found.\n"
+                "You may need to detect/cluster more faces first.",
+            )
+            return
+
+        lines = [
+            "Smaller distance → higher similarity.\n",
+        ]
+        for s in suggestions:
+            lines.append(
+                f"{s['a_label']} [{s['a_branch']}]  ↔  "
+                f"{s['b_label']} [{s['b_branch']}]  "
+                f"(d = {s['distance']:.3f})"
+            )
+
+        QMessageBox.information(
+            self,
+            "Merge suggestions",
+            "\n".join(lines),
+        )
+
+
+    def _undo_last_face_merge(self):
+        """
+        Undo the last merge_face_clusters() operation using the DB log.
+        """
+        try:
+            stats = self.db.undo_last_face_merge(self.project_id)
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Undo failed",
+                f"Could not undo last face merge:\n{e}",
+            )
+            return
+
+        if not stats:
+            QMessageBox.information(
+                self,
+                "Undo merge",
+                "There is no face merge operation to undo.",
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "Undo merge",
+            (
+                f"Restored {stats.get('faces', 0)} face crops and "
+                f"{stats.get('images', 0)} image-branch assignments\n"
+                f"across {stats.get('clusters', 0)} clusters."
+            ),
+        )
+
+        self._build_tree_model()
+
 
     def _do_export(self, branch_key: str):
         dest = QFileDialog.getExistingDirectory(self, f"Export branch: {branch_key}")

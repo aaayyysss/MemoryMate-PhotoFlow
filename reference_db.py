@@ -213,7 +213,22 @@ class ReferenceDB:
                 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
             )
         ''')
-        
+
+
+        # --------------------------------------------------
+        # Face merge history (for undo)
+        # --------------------------------------------------
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS face_merge_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                target_branch TEXT NOT NULL,
+                source_branches TEXT NOT NULL,
+                snapshot TEXT NOT NULL,         -- JSON blob of pre-merge state
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         c.execute('''
             CREATE TABLE IF NOT EXISTS export_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -238,22 +253,6 @@ class ReferenceDB:
         ''')
        
         # photo_metadata: add metadata_status / metadata_fail_count columns at creation time for fresh DBs.
-#        c.execute('''
-#            CREATE TABLE IF NOT EXISTS photo_metadata (
-#                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-#                            path TEXT UNIQUE NOT NULL,
-#                            folder_id INTEGER NOT NULL,
-#                            size_kb REAL,
-#                            modified TEXT,
-#                            width INTEGER,
-#                            height INTEGER,
-#                            embedding BLOB,
-#                            date_taken TEXT,
-#                            tags TEXT,
-#                            updated_at TEXT,
-#                            FOREIGN KEY(folder_id) REFERENCES photo_folders(id)
-#            )
-#        ''')
 
         c.execute('''
             CREATE TABLE IF NOT EXISTS photo_metadata (
@@ -370,6 +369,8 @@ class ReferenceDB:
     def _connect(self):
         conn = sqlite3.connect(self.db_file)
         conn.execute("PRAGMA foreign_keys = ON")
+        conn.row_factory = sqlite3.Row   # <<< FIX: ALWAYS return dict-like rows
+        
         return conn
         
 
@@ -441,7 +442,6 @@ class ReferenceDB:
                 cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE folder_id = ?", (folder_id,))
             row = cur.fetchone()
             return int(row[0]) if row and row[0] is not None else 0
-
 
     # ======================================================
     #           REFERENCE ENTRIES
@@ -543,7 +543,6 @@ class ReferenceDB:
                     conn.execute("DELETE FROM reference_entries WHERE id = ?", (_id,))
                     removed += 1
         return removed
-
 
     # ======================================================
     #           MATCH AUDIT
@@ -1514,97 +1513,6 @@ class ReferenceDB:
                 return None
             cols = [d[0] for d in cur.description]
             return dict(zip(cols, row))
-
-    def upsert_photo_metadata_1st(self, path, folder_id, size_kb, modified, width, height, date_taken=None, tags=None):
-        """
-        Upsert row; if migration (created_* columns) exists, also write created_ts/date/year
-        derived from date_taken (preferred) or modified (fallback). If not migrated yet,
-        it safely uses the legacy column set.
-        This updated version also sets metadata_status to 'ok' and metadata_fail_count=0 if width/height are provided.
-        """
-        with self._connect() as conn:
-            cur = conn.cursor()
-            ok_meta = (width is not None and height is not None) or (date_taken is not None)
-            if self._has_created_columns():
-                c_ts, c_date, c_year = self._normalize_created_fields(date_taken, modified)
-                if ok_meta:
-                    cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
-                                                    created_ts, created_date, created_year, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path) DO UPDATE SET
-                            folder_id = excluded.folder_id,
-                            size_kb   = excluded.size_kb,
-                            modified  = excluded.modified,
-                            width     = excluded.width,
-                            height    = excluded.height,
-                            date_taken= excluded.date_taken,
-                            tags      = excluded.tags,
-                            updated_at= excluded.updated_at,
-                            created_ts   = COALESCE(excluded.created_ts, created_ts),
-                            created_date = COALESCE(excluded.created_date, created_date),
-                            created_year = COALESCE(excluded.created_year, created_year),
-                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
-                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (
-                        path, folder_id, size_kb, modified, width, height,
-                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
-                        c_ts, c_date, c_year
-                    ))
-                else:
-                    cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at,
-                                                    created_ts, created_date, created_year)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(path, project_id) DO UPDATE SET
-                            folder_id = excluded.folder_id,
-                            size_kb   = excluded.size_kb,
-                            modified  = excluded.modified,
-                            width     = excluded.width,
-                            height    = excluded.height,
-                            date_taken= excluded.date_taken,
-                            tags      = excluded.tags,
-                            updated_at= excluded.updated_at,
-                            created_ts   = COALESCE(excluded.created_ts, created_ts),
-                            created_date = COALESCE(excluded.created_date, created_date),
-                            created_year = COALESCE(excluded.created_year, created_year)
-                    """, (
-                        path, folder_id, project_id, size_kb, modified, width, height,
-                        date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S"),
-                        c_ts, c_date, c_year
-                    ))
-            else:
-                if ok_meta:
-                    cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at, metadata_status, metadata_fail_count)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'ok', 0)
-                        ON CONFLICT(path, project_id) DO UPDATE SET
-                            folder_id = excluded.folder_id,
-                            size_kb   = excluded.size_kb,
-                            modified  = excluded.modified,
-                            width     = excluded.width,
-                            height    = excluded.height,
-                            date_taken= excluded.date_taken,
-                            tags      = excluded.tags,
-                            updated_at= excluded.updated_at,
-                            metadata_status = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 'ok' ELSE metadata_status END,
-                            metadata_fail_count = CASE WHEN excluded.width IS NOT NULL OR excluded.date_taken IS NOT NULL THEN 0 ELSE metadata_fail_count END
-                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
-                else:
-                    cur.execute("""
-                        INSERT INTO photo_metadata (path, folder_id, project_id, size_kb, modified, width, height, embedding, date_taken, tags, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                        ON CONFLICT(path, project_id) DO UPDATE SET
-                            folder_id = excluded.folder_id,
-                            size_kb   = excluded.size_kb,
-                            modified  = excluded.modified,
-                            width     = excluded.width,
-                            height    = excluded.height,
-                            date_taken= excluded.date_taken,
-                            tags      = excluded.tags,
-                            updated_at= excluded.updated_at
-                    """, (path, folder_id, project_id, size_kb, modified, width, height, date_taken, tags, time.strftime("%Y-%m-%d %H:%M:%S")))
-            conn.commit()
 
     # ---------------------------
     # Metadata backfill helpers
@@ -3128,13 +3036,6 @@ class ReferenceDB:
             """, (tag_name,))
             return [r[0] for r in cur.fetchall()]
 
-    def get_all_tags_1st(self) -> list[str]:
-        """Return list of all existing tag names sorted alphabetically."""
-        with self._connect() as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT name FROM tags ORDER BY name COLLATE NOCASE")
-            return [r[0] for r in cur.fetchall()]
-
     def get_all_tags_priorperProject(self, project_id: int | None = None) -> list[str]:
         """
         Return list of all existing tag names sorted alphabetically.
@@ -3230,122 +3131,6 @@ class ReferenceDB:
             # delete old tag
             cur.execute("DELETE FROM tags WHERE id = ?", (old_id,))
             conn.commit()
-
-    def get_tags_for_paths_1st(self, paths: list[str]) -> dict[str, list[str]]:
-        """
-        Return {path: [tags]} using normalized tag structure.
-        """
-        if not paths:
-            return {}
-
-        out = {p: [] for p in paths}
-        with self._connect() as conn:
-            cur = conn.cursor()
-            qmarks = ",".join("?" * len(paths))
-            cur.execute(f"""
-                SELECT p.path, t.name
-                FROM photo_metadata p
-                JOIN photo_tags pt ON pt.photo_id = p.id
-                JOIN tags t        ON t.id = pt.tag_id
-                WHERE p.path IN ({qmarks})
-                ORDER BY p.path, t.name COLLATE NOCASE
-            """, paths)
-            for path, tag in cur.fetchall():
-                out[path].append(tag)
-        return out
-
-    # --- replace the entire function ---
-    def get_tags_for_paths_2nd(self, paths: list[str]) -> dict[str, list[str]]:
-        """
-        Return {path: [tags]} using normalized tag structure.
-        Safe for very large lists by chunking under SQLite's variable limit.
-        """
-        if not paths:
-            return {}
-
-        out: dict[str, list[str]] = {p: [] for p in paths}
-
-        # SQLite default limit is 999; keep margin for safety
-        CHUNK = 800
-
-        with self._connect() as conn:
-            cur = conn.cursor()
-            for i in range(0, len(paths), CHUNK):
-                batch = paths[i:i+CHUNK]
-                qmarks = ",".join("?" * len(batch))
-                try:
-                    cur.execute(f"""
-                        SELECT p.path, t.name
-                        FROM photo_metadata p
-                        JOIN photo_tags pt ON pt.photo_id = p.id
-                        JOIN tags t        ON t.id = pt.tag_id
-                        WHERE p.path IN ({qmarks})
-                        ORDER BY p.path, t.name COLLATE NOCASE
-                    """, batch)
-                    rows = cur.fetchall()
-                    for path, tag in rows:
-                        if path in out:
-                            out[path].append(tag)
-                except Exception as e:
-                    # Don't let tag lookup kill the grid; just continue without tags for this batch
-                    print(f"[DB] get_tags_for_paths chunk failed ({i}:{i+len(batch)}): {e}")
-                    continue
-        return out
-
-
-    # >>> FIX: helpers (place near other small utils, top-level in ReferenceDB)
-    def _norm_path_1st(self, p: str) -> str:
-        import os
-        try:
-            return os.path.normcase(os.path.abspath(os.path.normpath(p.strip())))
-        except Exception:
-            return str(p).strip().lower()
-
-    # >>> FIX: robust, chunked tag resolver (replace your current get_tags_for_paths)
-    def get_tags_for_paths_3rd(self, paths: list[str]) -> dict[str, list[str]]:
-        import os
-        if not paths:
-            return {}
-
-        # normalize once, keep reverse map to original
-        norm_to_orig = {}
-        normed = []
-        for p in paths:
-            n = self._norm_path(p)
-            norm_to_orig[n] = p
-            normed.append(n)
-
-        out: dict[str, list[str]] = {p: [] for p in paths}
-        try:
-            with self._connect() as conn:
-                cur = conn.cursor()
-
-                # SQLite variable limit (usually 999). Stay safely under it.
-                CHUNK = 400
-                for i in range(0, len(normed), CHUNK):
-                    chunk = normed[i:i+CHUNK]
-                    q_marks = ",".join(["?"] * len(chunk))
-                    # photo_tags(path TEXT, tag TEXT) is assumed; adapt table/cols if yours differ
-                    cur.execute(f"""
-                        SELECT p.path, t.name
-                        FROM photo_metadata p
-                        JOIN photo_tags pt ON pt.photo_id = p.id
-                        JOIN tags t        ON t.id = pt.tag_id
-                        WHERE p.path IN ({q_marks})
-                        ORDER BY p.path, t.name COLLATE NOCASE
-                    """, chunk)
-                    for row in cur.fetchall():
-                        npath = row[0]
-                        tag   = (row[1] or "").strip()
-                        if not tag:
-                            continue
-                        orig = norm_to_orig.get(self._norm_path(npath))
-                        if orig:
-                            out.setdefault(orig, []).append(tag)
-        except Exception as e:
-            print(f"[DB] get_tags_for_paths failed: {e}")
-
-        return out
 
 
     # >>> FIX 1: get_tags_for_paths — chunked to avoid SQLite 999 param cap
@@ -4298,9 +4083,407 @@ class ReferenceDB:
             """, (project_id, branch_key))
             return [r[0] for r in cur.fetchall()]
             
-            return rows
-    # <<< NEW
+#            return rows
 
+
+
+    # ------------------------------------------------------
+    # FACE CLUSTER MERGE / UNDO / SUGGESTIONS
+    # ------------------------------------------------------
+
+    def merge_face_clusters(self, project_id: int, target_branch: str, source_branches, log_undo: bool = True):
+        """
+        Merge one or more source face clusters into a target cluster.
+        - project_id: current project
+        - target_branch: e.g. "face_000"
+        - source_branches: iterable of "face_XXX" keys (will be merged *into* target)
+
+        This updates:
+          * face_crops.branch_key
+          * project_images.branch_key  (so branch-based views stay in sync)
+          * face_branch_reps           (source reps removed, target kept)
+          * branches                   (source branch rows removed)
+        and writes a JSON snapshot into face_merge_history so we can undo later.
+        """
+        if not project_id:
+            raise ValueError("merge_face_clusters requires a project_id")
+        if not target_branch:
+            raise ValueError("merge_face_clusters requires a target_branch")
+
+        # Normalise & dedupe sources
+        src_list = [str(b) for b in (source_branches or []) if b]
+        src_list = list({b for b in src_list if b != target_branch})
+        if not src_list:
+            return {"moved_faces": 0, "moved_images": 0, "deleted_reps": 0, "sources": [], "target": target_branch}
+
+        print(f"[merge_face_clusters] project_id={project_id}, target='{target_branch}', sources={src_list}")
+
+        # Prepare shared key list (target + sources) for snapshot
+        all_keys = [target_branch] + src_list
+
+        from datetime import datetime
+        import json as _json
+
+        with self._connect() as conn:
+
+            # CRITICAL: We need named-column access (row["project_id"], etc.)
+            # for the snapshot building below. Set row_factory BEFORE any execute calls.
+            import sqlite3
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+
+            # Enable foreign keys after setting row_factory
+            cur.execute("PRAGMA foreign_keys = ON")
+
+            # ---------------- SNAPSHOT (for undo) ----------------
+            snapshot: dict[str, list] = {
+                "branch_keys": all_keys,
+                "branches": [],
+                "face_branch_reps": [],
+                "face_crops": [],
+                "project_images": [],
+            }
+
+            placeholders = ",".join("?" * len(all_keys))
+
+            # branches
+            cur.execute(
+                f"SELECT project_id, branch_key, display_name "
+                f"FROM branches WHERE project_id = ? AND branch_key IN ({placeholders})",
+                [project_id] + all_keys,
+            )
+            branches_rows = cur.fetchall()
+            print(f"[merge_face_clusters] Found {len(branches_rows)} branches. Row type: {type(branches_rows[0]) if branches_rows else 'N/A'}")
+            for row in branches_rows:
+                try:
+                    snapshot["branches"].append(
+                        {
+                            "project_id": row["project_id"],
+                            "branch_key": row["branch_key"],
+                            "display_name": row["display_name"],
+                        }
+                    )
+                except (TypeError, KeyError) as e:
+                    print(f"[merge_face_clusters] ERROR accessing row: {e}, row type={type(row)}, row={row}")
+                    # Fallback to tuple indexing if dict access fails
+                    snapshot["branches"].append(
+                        {
+                            "project_id": row[0],
+                            "branch_key": row[1],
+                            "display_name": row[2],
+                        }
+                    )
+
+            # face_branch_reps
+            cur.execute(
+                f"SELECT id, project_id, branch_key, rep_path, rep_thumb_png, label, centroid "
+                f"FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
+                [project_id] + all_keys,
+            )
+            for row in cur.fetchall():
+                snapshot["face_branch_reps"].append(
+                    {
+                        "id": row["id"],
+                        "project_id": row["project_id"],
+                        "branch_key": row["branch_key"],
+                        "rep_path": row["rep_path"],
+                        "rep_thumb_png": row["rep_thumb_png"],
+                        "label": row["label"],
+                        "centroid": row["centroid"],
+                    }
+                )
+
+            # face_crops
+            cur.execute(
+                f"SELECT id, branch_key FROM face_crops "
+                f"WHERE project_id = ? AND branch_key IN ({placeholders})",
+                [project_id] + all_keys,
+            )
+            snapshot["face_crops"] = [
+                {"id": r["id"], "branch_key": r["branch_key"]}
+                for r in cur.fetchall()
+            ]
+
+            # project_images
+            cur.execute(
+                f"SELECT id, branch_key FROM project_images "
+                f"WHERE project_id = ? AND branch_key IN ({placeholders})",
+                [project_id] + all_keys,
+            )
+            snapshot["project_images"] = [
+                {"id": r["id"], "branch_key": r["branch_key"]}
+                for r in cur.fetchall()
+            ]
+
+            # Log snapshot for undo
+            if log_undo:
+                cur.execute(
+                    """
+                    INSERT INTO face_merge_history
+                        (project_id, target_branch, source_branches, snapshot, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        project_id,
+                        target_branch,
+                        ",".join(src_list),
+                        _json.dumps(snapshot),
+                        datetime.utcnow().isoformat(timespec="seconds"),
+                    ),
+                )
+
+            # ---------------- DO THE MERGE ----------------
+            src_placeholders = ",".join("?" * len(src_list))
+
+            # 1) face_crops → move all crops into target cluster
+            cur.execute(
+                f"""
+                UPDATE face_crops
+                SET branch_key = ?
+                WHERE project_id = ?
+                  AND branch_key IN ({src_placeholders})
+                """,
+                [target_branch, project_id] + src_list,
+            )
+            moved_faces = cur.rowcount
+
+            # 2) project_images → keep branch-based browsing consistent
+            cur.execute(
+                f"""
+                UPDATE project_images
+                SET branch_key = ?
+                WHERE project_id = ?
+                  AND branch_key IN ({src_placeholders})
+                """,
+                [target_branch, project_id] + src_list,
+            )
+            moved_images = cur.rowcount
+
+            # 3) Representatives: delete reps for source clusters (target kept as-is)
+            cur.execute(
+                f"""
+                DELETE FROM face_branch_reps
+                WHERE project_id = ?
+                  AND branch_key IN ({src_placeholders})
+                """,
+                [project_id] + src_list,
+            )
+            deleted_reps = cur.rowcount
+
+            # 4) Branch rows for source clusters
+            cur.execute(
+                f"""
+                DELETE FROM branches
+                WHERE project_id = ?
+                  AND branch_key IN ({src_placeholders})
+                """,
+                [project_id] + src_list,
+            )
+
+            conn.commit()
+
+            result = {
+                "moved_faces": moved_faces,
+                "moved_images": moved_images,
+                "deleted_reps": deleted_reps,
+                "sources": src_list,
+                "target": target_branch,
+            }
+            print(f"[merge_face_clusters] SUCCESS: {result}")
+            return result
+
+
+    def undo_last_face_merge(self, project_id: int):
+        """
+        Undo the *last* face merge for this project, if any.
+        Uses the snapshot stored in face_merge_history.
+        """
+        import json as _json
+
+        if not project_id:
+            return None
+
+        with self._connect() as conn:
+            # Use Row here as well, because we index `row["id"]`.
+            import sqlite3
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+
+            row = cur.execute(
+                """
+                SELECT id, snapshot
+                FROM face_merge_history
+                WHERE project_id = ?
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (project_id,),
+            ).fetchone()
+
+            if not row:
+                return None
+
+            log_id = row["id"]
+            snapshot = _json.loads(row["snapshot"])
+            branch_keys = snapshot.get("branch_keys") or []
+            placeholders = ",".join("?" * len(branch_keys)) if branch_keys else ""
+
+            faces = snapshot.get("face_crops", [])
+            imgs = snapshot.get("project_images", [])
+            branches = snapshot.get("branches", [])
+            reps = snapshot.get("face_branch_reps", [])
+
+            faces_restored = 0
+            images_restored = 0
+
+            # Restore branch + rep tables first so views are consistent
+            if branch_keys:
+                # branches
+                cur.execute(
+                    f"DELETE FROM branches WHERE project_id = ? AND branch_key IN ({placeholders})",
+                    [project_id] + branch_keys,
+                )
+                for b in branches:
+                    cur.execute(
+                        """
+                        INSERT OR REPLACE INTO branches (project_id, branch_key, display_name)
+                        VALUES (?, ?, ?)
+                        """,
+                        (b["project_id"], b["branch_key"], b.get("display_name")),
+                    )
+
+                # face_branch_reps
+                cur.execute(
+                    f"DELETE FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
+                    [project_id] + branch_keys,
+                )
+                for r in reps:
+                    cur.execute(
+                        """
+                        INSERT INTO face_branch_reps
+                            (id, project_id, branch_key, rep_path, rep_thumb_png, label, centroid)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            r["id"],
+                            r["project_id"],
+                            r["branch_key"],
+                            r["rep_path"],
+                            r["rep_thumb_png"],
+                            r["label"],
+                            r["centroid"],
+                        ),
+                    )
+
+            # Restore face_crops
+            for rec in faces:
+                cur.execute(
+                    "UPDATE face_crops SET branch_key = ? WHERE id = ?",
+                    (rec["branch_key"], rec["id"]),
+                )
+                faces_restored += cur.rowcount
+
+            # Restore project_images
+            for rec in imgs:
+                cur.execute(
+                    "UPDATE project_images SET branch_key = ? WHERE id = ?",
+                    (rec["branch_key"], rec["id"]),
+                )
+                images_restored += cur.rowcount
+
+            # Remove history entry we just consumed
+            cur.execute("DELETE FROM face_merge_history WHERE id = ?", (log_id,))
+
+            conn.commit()
+
+            return {
+                "faces": faces_restored,
+                "images": images_restored,
+                "clusters": len(branch_keys),
+            }
+
+
+    def get_face_merge_suggestions(
+        self,
+        project_id: int,
+        max_pairs: int = 20,
+        threshold: float = 0.45,
+        min_count: int = 3,
+    ):
+        """
+        Compute 'smart' merge suggestions by comparing centroid embeddings
+        between face clusters.
+
+        Returns a list of dicts:
+            {
+                "a_branch", "b_branch",
+                "a_label", "b_label",
+                "a_count", "b_count",
+                "distance": float
+            }
+        """
+        import math
+        import array
+
+        reps = self.get_face_branch_reps(project_id)
+        if not reps:
+            return []
+
+        # Only consider clusters with a centroid and at least min_count faces
+        filtered = [
+            r for r in reps
+            if r.get("centroid_bytes") is not None
+            and (r.get("count") or 0) >= min_count
+        ]
+        if len(filtered) < 2:
+            return []
+
+        # Decode centroid bytes into arrays of float32
+        vecs = []
+        for r in filtered:
+            centroid_bytes = r["centroid_bytes"]
+            arr = array.array("f")
+            try:
+                arr.frombytes(centroid_bytes)
+            except Exception:
+                # If decoding fails for some row, just skip it
+                continue
+            vecs.append(
+                (
+                    r["branch_key"],
+                    r.get("label") or r["branch_key"],
+                    r.get("count") or 0,
+                    arr,
+                )
+            )
+
+        suggestions: list[dict] = []
+        n = len(vecs)
+        for i in range(n):
+            key_i, label_i, cnt_i, v_i = vecs[i]
+            for j in range(i + 1, n):
+                key_j, label_j, cnt_j, v_j = vecs[j]
+                if len(v_i) != len(v_j) or not v_i:
+                    continue
+                # Euclidean distance
+                dist = math.sqrt(
+                    sum((v_i[k] - v_j[k]) ** 2 for k in range(len(v_i)))
+                )
+                if dist <= threshold:
+                    suggestions.append(
+                        {
+                            "a_branch": key_i,
+                            "b_branch": key_j,
+                            "a_label": label_i,
+                            "b_label": label_j,
+                            "a_count": cnt_i,
+                            "b_count": cnt_j,
+                            "distance": dist,
+                        }
+                    )
+
+        suggestions.sort(key=lambda d: d["distance"])
+        return suggestions[:max_pairs]
 
     # --- end new methods ---------------------------------------------------------
 

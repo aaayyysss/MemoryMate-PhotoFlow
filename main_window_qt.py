@@ -4618,7 +4618,7 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(f"👥 Clustering {pct:.1f}% ({phase})")
 
             if phase == "done":
-                self.status_bar.showMessage("✅ Clustering complete")
+                self.statusBar().showMessage("✅ Clustering complete")
                 os.remove(path)
         except Exception as e:
             print(f"[Status] cluster poll failed: {e}")

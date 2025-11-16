@@ -4369,6 +4369,100 @@ class SidebarQt(QWidget):
     # PEOPLE / FACE CLUSTER MERGE HELPERS
     # --------------------------------------------------
 
+    def _rename_face_cluster(self, branch_key: str, current_label: str):
+        """
+        Rename a face cluster / person.
+        """
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+        # Extract current name from label (remove count if present)
+        current_name = current_label.split("(")[0].strip() if "(" in current_label else current_label
+
+        # Clear the input field if it's an "Unnamed #" label
+        default_text = "" if current_name.startswith("Unnamed #") else current_name
+        new_name, ok = QInputDialog.getText(self, "Rename Person", "Person name:", text=default_text)
+
+        if not ok or not new_name.strip() or new_name.strip() == current_name:
+            return
+
+        try:
+            # Use the helper method from reference_db if available
+            if hasattr(self.db, 'rename_branch_display_name'):
+                self.db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+            else:
+                # Fallback: direct SQL update
+                with self.db._connect() as conn:
+                    conn.execute("""
+                        UPDATE branches
+                        SET display_name = ?
+                        WHERE project_id = ? AND branch_key = ?
+                    """, (new_name.strip(), self.project_id, branch_key))
+                    conn.execute("""
+                        UPDATE face_branch_reps
+                        SET label = ?
+                        WHERE project_id = ? AND branch_key = ?
+                    """, (new_name.strip(), self.project_id, branch_key))
+                    conn.commit()
+
+            # Reload sidebar to show new name
+            self._build_tree_model()
+            QMessageBox.information(self, "Renamed", f"Person renamed to '{new_name.strip()}'")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Rename Failed", str(e))
+
+
+    def _export_face_cluster_photos(self, branch_key: str, label: str):
+        """
+        Export all photos containing faces from this cluster.
+        """
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        dest = QFileDialog.getExistingDirectory(self, f"Export photos of: {label}")
+        if not dest:
+            return
+
+        try:
+            # Get all image paths for this face cluster
+            if hasattr(self.db, 'get_images_by_branch'):
+                paths = self.db.get_images_by_branch(self.project_id, branch_key) or []
+            else:
+                paths = []
+
+            if not paths:
+                QMessageBox.information(self, "Export", "No photos found for this person.")
+                return
+
+            # Copy photos to destination
+            import shutil
+            import os
+            copied = 0
+            for src_path in paths:
+                if not os.path.exists(src_path):
+                    continue
+                filename = os.path.basename(src_path)
+                dest_path = os.path.join(dest, filename)
+
+                # Handle duplicate filenames
+                if os.path.exists(dest_path):
+                    base, ext = os.path.splitext(filename)
+                    counter = 1
+                    while os.path.exists(dest_path):
+                        dest_path = os.path.join(dest, f"{base}_{counter}{ext}")
+                        counter += 1
+
+                shutil.copy2(src_path, dest_path)
+                copied += 1
+
+            QMessageBox.information(self, "Export Completed",
+                                  f"Exported {copied} photos from '{label}' to:\n{dest}")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Export Failed", str(e))
+
+
     def _collect_selected_people_clusters(self):
         """
         Return a list of (branch_key, display_name) for all selected

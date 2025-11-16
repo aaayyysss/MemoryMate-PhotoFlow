@@ -4116,6 +4116,8 @@ class ReferenceDB:
         if not src_list:
             return {"moved_faces": 0, "moved_images": 0, "deleted_reps": 0, "sources": [], "target": target_branch}
 
+        print(f"[merge_face_clusters] project_id={project_id}, target='{target_branch}', sources={src_list}")
+
         # Prepare shared key list (target + sources) for snapshot
         all_keys = [target_branch] + src_list
 
@@ -4123,14 +4125,15 @@ class ReferenceDB:
         import json as _json
 
         with self._connect() as conn:
-            
-            # We need named-column access (row["project_id"], etc.)
-            # for the snapshot building below.
+
+            # CRITICAL: We need named-column access (row["project_id"], etc.)
+            # for the snapshot building below. Set row_factory BEFORE any execute calls.
             import sqlite3
             conn.row_factory = sqlite3.Row
-            
-            conn.execute("PRAGMA foreign_keys = ON")
             cur = conn.cursor()
+
+            # Enable foreign keys after setting row_factory
+            cur.execute("PRAGMA foreign_keys = ON")
 
             # ---------------- SNAPSHOT (for undo) ----------------
             snapshot: dict[str, list] = {
@@ -4149,14 +4152,27 @@ class ReferenceDB:
                 f"FROM branches WHERE project_id = ? AND branch_key IN ({placeholders})",
                 [project_id] + all_keys,
             )
-            for row in cur.fetchall():
-                snapshot["branches"].append(
-                    {
-                        "project_id": row["project_id"],
-                        "branch_key": row["branch_key"],
-                        "display_name": row["display_name"],
-                    }
-                )
+            branches_rows = cur.fetchall()
+            print(f"[merge_face_clusters] Found {len(branches_rows)} branches. Row type: {type(branches_rows[0]) if branches_rows else 'N/A'}")
+            for row in branches_rows:
+                try:
+                    snapshot["branches"].append(
+                        {
+                            "project_id": row["project_id"],
+                            "branch_key": row["branch_key"],
+                            "display_name": row["display_name"],
+                        }
+                    )
+                except (TypeError, KeyError) as e:
+                    print(f"[merge_face_clusters] ERROR accessing row: {e}, row type={type(row)}, row={row}")
+                    # Fallback to tuple indexing if dict access fails
+                    snapshot["branches"].append(
+                        {
+                            "project_id": row[0],
+                            "branch_key": row[1],
+                            "display_name": row[2],
+                        }
+                    )
 
             # face_branch_reps
             cur.execute(
@@ -4266,13 +4282,15 @@ class ReferenceDB:
 
             conn.commit()
 
-            return {
+            result = {
                 "moved_faces": moved_faces,
                 "moved_images": moved_images,
                 "deleted_reps": deleted_reps,
                 "sources": src_list,
                 "target": target_branch,
             }
+            print(f"[merge_face_clusters] SUCCESS: {result}")
+            return result
 
 
     def undo_last_face_merge(self, project_id: int):

@@ -24,6 +24,7 @@ import threading
 import traceback
 import time
 import re
+import os
 
 from datetime import datetime
 
@@ -1052,16 +1053,35 @@ class SidebarTabs(QWidget):
         table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
+        # Set row height for better thumbnail display
+        table.verticalHeader().setDefaultSectionSize(72)  # 64px thumbnail + 8px padding
+
         for row_idx, row in enumerate(rows):
             name = row.get("display_name") or row.get("branch_key")
             count = row.get("member_count", 0)
             rep = row.get("rep_path", "")
 
-            # Column 0: Person name
+            # Column 0: Person name with face thumbnail
             item_name = QTableWidgetItem(str(name))
             item_name.setData(Qt.UserRole, f"facecluster:{row['branch_key']}")
-            if rep:
-                item_name.setToolTip(rep)
+
+            # Load and display face thumbnail (64x64 like Apple Photos/Google Photos)
+            if rep and os.path.exists(rep):
+                try:
+                    pixmap = QPixmap(rep)
+                    if not pixmap.isNull():
+                        # Scale to 64x64 maintaining aspect ratio
+                        scaled = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        item_name.setIcon(QIcon(scaled))
+                        item_name.setToolTip(f"{name}\n{count} photo(s)")
+                    else:
+                        item_name.setToolTip(f"{name}\n{count} photo(s)\n(Thumbnail not available)")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to load face thumbnail {rep}: {e}")
+                    item_name.setToolTip(f"{name}\n{count} photo(s)\n(Error loading thumbnail)")
+            else:
+                item_name.setToolTip(f"{name}\n{count} photo(s)\n(No thumbnail)")
+
             table.setItem(row_idx, 0, item_name)
 
             # Column 1: Count (right-aligned, grey like List view)
@@ -1352,6 +1372,19 @@ class SidebarQt(QWidget):
             elif val_str.startswith("facecluster:"):
                 branch_key = val_str.split(":", 1)[1]
                 mw.grid.set_context("people", branch_key)
+
+                # Update status bar like folders/dates do
+                try:
+                    paths = self.db.get_paths_for_cluster(self.project_id, branch_key) if self.project_id else []
+                    # Get person name from face_branch_reps
+                    clusters = self.db.get_face_clusters(self.project_id) if self.project_id else []
+                    person_name = next(
+                        (c["display_name"] for c in clusters if c["branch_key"] == branch_key),
+                        branch_key
+                    )
+                    mw.statusBar().showMessage(f"👤 Showing {len(paths)} photo(s) of {person_name}")
+                except Exception as e:
+                    print(f"[Sidebar] Failed to update status bar for people: {e}")
 
             else:
                 mw.grid.set_context("branch", val_str)

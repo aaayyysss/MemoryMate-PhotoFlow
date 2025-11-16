@@ -552,9 +552,7 @@ class ThumbnailGridQt(QWidget):
 
         # --- Thumbnail grid spacing (consistent with zoom system)
         # Use settings-based padding for consistent spacing across all modes
-        from settings_manager_qt import SettingsManager
-        settings = SettingsManager()
-        self.thumb_spacing = settings.get("thumb_padding", 8)
+        self.thumb_spacing = self.settings.get("thumb_padding", 8)
         self.cell_width_factor = 1.25
         
         # Use the global thread pool for better reuse across grid instances.

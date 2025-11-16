@@ -196,6 +196,10 @@ class FaceDetectionWorker(QRunnable):
         with db._connect() as conn:
             cur = conn.cursor()
 
+            # Get total photo count
+            cur.execute("SELECT COUNT(*) FROM photo_metadata WHERE project_id = ?", (self.project_id,))
+            total_count = cur.fetchone()[0]
+
             if self.skip_processed:
                 # Get photos not in face_crops table
                 cur.execute("""
@@ -207,6 +211,17 @@ class FaceDetectionWorker(QRunnable):
                       )
                     ORDER BY pm.path
                 """, (self.project_id, self.project_id))
+
+                photos = [{'path': row[0], 'project_id': row[1]} for row in cur.fetchall()]
+                skipped_count = total_count - len(photos)
+
+                if skipped_count > 0:
+                    logger.info(
+                        f"[FaceDetectionWorker] Skipping {skipped_count} photos already in database "
+                        f"(processing {len(photos)}/{total_count})"
+                    )
+
+                return photos
             else:
                 # Get all photos
                 cur.execute("""
@@ -216,7 +231,7 @@ class FaceDetectionWorker(QRunnable):
                     ORDER BY path
                 """, (self.project_id,))
 
-            return [{'path': row[0], 'project_id': row[1]} for row in cur.fetchall()]
+                return [{'path': row[0], 'project_id': row[1]} for row in cur.fetchall()]
 
     def _save_face(self, db: ReferenceDB, image_path: str, face: dict,
                    face_idx: int, face_crops_dir: str):

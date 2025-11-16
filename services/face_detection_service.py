@@ -234,11 +234,17 @@ class FaceDetectionService:
             try:
                 img = cv2.imread(image_path)
                 if img is None:
-                    logger.warning(f"Failed to load image {image_path}")
-                    return []
+                    # cv2.imread returns None for corrupt/unsupported files
+                    error_msg = f"Failed to load image (cv2.imread returned None): {image_path}"
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+            except ValueError:
+                # Re-raise ValueError (from above check)
+                raise
             except Exception as e:
-                logger.warning(f"Failed to load image {image_path}: {e}")
-                return []
+                error_msg = f"Failed to load image {image_path}: {e}"
+                logger.error(error_msg)
+                raise RuntimeError(error_msg) from e
 
             # Detect faces and extract embeddings
             # Returns list of Face objects with bbox, embedding, det_score, etc.
@@ -280,9 +286,14 @@ class FaceDetectionService:
             logger.info(f"[FaceDetection] Found {len(faces)} faces in {os.path.basename(image_path)}")
             return faces
 
+        except (ValueError, RuntimeError):
+            # Re-raise image loading errors (already logged above)
+            raise
         except Exception as e:
-            logger.error(f"Error detecting faces in {image_path}: {e}")
-            return []
+            # Catch any other errors (InsightFace crashes, etc.)
+            error_msg = f"Error detecting faces in {image_path}: {e}"
+            logger.error(error_msg, exc_info=True)
+            raise RuntimeError(error_msg) from e
 
     def save_face_crop(self, image_path: str, face: dict, output_path: str) -> bool:
         """

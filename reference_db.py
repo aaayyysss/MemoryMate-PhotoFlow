@@ -4182,15 +4182,22 @@ class ReferenceDB:
             )
             reps_rows = cur.fetchall()
             print(f"[merge_face_clusters] Found {len(reps_rows)} face_branch_reps rows")
+
+            # CRITICAL: Convert BLOB fields (bytes) to base64 for JSON serialization
+            import base64
             for row in reps_rows:
+                # Encode bytes fields to base64 strings (so JSON can serialize them)
+                centroid_b64 = base64.b64encode(row["centroid"]).decode('utf-8') if row["centroid"] else None
+                rep_thumb_b64 = base64.b64encode(row["rep_thumb_png"]).decode('utf-8') if row["rep_thumb_png"] else None
+
                 snapshot["face_branch_reps"].append(
                     {
                         "project_id": row["project_id"],
                         "branch_key": row["branch_key"],
                         "rep_path": row["rep_path"],
-                        "rep_thumb_png": row["rep_thumb_png"],
+                        "rep_thumb_png": rep_thumb_b64,  # base64 string, not bytes
                         "label": row["label"],
-                        "centroid": row["centroid"],
+                        "centroid": centroid_b64,  # base64 string, not bytes
                     }
                 )
 
@@ -4358,7 +4365,14 @@ class ReferenceDB:
                     f"DELETE FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
                     [project_id] + branch_keys,
                 )
+
+                # CRITICAL: Decode base64 strings back to bytes for BLOB columns
+                import base64
                 for r in reps:
+                    # Decode base64 strings to bytes (snapshot stores them as base64)
+                    centroid_bytes = base64.b64decode(r["centroid"]) if r.get("centroid") else None
+                    rep_thumb_bytes = base64.b64decode(r["rep_thumb_png"]) if r.get("rep_thumb_png") else None
+
                     cur.execute(
                         """
                         INSERT INTO face_branch_reps
@@ -4369,9 +4383,9 @@ class ReferenceDB:
                             r["project_id"],
                             r["branch_key"],
                             r["rep_path"],
-                            r["rep_thumb_png"],
+                            rep_thumb_bytes,  # bytes, decoded from base64
                             r["label"],
-                            r["centroid"],
+                            centroid_bytes,  # bytes, decoded from base64
                         ),
                     )
 

@@ -140,6 +140,17 @@ CREATE TABLE IF NOT EXISTS face_branch_reps (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
+-- Face merge history (for undo functionality)
+CREATE TABLE IF NOT EXISTS face_merge_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    target_branch TEXT NOT NULL,
+    source_branches TEXT NOT NULL,
+    snapshot TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
 -- Export history (tracks photo export operations)
 CREATE TABLE IF NOT EXISTS export_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

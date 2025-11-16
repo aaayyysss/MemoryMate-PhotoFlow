@@ -4174,16 +4174,17 @@ class ReferenceDB:
                         }
                     )
 
-            # face_branch_reps
+            # face_branch_reps (NOTE: table has NO 'id' column, uses composite PK)
             cur.execute(
-                f"SELECT id, project_id, branch_key, rep_path, rep_thumb_png, label, centroid "
+                f"SELECT project_id, branch_key, rep_path, rep_thumb_png, label, centroid "
                 f"FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
                 [project_id] + all_keys,
             )
-            for row in cur.fetchall():
+            reps_rows = cur.fetchall()
+            print(f"[merge_face_clusters] Found {len(reps_rows)} face_branch_reps rows")
+            for row in reps_rows:
                 snapshot["face_branch_reps"].append(
                     {
-                        "id": row["id"],
                         "project_id": row["project_id"],
                         "branch_key": row["branch_key"],
                         "rep_path": row["rep_path"],
@@ -4361,11 +4362,10 @@ class ReferenceDB:
                     cur.execute(
                         """
                         INSERT INTO face_branch_reps
-                            (id, project_id, branch_key, rep_path, rep_thumb_png, label, centroid)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                            (project_id, branch_key, rep_path, rep_thumb_png, label, centroid)
+                        VALUES (?, ?, ?, ?, ?, ?)
                         """,
                         (
-                            r["id"],
                             r["project_id"],
                             r["branch_key"],
                             r["rep_path"],

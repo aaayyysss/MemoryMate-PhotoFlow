@@ -58,23 +58,48 @@ def _get_insightface_app():
     - Automatic provider detection (GPU if available, CPU fallback)
     - Model caching to avoid reloading
     - Proper error handling
+    - PyInstaller bundle support (looks for bundled models)
     """
     global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
+            import sys
             from insightface.app import FaceAnalysis
 
             # Detect best available providers
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
+            # Determine model root path
+            # When running from PyInstaller bundle, models are in sys._MEIPASS
+            model_root = None
+            if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+                # Running in PyInstaller bundle
+                bundle_dir = sys._MEIPASS
+                model_root = os.path.join(bundle_dir, 'insightface')
+                logger.info(f"🎁 Running from PyInstaller bundle, model root: {model_root}")
+
+                # Verify bundled models exist
+                expected_model_path = os.path.join(model_root, 'models', 'buffalo_l')
+                if os.path.exists(expected_model_path):
+                    logger.info(f"✓ Found bundled buffalo_l models at {expected_model_path}")
+                else:
+                    logger.warning(f"⚠ Bundled models not found at {expected_model_path}")
+
             # Initialize InsightFace with buffalo_l model
             # NOTE: InsightFace doesn't accept 'providers' in __init__
             # Instead, we set ctx_id to control GPU/CPU usage
-            _insightface_app = FaceAnalysis(
-                name='buffalo_l',  # High accuracy model
-                allowed_modules=['detection', 'recognition']
-            )
+            if model_root:
+                _insightface_app = FaceAnalysis(
+                    name='buffalo_l',  # High accuracy model
+                    root=model_root,   # Use bundled models when packaged
+                    allowed_modules=['detection', 'recognition']
+                )
+            else:
+                _insightface_app = FaceAnalysis(
+                    name='buffalo_l',  # High accuracy model
+                    allowed_modules=['detection', 'recognition']
+                )
 
             # Prepare with context:
             # ctx_id=0 for GPU, ctx_id=-1 for CPU

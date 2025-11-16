@@ -175,6 +175,9 @@ def list_branches(project_id: int):
     NOTE: Filters out video-specific branches (branch_key starting with 'videos:')
     because video branches are displayed separately in the Videos section of the sidebar,
     not in the general Branches section.
+
+    NOTE: Also filters out face clusters (branch_key starting with 'face_') because
+    they are displayed separately in the People section, not in the Branches section.
     """
     try:
         all_branches = _db.get_branches(project_id)
@@ -184,8 +187,10 @@ def list_branches(project_id: int):
             cur.execute("SELECT branch_key, display_name FROM branches WHERE project_id=? ORDER BY id ASC", (project_id,))
             all_branches = [{"branch_key": r[0], "display_name": r[1]} for r in cur.fetchall()]
 
-    # Filter out video branches (they're displayed in Videos section, not Branches section)
-    return [b for b in all_branches if not b["branch_key"].startswith("videos:")]
+    # Filter out video branches (Videos section) and face clusters (People section)
+    return [b for b in all_branches
+            if not b["branch_key"].startswith("videos:")
+            and not b["branch_key"].startswith("face_")]
 
 
 def get_thumbnail(path: str, height: int, use_disk_cache: bool = True) -> "QPixmap":

@@ -73,9 +73,9 @@ def _get_insightface_app():
             _providers_used = providers
 
             # Determine model root path - PRIORITY ORDER:
-            # 1. PyInstaller bundle (sys._MEIPASS)
-            # 2. App directory ./models/
-            # 3. User home directory ~/.insightface/models/
+            # 1. PyInstaller bundle (sys._MEIPASS/insightface/)
+            # 2. App directory (./ with models/buffalo_l/ inside)
+            # 3. User home directory (~/.insightface/)
             app_models_dir = None
 
             # Check for PyInstaller bundle first
@@ -83,23 +83,37 @@ def _get_insightface_app():
                 # Running in PyInstaller bundle
                 bundle_dir = sys._MEIPASS
                 pyinstaller_models = os.path.join(bundle_dir, 'insightface')
-                if os.path.exists(pyinstaller_models):
+                # Verify the complete model path exists
+                buffalo_path = os.path.join(pyinstaller_models, 'models', 'buffalo_l')
+                if os.path.exists(buffalo_path):
                     app_models_dir = pyinstaller_models
                     logger.info(f"🎁 Running from PyInstaller bundle, using bundled models: {app_models_dir}")
                 else:
-                    logger.warning(f"⚠ PyInstaller bundle detected but models not found at {pyinstaller_models}")
+                    logger.warning(f"⚠ PyInstaller bundle detected but buffalo_l not found at {buffalo_path}")
 
             # Check app directory if not in bundle
+            # InsightFace expects: root/models/buffalo_l/
+            # So if we have ./models/buffalo_l/, root should be ./
             if not app_models_dir:
-                local_models = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')
-                if os.path.exists(local_models):
-                    app_models_dir = local_models
-                    logger.info(f"📁 Using local bundled models: {app_models_dir}")
+                app_root = os.path.dirname(os.path.dirname(__file__))
+                buffalo_path = os.path.join(app_root, 'models', 'buffalo_l')
+                if os.path.exists(buffalo_path):
+                    app_models_dir = app_root  # Point to app root, NOT models dir
+                    logger.info(f"📁 Using local bundled models: {buffalo_path}")
+                    logger.info(f"   Model root set to: {app_models_dir}")
 
             # Fallback to user home directory
+            # InsightFace default: ~/.insightface/models/buffalo_l/
             if not app_models_dir:
-                app_models_dir = os.path.expanduser('~/.insightface/models')
-                logger.info(f"🏠 Using user home models: {app_models_dir}")
+                user_home = os.path.expanduser('~/.insightface')
+                buffalo_path = os.path.join(user_home, 'models', 'buffalo_l')
+                if os.path.exists(buffalo_path):
+                    app_models_dir = user_home
+                    logger.info(f"🏠 Using user home models: {buffalo_path}")
+                else:
+                    # Set anyway for auto-download
+                    app_models_dir = user_home
+                    logger.info(f"🏠 Will use user home for models (will download if needed): {user_home}")
 
             # Initialize InsightFace with buffalo_l model
             # Handle version compatibility: older versions don't support 'allowed_modules'
@@ -117,11 +131,9 @@ def _get_insightface_app():
 
             # Check if 'root' parameter is supported (for custom model directory)
             if 'root' in sig.parameters:
-                if os.path.exists(app_models_dir):
-                    init_params['root'] = app_models_dir
-                    logger.info(f"✓ Using models from: {app_models_dir}")
-                else:
-                    logger.debug(f"Model directory doesn't exist yet: {app_models_dir}")
+                init_params['root'] = app_models_dir
+                logger.info(f"✓ Setting model root to: {app_models_dir}")
+                logger.info(f"   InsightFace will look for: {app_models_dir}/models/buffalo_l/")
 
             _insightface_app = FaceAnalysis(**init_params)
 

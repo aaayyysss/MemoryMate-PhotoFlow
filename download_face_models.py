@@ -42,17 +42,20 @@ def download_buffalo_model():
         logger.info("=" * 70)
 
         # Get project root directory
+        # InsightFace expects: root/models/buffalo_l/
+        # So we set root to project root, and models will be in ./models/buffalo_l/
         project_root = os.path.dirname(os.path.abspath(__file__))
         models_dir = os.path.join(project_root, 'models')
+        buffalo_dir = os.path.join(models_dir, 'buffalo_l')
 
         logger.info(f"Project root: {project_root}")
-        logger.info(f"Models will be downloaded to: {models_dir}")
+        logger.info(f"Models will be downloaded to: {buffalo_dir}")
+        logger.info(f"Model root parameter: {project_root}")
 
         # Create models directory
         os.makedirs(models_dir, exist_ok=True)
 
         # Check if model already exists
-        buffalo_dir = os.path.join(models_dir, 'buffalo_l')
         if os.path.exists(buffalo_dir) and os.listdir(buffalo_dir):
             logger.info(f"✓ Buffalo_l model already exists at: {buffalo_dir}")
             logger.info("  To re-download, delete the directory first")
@@ -61,8 +64,9 @@ def download_buffalo_model():
         logger.info("\n📥 Downloading buffalo_l model (this may take a few minutes)...")
         logger.info("   Model size: ~200MB")
 
-        # Initialize FaceAnalysis with custom root - this triggers download
-        app = FaceAnalysis(name='buffalo_l', root=models_dir)
+        # Initialize FaceAnalysis with project root
+        # InsightFace will create: project_root/models/buffalo_l/
+        app = FaceAnalysis(name='buffalo_l', root=project_root)
 
         # Prepare the model - this downloads if not present
         logger.info("🔧 Preparing model...")

@@ -1,27 +1,27 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06>[Startup] pillow_heif available — HEIC/HEIF support enabled.
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07>[Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-17 11:13:49,486 [INFO] ================================================================================
-2025-11-17 11:13:49,487 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-17 11:13:49,487 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-17 11:13:49,487 [INFO] ================================================================================
-2025-11-17 11:13:49,549 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-17 11:13:49,549 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-17 11:13'}
+2025-11-17 12:11:00,509 [INFO] ================================================================================
+2025-11-17 12:11:00,526 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-17 12:11:00,547 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\app_log.txt
+2025-11-17 12:11:00,548 [INFO] ================================================================================
+2025-11-17 12:11:00,603 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-17 12:11:00,603 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-07\\thumbnails_cache.db', 'last_updated': '2025-11-17 12:10'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-17 11:13:50,059 [INFO] SearchService initialized
-[11:13:50.672] [Tabs] __init__ started
-[11:13:50.687] [Tabs] _build_tabs → building tab widgets
-[11:13:50.690] [Tabs] _on_tab_changed(idx=0)
-[11:13:50.701] [Tabs] _start_timeout idx=0 type=branches
-[11:13:50.704] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:13:50.704] [Tabs]   populated=False, loading=False
-[11:13:50.704] [Tabs]   Starting load for branches
-[11:13:50.706] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:13:50.706] [Tabs] _clear_tab idx=0
-[11:13:50.708] [Tabs] _on_tab_changed → tab_type=branches
-[11:13:50.709] [Tabs] _build_tabs → added 6 tabs
-[11:13:50.709] [Tabs] __init__ completed
+2025-11-17 12:11:00,930 [INFO] SearchService initialized
+[12:11:01.148] [Tabs] __init__ started
+[12:11:01.233] [Tabs] _build_tabs → building tab widgets
+[12:11:01.239] [Tabs] _on_tab_changed(idx=0)
+[12:11:01.241] [Tabs] _start_timeout idx=0 type=branches
+[12:11:01.241] [Tabs] _populate_tab(branches, idx=0, force=False)
+[12:11:01.241] [Tabs]   populated=False, loading=False
+[12:11:01.241] [Tabs]   Starting load for branches
+[12:11:01.241] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:11:01.241] [Tabs] _clear_tab idx=0
+[12:11:01.246] [Tabs] _on_tab_changed → tab_type=branches
+[12:11:01.260] [Tabs] _build_tabs → added 6 tabs
+[12:11:01.374] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -31,7 +31,7 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[11:13:50.726] [Tabs] hide_tabs() called - canceling pending workers
+[12:11:01.426] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -44,195 +44,68 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
-2025-11-17 11:13:50,744 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-17 11:13:50,758 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-17 11:13:50,758 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-17 12:11:01,439 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-17 12:11:01,440 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-17 12:11:01,440 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-
-═══════════════════════════════════════════════════════════════════
-⚠️  InsightFace Models Not Found
-═══════════════════════════════════════════════════════════════════
-
-Face detection models (buffalo_l) are not installed.
-
-⚠️ Impact:
-  ✅ Photos can still be viewed and organized
-  ❌ Face detection won't work until models are downloaded
-  ❌ People sidebar will be empty
-
-📥 Download Models:
-  Option 1: Use the application preferences
-    1. Go to Preferences (Ctrl+,)
-    2. Navigate to "🧑 Face Detection" section
-    3. Click "Download Models"
-
-  Option 2: Run the download script
-    python download_face_models.py
-
-💡 Model Size: ~200MB
-   Models will be downloaded to: ./models/buffalo_l/
-
-After download:
-  1. Restart the application (or re-scan photos)
-  2. Face detection will be automatically enabled
-  3. Faces will be detected during the next scan
-
-═══════════════════════════════════════════════════════════════════
-
-[11:13:55.661] [Tabs] _finish_branches (stale gen=1) — ignoring
-[11:13:55.735] [Tabs] _on_tab_changed(idx=0)
-[11:13:55.746] [Tabs] _start_timeout idx=0 type=branches
-[11:13:55.750] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:13:55.753] [Tabs]   populated=False, loading=False
-[11:13:55.755] [Tabs]   Starting load for branches
-[11:13:55.761] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:13:55.871] [Tabs] _clear_tab idx=0
-[11:13:55.913] [Tabs] _on_tab_changed → tab_type=branches
-[11:13:56.146] [Tabs] _clear_tab idx=0
-🧑 InsightFace model path configured: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface
-🔄 Restarting application...
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-17 11:15:30,196 [INFO] ================================================================================
-2025-11-17 11:15:30,237 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-17 11:15:30,245 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-17 11:15:30,246 [INFO] ================================================================================
-2025-11-17 11:15:30,368 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-17 11:15:30,398 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-17 11:13'}
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-17 11:15:30,946 [INFO] SearchService initialized
-[11:15:31.342] [Tabs] __init__ started
-[11:15:31.349] [Tabs] _build_tabs → building tab widgets
-[11:15:31.351] [Tabs] _on_tab_changed(idx=0)
-[11:15:31.359] [Tabs] _start_timeout idx=0 type=branches
-[11:15:31.360] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:15:31.363] [Tabs]   populated=False, loading=False
-[11:15:31.363] [Tabs]   Starting load for branches
-[11:15:31.364] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:15:31.364] [Tabs] _clear_tab idx=0
-[11:15:31.490] [Tabs] _on_tab_changed → tab_type=branches
-[11:15:31.504] [Tabs] _build_tabs → added 6 tabs
-[11:15:31.514] [Tabs] __init__ completed
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[11:15:31.711] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-[SidebarQt] _build_tree_model() completed
-2025-11-17 11:15:31,735 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-17 11:15:31,736 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-17 11:15:31,736 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-
-═══════════════════════════════════════════════════════════════════
-⚠️  InsightFace Models Not Found
-═══════════════════════════════════════════════════════════════════
-
-Face detection models (buffalo_l) are not installed.
-
-⚠️ Impact:
-  ✅ Photos can still be viewed and organized
-  ❌ Face detection won't work until models are downloaded
-  ❌ People sidebar will be empty
-
-📥 Download Models:
-  Option 1: Use the application preferences
-    1. Go to Preferences (Ctrl+,)
-    2. Navigate to "🧑 Face Detection" section
-    3. Click "Download Models"
-
-  Option 2: Run the download script
-    python download_face_models.py
-
-💡 Model Size: ~200MB
-   Models will be downloaded to: ./models/buffalo_l/
-
-After download:
-  1. Restart the application (or re-scan photos)
-  2. Face detection will be automatically enabled
-  3. Faces will be detected during the next scan
-
-═══════════════════════════════════════════════════════════════════
-
-[11:15:36.505] [Tabs] _finish_branches (stale gen=1) — ignoring
-[11:15:36.505] [Tabs] _on_tab_changed(idx=0)
-[11:15:36.505] [Tabs] _start_timeout idx=0 type=branches
-[11:15:36.505] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:15:36.505] [Tabs]   populated=False, loading=False
-[11:15:36.505] [Tabs]   Starting load for branches
-[11:15:36.505] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:15:36.505] [Tabs] _clear_tab idx=0
-[11:15:36.506] [Tabs] _on_tab_changed → tab_type=branches
-[11:15:36.678] [Tabs] _clear_tab idx=0
+✅ InsightFace detected with buffalo_l models
+   Location: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\models\buffalo_l
+[12:11:05.016] [Tabs] _finish_branches (stale gen=1) — ignoring
+[12:11:05.016] [Tabs] _on_tab_changed(idx=0)
+[12:11:05.016] [Tabs] _start_timeout idx=0 type=branches
+[12:11:05.017] [Tabs] _populate_tab(branches, idx=0, force=False)
+[12:11:05.017] [Tabs]   populated=False, loading=False
+[12:11:05.017] [Tabs]   Starting load for branches
+[12:11:05.017] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:11:05.017] [Tabs] _clear_tab idx=0
+[12:11:05.018] [Tabs] _on_tab_changed → tab_type=branches
+[12:11:05.029] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[11:16:09.628] [Tabs] refresh_all(force=True) called
-[11:16:09.628] [Tabs] refresh_all: key=branches, idx=0, force=True
-[11:16:09.628] [Tabs] _populate_tab(branches, idx=0, force=True)
-[11:16:09.628] [Tabs]   populated=True, loading=False
-[11:16:09.629] [Tabs]   Force refresh: removing branches from populated set
-[11:16:09.629] [Tabs]   Starting load for branches
-[11:16:09.629] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:16:09.629] [Tabs] _clear_tab idx=0
-[11:16:09.631] [Tabs] refresh_all: key=folders, idx=1, force=True
-[11:16:09.631] [Tabs] _populate_tab(folders, idx=1, force=True)
-[11:16:09.631] [Tabs]   populated=False, loading=False
-[11:16:09.631] [Tabs]   Starting load for folders
-[11:16:09.632] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[11:16:09.632] [Tabs] _clear_tab idx=1
-[11:16:09.634] [Tabs] refresh_all: key=dates, idx=2, force=True
-[11:16:09.634] [Tabs] _populate_tab(dates, idx=2, force=True)
-[11:16:09.634] [Tabs]   populated=False, loading=False
-[11:16:09.634] [Tabs]   Starting load for dates
-[11:16:09.634] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[11:16:09.634] [Tabs] _clear_tab idx=2
-[11:16:09.637] [Tabs] _load_folders → got 0 rows for project_id=1
-[11:16:09.637] [Tabs] refresh_all: key=tags, idx=3, force=True
-[11:16:09.638] [Tabs] _populate_tab(tags, idx=3, force=True)
-[11:16:09.638] [Tabs]   populated=False, loading=False
-[11:16:09.638] [Tabs]   Starting load for tags
-[11:16:09.638] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[11:16:09.638] [Tabs] _clear_tab idx=3
-[11:16:09.639] [Tabs] refresh_all: key=quick, idx=5, force=True
-[11:16:09.639] [Tabs] _populate_tab(quick, idx=5, force=True)
-[11:16:09.640] [Tabs]   populated=False, loading=False
-[11:16:09.640] [Tabs]   Starting load for quick
-[11:16:09.640] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[11:16:09.640] [Tabs] _clear_tab idx=5
-[11:16:09.642] [Tabs] refresh_all(force=True) completed
+[12:11:14.966] [Tabs] refresh_all(force=True) called
+[12:11:14.966] [Tabs] refresh_all: key=branches, idx=0, force=True
+[12:11:14.967] [Tabs] _populate_tab(branches, idx=0, force=True)
+[12:11:14.967] [Tabs]   populated=True, loading=False
+[12:11:14.967] [Tabs]   Force refresh: removing branches from populated set
+[12:11:14.967] [Tabs]   Starting load for branches
+[12:11:14.967] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[12:11:14.967] [Tabs] _clear_tab idx=0
+[12:11:14.968] [Tabs] refresh_all: key=folders, idx=1, force=True
+[12:11:14.968] [Tabs] _populate_tab(folders, idx=1, force=True)
+[12:11:14.969] [Tabs]   populated=False, loading=False
+[12:11:14.969] [Tabs]   Starting load for folders
+[12:11:14.969] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[12:11:14.969] [Tabs] _clear_tab idx=1
+[12:11:14.970] [Tabs] refresh_all: key=dates, idx=2, force=True
+[12:11:14.970] [Tabs] _populate_tab(dates, idx=2, force=True)
+[12:11:14.976] [Tabs]   populated=False, loading=False
+[12:11:14.976] [Tabs] _load_folders → got 0 rows for project_id=1
+[12:11:14.976] [Tabs]   Starting load for dates
+[12:11:14.978] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[12:11:14.978] [Tabs] _clear_tab idx=2
+[12:11:14.978] [Tabs] refresh_all: key=tags, idx=3, force=True
+[12:11:14.978] [Tabs] _populate_tab(tags, idx=3, force=True)
+[12:11:14.978] [Tabs]   populated=False, loading=False
+[12:11:14.978] [Tabs]   Starting load for tags
+[12:11:14.978] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[12:11:14.978] [Tabs] _clear_tab idx=3
+[12:11:14.978] [Tabs] refresh_all: key=quick, idx=5, force=True
+[12:11:14.978] [Tabs] _populate_tab(quick, idx=5, force=True)
+[12:11:14.978] [Tabs]   populated=False, loading=False
+[12:11:14.978] [Tabs]   Starting load for quick
+[12:11:14.978] [Tabs] _load_dates → got hierarchy data for project_id=1
+[12:11:14.978] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[12:11:14.978] [Tabs] _clear_tab idx=5
+[12:11:14.983] [Tabs] _load_tags → got 0 rows for project_id=1
+[12:11:14.983] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
-[11:16:09.642] [Tabs] _load_dates → got hierarchy data for project_id=1
 [Sidebar] Processing pending events before model clear
-[11:16:09.645] [Tabs] _clear_tab idx=0
-[11:16:09.649] [Tabs] _load_quick → got 6 rows
+[12:11:14.983] [Tabs] _clear_tab idx=0
+[12:11:14.983] [Tabs] _load_quick → got 6 rows
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -241,10 +114,11 @@ After download:
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[11:16:09.675] [Tabs] _clear_tab idx=1
-[11:16:09.683] [Tabs] _clear_tab idx=2
-[11:16:09.705] [Tabs] _clear_tab idx=5
-[11:16:09.740] [Tabs] _load_tags → got 0 rows for project_id=1
+[12:11:14.995] [Tabs] _clear_tab idx=1
+[12:11:14.998] [Tabs] _clear_tab idx=2
+[12:11:14.999] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[12:11:14.999] [Tabs] _clear_tab idx=3
+[12:11:15.003] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -257,42 +131,40 @@ After download:
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=4] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
 [Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Found 0 photos
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
 [MainWindow] Switched to project ID: 1
 [Breadcrumb] Switched to project ID: 1
 [MainWindow] Refreshed project list: 1 projects
-[11:16:09.837] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[11:16:09.837] [Tabs] _clear_tab idx=3
 [Schema] Database schema initialized successfully
 [ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-2025-11-17 11:16:24,040 [INFO] DBWriter timer started in worker thread
 [ScanController] ScanWorker imported successfully
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
 [ScanController] Worker moved to thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
+2025-11-17 12:11:27,221 [INFO] DBWriter timer started in worker thread
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
 [ScanWorkerAdapter] folder=C:/Users/suleimaa/Downloads/Photo-Sorter/Images, incremental=True
-2025-11-17 11:16:24,054 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
+2025-11-17 12:11:27,233 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
 [ScanWorkerAdapter] Starting scan...
-2025-11-17 11:16:24,058 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
-2025-11-17 11:16:24,059 [INFO] Discovered 15 candidate image files and 0 video files
-2025-11-17 11:16:24,060 [INFO] Loading existing metadata for incremental scan...
-2025-11-17 11:16:24,061 [INFO] ✓ Loaded 0 existing file records
+2025-11-17 12:11:27,235 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
+2025-11-17 12:11:27,236 [INFO] Discovered 15 candidate image files and 0 video files
+2025-11-17 12:11:27,236 [INFO] Loading existing metadata for incremental scan...
+2025-11-17 12:11:27,237 [INFO] ✓ Loaded 0 existing file records
 [ScanController] QThread STARTED!
-2025-11-17 11:16:24,467 [INFO] Bulk upserted 15 photos for project 1
-2025-11-17 11:16:24,474 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
-2025-11-17 11:16:24,474 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.4s
+2025-11-17 12:11:27,597 [INFO] Bulk upserted 15 photos for project 1
+2025-11-17 12:11:27,613 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
+2025-11-17 12:11:27,613 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.4s
 [ScanController] scan finished: 1 folders, 15 photos, 0 videos
 [ScanController] cleanup after scan
-2025-11-17 11:16:26,221 [INFO] Building date branches...
-2025-11-17 11:16:26,222 [INFO] Building date branches for project_id=1
+2025-11-17 12:11:29,288 [INFO] Building date branches...
+2025-11-17 12:11:29,295 [INFO] Building date branches for project_id=1
 [build_date_branches] Using project_id=1
 [build_date_branches] Populating 'all' branch with 15 photos for project 1
 [build_date_branches] Inserted 15/15 photos into 'all' branch
@@ -317,16 +189,16 @@ After download:
 [build_date_branches] Date 2025-08-09: inserted 1/1 into project_images (new)
 [build_date_branches] Total entries processed: 8
 [build_date_branches] project_images table has 23 rows for project 1
-2025-11-17 11:16:26,242 [INFO] Created 8 photo date branch entries for project 1
-2025-11-17 11:16:26,242 [INFO] Building video date branches for project_id=1
+2025-11-17 12:11:29,317 [INFO] Created 8 photo date branch entries for project 1
+2025-11-17 12:11:29,318 [INFO] Building video date branches for project_id=1
 [build_video_date_branches] Using project_id=1
 [build_video_date_branches] Found 0 videos with dates for project 1
 [build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-17 11:16:26,244 [INFO] Created 0 video date branch entries for project 1
-2025-11-17 11:16:26,244 [INFO] Backfilling created_date fields for photos...
-2025-11-17 11:16:26,250 [INFO] Backfilled 7 photo rows with created_date
-2025-11-17 11:16:26,250 [INFO] Backfilling created_date fields for videos...
-2025-11-17 11:16:26,275 [INFO] Reloading sidebar after date branches built...
+2025-11-17 12:11:29,322 [INFO] Created 0 video date branch entries for project 1
+2025-11-17 12:11:29,323 [INFO] Backfilling created_date fields for photos...
+2025-11-17 12:11:29,329 [INFO] Backfilled 7 photo rows with created_date
+2025-11-17 12:11:29,329 [INFO] Backfilling created_date fields for videos...
+2025-11-17 12:11:29,353 [INFO] Reloading sidebar after date branches built...
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
@@ -344,8 +216,8 @@ After download:
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=6] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
 [Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
+[get_images_by_branch] Found 15 photos
 [GRID] Loaded 15 thumbnails.
 [GRID] Reloaded 15 thumbnails in branch-mode (base=15)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
@@ -358,318 +230,30 @@ After download:
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-14 of 15
 [MainWindow] Launching automatic face grouping pipeline for project 1
-2025-11-17 11:16:33,999 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-17 11:16:34,075 [INFO] 💻 Using CPU for face detection (CUDA not available)
-2025-11-17 11:16:34,088 [WARNING] ⚠️ Custom model path configured but buffalo_l not found at C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface
-2025-11-17 11:16:34,089 [WARNING]    Expected: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface/det_10g.onnx or C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface\models\buffalo_l/det_10g.onnx
-2025-11-17 11:16:34,089 [INFO] 🏠 Will use user home for models (will download if needed): C:\Users\suleimaa/.insightface
-2025-11-17 11:16:34,090 [INFO] ✓ Using execution providers (via prepare()): ['CPUExecutionProvider']
-2025-11-17 11:16:34,090 [INFO] ✓ Setting model root to: C:\Users\suleimaa/.insightface
-2025-11-17 11:16:34,090 [INFO]    InsightFace will look for: C:\Users\suleimaa/.insightface/models/buffalo_l/
-2025-11-17 11:16:34,091 [ERROR] ❌ Failed to initialize InsightFace:
-2025-11-17 11:16:34,092 [ERROR] Error details: AssertionError:
-2025-11-17 11:16:34,092 [ERROR] [FaceDetectionWorker] Fatal error:
+2025-11-17 12:11:35,284 [INFO] [FaceDetectionWorker] Starting face detection for project 1
+2025-11-17 12:11:35,296 [INFO] 💻 Using CPU for face detection (CUDA not available)
+2025-11-17 12:11:35,318 [INFO] 🎯 Using custom model path (standard structure): C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/MemoryMate-PhotoFlow-main-07/model
+2025-11-17 12:11:35,319 [INFO]    Model root set to: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/MemoryMate-PhotoFlow-main-07
+2025-11-17 12:11:35,319 [INFO] ✓ Using execution providers (via prepare()): ['CPUExecutionProvider']
+2025-11-17 12:11:35,319 [INFO] ✓ Setting model root to: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/MemoryMate-PhotoFlow-main-07
+2025-11-17 12:11:35,320 [INFO]    InsightFace will look for: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/MemoryMate-PhotoFlow-main-07/models/buffalo_l/
+2025-11-17 12:11:35,320 [ERROR] ❌ Failed to initialize InsightFace:
+2025-11-17 12:11:35,320 [ERROR] Error details: AssertionError:
+2025-11-17 12:11:35,321 [ERROR] [FaceDetectionWorker] Fatal error:
 Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\workers\face_detection_worker.py", line 104, in run
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\workers\face_detection_worker.py", line 104, in run
     face_service = get_face_detection_service(model=self.model)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 517, in get_face_detection_service
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\services\face_detection_service.py", line 579, in get_face_detection_service
     _face_detection_service = FaceDetectionService(model=model)
                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 316, in __init__
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\services\face_detection_service.py", line 378, in __init__
     self.app = _get_insightface_app()
                ^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 180, in _get_insightface_app
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07\services\face_detection_service.py", line 242, in _get_insightface_app
     _insightface_app = FaceAnalysis(**init_params)
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\suleimaa\Downloads\WinPython\WPy64-31101\python-3.11.0.amd64\Lib\site-packages\insightface\app\face_analysis.py", line 46, in __init__
     assert 'detection' in self.models
 AssertionError
 [FaceDetection] Complete: 0 photos, 0 faces detected
-🧑 InsightFace model path configured: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface/model
-🔄 Restarting application...
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-17 11:17:22,634 [INFO] ================================================================================
-2025-11-17 11:17:22,670 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-17 11:17:22,702 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-17 11:17:22,704 [INFO] ================================================================================
-2025-11-17 11:17:23,316 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-17 11:17:23,360 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 15, 'size_mb': 0.05, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-17 11:17'}
-[ThumbCacheDB] Purged 15 stale thumbnails (> 30 days).
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-17 11:17:24,017 [INFO] SearchService initialized
-[11:17:30.351] [Tabs] __init__ started
-[11:17:30.352] [Tabs] _build_tabs → building tab widgets
-[11:17:30.352] [Tabs] _on_tab_changed(idx=0)
-[11:17:30.352] [Tabs] _start_timeout idx=0 type=branches
-[11:17:30.353] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:17:30.353] [Tabs]   populated=False, loading=False
-[11:17:30.353] [Tabs]   Starting load for branches
-[11:17:30.353] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:17:30.353] [Tabs] _clear_tab idx=0
-[11:17:30.354] [Tabs] _on_tab_changed → tab_type=branches
-[11:17:30.355] [Tabs] _build_tabs → added 6 tabs
-[11:17:30.356] [Tabs] __init__ completed
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=2] running for 1 targets...
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[11:17:30.478] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-17 11:17:30,507 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-17 11:17:30,508 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-17 11:17:30,508 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-
-═══════════════════════════════════════════════════════════════════
-⚠️  InsightFace Models Not Found
-═══════════════════════════════════════════════════════════════════
-
-Face detection models (buffalo_l) are not installed.
-
-⚠️ Impact:
-  ✅ Photos can still be viewed and organized
-  ❌ Face detection won't work until models are downloaded
-  ❌ People sidebar will be empty
-
-📥 Download Models:
-  Option 1: Use the application preferences
-    1. Go to Preferences (Ctrl+,)
-    2. Navigate to "🧑 Face Detection" section
-    3. Click "Download Models"
-
-  Option 2: Run the download script
-    python download_face_models.py
-
-💡 Model Size: ~200MB
-   Models will be downloaded to: ./models/buffalo_l/
-
-After download:
-  1. Restart the application (or re-scan photos)
-  2. Face detection will be automatically enabled
-  3. Faces will be detected during the next scan
-
-═══════════════════════════════════════════════════════════════════
-
-[11:17:39.734] [Tabs] _on_tab_changed(idx=0)
-[11:17:39.735] [Tabs] _start_timeout idx=0 type=branches
-[11:17:39.736] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:17:39.736] [Tabs]   populated=False, loading=False
-[11:17:39.736] [Tabs]   Starting load for branches
-[11:17:39.736] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:17:39.736] [Tabs] _clear_tab idx=0
-[11:17:39.738] [Tabs] _on_tab_changed → tab_type=branches
-[11:17:39.799] [Tabs] _finish_branches (stale gen=1) — ignoring
-[11:17:40.053] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Queued 15 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-🧑 InsightFace model path configured: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface/buffalo_l
-🔄 Restarting application...
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-17 11:18:52,605 [INFO] ================================================================================
-2025-11-17 11:18:52,606 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-17 11:18:52,638 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-17 11:18:52,700 [INFO] ================================================================================
-2025-11-17 11:18:52,788 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-17 11:18:52,823 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 15, 'size_mb': 0.05, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-17 11:18'}
-[ThumbCacheDB] Purged 15 stale thumbnails (> 30 days).
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-17 11:18:53,412 [INFO] SearchService initialized
-[11:18:53.830] [Tabs] __init__ started
-[11:18:53.883] [Tabs] _build_tabs → building tab widgets
-[11:18:53.891] [Tabs] _on_tab_changed(idx=0)
-[11:18:53.891] [Tabs] _start_timeout idx=0 type=branches
-[11:18:53.899] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:18:53.899] [Tabs]   populated=False, loading=False
-[11:18:53.899] [Tabs]   Starting load for branches
-[11:18:53.899] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:18:53.899] [Tabs] _clear_tab idx=0
-[11:18:53.916] [Tabs] _on_tab_changed → tab_type=branches
-[11:18:53.937] [Tabs] _build_tabs → added 6 tabs
-[11:18:54.051] [Tabs] __init__ completed
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=2] running for 1 targets...
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[11:18:54.539] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-17 11:18:54,766 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-17 11:18:54,808 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-17 11:18:54,816 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[Startup] Database schema initialized successfully
-✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-
-═══════════════════════════════════════════════════════════════════
-⚠️  InsightFace Models Not Found
-═══════════════════════════════════════════════════════════════════
-
-Face detection models (buffalo_l) are not installed.
-
-⚠️ Impact:
-  ✅ Photos can still be viewed and organized
-  ❌ Face detection won't work until models are downloaded
-  ❌ People sidebar will be empty
-
-📥 Download Models:
-  Option 1: Use the application preferences
-    1. Go to Preferences (Ctrl+,)
-    2. Navigate to "🧑 Face Detection" section
-    3. Click "Download Models"
-
-  Option 2: Run the download script
-    python download_face_models.py
-
-💡 Model Size: ~200MB
-   Models will be downloaded to: ./models/buffalo_l/
-
-After download:
-  1. Restart the application (or re-scan photos)
-  2. Face detection will be automatically enabled
-  3. Faces will be detected during the next scan
-
-═══════════════════════════════════════════════════════════════════
-
-[11:18:59.979] [Tabs] _finish_branches (stale gen=1) — ignoring
-[11:18:59.984] [Tabs] _on_tab_changed(idx=0)
-[11:19:00.013] [Tabs] _start_timeout idx=0 type=branches
-[11:19:00.018] [Tabs] _populate_tab(branches, idx=0, force=False)
-[11:19:00.121] [Tabs]   populated=False, loading=False
-[11:19:00.129] [Tabs]   Starting load for branches
-[11:19:00.140] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[11:19:00.143] [Tabs] _clear_tab idx=0
-[11:19:00.168] [Tabs] _on_tab_changed → tab_type=branches
-[11:19:00.443] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Queued 15 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[MainWindow] Launching automatic face grouping pipeline for project 1
-2025-11-17 11:19:21,273 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-17 11:19:21,283 [INFO] 💻 Using CPU for face detection (CUDA not available)
-2025-11-17 11:19:21,283 [INFO] 🎯 Using custom model path: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface/buffalo_l
-2025-11-17 11:19:21,287 [INFO]    Model root set to: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface
-2025-11-17 11:19:21,287 [INFO] ✓ Using execution providers (via prepare()): ['CPUExecutionProvider']
-2025-11-17 11:19:21,287 [INFO] ✓ Setting model root to: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface
-2025-11-17 11:19:21,287 [INFO]    InsightFace will look for: C:/Users/suleimaa/Downloads/Photo-Sorter/09.30.01.01-Photo-App/insightface/models/buffalo_l/
-2025-11-17 11:19:21,972 [ERROR] ❌ Failed to initialize InsightFace: error on model routing
-2025-11-17 11:19:21,972 [ERROR] Error details: RuntimeError: error on model routing
-2025-11-17 11:19:21,972 [ERROR] [FaceDetectionWorker] Fatal error: error on model routing
-Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\workers\face_detection_worker.py", line 104, in run
-    face_service = get_face_detection_service(model=self.model)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 517, in get_face_detection_service
-    _face_detection_service = FaceDetectionService(model=model)
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 316, in __init__
-    self.app = _get_insightface_app()
-               ^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\services\face_detection_service.py", line 180, in _get_insightface_app
-    _insightface_app = FaceAnalysis(**init_params)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\WinPython\WPy64-31101\python-3.11.0.amd64\Lib\site-packages\insightface\app\face_analysis.py", line 39, in __init__
-    model = model_zoo.get_model(onnx_file)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\WinPython\WPy64-31101\python-3.11.0.amd64\Lib\site-packages\insightface\model_zoo\model_zoo.py", line 56, in get_model
-    model = router.get_model()
-            ^^^^^^^^^^^^^^^^^^
-  File "C:\Users\suleimaa\Downloads\WinPython\WPy64-31101\python-3.11.0.amd64\Lib\site-packages\insightface\model_zoo\model_zoo.py", line 33, in get_model
-    raise RuntimeError('error on model routing')
-RuntimeError: error on model routing
-[FaceDetection] Complete: 0 photos, 0 faces detected
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...

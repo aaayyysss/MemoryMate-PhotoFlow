@@ -171,27 +171,54 @@ def _get_insightface_app():
             # Do NOT pass parent directory, pass the buffalo_l directory itself!
             logger.info(f"✓ Initializing InsightFace with buffalo_l directory: {buffalo_dir}")
 
-            # Initialize FaceAnalysis - DO NOT pass providers parameter
-            # This matches proof of concept and ensures compatibility
-            _insightface_app = FaceAnalysis(name='buffalo_l', root=buffalo_dir)
+            # Version detection: Check if FaceAnalysis supports providers parameter
+            # This ensures compatibility with BOTH old and new InsightFace versions
+            import inspect
+            sig = inspect.signature(FaceAnalysis.__init__)
+            supports_providers = 'providers' in sig.parameters
 
-            # Use providers ONLY for ctx_id selection (proof of concept approach)
-            use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
-            ctx_id = 0 if use_cuda else -1
+            # Initialize FaceAnalysis with version-appropriate parameters
+            init_params = {'name': 'buffalo_l', 'root': buffalo_dir}
 
-            logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
+            if supports_providers:
+                # NEWER VERSION: Pass providers for optimal performance
+                init_params['providers'] = providers
+                logger.info(f"✓ Using providers parameter (newer InsightFace): {providers}")
+                _insightface_app = FaceAnalysis(**init_params)
 
-            # Prepare model with simple parameters (matches proof of concept)
-            try:
-                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
-                logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
-            except Exception as prepare_error:
-                logger.error(f"Model preparation failed: {prepare_error}")
-                logger.error("This usually means:")
-                logger.error("  1. Model files are corrupted or incomplete")
-                logger.error("  2. InsightFace version incompatible with models")
-                logger.error("  3. Wrong directory structure")
-                raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+                # For newer versions, ctx_id is derived from providers automatically
+                # But we still need to call prepare()
+                try:
+                    _insightface_app.prepare(ctx_id=-1, det_size=(640, 640))
+                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                except Exception as prepare_error:
+                    logger.error(f"Model preparation failed: {prepare_error}")
+                    logger.error("This usually means:")
+                    logger.error("  1. Model files are corrupted or incomplete")
+                    logger.error("  2. InsightFace version incompatible with models")
+                    logger.error("  3. Wrong directory structure")
+                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+            else:
+                # OLDER VERSION: Use ctx_id approach (proof of concept compatibility)
+                logger.info(f"✓ Using ctx_id approach (older InsightFace, proof of concept compatible)")
+                _insightface_app = FaceAnalysis(**init_params)
+
+                # Use providers ONLY for ctx_id selection (proof of concept approach)
+                use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+                ctx_id = 0 if use_cuda else -1
+                logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
+
+                # Prepare model with simple parameters (matches proof of concept)
+                try:
+                    _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                except Exception as prepare_error:
+                    logger.error(f"Model preparation failed: {prepare_error}")
+                    logger.error("This usually means:")
+                    logger.error("  1. Model files are corrupted or incomplete")
+                    logger.error("  2. InsightFace version incompatible with models")
+                    logger.error("  3. Wrong directory structure")
+                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
 
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")
@@ -343,8 +370,14 @@ class FaceDetectionService:
                 return []
 
             # Load image using OpenCV (InsightFace expects BGR format)
+            # Use cv2.imdecode to handle Unicode filenames (e.g., Arabic, Chinese, etc.)
             try:
-                img = cv2.imread(image_path)
+                # Read file as binary and decode with cv2
+                # This handles Unicode filenames that cv2.imread() can't process
+                with open(image_path, 'rb') as f:
+                    file_bytes = np.frombuffer(f.read(), dtype=np.uint8)
+                    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
                 if img is None:
                     logger.warning(f"Failed to load image {image_path}")
                     return []
@@ -428,14 +461,36 @@ class FaceDetectionService:
             # Crop face
             face_img = img.crop((x1, y1, x2, y2))
 
+            # Convert RGBA to RGB if necessary (required for JPEG)
+            # This handles PNG files with transparency
+            if face_img.mode == 'RGBA':
+                # Create white background
+                rgb_img = Image.new('RGB', face_img.size, (255, 255, 255))
+                # Paste using alpha channel as mask
+                rgb_img.paste(face_img, mask=face_img.split()[3])
+                face_img = rgb_img
+                logger.debug(f"Converted RGBA to RGB for JPEG compatibility")
+            elif face_img.mode not in ('RGB', 'L'):
+                # Convert any other modes to RGB
+                face_img = face_img.convert('RGB')
+                logger.debug(f"Converted {img.mode} to RGB")
+
             # Resize to standard size for consistency (160x160 for better quality)
             face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-            # Save
-            face_img.save(output_path, quality=95)
+            # Save with explicit format based on extension
+            file_ext = os.path.splitext(output_path)[1].lower()
+            if file_ext in ['.jpg', '.jpeg']:
+                face_img.save(output_path, format='JPEG', quality=95)
+            elif file_ext == '.png':
+                face_img.save(output_path, format='PNG')
+            else:
+                # Default to JPEG
+                face_img.save(output_path, format='JPEG', quality=95)
+
             logger.debug(f"Saved face crop to {output_path}")
             return True
 

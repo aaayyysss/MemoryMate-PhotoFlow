@@ -90,10 +90,70 @@ def _get_insightface_app():
                         # Try as buffalo_l directory
                         test_file = os.path.join(custom_model_path, 'det_10g.onnx')
                         if os.path.exists(test_file):
-                            # This is the buffalo_l directory, parent is the root
-                            app_models_dir = os.path.dirname(custom_model_path)
-                            logger.info(f"🎯 Using custom model path: {custom_model_path}")
-                            logger.info(f"   Model root set to: {app_models_dir}")
+                            # This is the buffalo_l directory
+                            parent_dir = os.path.dirname(custom_model_path)
+
+                            # Check if parent has the standard models/ structure
+                            # Standard: parent/models/buffalo_l/
+                            standard_path = os.path.join(parent_dir, 'models', 'buffalo_l')
+                            if os.path.exists(standard_path) and os.path.samefile(custom_model_path, standard_path):
+                                # Standard structure: parent/models/buffalo_l/
+                                app_models_dir = parent_dir
+                                logger.info(f"🎯 Using custom model path (standard structure): {custom_model_path}")
+                                logger.info(f"   Model root set to: {app_models_dir}")
+                            else:
+                                # Non-standard structure: parent/buffalo_l/ (no models/ subdirectory)
+                                # InsightFace expects root/models/buffalo_l/, so we need to create models/ symlink
+                                logger.info(f"🎯 Detected non-standard structure: {custom_model_path}")
+
+                                # Create models/ directory if it doesn't exist
+                                models_dir = os.path.join(parent_dir, 'models')
+                                models_buffalo_link = os.path.join(models_dir, 'buffalo_l')
+
+                                if not os.path.exists(models_dir):
+                                    try:
+                                        os.makedirs(models_dir, exist_ok=True)
+                                        logger.info(f"   Created models/ directory: {models_dir}")
+                                    except Exception as e:
+                                        logger.error(f"   Failed to create models/ directory: {e}")
+                                        raise
+
+                                # Create symlink or copy structure
+                                if not os.path.exists(models_buffalo_link):
+                                    try:
+                                        # Try creating symlink first (Windows requires admin or dev mode)
+                                        if os.name == 'nt':
+                                            # Windows: try symlink, fallback to directory junction
+                                            try:
+                                                import _winapi
+                                                _winapi.CreateJunction(custom_model_path, models_buffalo_link)
+                                                logger.info(f"   Created junction: {models_buffalo_link} → {custom_model_path}")
+                                            except Exception:
+                                                # Fallback: create symlink (requires admin/dev mode)
+                                                os.symlink(custom_model_path, models_buffalo_link, target_is_directory=True)
+                                                logger.info(f"   Created symlink: {models_buffalo_link} → {custom_model_path}")
+                                        else:
+                                            # Linux/Mac: standard symlink
+                                            os.symlink(custom_model_path, models_buffalo_link, target_is_directory=True)
+                                            logger.info(f"   Created symlink: {models_buffalo_link} → {custom_model_path}")
+                                    except Exception as e:
+                                        logger.warning(f"   Could not create symlink: {e}")
+                                        logger.warning(f"   Attempting fallback: direct path usage")
+                                        # If symlink fails, we'll try a different approach below
+                                        models_buffalo_link = None
+
+                                if models_buffalo_link and os.path.exists(models_buffalo_link):
+                                    # Symlink successful, use parent as root
+                                    app_models_dir = parent_dir
+                                    logger.info(f"   Model root set to: {app_models_dir}")
+                                    logger.info(f"   InsightFace will use: {models_buffalo_link}")
+                                else:
+                                    # Symlink failed, use custom_model_path directly with special handling
+                                    logger.warning(f"⚠️ Using non-standard path directly (symlink unavailable)")
+                                    logger.warning(f"   This may cause issues. Recommended: reorganize to standard structure")
+                                    logger.warning(f"   Expected structure: {parent_dir}/models/buffalo_l/")
+                                    # Will fall through to other methods
+                                    app_models_dir = None
                         else:
                             # Try as parent directory with models/buffalo_l/
                             buffalo_path = os.path.join(custom_model_path, 'models', 'buffalo_l')
@@ -105,7 +165,9 @@ def _get_insightface_app():
                                 logger.warning(f"⚠️ Custom model path configured but buffalo_l not found at {custom_model_path}")
                                 logger.warning(f"   Expected: {custom_model_path}/det_10g.onnx or {buffalo_path}/det_10g.onnx")
             except Exception as e:
-                logger.debug(f"Could not check custom model path from settings: {e}")
+                logger.error(f"Error checking custom model path from settings: {e}")
+                import traceback
+                logger.debug(traceback.format_exc())
 
             # Check for PyInstaller bundle if no custom path
             if not app_models_dir and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):

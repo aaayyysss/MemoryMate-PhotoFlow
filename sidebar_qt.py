@@ -12,14 +12,14 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
 from PySide6.QtGui import (
     QStandardItemModel, QStandardItem,
-    QFont, QColor, QIcon,
+    QFont, QColor, QIcon, QImage,
     QTransform, QPainter, QPixmap
 )
 
 from app_services import list_branches, export_branch
 from reference_db import ReferenceDB
 from services.tag_service import get_tag_service
-from ui.people_list_view import PeopleListView
+from ui.people_list_view import PeopleListView, make_circular_pixmap
 
 import threading
 import traceback
@@ -1460,6 +1460,7 @@ class SidebarQt(QWidget):
         self.tree.setSelectionBehavior(QTreeView.SelectRows)
         self.tree.setRootIsDecorated(True)
         self.tree.setUniformRowHeights(False)
+        self.tree.setIconSize(QSize(32, 32))  # Circular face thumbnails
         self.model = QStandardItemModel(self.tree)
         self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
         self.tree.setModel(self.model)
@@ -2519,24 +2520,53 @@ class SidebarQt(QWidget):
 
                         name_item.setEditable(False)
 
-                        # Load thumbnail icon
+                        # Load thumbnail icon with EXIF correction and circular masking
                         icon_loaded = False
+                        pixmap = None
+
+                        # Try loading from PNG bytes first
                         if rep_thumb_png:
                             try:
                                 from PySide6.QtCore import QByteArray
                                 pixmap = QPixmap()
                                 if pixmap.loadFromData(QByteArray(rep_thumb_png)):
-                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                                    name_item.setIcon(QIcon(scaled))
                                     icon_loaded = True
                             except Exception as e:
                                 print("[Sidebar] PNG icon load failed:", e)
+                                pixmap = None
 
+                        # Fall back to file path with EXIF correction
                         if not icon_loaded and rep_path and os.path.exists(rep_path):
-                            pixmap = QPixmap(rep_path)
-                            if not pixmap.isNull():
-                                scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                                name_item.setIcon(QIcon(scaled))
+                            try:
+                                # Load with PIL and apply EXIF orientation correction
+                                pil_image = Image.open(rep_path)
+                                pil_image = ImageOps.exif_transpose(pil_image)  # Auto-rotate based on EXIF
+
+                                # Convert PIL Image to QPixmap
+                                if pil_image.mode != 'RGB':
+                                    pil_image = pil_image.convert('RGB')
+
+                                # Convert to bytes and load into QImage
+                                buffer = BytesIO()
+                                pil_image.save(buffer, format='PNG')
+                                image = QImage.fromData(buffer.getvalue())
+
+                                if not image.isNull():
+                                    pixmap = QPixmap.fromImage(image)
+                                    icon_loaded = True
+                            except Exception as e:
+                                # Fallback to direct QPixmap loading without EXIF
+                                try:
+                                    pixmap = QPixmap(rep_path)
+                                    if not pixmap.isNull():
+                                        icon_loaded = True
+                                except:
+                                    pass
+
+                        # Apply circular masking and set icon (32x32 for tree view)
+                        if icon_loaded and pixmap and not pixmap.isNull():
+                            circular = make_circular_pixmap(pixmap, 32)
+                            name_item.setIcon(QIcon(circular))
 
                         # Set mode + cluster ID (unified)
                         name_item.setData("people", Qt.UserRole)

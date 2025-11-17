@@ -19,11 +19,14 @@
 - ✅ Added proper EXIF auto-rotation for all face displays
 - ✅ Removed deprecated code causing "Unable to display thumbnails" warnings
 - ✅ **NEW:** Created dedicated PeopleListView widget with Apple-style design (2025-11-17)
-  - Large circular face thumbnails (96x96 px)
+  - Large circular face thumbnails (96x96 px) in tabs mode
+  - Circular face thumbnails (32x32 px) in list mode sidebar tree
   - Hover effects and rounded selection styling
   - Integrated search filtering
   - Status bar updates on person activation
+  - EXIF orientation correction for all face thumbnails
   - Cleaner, more maintainable code architecture
+  - Consistent styling across both UI modes
 
 ### 3. Deployment & Packaging (NEW - 2025-11-17)
 - ✅ Created PyInstaller spec file with ML model bundling

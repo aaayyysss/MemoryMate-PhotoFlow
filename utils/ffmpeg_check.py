@@ -7,19 +7,103 @@ Provides clear guidance when video processing tools are not installed.
 import subprocess
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
+
+
+def _auto_detect_ffmpeg() -> Tuple[Optional[str], Optional[str]]:
+    """
+    Auto-detect FFmpeg and FFprobe in common locations.
+
+    Searches in this priority order:
+    1. System PATH (already handled by _check_command, this is a fallback)
+    2. C:\\ffmpeg\\bin (Windows common location)
+    3. Application root directory
+    4. C:\\Program Files\\ffmpeg\\bin (Windows installer location)
+
+    Returns:
+        Tuple[Optional[str], Optional[str]]: (ffprobe_path, ffmpeg_path) or (None, None)
+    """
+    common_locations = []
+
+    if os.name == 'nt':  # Windows
+        # Common Windows locations
+        common_locations.extend([
+            Path('C:/ffmpeg/bin'),
+            Path('C:/ffmpeg'),
+            Path('C:/Program Files/ffmpeg/bin'),
+            Path('C:/Program Files/ffmpeg'),
+        ])
+
+    # Application root directory (cross-platform)
+    try:
+        app_root = Path(__file__).parent.parent  # Go up from utils/ to app root
+        common_locations.append(app_root)
+        common_locations.append(app_root / 'bin')
+        common_locations.append(app_root / 'ffmpeg')
+    except Exception:
+        pass
+
+    # Check each location for ffprobe and ffmpeg
+    for location in common_locations:
+        if not location.exists():
+            continue
+
+        # Check for ffprobe
+        if os.name == 'nt':
+            ffprobe_candidates = [
+                location / 'ffprobe.exe',
+                location / 'bin' / 'ffprobe.exe',
+            ]
+            ffmpeg_candidates = [
+                location / 'ffmpeg.exe',
+                location / 'bin' / 'ffmpeg.exe',
+            ]
+        else:
+            ffprobe_candidates = [
+                location / 'ffprobe',
+                location / 'bin' / 'ffprobe',
+            ]
+            ffmpeg_candidates = [
+                location / 'ffmpeg',
+                location / 'bin' / 'ffmpeg',
+            ]
+
+        # Try to find both executables
+        ffprobe_path = None
+        ffmpeg_path = None
+
+        for candidate in ffprobe_candidates:
+            if candidate.exists() and _check_command(str(candidate)):
+                ffprobe_path = str(candidate)
+                break
+
+        for candidate in ffmpeg_candidates:
+            if candidate.exists() and _check_command(str(candidate)):
+                ffmpeg_path = str(candidate)
+                break
+
+        # If we found ffprobe, return (even if ffmpeg not found)
+        if ffprobe_path:
+            return ffprobe_path, ffmpeg_path
+
+    # Not found in any common location
+    return None, None
 
 
 def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
     """
     Check if FFmpeg and FFprobe are available on the system.
 
-    Checks both system PATH and custom paths from user settings.
+    Auto-detects from multiple locations in this priority order:
+    1. Custom path from user settings
+    2. System PATH
+    3. C:\\ffmpeg\\bin (Windows common location)
+    4. Application root directory
 
     Returns:
         Tuple[bool, bool, str]: (ffmpeg_available, ffprobe_available, message)
     """
-    # First, try to get custom path from settings
+    # Priority 1: Try to get custom path from settings
     ffprobe_custom_path = None
     ffmpeg_custom_path = None
     try:
@@ -34,6 +118,22 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
                 ffmpeg_custom_path = str(potential_ffmpeg)
     except Exception:
         pass
+
+    # Priority 2-4: Auto-detect from common locations if no custom path
+    if not ffprobe_custom_path:
+        ffprobe_custom_path, ffmpeg_custom_path = _auto_detect_ffmpeg()
+
+        # Save auto-detected path to settings for future use
+        if ffprobe_custom_path:
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                # Only save if auto-detected (not already manually configured)
+                if not settings.get_setting('ffprobe_path', ''):
+                    settings.set_setting('ffprobe_path', ffprobe_custom_path)
+                    print(f"💾 Saved FFprobe path to settings: {ffprobe_custom_path}")
+            except Exception:
+                pass
 
     # Check ffprobe (custom path first, then system PATH)
     ffprobe_available = False
@@ -63,11 +163,21 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
 
     if ffprobe_available and ffmpeg_available:
         if ffprobe_custom_path and ffmpeg_custom_path:
-            message = f"✅ FFmpeg and FFprobe detected (custom path: {Path(ffprobe_custom_path).parent})"
+            # Check if this was from user settings or auto-detected
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                saved_path = settings.get_setting('ffprobe_path', '')
+                if saved_path:
+                    message = f"✅ FFmpeg and FFprobe detected (custom path: {Path(ffprobe_custom_path).parent})"
+                else:
+                    message = f"✅ FFmpeg and FFprobe detected (auto-detected: {Path(ffprobe_custom_path).parent})"
+            except Exception:
+                message = f"✅ FFmpeg and FFprobe detected (path: {Path(ffprobe_custom_path).parent})"
         elif ffprobe_custom_path:
-            message = f"✅ FFmpeg and FFprobe detected (custom ffprobe: {ffprobe_custom_path}, system ffmpeg)"
+            message = f"✅ FFmpeg and FFprobe detected (ffprobe: {ffprobe_custom_path}, ffmpeg: system)"
         else:
-            message = "✅ FFmpeg and FFprobe detected - full video support enabled"
+            message = "✅ FFmpeg and FFprobe detected (system PATH) - full video support enabled"
         return True, True, message
 
     elif ffprobe_available and not ffmpeg_available:

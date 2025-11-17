@@ -50,63 +50,188 @@ def _detect_available_providers():
         return ['CPUExecutionProvider'], 'CPU'
 
 
+def _find_buffalo_directory():
+    """
+    Find buffalo_l directory, accepting both standard and non-standard structures.
+
+    Accepts:
+    - det_10g.onnx (standard detector)
+    - scrfd_10g_bnkps.onnx (alternative detector)
+
+    Returns:
+        Path to buffalo_l directory (not parent), or None if not found
+    """
+    import sys
+
+    # Detector variants (accept either one)
+    detector_variants = ['det_10g.onnx', 'scrfd_10g_bnkps.onnx']
+
+    def has_detector(path):
+        """Check if path contains at least one detector variant."""
+        for detector in detector_variants:
+            if os.path.exists(os.path.join(path, detector)):
+                return True
+        return False
+
+    # Priority 1: Custom path from settings (offline use)
+    try:
+        from settings_manager_qt import SettingsManager
+        settings = SettingsManager()
+        custom_path = settings.get_setting('insightface_model_path', '')
+        if custom_path and os.path.exists(custom_path):
+            # Check if this IS the buffalo_l directory
+            if has_detector(custom_path):
+                logger.info(f"🎯 Using custom model path (buffalo_l directory): {custom_path}")
+                return custom_path
+
+            # Check for models/buffalo_l/ subdirectory
+            buffalo_sub = os.path.join(custom_path, 'models', 'buffalo_l')
+            if os.path.exists(buffalo_sub) and has_detector(buffalo_sub):
+                logger.info(f"🎯 Using custom model path: {buffalo_sub}")
+                return buffalo_sub
+
+            # Check for buffalo_l/ subdirectory (non-standard)
+            buffalo_sub = os.path.join(custom_path, 'buffalo_l')
+            if os.path.exists(buffalo_sub) and has_detector(buffalo_sub):
+                logger.info(f"🎯 Using custom model path (nested): {buffalo_sub}")
+                return buffalo_sub
+
+            # Check for nested buffalo_l/buffalo_l/ (user's structure from log)
+            buffalo_nested = os.path.join(custom_path, 'buffalo_l', 'buffalo_l')
+            if os.path.exists(buffalo_nested) and has_detector(buffalo_nested):
+                logger.info(f"🎯 Using custom model path (double-nested): {buffalo_nested}")
+                return buffalo_nested
+
+            logger.warning(f"⚠️ Custom path configured but no valid buffalo_l found: {custom_path}")
+    except Exception as e:
+        logger.debug(f"Error checking custom path: {e}")
+
+    # Priority 2: PyInstaller bundle
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        bundle_dir = sys._MEIPASS
+        buffalo_path = os.path.join(bundle_dir, 'insightface', 'models', 'buffalo_l')
+        if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+            logger.info(f"🎁 Using bundled models: {buffalo_path}")
+            return buffalo_path
+
+    # Priority 3: App directory
+    try:
+        app_root = os.path.dirname(os.path.dirname(__file__))
+        buffalo_path = os.path.join(app_root, 'models', 'buffalo_l')
+        if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+            logger.info(f"📁 Using local bundled models: {buffalo_path}")
+            return buffalo_path
+    except Exception as e:
+        logger.debug(f"Error checking app directory: {e}")
+
+    # Priority 4: User home
+    user_home = os.path.expanduser('~/.insightface')
+    buffalo_path = os.path.join(user_home, 'models', 'buffalo_l')
+    if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+        logger.info(f"🏠 Using user home models: {buffalo_path}")
+        return buffalo_path
+
+    # Not found - return None
+    logger.warning("⚠️ No buffalo_l models found in any location")
+    return None
+
+
 def _get_insightface_app():
     """
     Lazy load InsightFace application with automatic GPU/CPU detection.
 
     Uses the proven pattern from OldPy/photo_sorter.py proof of concept:
-    - Automatic provider detection (GPU if available, CPU fallback)
+    - Passes buffalo_l directory DIRECTLY as root (not parent)
+    - Does NOT pass providers to FaceAnalysis.__init__() for compatibility
+    - Only uses providers for ctx_id selection in prepare()
+    - Accepts both det_10g.onnx and scrfd_10g_bnkps.onnx detectors
     - Model caching to avoid reloading
-    - Proper error handling
-    - PyInstaller bundle support (looks for bundled models)
     """
     global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
-            import sys
             from insightface.app import FaceAnalysis
 
             # Detect best available providers
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
-            # Determine model root path
-            # When running from PyInstaller bundle, models are in sys._MEIPASS
-            model_root = None
-            if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-                # Running in PyInstaller bundle
-                bundle_dir = sys._MEIPASS
-                model_root = os.path.join(bundle_dir, 'insightface')
-                logger.info(f"🎁 Running from PyInstaller bundle, model root: {model_root}")
+            # Find buffalo_l directory
+            buffalo_dir = _find_buffalo_directory()
 
-                # Verify bundled models exist
-                expected_model_path = os.path.join(model_root, 'models', 'buffalo_l')
-                if os.path.exists(expected_model_path):
-                    logger.info(f"✓ Found bundled buffalo_l models at {expected_model_path}")
-                else:
-                    logger.warning(f"⚠ Bundled models not found at {expected_model_path}")
-
-            # Initialize InsightFace with buffalo_l model
-            # NOTE: InsightFace doesn't accept 'providers' in __init__
-            # Instead, we set ctx_id to control GPU/CPU usage
-            if model_root:
-                _insightface_app = FaceAnalysis(
-                    name='buffalo_l',  # High accuracy model
-                    root=model_root,   # Use bundled models when packaged
-                    allowed_modules=['detection', 'recognition']
+            if not buffalo_dir:
+                raise RuntimeError(
+                    "InsightFace models (buffalo_l) not found.\n\n"
+                    "Please configure the model path in Preferences → Face Detection\n"
+                    "or download models using: python download_face_models.py"
                 )
+
+            # Save successful path to settings for future use
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                current_saved = settings.get_setting('insightface_model_path', '')
+                # Only save if not already set (preserves user's manual configuration)
+                if not current_saved:
+                    settings.set_setting('insightface_model_path', buffalo_dir)
+                    logger.info(f"💾 Saved InsightFace model path to settings: {buffalo_dir}")
+            except Exception as e:
+                logger.debug(f"Could not save model path to settings: {e}")
+
+            # CRITICAL: Pass buffalo_l directory DIRECTLY as root
+            # This matches the proof of concept approach from OldPy/photo_sorter.py
+            # Do NOT pass parent directory, pass the buffalo_l directory itself!
+            logger.info(f"✓ Initializing InsightFace with buffalo_l directory: {buffalo_dir}")
+
+            # Version detection: Check if FaceAnalysis supports providers parameter
+            # This ensures compatibility with BOTH old and new InsightFace versions
+            import inspect
+            sig = inspect.signature(FaceAnalysis.__init__)
+            supports_providers = 'providers' in sig.parameters
+
+            # Initialize FaceAnalysis with version-appropriate parameters
+            init_params = {'name': 'buffalo_l', 'root': buffalo_dir}
+
+            if supports_providers:
+                # NEWER VERSION: Pass providers for optimal performance
+                init_params['providers'] = providers
+                logger.info(f"✓ Using providers parameter (newer InsightFace): {providers}")
+                _insightface_app = FaceAnalysis(**init_params)
+
+                # For newer versions, ctx_id is derived from providers automatically
+                # But we still need to call prepare()
+                try:
+                    _insightface_app.prepare(ctx_id=-1, det_size=(640, 640))
+                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                except Exception as prepare_error:
+                    logger.error(f"Model preparation failed: {prepare_error}")
+                    logger.error("This usually means:")
+                    logger.error("  1. Model files are corrupted or incomplete")
+                    logger.error("  2. InsightFace version incompatible with models")
+                    logger.error("  3. Wrong directory structure")
+                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
             else:
-                _insightface_app = FaceAnalysis(
-                    name='buffalo_l',  # High accuracy model
-                    allowed_modules=['detection', 'recognition']
-                )
+                # OLDER VERSION: Use ctx_id approach (proof of concept compatibility)
+                logger.info(f"✓ Using ctx_id approach (older InsightFace, proof of concept compatible)")
+                _insightface_app = FaceAnalysis(**init_params)
 
-            # Prepare with context:
-            # ctx_id=0 for GPU, ctx_id=-1 for CPU
-            ctx_id = 0 if hardware_type == 'GPU' else -1
-            _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                # Use providers ONLY for ctx_id selection (proof of concept approach)
+                use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+                ctx_id = 0 if use_cuda else -1
+                logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
 
-            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                # Prepare model with simple parameters (matches proof of concept)
+                try:
+                    _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                except Exception as prepare_error:
+                    logger.error(f"Model preparation failed: {prepare_error}")
+                    logger.error("This usually means:")
+                    logger.error("  1. Model files are corrupted or incomplete")
+                    logger.error("  2. InsightFace version incompatible with models")
+                    logger.error("  3. Wrong directory structure")
+                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")
             logger.error("Install with: pip install insightface onnxruntime")
@@ -116,6 +241,7 @@ def _get_insightface_app():
             ) from e
         except Exception as e:
             logger.error(f"❌ Failed to initialize InsightFace: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
             raise
     return _insightface_app
 
@@ -256,20 +382,20 @@ class FaceDetectionService:
                 return []
 
             # Load image using OpenCV (InsightFace expects BGR format)
+            # Use cv2.imdecode to handle Unicode filenames (e.g., Arabic, Chinese, etc.)
             try:
-                img = cv2.imread(image_path)
+                # Read file as binary and decode with cv2
+                # This handles Unicode filenames that cv2.imread() can't process
+                with open(image_path, 'rb') as f:
+                    file_bytes = np.frombuffer(f.read(), dtype=np.uint8)
+                    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
                 if img is None:
-                    # cv2.imread returns None for corrupt/unsupported files
-                    error_msg = f"Failed to load image (cv2.imread returned None): {image_path}"
-                    logger.error(error_msg)
-                    raise ValueError(error_msg)
-            except ValueError:
-                # Re-raise ValueError (from above check)
-                raise
+                    logger.warning(f"Failed to load image {image_path}")
+                    return []
             except Exception as e:
-                error_msg = f"Failed to load image {image_path}: {e}"
-                logger.error(error_msg)
-                raise RuntimeError(error_msg) from e
+                logger.warning(f"Failed to load image {image_path}: {e}")
+                return []
 
             # Detect faces and extract embeddings
             # Returns list of Face objects with bbox, embedding, det_score, etc.
@@ -311,14 +437,9 @@ class FaceDetectionService:
             logger.info(f"[FaceDetection] Found {len(faces)} faces in {os.path.basename(image_path)}")
             return faces
 
-        except (ValueError, RuntimeError):
-            # Re-raise image loading errors (already logged above)
-            raise
         except Exception as e:
-            # Catch any other errors (InsightFace crashes, etc.)
-            error_msg = f"Error detecting faces in {image_path}: {e}"
-            logger.error(error_msg, exc_info=True)
-            raise RuntimeError(error_msg) from e
+            logger.error(f"Error detecting faces in {image_path}: {e}")
+            return []
 
     def save_face_crop(self, image_path: str, face: dict, output_path: str) -> bool:
         """
@@ -342,13 +463,6 @@ class FaceDetectionService:
             bbox_w = face['bbox_w']
             bbox_h = face['bbox_h']
 
-            # Validate bounding box dimensions
-            if bbox_w <= 0 or bbox_h <= 0:
-                logger.warning(
-                    f"Invalid face bounding box (w={bbox_w}, h={bbox_h}) in {os.path.basename(image_path)}, skipping"
-                )
-                return False
-
             # Add padding (10% on each side)
             padding = int(min(bbox_w, bbox_h) * 0.1)
             x1 = max(0, bbox_x - padding)
@@ -356,39 +470,39 @@ class FaceDetectionService:
             x2 = min(img.width, bbox_x + bbox_w + padding)
             y2 = min(img.height, bbox_y + bbox_h + padding)
 
-            # Final validation: ensure x2 > x1 and y2 > y1
-            if x2 <= x1 or y2 <= y1:
-                logger.warning(
-                    f"Invalid crop coordinates (x1={x1}, x2={x2}, y1={y1}, y2={y2}) "
-                    f"in {os.path.basename(image_path)}, skipping"
-                )
-                return False
-
             # Crop face
             face_img = img.crop((x1, y1, x2, y2))
 
-            # Resize to standard size for consistency (160x160 for better quality)
-            face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
-
-            # Convert RGBA to RGB if needed (for PNG screenshots with alpha channel)
-            # JPEG doesn't support transparency, so we need to convert RGBA -> RGB
+            # Convert RGBA to RGB if necessary (required for JPEG)
+            # This handles PNG files with transparency
             if face_img.mode == 'RGBA':
                 # Create white background
                 rgb_img = Image.new('RGB', face_img.size, (255, 255, 255))
                 # Paste using alpha channel as mask
-                rgb_img.paste(face_img, mask=face_img.split()[3])  # 3 is the alpha channel
+                rgb_img.paste(face_img, mask=face_img.split()[3])
                 face_img = rgb_img
-                logger.debug(f"Converted RGBA to RGB for {os.path.basename(image_path)}")
+                logger.debug(f"Converted RGBA to RGB for JPEG compatibility")
             elif face_img.mode not in ('RGB', 'L'):
-                # Convert any other modes (P, LA, etc.) to RGB
+                # Convert any other modes to RGB
                 face_img = face_img.convert('RGB')
-                logger.debug(f"Converted {face_img.mode} to RGB for {os.path.basename(image_path)}")
+                logger.debug(f"Converted {img.mode} to RGB")
+
+            # Resize to standard size for consistency (160x160 for better quality)
+            face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-            # Save
-            face_img.save(output_path, quality=95)
+            # Save with explicit format based on extension
+            file_ext = os.path.splitext(output_path)[1].lower()
+            if file_ext in ['.jpg', '.jpeg']:
+                face_img.save(output_path, format='JPEG', quality=95)
+            elif file_ext == '.png':
+                face_img.save(output_path, format='PNG')
+            else:
+                # Default to JPEG
+                face_img.save(output_path, format='JPEG', quality=95)
+
             logger.debug(f"Saved face crop to {output_path}")
             return True
 

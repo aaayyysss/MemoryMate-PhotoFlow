@@ -156,6 +156,54 @@ if __name__ == "__main__":
         except Exception as e:
             logger.warning(f"Failed to check FFmpeg availability: {e}")
 
+        # Check InsightFace models availability and notify user if needed
+        try:
+            from utils.insightface_check import show_insightface_status_once
+            insightface_message = show_insightface_status_once()
+            if insightface_message and "⚠️" in insightface_message:
+                # Only show warning if InsightFace or models are missing
+                print(insightface_message)
+                from PySide6.QtWidgets import QMessageBox
+                msg_box = QMessageBox(win)
+                msg_box.setIcon(QMessageBox.Warning)
+
+                if "Library Not Found" in insightface_message:
+                    msg_box.setWindowTitle("Face Detection - InsightFace Not Found")
+                    msg_box.setText("InsightFace library is not installed.")
+                    msg_box.setInformativeText(
+                        "Face detection features will be disabled:\n"
+                        "  • Face detection won't work\n"
+                        "  • People sidebar will be empty\n"
+                        "  • Cannot group photos by faces\n\n"
+                        "To enable face detection:\n"
+                        "  1. Install InsightFace: pip install insightface onnxruntime\n"
+                        "  2. Restart the application\n"
+                        "  3. Go to Preferences (Ctrl+,) → 🧑 Face Detection\n"
+                        "  4. Click 'Download Models' to get face detection models"
+                    )
+                else:
+                    msg_box.setWindowTitle("Face Detection - Models Not Found")
+                    msg_box.setText("InsightFace models (buffalo_l) are not installed.")
+                    msg_box.setInformativeText(
+                        "Face detection is ready but needs models:\n"
+                        "  • InsightFace library is installed ✅\n"
+                        "  • Models need to be downloaded (~200MB)\n\n"
+                        "To download models:\n"
+                        "  1. Go to Preferences (Ctrl+,)\n"
+                        "  2. Navigate to '🧑 Face Detection Models'\n"
+                        "  3. Click 'Download Models'\n\n"
+                        "Or run: python download_face_models.py"
+                    )
+
+                msg_box.setDetailedText(insightface_message)
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.exec()
+            elif insightface_message:
+                # InsightFace is available, just log it
+                print(insightface_message)
+        except Exception as e:
+            logger.warning(f"Failed to check InsightFace availability: {e}")
+
     worker.finished.connect(on_finished)
     
     # 5️: Start the background initialization thread

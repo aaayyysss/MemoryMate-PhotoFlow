@@ -57,7 +57,7 @@ class FaceClusterWorker(QRunnable):
         - Emits progress signals for UI updates
     """
 
-    def __init__(self, project_id: int, eps: float = 0.42, min_samples: int = 3):
+    def __init__(self, project_id: int, eps: float = 0.35, min_samples: int = 2):
         """
         Initialize face clustering worker.
 
@@ -66,11 +66,13 @@ class FaceClusterWorker(QRunnable):
             eps: DBSCAN epsilon parameter (max distance between faces in same cluster)
                  Lower = stricter grouping (more clusters, fewer false positives)
                  Higher = looser grouping (fewer clusters, more false positives)
-                 Range: 0.3-0.5, default: 0.42
+                 Range: 0.30-0.40, optimal: 0.35 for InsightFace
+                 Updated from 0.42 (was grouping different people together)
             min_samples: Minimum number of faces to form a cluster
                         Higher = larger clusters only (fewer clusters total)
-                        Lower = allows smaller clusters
-                        Range: 2-5, default: 3
+                        Lower = allows smaller clusters (people with 2+ photos)
+                        Range: 2-5, optimal: 2 (allows people with 2+ appearances)
+                        Updated from 3 (was missing people with only 2 photos)
         """
         super().__init__()
         self.project_id = project_id
@@ -143,6 +145,12 @@ class FaceClusterWorker(QRunnable):
             cluster_count = len(unique_labels)
 
             logger.info(f"[FaceClusterWorker] Found {cluster_count} clusters")
+
+            # Count unclustered faces (noise, label == -1)
+            noise_count = np.sum(labels == -1)
+            if noise_count > 0:
+                logger.info(f"[FaceClusterWorker] Found {noise_count} unclustered faces (will create 'Unidentified' branch)")
+
             self.signals.progress.emit(40, 100, f"Found {cluster_count} person groups...")
 
             # Step 3: Clear previous cluster data
@@ -208,13 +216,61 @@ class FaceClusterWorker(QRunnable):
 
                 logger.info(f"[FaceClusterWorker] Cluster {cid} → {member_count} faces")
 
+            # Step 5: Handle unclustered faces (noise from DBSCAN, label == -1)
+            if noise_count > 0:
+                self.signals.progress.emit(95, 100, f"Processing {noise_count} unidentified faces...")
+
+                # Get unclustered face data
+                noise_mask = labels == -1
+                noise_ids = np.array(ids)[noise_mask].tolist()
+                noise_paths = np.array(paths)[noise_mask].tolist()
+                noise_image_paths = np.array(image_paths)[noise_mask].tolist()
+                noise_vecs = X[noise_mask]
+
+                # Create centroid from unclustered faces
+                centroid = np.mean(noise_vecs, axis=0).astype(np.float32).tobytes()
+                rep_path = noise_paths[0] if noise_paths else None
+
+                # Special branch for unidentified faces
+                branch_key = "face_unidentified"
+                display_name = f"⚠️ Unidentified ({noise_count} faces)"
+
+                # Insert into face_branch_reps
+                cur.execute("""
+                    INSERT INTO face_branch_reps (project_id, branch_key, centroid, rep_path, count)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (self.project_id, branch_key, centroid, rep_path, noise_count))
+
+                # Insert into branches (for sidebar display)
+                cur.execute("""
+                    INSERT INTO branches (project_id, branch_key, display_name)
+                    VALUES (?, ?, ?)
+                """, (self.project_id, branch_key, display_name))
+
+                # Update face_crops entries
+                placeholders = ','.join(['?'] * len(noise_ids))
+                cur.execute(f"""
+                    UPDATE face_crops SET branch_key=? WHERE project_id=? AND id IN ({placeholders})
+                """, (branch_key, self.project_id, *noise_ids))
+
+                # Link photos to unidentified branch
+                unique_noise_photos = set(noise_image_paths)
+                for photo_path in unique_noise_photos:
+                    cur.execute("""
+                        INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path)
+                        VALUES (?, ?, ?)
+                    """, (self.project_id, branch_key, photo_path))
+
+                logger.info(f"[FaceClusterWorker] Created 'Unidentified' branch with {noise_count} faces from {len(unique_noise_photos)} photos")
+
             conn.commit()
             conn.close()
 
             duration = time.time() - start_time
-            logger.info(f"[FaceClusterWorker] Complete in {duration:.1f}s: {cluster_count} clusters created")
+            total_branches = cluster_count + (1 if noise_count > 0 else 0)
+            logger.info(f"[FaceClusterWorker] Complete in {duration:.1f}s: {cluster_count} person clusters + {noise_count} unidentified faces")
 
-            self.signals.progress.emit(100, 100, f"Clustering complete: {cluster_count} people found")
+            self.signals.progress.emit(100, 100, f"Clustering complete: {total_branches} branches created")
             self.signals.finished.emit(cluster_count, total_faces)
 
         except Exception as e:
@@ -227,7 +283,7 @@ class FaceClusterWorker(QRunnable):
 # Legacy functions (kept for backward compatibility with standalone script)
 # ============================================================================
 
-def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
+def cluster_faces_1st(project_id: int, eps: float = 0.35, min_samples: int = 2):
     """
     Performs unsupervised face clustering using embeddings already in the DB.
     Writes cluster info back into face_branch_reps, branches, and face_crops.
@@ -320,7 +376,7 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
     conn.close()
     print(f"[FaceCluster] Done: {len(unique_labels)} clusters saved.")
 
-def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
+def cluster_faces(project_id: int, eps: float = 0.35, min_samples: int = 2):
     """
     Performs unsupervised face clustering using embeddings already in the DB.
     Writes cluster info back into face_branch_reps, branches, and face_crops.
@@ -372,8 +428,13 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
     # 2️: Run DBSCAN clustering
     dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='cosine')
     labels = dbscan.fit_predict(X)
-    
+
     unique_labels = sorted([l for l in set(labels) if l != -1])
+
+    # Count unclustered faces (noise, label == -1)
+    noise_count = int(np.sum(labels == -1))
+    if noise_count > 0:
+        print(f"[FaceCluster] Found {noise_count} unclustered faces (will create 'Unidentified' branch)")
 
     # 3️: Clear previous cluster data
     cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key LIKE 'face_%'", (project_id,))
@@ -428,11 +489,48 @@ def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
 
         print(f"[FaceCluster] Cluster {cid} → {member_count} faces ({len(unique_photos)} unique photos)")
 
+    # Step 5: Handle unclustered faces (noise from DBSCAN, label == -1)
+    if noise_count > 0:
+        noise_mask = labels == -1
+        noise_ids = np.array(ids)[noise_mask].tolist()
+        noise_paths = np.array(paths)[noise_mask].tolist()
+        noise_image_paths = np.array(image_paths)[noise_mask].tolist()
+        noise_vecs = X[noise_mask]
+
+        centroid = np.mean(noise_vecs, axis=0).astype(np.float32).tobytes()
+        rep_path = noise_paths[0] if noise_paths else None
+        branch_key = "face_unidentified"
+        display_name = f"⚠️ Unidentified ({noise_count} faces)"
+
+        cur.execute("""
+            INSERT INTO face_branch_reps (project_id, branch_key, centroid, rep_path, count)
+            VALUES (?, ?, ?, ?, ?)
+        """, (project_id, branch_key, centroid, rep_path, noise_count))
+
+        cur.execute("""
+            INSERT INTO branches (project_id, branch_key, display_name)
+            VALUES (?, ?, ?)
+        """, (project_id, branch_key, display_name))
+
+        cur.execute(f"""
+            UPDATE face_crops SET branch_key=? WHERE project_id=? AND id IN ({','.join(['?'] * len(noise_ids))})
+        """, (branch_key, project_id, *noise_ids))
+
+        unique_noise_photos = set(noise_image_paths)
+        for photo_path in unique_noise_photos:
+            cur.execute("""
+                INSERT OR IGNORE INTO project_images (project_id, branch_key, image_path)
+                VALUES (?, ?, ?)
+            """, (project_id, branch_key, photo_path))
+
+        print(f"[FaceCluster] Created 'Unidentified' branch with {noise_count} faces from {len(unique_noise_photos)} photos")
+
     conn.commit()
+    total_branches = len(unique_labels) + (1 if noise_count > 0 else 0)
     write_status(status_path, "done", total_clusters, total_clusters)
     _log_progress("done", total_clusters, total_clusters)
     conn.close()
-    print(f"[FaceCluster] Done: {len(unique_labels)} clusters saved.")
+    print(f"[FaceCluster] Done: {len(unique_labels)} person clusters + {noise_count} unidentified faces = {total_branches} branches")
 
 
 if __name__ == "__main__":

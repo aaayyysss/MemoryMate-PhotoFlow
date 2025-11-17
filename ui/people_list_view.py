@@ -24,7 +24,7 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem,
     QHeaderView, QLineEdit, QLabel, QHBoxLayout, QMenu,
-    QInputDialog, QMessageBox, QStyledItemDelegate
+    QInputDialog, QMessageBox, QStyledItemDelegate, QStyle
 )
 from PIL import Image, ImageOps
 
@@ -92,30 +92,36 @@ class PeopleListDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         """Custom paint with rounded rectangles and hover effects"""
         painter.save()
-        painter.setRenderHint(QPainter.Antialiasing)
 
-        # Check if this row is hovered or selected
-        is_selected = option.state & QStyledItemDelegate.State_Selected
-        is_hovered = index.row() == self.hover_row
+        try:
+            painter.setRenderHint(QPainter.Antialiasing)
 
-        # Draw background with rounded corners for selection/hover
-        if is_selected or is_hovered:
-            rect = option.rect
-            painter.setPen(Qt.NoPen)
+            # Check if this row is hovered or selected
+            is_selected = option.state & QStyle.StateFlag.State_Selected
+            is_hovered = index.row() == self.hover_row
 
-            if is_selected:
-                # Selected: More prominent blue background
-                painter.setBrush(QBrush(QColor(0, 122, 255, 40)))  # Subtle blue
-            elif is_hovered:
-                # Hovered: Very subtle grey
-                painter.setBrush(QBrush(QColor(0, 0, 0, 10)))
+            # Draw background with rounded corners for selection/hover
+            if is_selected or is_hovered:
+                rect = option.rect
+                painter.setPen(Qt.NoPen)
 
-            painter.drawRoundedRect(rect, 6, 6)  # Rounded corners
+                if is_selected:
+                    # Selected: More prominent blue background
+                    painter.setBrush(QBrush(QColor(0, 122, 255, 40)))  # Subtle blue
+                elif is_hovered:
+                    # Hovered: Very subtle grey
+                    painter.setBrush(QBrush(QColor(0, 0, 0, 10)))
 
-        painter.restore()
+                painter.drawRoundedRect(rect, 6, 6)  # Rounded corners
 
-        # Let default delegate handle the actual content
-        super().paint(painter, option, index)
+            painter.restore()
+
+            # Let default delegate handle the actual content
+            super().paint(painter, option, index)
+        except Exception as e:
+            # Ensure painter is restored even if an exception occurs
+            painter.restore()
+            raise
 
 
 # =====================================================================
@@ -552,7 +558,23 @@ class PeopleListView(QWidget):
         for row in range(self.table.rowCount()):
             item = self.table.item(row, 2)  # Count column
             if item:
-                total += item.data(Qt.DisplayRole) or 0
+                count_data = item.data(Qt.DisplayRole)
+                if count_data is not None:
+                    # Handle different types that Qt might return
+                    if isinstance(count_data, (int, float)):
+                        total += int(count_data)
+                    elif isinstance(count_data, bytes):
+                        # Convert bytes to int if needed
+                        try:
+                            total += int.from_bytes(count_data, byteorder='little')
+                        except (ValueError, OverflowError):
+                            pass  # Skip invalid bytes
+                    elif isinstance(count_data, str):
+                        # Convert string to int if needed
+                        try:
+                            total += int(count_data)
+                        except ValueError:
+                            pass  # Skip invalid strings
         return total
 
     def get_people_count(self) -> int:

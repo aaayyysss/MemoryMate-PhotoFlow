@@ -882,6 +882,7 @@ class UIBuilder:
 
 # ======================================================
 
+
 # Thumbnail task/emitter used by ThumbnailGridQt
 class ThumbnailResult(QObject):
     # emitted on GUI thread: (path, QPixmap)

@@ -1838,7 +1838,7 @@ class SidebarQt(QWidget):
         if mode == "videos_size" and value:
             _clear_tag_if_needed()
             videos = video_service.get_videos_by_project(self.project_id)
-            filtered = video_service.filter_by_file_size(videos, value)
+            filtered = video_service.filter_by_file_size(videos, size_range=value)
             paths = _ensure_video_paths_only([v["path"] for v in filtered])
             mw.grid.model.clear()
             mw.grid.load_custom_paths(paths, content_type="videos")
@@ -2505,9 +2505,26 @@ class SidebarQt(QWidget):
                     for row in clusters:
                         raw_name = row.get("display_name") or row.get("branch_key")
                         cluster_id = str(row.get("branch_key"))
-                        count = row.get("member_count", 0) or 0
+                        count_raw = row.get("member_count", 0) or 0
                         rep_path = row.get("rep_path", "")
                         rep_thumb_png = row.get("rep_thumb_png")
+
+                        # CRITICAL FIX: Handle different types from database (bytes, int, str)
+                        # Same issue as get_total_faces() - Qt/SQLite can return bytes instead of int
+                        if isinstance(count_raw, (int, float)):
+                            count = int(count_raw)
+                        elif isinstance(count_raw, bytes):
+                            try:
+                                count = int.from_bytes(count_raw, byteorder='little')
+                            except (ValueError, OverflowError):
+                                count = 0
+                        elif isinstance(count_raw, str):
+                            try:
+                                count = int(count_raw)
+                            except ValueError:
+                                count = 0
+                        else:
+                            count = 0
 
                         total_faces += count
 
@@ -3501,7 +3518,20 @@ class SidebarQt(QWidget):
         for key in [target_key] + source_keys:
             row = cluster_rows.get(key)
             if row:
-                total_faces += row.get("member_count", 0) or 0
+                count_raw = row.get("member_count", 0) or 0
+                # CRITICAL FIX: Handle bytes/int/str from database
+                if isinstance(count_raw, (int, float)):
+                    total_faces += int(count_raw)
+                elif isinstance(count_raw, bytes):
+                    try:
+                        total_faces += int.from_bytes(count_raw, byteorder='little')
+                    except (ValueError, OverflowError):
+                        pass
+                elif isinstance(count_raw, str):
+                    try:
+                        total_faces += int(count_raw)
+                    except ValueError:
+                        pass
 
         lines = [
             f"Target: {target_name} [{target_key}]",

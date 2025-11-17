@@ -1364,51 +1364,51 @@ class PreferencesDialog(QDialog):
                 )
                 return
 
-            # Check if this is the buffalo_l directory or parent
-            from utils.insightface_check import _verify_model_files
+            # Run comprehensive test using the test module
+            from PySide6.QtWidgets import QProgressDialog
+            from PySide6.QtCore import QThread, Signal
 
-            # Try as buffalo_l directory
-            if _verify_model_files(path):
-                QMessageBox.information(
-                    self,
-                    "Model Path Test - Success",
-                    f"✓ Valid buffalo_l models found!\n\n"
-                    f"Path: {path}\n\n"
-                    "Models include:\n"
-                    "  • det_10g.onnx (detection)\n"
-                    "  • w600k_r50.onnx (recognition)\n\n"
-                    "💡 Remember to click OK to save, then restart the app."
-                )
-                return
+            class TestThread(QThread):
+                finished_signal = Signal(bool, str)
 
-            # Try as parent directory containing models/buffalo_l/
-            buffalo_subpath = Path(path) / 'models' / 'buffalo_l'
-            if buffalo_subpath.exists() and _verify_model_files(str(buffalo_subpath)):
-                QMessageBox.information(
-                    self,
-                    "Model Path Test - Success",
-                    f"✓ Valid buffalo_l models found!\n\n"
-                    f"Path: {buffalo_subpath}\n\n"
-                    "Models include:\n"
-                    "  • det_10g.onnx (detection)\n"
-                    "  • w600k_r50.onnx (recognition)\n\n"
-                    "💡 This looks like a parent directory. Consider browsing to:\n"
-                    f"   {buffalo_subpath}\n"
-                    "   for a more direct path."
-                )
-                return
+                def __init__(self, test_path):
+                    super().__init__()
+                    self.test_path = test_path
 
-            # No valid models found
-            QMessageBox.warning(
-                self,
-                "Model Path Test - No Models Found",
-                f"✗ No valid buffalo_l models found at:\n{path}\n\n"
-                "Expected files:\n"
-                "  • det_10g.onnx (detection model)\n"
-                "  • w600k_r50.onnx (recognition model)\n\n"
-                "Please ensure you've selected the correct directory containing\n"
-                "the buffalo_l model files."
-            )
+                def run(self):
+                    try:
+                        from utils.test_insightface_models import test_model_path
+                        success, message = test_model_path(self.test_path)
+                        self.finished_signal.emit(success, message)
+                    except Exception as e:
+                        self.finished_signal.emit(False, f"Test error: {str(e)}")
+
+            progress_dlg = QProgressDialog("Testing InsightFace model loading...\nThis may take a moment...", None, 0, 0, self)
+            progress_dlg.setWindowTitle("Model Test")
+            progress_dlg.setWindowModality(Qt.WindowModal)
+            progress_dlg.setCancelButton(None)
+            progress_dlg.setMinimumDuration(0)
+
+            test_thread = TestThread(path)
+
+            def on_test_finished(success, message):
+                progress_dlg.close()
+                if success:
+                    QMessageBox.information(
+                        self,
+                        "Model Test - SUCCESS ✅",
+                        message + "\n\n💡 Remember to click OK to save, then restart the app."
+                    )
+                else:
+                    QMessageBox.critical(
+                        self,
+                        "Model Test - FAILED ❌",
+                        message
+                    )
+
+            test_thread.finished_signal.connect(on_test_finished)
+            test_thread.start()
+            progress_dlg.exec()
 
         btn_test_models.clicked.connect(test_model_path)
 

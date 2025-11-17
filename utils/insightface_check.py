@@ -113,18 +113,32 @@ def _verify_model_files(buffalo_path: str) -> bool:
     Returns:
         True if essential files are present, False otherwise
     """
-    essential_files = ['det_10g.onnx', 'w600k_r50.onnx']
+    # Accept EITHER detector variant (matches proof of concept approach)
+    detector_variants = ['det_10g.onnx', 'scrfd_10g_bnkps.onnx']
+    recognition_model = 'w600k_r50.onnx'
 
-    for filename in essential_files:
-        # Check in directory and subdirectories
-        found = False
+    # Check for recognition model (required)
+    recognition_found = False
+    for root, dirs, files in os.walk(buffalo_path):
+        if recognition_model in files:
+            recognition_found = True
+            break
+
+    if not recognition_found:
+        return False
+
+    # Check for at least ONE detector variant
+    detector_found = False
+    for detector in detector_variants:
         for root, dirs, files in os.walk(buffalo_path):
-            if filename in files:
-                found = True
+            if detector in files:
+                detector_found = True
                 break
+        if detector_found:
+            break
 
-        if not found:
-            return False
+    if not detector_found:
+        return False
 
     return True
 

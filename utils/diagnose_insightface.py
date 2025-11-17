@@ -76,8 +76,19 @@ def diagnose_models(path: str = None) -> dict:
 
     logger.info("")
 
+    # Detector variants (accept either one)
+    detector_variants = ['det_10g.onnx', 'scrfd_10g_bnkps.onnx']
+
+    def has_detector(path):
+        """Check if path contains at least one detector variant."""
+        for detector in detector_variants:
+            if os.path.exists(os.path.join(path, detector)):
+                return True, detector
+        return False, None
+
     # Step 2: Check each path
     found_path = None
+    detector_found = None
     for test_path in check_paths:
         logger.info(f"Checking: {test_path}")
 
@@ -85,22 +96,42 @@ def diagnose_models(path: str = None) -> dict:
             logger.warning(f"  ✗ Path does not exist")
             continue
 
-        # Check if it's buffalo_l directory or parent
-        det_file = os.path.join(test_path, 'det_10g.onnx')
-        if os.path.exists(det_file):
+        # Check if it's buffalo_l directory
+        has_det, det_file = has_detector(test_path)
+        if has_det:
             found_path = test_path
-            logger.info(f"  ✓ Found buffalo_l directory")
+            detector_found = det_file
+            logger.info(f"  ✓ Found buffalo_l directory (detector: {det_file})")
             break
         else:
-            # Check for models/buffalo_l subdirectory
+            # Check for models/buffalo_l/ subdirectory
             buffalo_sub = os.path.join(test_path, 'models', 'buffalo_l')
-            det_file_sub = os.path.join(buffalo_sub, 'det_10g.onnx')
-            if os.path.exists(det_file_sub):
+            has_det, det_file = has_detector(buffalo_sub)
+            if has_det:
                 found_path = buffalo_sub
-                logger.info(f"  ✓ Found buffalo_l at: {buffalo_sub}")
+                detector_found = det_file
+                logger.info(f"  ✓ Found buffalo_l at: {buffalo_sub} (detector: {det_file})")
                 break
             else:
-                logger.warning(f"  ✗ No buffalo_l models found")
+                # Check for buffalo_l/ subdirectory (non-standard)
+                buffalo_sub = os.path.join(test_path, 'buffalo_l')
+                has_det, det_file = has_detector(buffalo_sub)
+                if has_det:
+                    found_path = buffalo_sub
+                    detector_found = det_file
+                    logger.info(f"  ✓ Found buffalo_l at: {buffalo_sub} (detector: {det_file})")
+                    break
+                else:
+                    # Check for nested buffalo_l/buffalo_l/ (user's structure)
+                    buffalo_nested = os.path.join(test_path, 'buffalo_l', 'buffalo_l')
+                    has_det, det_file = has_detector(buffalo_nested)
+                    if has_det:
+                        found_path = buffalo_nested
+                        detector_found = det_file
+                        logger.info(f"  ✓ Found buffalo_l at: {buffalo_nested} (detector: {det_file})")
+                        break
+                    else:
+                        logger.warning(f"  ✗ No buffalo_l models found")
 
     if not found_path:
         results['issues'].append("No buffalo_l models found at any checked location")
@@ -115,81 +146,89 @@ def diagnose_models(path: str = None) -> dict:
     logger.info(f"\n✓ Using buffalo_l directory: {found_path}")
     results['info'].append(f"Buffalo_l directory: {found_path}")
 
-    # Step 3: Check required files
+    # Step 3: Check required files (accept EITHER detector variant)
     logger.info("\n" + "=" * 80)
     logger.info("STEP 1: Checking Model Files")
     logger.info("=" * 80)
 
-    required_files = {
-        'det_10g.onnx': {'min_size_mb': 100, 'max_size_mb': 200, 'description': 'Detection model (RetinaFace)'},
-        'w600k_r50.onnx': {'min_size_mb': 30, 'max_size_mb': 100, 'description': 'Recognition model (ArcFace)'}
-    }
-
     all_files_ok = True
-    for filename, specs in required_files.items():
-        filepath = os.path.join(found_path, filename)
 
-        if not os.path.exists(filepath):
-            logger.error(f"✗ MISSING: {filename} - {specs['description']}")
-            results['issues'].append(f"Missing required file: {filename}")
+    # Check detector (at least ONE variant required)
+    detector_ok = False
+    for detector in detector_variants:
+        filepath = os.path.join(found_path, detector)
+        if os.path.exists(filepath):
+            size_mb = os.path.getsize(filepath) / (1024 * 1024)
+
+            if size_mb < 100:
+                logger.error(f"✗ CORRUPTED: {detector} ({size_mb:.1f} MB) - Too small, expected 100-200 MB")
+                results['issues'].append(f"File too small (possibly corrupted): {detector}")
+            elif size_mb > 200:
+                logger.warning(f"⚠ UNUSUAL: {detector} ({size_mb:.1f} MB) - Larger than expected 200 MB")
+                results['warnings'].append(f"File larger than expected: {detector}")
+                logger.info(f"  ✓ {detector} ({size_mb:.1f} MB) - Detection model [FOUND]")
+                detector_ok = True
+            else:
+                logger.info(f"  ✓ {detector} ({size_mb:.1f} MB) - Detection model [FOUND]")
+                detector_ok = True
+
+            # Check permissions
+            if not os.access(filepath, os.R_OK):
+                logger.error(f"✗ PERMISSION: {detector} - Not readable")
+                results['issues'].append(f"Cannot read file (permission denied): {detector}")
+                detector_ok = False
+
+            break  # Found one detector, that's enough
+
+    if not detector_ok:
+        logger.error(f"✗ MISSING: Detection model - Need one of: {', '.join(detector_variants)}")
+        results['issues'].append(f"Missing detection model (need one of: {', '.join(detector_variants)})")
+        all_files_ok = False
+
+    # Check recognition model (always required)
+    recognition_file = 'w600k_r50.onnx'
+    filepath = os.path.join(found_path, recognition_file)
+
+    if not os.path.exists(filepath):
+        logger.error(f"✗ MISSING: {recognition_file} - Recognition model (ArcFace)")
+        results['issues'].append(f"Missing required file: {recognition_file}")
+        all_files_ok = False
+    else:
+        size_mb = os.path.getsize(filepath) / (1024 * 1024)
+
+        if size_mb < 30:
+            logger.error(f"✗ CORRUPTED: {recognition_file} ({size_mb:.1f} MB) - Too small, expected 30-100 MB")
+            results['issues'].append(f"File too small (possibly corrupted): {recognition_file}")
             all_files_ok = False
-            continue
-
-        # Check file size
-        size_bytes = os.path.getsize(filepath)
-        size_mb = size_bytes / (1024 * 1024)
-
-        if size_mb < specs['min_size_mb']:
-            logger.error(f"✗ CORRUPTED: {filename} ({size_mb:.1f} MB) - Too small, expected {specs['min_size_mb']}-{specs['max_size_mb']} MB")
-            results['issues'].append(f"File too small (possibly corrupted): {filename}")
-            all_files_ok = False
-        elif size_mb > specs['max_size_mb']:
-            logger.warning(f"⚠ UNUSUAL: {filename} ({size_mb:.1f} MB) - Larger than expected {specs['max_size_mb']} MB")
-            results['warnings'].append(f"File larger than expected: {filename}")
-            logger.info(f"  ✓ {filename} ({size_mb:.1f} MB) - {specs['description']}")
+        elif size_mb > 100:
+            logger.warning(f"⚠ UNUSUAL: {recognition_file} ({size_mb:.1f} MB) - Larger than expected 100 MB")
+            results['warnings'].append(f"File larger than expected: {recognition_file}")
+            logger.info(f"  ✓ {recognition_file} ({size_mb:.1f} MB) - Recognition model (ArcFace)")
         else:
-            logger.info(f"  ✓ {filename} ({size_mb:.1f} MB) - {specs['description']}")
+            logger.info(f"  ✓ {recognition_file} ({size_mb:.1f} MB) - Recognition model (ArcFace)")
 
-        # Check file permissions
+        # Check permissions
         if not os.access(filepath, os.R_OK):
-            logger.error(f"✗ PERMISSION: {filename} - Not readable")
-            results['issues'].append(f"Cannot read file (permission denied): {filename}")
+            logger.error(f"✗ PERMISSION: {recognition_file} - Not readable")
+            results['issues'].append(f"Cannot read file (permission denied): {recognition_file}")
             all_files_ok = False
 
     if not all_files_ok:
         logger.error("\n❌ CRITICAL: Required model files are missing or corrupted!")
         return results
 
-    # Step 4: Check directory structure for InsightFace
+    # Step 4: Check directory structure
     logger.info("\n" + "=" * 80)
     logger.info("STEP 2: Checking Directory Structure")
     logger.info("=" * 80)
 
-    parent_dir = os.path.dirname(found_path)
     dir_name = os.path.basename(found_path)
+    logger.info(f"✓ Directory: {found_path}")
+    logger.info(f"✓ Directory name: {dir_name}")
 
-    if dir_name != 'buffalo_l':
-        logger.warning(f"⚠ Directory name is '{dir_name}' instead of 'buffalo_l'")
-        results['warnings'].append(f"Non-standard directory name: {dir_name}")
-    else:
-        logger.info(f"✓ Directory name correct: {dir_name}")
-
-    # Check if parent has models/ subdirectory structure
-    grandparent = os.path.dirname(parent_dir)
-    parent_name = os.path.basename(parent_dir)
-
-    if parent_name == 'models':
-        logger.info(f"✓ Standard structure: .../models/buffalo_l/")
-        root_for_insightface = grandparent
-        results['info'].append(f"Standard structure detected")
-        results['info'].append(f"Root for InsightFace: {root_for_insightface}")
-    else:
-        logger.warning(f"⚠ Non-standard structure: .../{parent_name}/buffalo_l/")
-        logger.info(f"  Expected: .../models/buffalo_l/")
-        logger.info(f"  Will need to create models/ symlink")
-        root_for_insightface = parent_dir
-        results['warnings'].append("Non-standard directory structure")
-        results['info'].append(f"Root for InsightFace: {root_for_insightface}")
+    # Using proof of concept approach: pass buffalo_l directory DIRECTLY as root
+    logger.info(f"✓ Will use buffalo_l directory directly as root (proof of concept approach)")
+    results['info'].append(f"Using buffalo_l directory as root: {found_path}")
 
     # Step 5: Check InsightFace installation
     logger.info("\n" + "=" * 80)
@@ -222,89 +261,34 @@ def diagnose_models(path: str = None) -> dict:
         logger.info("\nInstall with: pip install onnxruntime")
         return results
 
-    # Step 6: Test actual model loading
+    # Step 6: Test actual model loading (proof of concept approach)
     logger.info("\n" + "=" * 80)
     logger.info("STEP 4: Testing Model Loading")
     logger.info("=" * 80)
 
     try:
         from insightface.app import FaceAnalysis
-        import inspect
 
-        # Check version compatibility
-        sig = inspect.signature(FaceAnalysis.__init__)
-        logger.info(f"✓ FaceAnalysis parameters: {list(sig.parameters.keys())}")
-
-        # Prepare initialization parameters
-        init_params = {'name': 'buffalo_l'}
-
-        # Determine root based on structure
-        if parent_name == 'models':
-            init_params['root'] = grandparent
-            logger.info(f"  Using root: {grandparent}")
-        else:
-            # Non-standard structure - need to check/create models/ link
-            models_dir = os.path.join(parent_dir, 'models')
-            models_buffalo = os.path.join(models_dir, 'buffalo_l')
-
-            if not os.path.exists(models_dir):
-                logger.info(f"  Creating models/ directory: {models_dir}")
-                try:
-                    os.makedirs(models_dir, exist_ok=True)
-                except Exception as e:
-                    logger.error(f"  ✗ Failed to create models/ directory: {e}")
-                    results['issues'].append(f"Cannot create models/ directory: {e}")
-                    return results
-
-            if not os.path.exists(models_buffalo):
-                logger.info(f"  Creating symlink: {models_buffalo} → {found_path}")
-                try:
-                    if os.name == 'nt':
-                        # Windows junction
-                        try:
-                            import _winapi
-                            _winapi.CreateJunction(found_path, models_buffalo)
-                            logger.info(f"  ✓ Created junction")
-                        except Exception:
-                            os.symlink(found_path, models_buffalo, target_is_directory=True)
-                            logger.info(f"  ✓ Created symlink")
-                    else:
-                        os.symlink(found_path, models_buffalo, target_is_directory=True)
-                        logger.info(f"  ✓ Created symlink")
-                except Exception as e:
-                    logger.error(f"  ✗ Failed to create symlink: {e}")
-                    results['issues'].append(f"Cannot create symlink: {e}")
-                    return results
-
-            init_params['root'] = parent_dir
-            logger.info(f"  Using root: {parent_dir}")
-
-        # Add providers if supported
-        if 'providers' in sig.parameters:
-            if 'CUDAExecutionProvider' in providers:
-                init_params['providers'] = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-            else:
-                init_params['providers'] = ['CPUExecutionProvider']
-            logger.info(f"  Using providers: {init_params['providers']}")
-
-        # Add allowed_modules if supported
-        if 'allowed_modules' in sig.parameters:
-            init_params['allowed_modules'] = ['detection', 'recognition']
-            logger.info(f"  Restricting to modules: detection, recognition")
-
+        # CRITICAL: Pass buffalo_l directory DIRECTLY as root (proof of concept approach)
+        # DO NOT pass providers to FaceAnalysis.__init__() for compatibility
         logger.info(f"\n  Initializing FaceAnalysis...")
-        logger.info(f"  Parameters: {init_params}")
+        logger.info(f"  Using buffalo_l directory as root: {found_path}")
+        logger.info(f"  NOT passing providers parameter (proof of concept approach)")
 
-        app = FaceAnalysis(**init_params)
+        app = FaceAnalysis(name='buffalo_l', root=found_path)
 
         logger.info(f"  ✓ FaceAnalysis created successfully")
 
-        # Prepare the model
-        logger.info(f"\n  Preparing model...")
-        ctx_id = 0 if 'CUDAExecutionProvider' in providers else -1
-        prepare_params = {'ctx_id': ctx_id, 'det_size': (640, 640)}
+        # Use providers ONLY for ctx_id selection (proof of concept approach)
+        use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+        ctx_id = 0 if use_cuda else -1
 
-        app.prepare(**prepare_params)
+        logger.info(f"\n  Preparing model...")
+        logger.info(f"  Hardware: {'GPU (CUDA)' if use_cuda else 'CPU'}")
+        logger.info(f"  Context ID: {ctx_id}")
+
+        # Prepare with simple parameters (matches proof of concept)
+        app.prepare(ctx_id=ctx_id, det_size=(640, 640))
 
         logger.info(f"  ✓ Model prepared successfully")
 

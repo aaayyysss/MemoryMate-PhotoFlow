@@ -19,14 +19,13 @@ def test_model_path(model_path: str) -> Tuple[bool, str]:
     """
     Test if InsightFace models can be loaded from the specified path.
 
-    This performs a complete initialization test including:
-    1. Directory structure validation
-    2. Model file verification
-    3. InsightFace initialization
-    4. Provider detection
+    Uses the proven proof of concept approach:
+    - Accepts both det_10g.onnx and scrfd_10g_bnkps.onnx
+    - Passes buffalo_l directory DIRECTLY as root
+    - Does NOT pass providers to FaceAnalysis.__init__()
 
     Args:
-        model_path: Path to test (either buffalo_l directory or parent)
+        model_path: Path to test (buffalo_l directory or parent)
 
     Returns:
         Tuple[bool, str]: (success, message)
@@ -41,99 +40,83 @@ def test_model_path(model_path: str) -> Tuple[bool, str]:
         if not os.path.exists(model_path):
             return False, f"Path does not exist: {model_path}"
 
-        # Step 2: Detect structure
-        test_file = os.path.join(model_path, 'det_10g.onnx')
-        is_buffalo_dir = os.path.exists(test_file)
+        # Step 2: Detect structure (accept both detector variants)
+        detector_variants = ['det_10g.onnx', 'scrfd_10g_bnkps.onnx']
 
-        if is_buffalo_dir:
-            logger.info("✓ Detected: buffalo_l directory")
+        def has_detector(path):
+            """Check if path contains at least one detector variant."""
+            for detector in detector_variants:
+                if os.path.exists(os.path.join(path, detector)):
+                    return True, detector
+            return False, None
+
+        # Try as buffalo_l directory first
+        has_det, detector_found = has_detector(model_path)
+        if has_det:
+            logger.info(f"✓ Detected: buffalo_l directory (detector: {detector_found})")
             buffalo_dir = model_path
-            parent_dir = os.path.dirname(model_path)
         else:
-            # Check if it's parent with models/buffalo_l/
+            # Try models/buffalo_l/ subdirectory
             buffalo_subdir = os.path.join(model_path, 'models', 'buffalo_l')
-            if os.path.exists(os.path.join(buffalo_subdir, 'det_10g.onnx')):
-                logger.info("✓ Detected: Parent directory with models/buffalo_l/ structure")
+            has_det, detector_found = has_detector(buffalo_subdir)
+            if has_det:
+                logger.info(f"✓ Detected: models/buffalo_l/ structure (detector: {detector_found})")
                 buffalo_dir = buffalo_subdir
-                parent_dir = model_path
             else:
-                return False, (
-                    f"No valid buffalo_l models found at {model_path}\n\n"
-                    f"Expected either:\n"
-                    f"  1. {model_path}/det_10g.onnx (buffalo_l directory)\n"
-                    f"  2. {model_path}/models/buffalo_l/det_10g.onnx (parent directory)"
-                )
+                # Try buffalo_l/ subdirectory (non-standard)
+                buffalo_subdir = os.path.join(model_path, 'buffalo_l')
+                has_det, detector_found = has_detector(buffalo_subdir)
+                if has_det:
+                    logger.info(f"✓ Detected: buffalo_l/ subdirectory (detector: {detector_found})")
+                    buffalo_dir = buffalo_subdir
+                else:
+                    # Try nested buffalo_l/buffalo_l/ (user's structure)
+                    buffalo_nested = os.path.join(model_path, 'buffalo_l', 'buffalo_l')
+                    has_det, detector_found = has_detector(buffalo_nested)
+                    if has_det:
+                        logger.info(f"✓ Detected: nested buffalo_l/buffalo_l/ (detector: {detector_found})")
+                        buffalo_dir = buffalo_nested
+                    else:
+                        return False, (
+                            f"No valid buffalo_l models found at {model_path}\n\n"
+                            f"Expected at least one detector variant:\n"
+                            f"  - det_10g.onnx (standard)\n"
+                            f"  - scrfd_10g_bnkps.onnx (alternative)\n\n"
+                            f"And recognition model:\n"
+                            f"  - w600k_r50.onnx"
+                        )
 
         # Step 3: Verify essential files
         logger.info("\nVerifying model files...")
-        essential_files = ['det_10g.onnx', 'w600k_r50.onnx']
-        missing_files = []
 
-        for filename in essential_files:
-            filepath = os.path.join(buffalo_dir, filename)
+        # Check for at least ONE detector variant
+        detector_found_file = None
+        for detector in detector_variants:
+            filepath = os.path.join(buffalo_dir, detector)
             if os.path.exists(filepath):
                 size_mb = os.path.getsize(filepath) / (1024 * 1024)
-                logger.info(f"  ✓ {filename} ({size_mb:.1f} MB)")
-            else:
-                missing_files.append(filename)
-                logger.error(f"  ✗ {filename} MISSING")
+                logger.info(f"  ✓ {detector} ({size_mb:.1f} MB) [DETECTOR]")
+                detector_found_file = detector
+                break
 
-        if missing_files:
-            return False, f"Missing essential files: {', '.join(missing_files)}"
+        if not detector_found_file:
+            return False, f"Missing detector model (need one of: {', '.join(detector_variants)})"
 
-        # Step 4: Check directory structure for InsightFace
-        logger.info("\nChecking directory structure...")
-        standard_path = os.path.join(parent_dir, 'models', 'buffalo_l')
-
-        if os.path.exists(standard_path):
-            if os.path.samefile(buffalo_dir, standard_path):
-                logger.info(f"  ✓ Standard structure: {parent_dir}/models/buffalo_l/")
-                root_for_insightface = parent_dir
-            else:
-                logger.warning(f"  ⚠ Multiple buffalo_l directories detected")
-                logger.warning(f"    Using: {buffalo_dir}")
-                root_for_insightface = parent_dir
+        # Check for recognition model
+        recognition_file = 'w600k_r50.onnx'
+        filepath = os.path.join(buffalo_dir, recognition_file)
+        if os.path.exists(filepath):
+            size_mb = os.path.getsize(filepath) / (1024 * 1024)
+            logger.info(f"  ✓ {recognition_file} ({size_mb:.1f} MB) [RECOGNITION]")
         else:
-            logger.info(f"  ⚠ Non-standard structure: {buffalo_dir}")
-            logger.info(f"    Expected: {standard_path}")
-            logger.info(f"    Will create models/ symlink for compatibility")
+            return False, f"Missing recognition model: {recognition_file}"
 
-            # Create models/ directory structure
-            models_dir = os.path.join(parent_dir, 'models')
-            models_buffalo_link = os.path.join(models_dir, 'buffalo_l')
-
-            try:
-                if not os.path.exists(models_dir):
-                    os.makedirs(models_dir, exist_ok=True)
-                    logger.info(f"  ✓ Created: {models_dir}")
-
-                if not os.path.exists(models_buffalo_link):
-                    # Try creating symlink/junction
-                    if os.name == 'nt':
-                        # Windows: try junction first
-                        try:
-                            import _winapi
-                            _winapi.CreateJunction(buffalo_dir, models_buffalo_link)
-                            logger.info(f"  ✓ Created junction: {models_buffalo_link}")
-                        except Exception:
-                            os.symlink(buffalo_dir, models_buffalo_link, target_is_directory=True)
-                            logger.info(f"  ✓ Created symlink: {models_buffalo_link}")
-                    else:
-                        os.symlink(buffalo_dir, models_buffalo_link, target_is_directory=True)
-                        logger.info(f"  ✓ Created symlink: {models_buffalo_link}")
-
-                root_for_insightface = parent_dir
-            except Exception as e:
-                logger.error(f"  ✗ Failed to create structure: {e}")
-                return False, f"Cannot create models/ structure: {e}"
-
-        # Step 5: Test InsightFace initialization
+        # Step 4: Test InsightFace initialization (proof of concept approach)
         logger.info("\nTesting InsightFace initialization...")
 
         try:
             from insightface.app import FaceAnalysis
             import onnxruntime as ort
-            import inspect
 
             # Detect providers
             available_providers = ort.get_available_providers()
@@ -144,34 +127,18 @@ def test_model_path(model_path: str) -> Tuple[bool, str]:
                 providers = ['CPUExecutionProvider']
                 logger.info("  ✓ Detected: CPU only")
 
-            # Check version compatibility
-            sig = inspect.signature(FaceAnalysis.__init__)
-            init_params = {'name': 'buffalo_l', 'root': root_for_insightface}
+            # CRITICAL: Pass buffalo_l directory DIRECTLY as root (proof of concept approach)
+            # DO NOT pass providers to FaceAnalysis.__init__() for compatibility
+            logger.info(f"\n  Initializing with buffalo_l directory: {buffalo_dir}")
+            app = FaceAnalysis(name='buffalo_l', root=buffalo_dir)
 
-            if 'providers' in sig.parameters:
-                init_params['providers'] = providers
-                logger.info("  ✓ InsightFace supports 'providers' parameter")
-            else:
-                logger.info("  ⚠ InsightFace version doesn't support 'providers' in __init__")
+            # Use providers ONLY for ctx_id selection (proof of concept approach)
+            use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+            ctx_id = 0 if use_cuda else -1
+            logger.info(f"  Using {'GPU' if use_cuda else 'CPU'} (ctx_id={ctx_id})")
 
-            if 'allowed_modules' in sig.parameters:
-                init_params['allowed_modules'] = ['detection', 'recognition']
-
-            # Initialize
-            logger.info(f"\n  Initializing with root: {root_for_insightface}")
-            app = FaceAnalysis(**init_params)
-
-            # Prepare
-            ctx_id = 0 if 'CUDAExecutionProvider' in providers else -1
-            prepare_params = {'ctx_id': ctx_id, 'det_size': (640, 640)}
-
-            if 'providers' not in sig.parameters:
-                # Try passing to prepare for older versions
-                prepare_sig = inspect.signature(app.prepare)
-                if 'providers' in prepare_sig.parameters:
-                    prepare_params['providers'] = providers
-
-            app.prepare(**prepare_params)
+            # Prepare with simple parameters (matches proof of concept)
+            app.prepare(ctx_id=ctx_id, det_size=(640, 640))
 
             logger.info("\n✅ SUCCESS! InsightFace initialized successfully")
             logger.info("=" * 70)
@@ -179,10 +146,11 @@ def test_model_path(model_path: str) -> Tuple[bool, str]:
             success_msg = (
                 f"✓ InsightFace models loaded successfully!\n\n"
                 f"Configuration:\n"
-                f"  • Model Path: {buffalo_dir}\n"
-                f"  • Root for InsightFace: {root_for_insightface}\n"
+                f"  • Buffalo_l Directory: {buffalo_dir}\n"
+                f"  • Detector: {detector_found_file}\n"
+                f"  • Recognition: {recognition_file}\n"
                 f"  • Providers: {', '.join(providers)}\n"
-                f"  • Model Files: {', '.join(essential_files)}\n\n"
+                f"  • Hardware: {'GPU (CUDA)' if use_cuda else 'CPU'}\n\n"
                 f"Face detection is ready to use!"
             )
 

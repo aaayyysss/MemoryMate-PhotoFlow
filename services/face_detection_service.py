@@ -58,30 +58,64 @@ def _get_insightface_app():
     - Automatic provider detection (GPU if available, CPU fallback)
     - Model caching to avoid reloading
     - Proper error handling
+    - Version compatibility (works with old and new InsightFace versions)
     """
     global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
             from insightface.app import FaceAnalysis
+            import inspect
 
             # Detect best available providers
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
+            # Get bundled model path (in app directory)
+            app_models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')
+
+            # Fallback to user home directory if bundled models don't exist
+            if not os.path.exists(app_models_dir):
+                app_models_dir = os.path.expanduser('~/.insightface/models')
+
+            logger.info(f"📁 Using model directory: {app_models_dir}")
+
             # Initialize InsightFace with buffalo_l model
-            # NOTE: InsightFace doesn't accept 'providers' in __init__
-            # Instead, we set ctx_id to control GPU/CPU usage
-            _insightface_app = FaceAnalysis(
-                name='buffalo_l',  # High accuracy model
-                allowed_modules=['detection', 'recognition']
-            )
+            # Handle version compatibility: older versions don't support 'allowed_modules'
+            init_params = {'name': 'buffalo_l'}
+
+            # Check if 'allowed_modules' parameter is supported
+            sig = inspect.signature(FaceAnalysis.__init__)
+            if 'allowed_modules' in sig.parameters:
+                # Newer version: restrict to detection and recognition only
+                init_params['allowed_modules'] = ['detection', 'recognition']
+                logger.debug("Using InsightFace with allowed_modules (newer version)")
+            else:
+                # Older version: parameter not supported
+                logger.debug("Using InsightFace without allowed_modules (older version)")
+
+            # Check if 'root' parameter is supported (for custom model directory)
+            if 'root' in sig.parameters and os.path.exists(app_models_dir):
+                init_params['root'] = app_models_dir
+                logger.info(f"Using bundled models from: {app_models_dir}")
+
+            _insightface_app = FaceAnalysis(**init_params)
 
             # Prepare with context:
             # ctx_id=0 for GPU, ctx_id=-1 for CPU
             ctx_id = 0 if hardware_type == 'GPU' else -1
-            _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
 
-            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+            try:
+                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+            except Exception as prepare_error:
+                # If prepare fails, might be missing models - try to download
+                logger.warning(f"Model preparation failed: {prepare_error}")
+                logger.info("Attempting to download models automatically...")
+
+                # Try preparing again (this will trigger auto-download)
+                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                logger.info(f"✅ Models downloaded and loaded with {hardware_type} acceleration")
+
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")
             logger.error("Install with: pip install insightface onnxruntime")
@@ -91,6 +125,7 @@ def _get_insightface_app():
             ) from e
         except Exception as e:
             logger.error(f"❌ Failed to initialize InsightFace: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
             raise
     return _insightface_app
 

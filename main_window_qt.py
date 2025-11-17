@@ -1301,6 +1301,124 @@ class PreferencesDialog(QDialog):
         face_layout = QVBoxLayout(face_group)
         face_layout.setSpacing(8)
 
+        # Custom model path configuration (for offline use)
+        model_path_row = QWidget()
+        model_path_layout = QHBoxLayout(model_path_row)
+        model_path_layout.setContentsMargins(0, 0, 0, 0)
+
+        model_path_label = QLabel("Custom Models Path:")
+        model_path_label.setToolTip(
+            "Path to buffalo_l model directory (offline use).\n"
+            "Leave empty to use default locations:\n"
+            "  1. ./models/buffalo_l/\n"
+            "  2. ~/.insightface/models/buffalo_l/\n\n"
+            "For offline use, point to a folder containing buffalo_l models."
+        )
+
+        self.txt_model_path = QLineEdit()
+        self.txt_model_path.setPlaceholderText("Leave empty to use default locations")
+        current_model_path = settings.get("insightface_model_path", "")
+        self.txt_model_path.setText(current_model_path)
+
+        btn_browse_models = QPushButton("Browse...")
+        btn_browse_models.setMaximumWidth(80)
+
+        def browse_models():
+            from PySide6.QtWidgets import QFileDialog
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "Select InsightFace Models Directory (buffalo_l)",
+                "",
+                QFileDialog.ShowDirsOnly
+            )
+            if path:
+                self.txt_model_path.setText(path)
+
+        btn_browse_models.clicked.connect(browse_models)
+
+        btn_test_models = QPushButton("Test")
+        btn_test_models.setMaximumWidth(60)
+
+        def test_model_path():
+            from pathlib import Path
+            path = self.txt_model_path.text().strip()
+
+            if not path:
+                QMessageBox.information(
+                    self,
+                    "Model Path Test",
+                    "No custom path specified.\n\n"
+                    "App will use default locations:\n"
+                    "  1. ./models/buffalo_l/\n"
+                    "  2. ~/.insightface/models/buffalo_l/"
+                )
+                return
+
+            # Verify path exists
+            if not Path(path).exists():
+                QMessageBox.critical(
+                    self,
+                    "Model Path Test - Not Found",
+                    f"✗ Path does not exist:\n{path}\n\n"
+                    "Please check the path and try again."
+                )
+                return
+
+            # Check if this is the buffalo_l directory or parent
+            from utils.insightface_check import _verify_model_files
+
+            # Try as buffalo_l directory
+            if _verify_model_files(path):
+                QMessageBox.information(
+                    self,
+                    "Model Path Test - Success",
+                    f"✓ Valid buffalo_l models found!\n\n"
+                    f"Path: {path}\n\n"
+                    "Models include:\n"
+                    "  • det_10g.onnx (detection)\n"
+                    "  • w600k_r50.onnx (recognition)\n\n"
+                    "💡 Remember to click OK to save, then restart the app."
+                )
+                return
+
+            # Try as parent directory containing models/buffalo_l/
+            buffalo_subpath = Path(path) / 'models' / 'buffalo_l'
+            if buffalo_subpath.exists() and _verify_model_files(str(buffalo_subpath)):
+                QMessageBox.information(
+                    self,
+                    "Model Path Test - Success",
+                    f"✓ Valid buffalo_l models found!\n\n"
+                    f"Path: {buffalo_subpath}\n\n"
+                    "Models include:\n"
+                    "  • det_10g.onnx (detection)\n"
+                    "  • w600k_r50.onnx (recognition)\n\n"
+                    "💡 This looks like a parent directory. Consider browsing to:\n"
+                    f"   {buffalo_subpath}\n"
+                    "   for a more direct path."
+                )
+                return
+
+            # No valid models found
+            QMessageBox.warning(
+                self,
+                "Model Path Test - No Models Found",
+                f"✗ No valid buffalo_l models found at:\n{path}\n\n"
+                "Expected files:\n"
+                "  • det_10g.onnx (detection model)\n"
+                "  • w600k_r50.onnx (recognition model)\n\n"
+                "Please ensure you've selected the correct directory containing\n"
+                "the buffalo_l model files."
+            )
+
+        btn_test_models.clicked.connect(test_model_path)
+
+        model_path_layout.addWidget(model_path_label)
+        model_path_layout.addWidget(self.txt_model_path, 1)
+        model_path_layout.addWidget(btn_browse_models)
+        model_path_layout.addWidget(btn_test_models)
+
+        face_layout.addWidget(model_path_row)
+
         # Model status display
         self.lbl_model_status = QLabel("Checking model status...")
         self.lbl_model_status.setWordWrap(True)
@@ -1436,7 +1554,8 @@ class PreferencesDialog(QDialog):
         # Help text
         face_help_label = QLabel(
             "💡 <b>Note:</b> Face detection requires InsightFace library and buffalo_l models.<br>"
-            "Models are ~200MB and will be downloaded to ./models/buffalo_l/"
+            "<b>Option 1 (Online):</b> Click 'Download Models' to download ~200MB to ./models/buffalo_l/<br>"
+            "<b>Option 2 (Offline):</b> Use 'Browse' to select a folder containing pre-downloaded models"
         )
         face_help_label.setWordWrap(True)
         face_help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
@@ -1499,8 +1618,16 @@ class PreferencesDialog(QDialog):
         old_ffprobe_path = self.settings.get("ffprobe_path", "")
         self.settings.set("ffprobe_path", ffprobe_path)
 
-        # If FFprobe path changed, delete flag file so check runs on next startup
+        # Save InsightFace model settings
+        model_path = self.txt_model_path.text().strip()
+        old_model_path = self.settings.get("insightface_model_path", "")
+        self.settings.set("insightface_model_path", model_path)
+
+        # Track if either FFprobe or model path changed
         ffprobe_path_changed = (ffprobe_path != old_ffprobe_path)
+        model_path_changed = (model_path != old_model_path)
+
+        # If FFprobe path changed, delete flag file so check runs on next startup
         if ffprobe_path_changed:
             from pathlib import Path
             flag_file = Path('.ffmpeg_check_done')
@@ -1520,6 +1647,41 @@ class PreferencesDialog(QDialog):
                 "FFmpeg/FFprobe configuration has been updated.\n\n"
                 "The application needs to restart for the changes to take effect.\n"
                 "The FFmpeg availability check will run on next startup.\n\n"
+                "Would you like to restart now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes  # Default button
+            )
+
+            if reply == QMessageBox.Yes:
+                # Accept the dialog first to save all settings
+                self.accept()
+
+                # Restart the application
+                print("🔄 Restarting application...")
+                QProcess.startDetached(sys.executable, sys.argv)
+                QGuiApplication.quit()
+                return  # Don't call self.accept() again
+
+        # If InsightFace model path changed, delete flag file so check runs on next startup
+        if model_path_changed:
+            from pathlib import Path
+            flag_file = Path('.insightface_check_done')
+            if flag_file.exists():
+                try:
+                    flag_file.unlink()
+                    print("🔄 InsightFace check flag cleared - will re-check on next startup")
+                except Exception as e:
+                    print(f"⚠️ Failed to clear InsightFace check flag: {e}")
+
+            print(f"🧑 InsightFace model path configured: {model_path or '(using default locations)'}")
+
+            # Offer to restart app immediately
+            reply = QMessageBox.question(
+                self,
+                "Restart Required - Face Detection Configuration",
+                "InsightFace model path has been updated.\n\n"
+                "The application needs to restart for the changes to take effect.\n"
+                "The face detection availability check will run on next startup.\n\n"
                 "Would you like to restart now?",
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.Yes  # Default button

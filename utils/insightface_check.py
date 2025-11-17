@@ -54,27 +54,49 @@ def _get_model_search_paths() -> list:
     Get list of paths to search for InsightFace models.
 
     Priority order:
-    1. App directory (./models/buffalo_l/)
-    2. PyInstaller bundle (sys._MEIPASS/insightface/)
-    3. User home (~/.insightface/)
+    1. Custom path from settings (for offline use)
+    2. App directory (./models/buffalo_l/)
+    3. PyInstaller bundle (sys._MEIPASS/insightface/)
+    4. User home (~/.insightface/)
     """
     import sys
 
     paths = []
 
-    # 1. App directory
+    # 1. Custom path from settings (offline use)
+    try:
+        from settings_manager_qt import SettingsManager
+        settings = SettingsManager()
+        custom_path = settings.get_setting('insightface_model_path', '')
+        if custom_path:
+            custom_path = Path(custom_path)
+            if custom_path.exists():
+                # Check if this is the buffalo_l directory itself
+                if (custom_path / 'det_10g.onnx').exists():
+                    # This is buffalo_l, use parent as root
+                    paths.append(str(custom_path.parent))
+                elif (custom_path / 'models' / 'buffalo_l').exists():
+                    # This is the parent directory
+                    paths.append(str(custom_path))
+                else:
+                    # Add it anyway, might have different structure
+                    paths.append(str(custom_path))
+    except Exception:
+        pass
+
+    # 2. App directory
     try:
         app_root = Path(__file__).parent.parent
         paths.append(str(app_root))
     except Exception:
         pass
 
-    # 2. PyInstaller bundle
+    # 3. PyInstaller bundle
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         bundle_dir = Path(sys._MEIPASS) / 'insightface'
         paths.append(str(bundle_dir))
 
-    # 3. User home
+    # 4. User home
     user_home = Path.home() / '.insightface'
     paths.append(str(user_home))
 

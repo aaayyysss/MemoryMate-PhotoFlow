@@ -57,7 +57,7 @@ class FaceClusterWorker(QRunnable):
         - Emits progress signals for UI updates
     """
 
-    def __init__(self, project_id: int, eps: float = 0.42, min_samples: int = 3):
+    def __init__(self, project_id: int, eps: float = 0.35, min_samples: int = 2):
         """
         Initialize face clustering worker.
 
@@ -66,11 +66,13 @@ class FaceClusterWorker(QRunnable):
             eps: DBSCAN epsilon parameter (max distance between faces in same cluster)
                  Lower = stricter grouping (more clusters, fewer false positives)
                  Higher = looser grouping (fewer clusters, more false positives)
-                 Range: 0.3-0.5, default: 0.42
+                 Range: 0.30-0.40, optimal: 0.35 for InsightFace
+                 Updated from 0.42 (was grouping different people together)
             min_samples: Minimum number of faces to form a cluster
                         Higher = larger clusters only (fewer clusters total)
-                        Lower = allows smaller clusters
-                        Range: 2-5, default: 3
+                        Lower = allows smaller clusters (people with 2+ photos)
+                        Range: 2-5, optimal: 2 (allows people with 2+ appearances)
+                        Updated from 3 (was missing people with only 2 photos)
         """
         super().__init__()
         self.project_id = project_id
@@ -227,7 +229,7 @@ class FaceClusterWorker(QRunnable):
 # Legacy functions (kept for backward compatibility with standalone script)
 # ============================================================================
 
-def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
+def cluster_faces_1st(project_id: int, eps: float = 0.35, min_samples: int = 2):
     """
     Performs unsupervised face clustering using embeddings already in the DB.
     Writes cluster info back into face_branch_reps, branches, and face_crops.
@@ -320,7 +322,7 @@ def cluster_faces_1st(project_id: int, eps: float = 0.42, min_samples: int = 3):
     conn.close()
     print(f"[FaceCluster] Done: {len(unique_labels)} clusters saved.")
 
-def cluster_faces(project_id: int, eps: float = 0.42, min_samples: int = 3):
+def cluster_faces(project_id: int, eps: float = 0.35, min_samples: int = 2):
     """
     Performs unsupervised face clustering using embeddings already in the DB.
     Writes cluster info back into face_branch_reps, branches, and face_crops.

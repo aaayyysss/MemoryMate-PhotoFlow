@@ -1838,7 +1838,7 @@ class SidebarQt(QWidget):
         if mode == "videos_size" and value:
             _clear_tag_if_needed()
             videos = video_service.get_videos_by_project(self.project_id)
-            filtered = video_service.filter_by_file_size(videos, value)
+            filtered = video_service.filter_by_file_size(videos, size_range=value)
             paths = _ensure_video_paths_only([v["path"] for v in filtered])
             mw.grid.model.clear()
             mw.grid.load_custom_paths(paths, content_type="videos")

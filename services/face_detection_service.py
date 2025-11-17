@@ -166,6 +166,18 @@ def _get_insightface_app():
                     "or download models using: python download_face_models.py"
                 )
 
+            # Save successful path to settings for future use
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                current_saved = settings.get_setting('insightface_model_path', '')
+                # Only save if not already set (preserves user's manual configuration)
+                if not current_saved:
+                    settings.set_setting('insightface_model_path', buffalo_dir)
+                    logger.info(f"💾 Saved InsightFace model path to settings: {buffalo_dir}")
+            except Exception as e:
+                logger.debug(f"Could not save model path to settings: {e}")
+
             # CRITICAL: Pass buffalo_l directory DIRECTLY as root
             # This matches the proof of concept approach from OldPy/photo_sorter.py
             # Do NOT pass parent directory, pass the buffalo_l directory itself!

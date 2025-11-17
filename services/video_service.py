@@ -739,7 +739,13 @@ class VideoService:
             if size_kb is None:
                 continue
 
-            size_mb = size_kb / 1024
+            # Convert to float if string (defensive programming)
+            try:
+                size_kb = float(size_kb) if isinstance(size_kb, str) else size_kb
+                size_mb = size_kb / 1024
+            except (ValueError, TypeError):
+                # Skip videos with invalid size data
+                continue
 
             if min_mb is not None and size_mb < min_mb:
                 continue

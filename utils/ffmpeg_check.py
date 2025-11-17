@@ -123,6 +123,18 @@ def check_ffmpeg_availability() -> Tuple[bool, bool, str]:
     if not ffprobe_custom_path:
         ffprobe_custom_path, ffmpeg_custom_path = _auto_detect_ffmpeg()
 
+        # Save auto-detected path to settings for future use
+        if ffprobe_custom_path:
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                # Only save if auto-detected (not already manually configured)
+                if not settings.get_setting('ffprobe_path', ''):
+                    settings.set_setting('ffprobe_path', ffprobe_custom_path)
+                    print(f"💾 Saved FFprobe path to settings: {ffprobe_custom_path}")
+            except Exception:
+                pass
+
     # Check ffprobe (custom path first, then system PATH)
     ffprobe_available = False
     if ffprobe_custom_path:

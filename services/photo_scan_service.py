@@ -272,6 +272,10 @@ class PhotoScanService:
                         logger.info("Scan cancelled by user")
                         break
 
+                    # DIAGNOSTIC: Log which file we're about to process
+                    print(f"[SCAN] Starting file {i}/{total_files}: {file_path.name}")
+                    logger.info(f"[Scan] File {i}/{total_files}: {file_path.name}")
+
                     # Process file
                     row = self._process_file(
                         file_path=file_path,
@@ -608,11 +612,14 @@ class PhotoScanService:
             return None
 
         path_str = str(file_path)
+        print(f"[SCAN] _process_file started for: {os.path.basename(path_str)}")
 
         # Step 1: Get file stats with timeout protection
         try:
+            print(f"[SCAN] Getting file stats...")
             future = executor.submit(os.stat, path_str)
             stat_result = future.result(timeout=self.stat_timeout)
+            print(f"[SCAN] File stats retrieved successfully")
         except FuturesTimeoutError:
             logger.warning(f"os.stat timeout for {path_str}")
             self._stats['photos_failed'] += 1
@@ -659,9 +666,14 @@ class PhotoScanService:
         if extract_exif_date:
             # Use fast basic metadata extraction (BUG FIX #8: Reverted from extract_metadata)
             try:
-                logger.debug(f"[Scan] Processing metadata for: {path_str}")
+                # DIAGNOSTIC: Always log which file is being processed (can help identify freeze cause)
+                logger.info(f"📷 Processing: {os.path.basename(path_str)} ({size_kb:.1f} KB)")
+                print(f"[SCAN] Processing: {os.path.basename(path_str)}")
+
                 future = executor.submit(self.metadata_service.extract_basic_metadata, str(file_path))
                 width, height, date_taken = future.result(timeout=metadata_timeout)
+
+                print(f"[SCAN] ✓ Metadata extracted: {os.path.basename(path_str)}")
                 logger.debug(f"[Scan] Metadata extracted successfully for: {path_str}")
             except FuturesTimeoutError:
                 logger.warning(f"Metadata extraction timeout for {path_str} (5s limit) - continuing without metadata")

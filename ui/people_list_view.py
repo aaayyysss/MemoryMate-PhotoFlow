@@ -146,7 +146,34 @@ class PeopleListView(QWidget):
         self.db = None
         self.project_id = None
         self._all_rows = []  # For search filtering
+        self._is_being_deleted = False  # Track deletion state
+        self.delegate = None  # Initialize early to avoid AttributeError
+        self.table = None  # Initialize early to avoid AttributeError
         self._init_ui()
+
+    def __del__(self):
+        """Cleanup when widget is being deleted"""
+        self._cleanup()
+
+    def _cleanup(self):
+        """Remove event filter and cleanup resources"""
+        if self._is_being_deleted:
+            return
+        self._is_being_deleted = True
+
+        try:
+            if hasattr(self, 'table') and self.table and hasattr(self.table, 'viewport'):
+                viewport = self.table.viewport()
+                if viewport:
+                    viewport.removeEventFilter(self)
+        except (RuntimeError, AttributeError):
+            # Widget already deleted or C++ object gone
+            pass
+
+    def closeEvent(self, event):
+        """Handle widget close event"""
+        self._cleanup()
+        super().closeEvent(event)
 
     def _init_ui(self):
         """Initialize the UI layout"""
@@ -275,16 +302,24 @@ class PeopleListView(QWidget):
 
     def eventFilter(self, obj, event):
         """Track mouse hover for custom delegate"""
-        if obj == self.table.viewport():
-            if event.type() == QEvent.Type.MouseMove:
-                pos = event.pos()
-                row = self.table.rowAt(pos.y())
-                if row != self.delegate.hover_row:
-                    self.delegate.hover_row = row
+        # Skip if widget is being deleted or not fully initialized
+        if self._is_being_deleted or not hasattr(self, 'delegate') or not hasattr(self, 'table'):
+            return False
+
+        try:
+            if obj == self.table.viewport():
+                if event.type() == QEvent.Type.MouseMove:
+                    pos = event.pos()
+                    row = self.table.rowAt(pos.y())
+                    if row != self.delegate.hover_row:
+                        self.delegate.hover_row = row
+                        self.table.viewport().update()
+                elif event.type() == QEvent.Type.Leave:
+                    self.delegate.hover_row = -1
                     self.table.viewport().update()
-            elif event.type() == QEvent.Type.Leave:
-                self.delegate.hover_row = -1
-                self.table.viewport().update()
+        except (RuntimeError, AttributeError):
+            # Widget being deleted or C++ object gone
+            return False
 
         return super().eventFilter(obj, event)
 

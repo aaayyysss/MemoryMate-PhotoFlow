@@ -12,14 +12,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
 from PySide6.QtGui import (
     QStandardItemModel, QStandardItem,
-    QFont, QColor, QIcon, QImage,
+    QFont, QColor, QIcon,
     QTransform, QPainter, QPixmap
 )
 
 from app_services import list_branches, export_branch
 from reference_db import ReferenceDB
 from services.tag_service import get_tag_service
-from ui.people_list_view import PeopleListView, make_circular_pixmap
 
 import threading
 import traceback
@@ -28,8 +27,6 @@ import re
 import os
 
 from datetime import datetime
-from PIL import Image, ImageOps
-from io import BytesIO
 
 
 # SettingsManager is used to persist sidebar display preference
@@ -1332,52 +1329,205 @@ class SidebarTabs(QWidget):
                     st.setText("No faces detected")
             return
 
-        # ========== NEW: Use dedicated PeopleListView widget ==========
-        people_view = PeopleListView(self)
-        people_view.set_database(self.db, self.project_id)
-        people_view.load_people(rows)
+        # ========== IMPROVEMENT: Add search/filter box ==========
+        search_container = QWidget()
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(0, 4, 0, 4)
 
-        # Wire up signals
-        def on_person_activated(branch_data):
-            """Handle person activation with status bar update"""
-            # Emit signal to main window grid
-            self.selectBranch.emit(branch_data)
+        search_label = QLabel("🔍 Search:")
+        search_box = QLineEdit()
+        search_box.setPlaceholderText("Filter people by name...")
+        search_box.setClearButtonEnabled(True)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(search_box, 1)
+        layout.addWidget(search_container)
 
-            # Update status bar like the list mode sidebar does
-            try:
-                mw = self.window()
-                if hasattr(mw, 'statusBar'):
-                    branch_key = branch_data.split(":", 1)[1] if ":" in branch_data else branch_data
-                    paths = self.db.get_paths_for_cluster(self.project_id, branch_key) if self.project_id else []
-                    # Get person name from current rows
-                    person_name = next(
-                        (row.get("display_name") or row.get("branch_key") for row in rows if row["branch_key"] == branch_key),
-                        branch_key
-                    )
-                    # Humanize if needed
-                    if person_name.startswith("face_"):
-                        try:
-                            cluster_num = int(person_name.split("_")[1])
-                            person_name = f"Unnamed #{cluster_num}"
-                        except:
-                            pass
-                    mw.statusBar().showMessage(f"👤 Showing {len(paths)} photo(s) of {person_name}")
-            except Exception as e:
-                print(f"[PeopleListView] Failed to update status bar: {e}")
+        # ========== IMPROVEMENT: 3-column table with thumbnails ==========
+        table = QTableWidget()
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels(["Face", "Person", "Photos"])
+        table.setRowCount(len(rows))
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.setSelectionMode(QTableWidget.SingleSelection)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.verticalHeader().setVisible(False)
+        table.horizontalHeader().setStretchLastSection(False)
 
-        people_view.personActivated.connect(on_person_activated)
-        people_view.personExportRequested.connect(lambda branch_key: self._do_export(branch_key) if hasattr(self, '_do_export') else None)
+        # Column sizing: Face (32px icon) | Person (stretch) | Photos (fit content)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        table.setColumnWidth(0, 40)  # Face thumbnail column
+        table.setIconSize(QSize(32, 32))  # 32x32 thumbnails
 
-        layout.addWidget(people_view, 1)
+        # ========== IMPROVEMENT: Enable table sorting ==========
+        table.setSortingEnabled(True)
+
+        # Store reference to all rows for search filtering
+        all_table_rows = []
+
+        for row_idx, row in enumerate(rows):
+            branch_key = row['branch_key']
+            raw_name = row.get("display_name") or row.get("branch_key")
+            count = row.get("member_count", 0)
+            rep_path = row.get("rep_path", "")
+            rep_thumb_png = row.get("rep_thumb_png")
+
+            # ========== IMPROVEMENT: Humanize unnamed clusters ==========
+            # Convert "face_003" to "Unnamed #3"
+            if raw_name.startswith("face_"):
+                try:
+                    cluster_num = int(raw_name.split("_")[1])
+                    display_name = f"Unnamed #{cluster_num}"
+                except (IndexError, ValueError):
+                    display_name = raw_name
+            else:
+                display_name = raw_name
+
+            # Column 0: Face thumbnail
+            item_thumb = QTableWidgetItem()
+            item_thumb.setData(Qt.UserRole, f"facecluster:{branch_key}")
+
+            # Load thumbnail icon from PNG bytes or file path
+            icon_loaded = False
+            if rep_thumb_png:
+                try:
+                    from PySide6.QtCore import QByteArray
+                    pixmap = QPixmap()
+                    if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                        icon_loaded = True
+                        item_thumb.setIcon(QIcon(pixmap))
+                except Exception as e:
+                    print(f"[People] Failed to load PNG thumbnail: {e}")
+
+            if not icon_loaded and rep_path and os.path.exists(rep_path):
+                try:
+                    pixmap = QPixmap(rep_path)
+                    if not pixmap.isNull():
+                        # Scale to 32x32 while preserving aspect ratio
+                        scaled = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        item_thumb.setIcon(QIcon(scaled))
+                except Exception as e:
+                    print(f"[People] Failed to load face thumbnail from {rep_path}: {e}")
+
+            table.setItem(row_idx, 0, item_thumb)
+
+            # Column 1: Person name
+            item_name = QTableWidgetItem(display_name)
+            item_name.setData(Qt.UserRole, f"facecluster:{branch_key}")
+            item_name.setData(Qt.UserRole + 1, branch_key)  # Store branch_key for rename
+            if rep_path:
+                item_name.setToolTip(f"{display_name}\n{rep_path}")
+            table.setItem(row_idx, 1, item_name)
+
+            # Column 2: Photo count (right-aligned, grey)
+            item_count = QTableWidgetItem()
+            item_count.setData(Qt.DisplayRole, count)  # Use int for proper sorting
+            item_count.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            item_count.setForeground(QColor("#888888"))
+            table.setItem(row_idx, 2, item_count)
+
+            # Store row data for search filtering
+            all_table_rows.append({
+                'row_idx': row_idx,
+                'name': display_name.lower(),
+                'branch_key': branch_key
+            })
+
+        # ========== IMPROVEMENT: Search filter implementation ==========
+        def on_search_changed(text):
+            """Filter table rows based on search text"""
+            search_term = text.lower().strip()
+
+            # Disable sorting temporarily for performance
+            was_sorting = table.isSortingEnabled()
+            if was_sorting:
+                table.setSortingEnabled(False)
+
+            for row_data in all_table_rows:
+                row_idx = row_data['row_idx']
+                if not search_term or search_term in row_data['name']:
+                    table.setRowHidden(row_idx, False)
+                else:
+                    table.setRowHidden(row_idx, True)
+
+            # Re-enable sorting
+            if was_sorting:
+                table.setSortingEnabled(True)
+
+        search_box.textChanged.connect(on_search_changed)
+
+        # ========== IMPROVEMENT: Context menu for rename ==========
+        table.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        def show_context_menu(pos):
+            """Show context menu with rename option"""
+            row = table.rowAt(pos.y())
+            if row < 0:
+                return
+
+            item = table.item(row, 1)  # Get name item
+            if not item:
+                return
+
+            branch_key = item.data(Qt.UserRole + 1)
+            current_name = item.text()
+
+            menu = QMenu(table)
+            act_rename = menu.addAction("✏️ Rename Person…")
+            menu.addSeparator()
+            act_export = menu.addAction("📁 Export Photos to Folder…")
+
+            chosen = menu.exec(table.viewport().mapToGlobal(pos))
+
+            if chosen is act_rename:
+                from PySide6.QtWidgets import QInputDialog
+                new_name, ok = QInputDialog.getText(
+                    table, "Rename Person",
+                    "Person name:",
+                    text=current_name if not current_name.startswith("Unnamed #") else ""
+                )
+                if ok and new_name.strip() and new_name.strip() != current_name:
+                    try:
+                        # Use the helper method from reference_db
+                        if hasattr(self.db, 'rename_branch_display_name'):
+                            self.db.rename_branch_display_name(self.project_id, branch_key, new_name.strip())
+                        else:
+                            # Fallback: direct SQL update
+                            with self.db._connect() as conn:
+                                conn.execute("""
+                                    UPDATE branches SET display_name = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.execute("""
+                                    UPDATE face_branch_reps SET label = ?
+                                    WHERE project_id = ? AND branch_key = ?
+                                """, (new_name.strip(), self.project_id, branch_key))
+                                conn.commit()
+
+                        # Update UI immediately
+                        item.setText(new_name.strip())
+                        QMessageBox.information(table, "Renamed", f"Person renamed to '{new_name.strip()}'")
+                    except Exception as e:
+                        QMessageBox.critical(table, "Rename Failed", str(e))
+
+            elif chosen is act_export:
+                # Trigger export (if _do_export exists in parent)
+                if hasattr(self, '_do_export'):
+                    self._do_export(branch_key)
+
+        table.customContextMenuRequested.connect(show_context_menu)
+
+        table.cellDoubleClicked.connect(
+            lambda row, col: self.selectBranch.emit(table.item(row, 1).data(Qt.UserRole))
+        )
+        layout.addWidget(self._wrap_in_scroll_area(table), 1)
 
         self._tab_populated.add("people")
         self._tab_loading.discard("people")
         st = self._tab_status_labels.get(idx)
         if st:
-            # Get counts from PeopleListView widget
-            total_faces = people_view.get_total_faces()
-            people_count = people_view.get_people_count()
-            st.setText(f"{people_count} people • {total_faces} faces • {time.time()-started:.2f}s")
+            st.setText(f"{len(rows)} cluster(s) • {time.time()-started:.2f}s")
 
 # =====================================================================
 # 2️ SidebarQt — main sidebar container with toggle
@@ -1460,7 +1610,6 @@ class SidebarQt(QWidget):
         self.tree.setSelectionBehavior(QTreeView.SelectRows)
         self.tree.setRootIsDecorated(True)
         self.tree.setUniformRowHeights(False)
-        self.tree.setIconSize(QSize(32, 32))  # Circular face thumbnails
         self.model = QStandardItemModel(self.tree)
         self.model.setHorizontalHeaderLabels(["Folder / Branch", "Photos"])
         self.tree.setModel(self.model)
@@ -1719,32 +1868,11 @@ class SidebarQt(QWidget):
             # Date branch
             if val_str.startswith("date:"):
                 mw.grid.set_context("date", val_str.replace("date:", ""))
-            elif val_str.startswith("facecluster:"):
-                branch_key = val_str.split(":", 1)[1]
-                mw.grid.set_context("people", branch_key)
-
-                # Update status bar like folders/dates do
-                try:
-                    paths = self.db.get_paths_for_cluster(self.project_id, branch_key) if self.project_id else []
-                    # Get person name from face_branch_reps
-                    clusters = self.db.get_face_clusters(self.project_id) if self.project_id else []
-                    person_name = next(
-                        (c["display_name"] for c in clusters if c["branch_key"] == branch_key),
-                        branch_key
-                    )
-                    mw.statusBar().showMessage(f"👤 Showing {len(paths)} photo(s) of {person_name}")
-                except Exception as e:
-                    print(f"[Sidebar] Failed to update status bar for people: {e}")
-
-            else:
-                mw.grid.set_context("branch", val_str)
-
-        elif mode == "date" and value:
-            _clear_tag_if_needed()
-            mw.grid.set_context("date", value)
-        elif mode == "tag" and value:
-            if hasattr(mw, "_apply_tag_filter"):
-                mw._apply_tag_filter(value)
+                return
+            
+            # People branch rewritten elsewhere, not here.
+            mw.grid.set_context("branch", val_str)
+            return
 
         # ==========================================================
         # People (face clusters) — FIX: route through branch pipeline
@@ -2520,53 +2648,24 @@ class SidebarQt(QWidget):
 
                         name_item.setEditable(False)
 
-                        # Load thumbnail icon with EXIF correction and circular masking
+                        # Load thumbnail icon
                         icon_loaded = False
-                        pixmap = None
-
-                        # Try loading from PNG bytes first
                         if rep_thumb_png:
                             try:
                                 from PySide6.QtCore import QByteArray
                                 pixmap = QPixmap()
                                 if pixmap.loadFromData(QByteArray(rep_thumb_png)):
+                                    scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    name_item.setIcon(QIcon(scaled))
                                     icon_loaded = True
                             except Exception as e:
                                 print("[Sidebar] PNG icon load failed:", e)
-                                pixmap = None
 
-                        # Fall back to file path with EXIF correction
                         if not icon_loaded and rep_path and os.path.exists(rep_path):
-                            try:
-                                # Load with PIL and apply EXIF orientation correction
-                                pil_image = Image.open(rep_path)
-                                pil_image = ImageOps.exif_transpose(pil_image)  # Auto-rotate based on EXIF
-
-                                # Convert PIL Image to QPixmap
-                                if pil_image.mode != 'RGB':
-                                    pil_image = pil_image.convert('RGB')
-
-                                # Convert to bytes and load into QImage
-                                buffer = BytesIO()
-                                pil_image.save(buffer, format='PNG')
-                                image = QImage.fromData(buffer.getvalue())
-
-                                if not image.isNull():
-                                    pixmap = QPixmap.fromImage(image)
-                                    icon_loaded = True
-                            except Exception as e:
-                                # Fallback to direct QPixmap loading without EXIF
-                                try:
-                                    pixmap = QPixmap(rep_path)
-                                    if not pixmap.isNull():
-                                        icon_loaded = True
-                                except:
-                                    pass
-
-                        # Apply circular masking and set icon (32x32 for tree view)
-                        if icon_loaded and pixmap and not pixmap.isNull():
-                            circular = make_circular_pixmap(pixmap, 32)
-                            name_item.setIcon(QIcon(circular))
+                            pixmap = QPixmap(rep_path)
+                            if not pixmap.isNull():
+                                scaled = pixmap.scaled(16, 16, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                name_item.setIcon(QIcon(scaled))
 
                         # Set mode + cluster ID (unified)
                         name_item.setData("people", Qt.UserRole)
@@ -3555,60 +3654,6 @@ class SidebarQt(QWidget):
 
         # Refresh sidebar to reflect new clusters
         self._build_tree_model()
-
-        # Sync-up People counts so UI shows post-merge member_count immediately.
-        try:
-            cluster_rows = {r["branch_key"]: r for r in self.db.get_face_clusters(self.project_id)}
-        except Exception as e:
-            print(f"[Sidebar] post-merge: failed to reload face clusters: {e}")
-            cluster_rows = {}
-
-        try:
-            # Find top-level People root and its count column item
-            for top_row in range(self.model.rowCount()):
-                top_idx = self.model.index(top_row, 0)
-                top_item = self.model.itemFromIndex(top_idx)
-                if not top_item:
-                    continue
-                if top_item.text() and top_item.text().startswith("👥"):
-                    # update children counts
-                    total_faces = 0
-                    for i in range(top_item.rowCount()):
-                        name_item = top_item.child(i, 0)
-                        count_item = top_item.child(i, 1)
-                        if not name_item or not count_item:
-                            continue
-                        # branch_key stored at Qt.UserRole + 1 (or fallback to UserRole)
-                        bk = name_item.data(Qt.UserRole + 1)
-                        if bk is None:
-                            bk = name_item.data(Qt.UserRole)
-                            if isinstance(bk, str) and bk.startswith("facecluster:"):
-                                bk = bk.split(":", 1)[1]
-                        if isinstance(bk, str) and bk.startswith("facecluster:"):
-                            bk = bk.split(":", 1)[1]
-                        row = cluster_rows.get(bk)
-                        cnt = (row.get("member_count") if row else None)
-                        if cnt is None:
-                            count_item.setText("")
-                        else:
-                            count_item.setText(str(cnt))
-                            try:
-                                total_faces += int(cnt)
-                            except Exception:
-                                pass
-                    # Update the People root count (second column in the top-level row)
-                    people_count_item = self.model.item(top_row, 1)
-                    if people_count_item:
-                        people_count_item.setText(str(total_faces) if total_faces else "")
-                    break
-        except Exception as e:
-            print(f"[Sidebar] post-merge: failed to update People UI counts: {e}")
-        # Also re-run async count population for other registered branch targets
-        if getattr(self, "_count_targets", None):
-            try:
-                self._async_populate_counts()
-            except Exception as e:
-                print(f"[Sidebar] _async_populate_counts failed after merge: {e}")
 
 
     def _rename_face_cluster(self, branch_key: str, current_label: str):

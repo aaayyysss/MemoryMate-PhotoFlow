@@ -479,75 +479,30 @@ class ReferenceDB:
 
     def merge_face_branches(self, project_id, src_branch, target_branch, keep_label=None):
         """
-        Merge face clusters: move all faces from src_branch to target_branch.
-        Updates face_crops table and recalculates counts in face_branch_reps.
-        Returns number of faces moved.
+        Move all images from src_branch to target_branch for a given project.
+        Returns number of rows moved.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-
-            # Update face_crops table - move all faces from source to target
             cur.execute(
-                "UPDATE face_crops SET branch_key=? WHERE project_id=? AND branch_key=?",
-                (target_branch, project_id, src_branch),
+                "UPDATE project_images SET branch_key=?, label=? WHERE project_id=? AND branch_key=?",
+                (target_branch, keep_label, project_id, src_branch),
             )
             moved = cur.rowcount
-
-            # Recalculate count for target branch in face_branch_reps
-            cur.execute("""
-                UPDATE face_branch_reps
-                SET count = (
-                    SELECT COUNT(*)
-                    FROM face_crops
-                    WHERE project_id=? AND branch_key=?
-                )
-                WHERE project_id=? AND branch_key=?
-            """, (project_id, target_branch, project_id, target_branch))
-
-            # Update label if provided
-            if keep_label:
-                cur.execute(
-                    "UPDATE face_branch_reps SET label=? WHERE project_id=? AND branch_key=?",
-                    (keep_label, project_id, target_branch)
-                )
-
-            # Delete source branch from face_branch_reps
-            cur.execute(
-                "DELETE FROM face_branch_reps WHERE project_id=? AND branch_key=?",
-                (project_id, src_branch)
-            )
-
-            # Also update legacy project_images table if it exists (for backward compatibility)
-            try:
-                cur.execute(
-                    "UPDATE project_images SET branch_key=?, label=? WHERE project_id=? AND branch_key=?",
-                    (target_branch, keep_label, project_id, src_branch),
-                )
-            except Exception:
-                pass  # Table might not exist in new installations
-
             conn.commit()
             cur.close()
-            print(f"✅ merge_face_branches: moved {moved} faces from {src_branch} → {target_branch} (project {project_id})")
+            print(f"✅ merge_face_branches: moved {moved} images from {src_branch} → {target_branch} (project {project_id})")
             return moved
 
 
     def delete_branch(self, project_id, branch_key):
         """
         Delete a branch and all its associated entries from the DB.
-        Handles both legacy branches and face clusters.
         """
         with self._connect() as conn:
             cur = conn.cursor()
-
-            # Delete from legacy tables
             cur.execute("DELETE FROM branches WHERE project_id=? AND branch_key=?", (project_id, branch_key))
             cur.execute("DELETE FROM project_images WHERE project_id=? AND branch_key=?", (project_id, branch_key))
-
-            # Delete from face detection tables
-            cur.execute("DELETE FROM face_crops WHERE project_id=? AND branch_key=?", (project_id, branch_key))
-            cur.execute("DELETE FROM face_branch_reps WHERE project_id=? AND branch_key=?", (project_id, branch_key))
-
             conn.commit()
             cur.close()
             print(f"🗑️ delete_branch: removed branch '{branch_key}' from project {project_id}")
@@ -4115,46 +4070,6 @@ class ReferenceDB:
         ]
 
 
-    def rename_face_cluster(self, project_id: int, branch_key: str, new_label: str):
-        """
-        Rename a face cluster consistently in all modern places:
-          * face_branch_reps.label
-          * branches.display_name
-        """
-        if not project_id or not branch_key or not new_label:
-            return
-
-        new_label = str(new_label).strip()
-        if not new_label:
-            return
-
-        with self._connect() as conn:
-            cur = conn.cursor()
-
-            # Modern face cluster label (preferred source of truth)
-            cur.execute(
-                """
-                UPDATE face_branch_reps
-                   SET label = ?
-                 WHERE project_id = ? AND branch_key = ?
-                """,
-                (new_label, project_id, branch_key),
-            )
-
-            # Legacy / generic branch label for the same key
-            cur.execute(
-                """
-                UPDATE branches
-                   SET display_name = ?
-                 WHERE project_id = ? AND branch_key = ?
-                """,
-                (new_label, project_id, branch_key),
-            )
-
-            conn.commit()
- 
-
-
     def get_paths_for_cluster(self, project_id: int, branch_key: str):
         """
         Return all image paths belonging to the given face cluster.
@@ -4261,7 +4176,7 @@ class ReferenceDB:
 
             # face_branch_reps (NOTE: table has NO 'id' column, uses composite PK)
             cur.execute(
-                f"SELECT project_id, branch_key, rep_path, rep_thumb_png, label, centroid, count "
+                f"SELECT project_id, branch_key, rep_path, rep_thumb_png, label, centroid "
                 f"FROM face_branch_reps WHERE project_id = ? AND branch_key IN ({placeholders})",
                 [project_id] + all_keys,
             )
@@ -4283,7 +4198,6 @@ class ReferenceDB:
                         "rep_thumb_png": rep_thumb_b64,  # base64 string, not bytes
                         "label": row["label"],
                         "centroid": centroid_b64,  # base64 string, not bytes
-                        "count": row["count"],  # CRITICAL: Include count for undo
                     }
                 )
 
@@ -4374,23 +4288,6 @@ class ReferenceDB:
                 [project_id] + src_list,
             )
 
-            # 5) CRITICAL: Update count for target cluster to reflect merged face_crops
-            # Without this, the sidebar shows stale counts even after refresh
-            cur.execute(
-                """
-                UPDATE face_branch_reps
-                SET count = (
-                    SELECT COUNT(*)
-                    FROM face_crops
-                    WHERE project_id = ? AND branch_key = ?
-                )
-                WHERE project_id = ? AND branch_key = ?
-                """,
-                [project_id, target_branch, project_id, target_branch],
-            )
-            updated_count = cur.rowcount
-            print(f"[merge_face_clusters] Updated count for target '{target_branch}' (rowcount={updated_count})")
-
             conn.commit()
 
             result = {
@@ -4479,8 +4376,8 @@ class ReferenceDB:
                     cur.execute(
                         """
                         INSERT INTO face_branch_reps
-                            (project_id, branch_key, rep_path, rep_thumb_png, label, centroid, count)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                            (project_id, branch_key, rep_path, rep_thumb_png, label, centroid)
+                        VALUES (?, ?, ?, ?, ?, ?)
                         """,
                         (
                             r["project_id"],
@@ -4489,7 +4386,6 @@ class ReferenceDB:
                             rep_thumb_bytes,  # bytes, decoded from base64
                             r["label"],
                             centroid_bytes,  # bytes, decoded from base64
-                            r.get("count", 0),  # CRITICAL: Restore count from snapshot
                         ),
                     )
 

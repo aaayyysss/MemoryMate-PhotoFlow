@@ -59,10 +59,12 @@ def _get_insightface_app():
     - Model caching to avoid reloading
     - Proper error handling
     - Version compatibility (works with old and new InsightFace versions)
+    - PyInstaller bundle support (looks for bundled models)
     """
     global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
+            import sys
             from insightface.app import FaceAnalysis
             import inspect
 
@@ -70,14 +72,34 @@ def _get_insightface_app():
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
-            # Get bundled model path (in app directory)
-            app_models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')
+            # Determine model root path - PRIORITY ORDER:
+            # 1. PyInstaller bundle (sys._MEIPASS)
+            # 2. App directory ./models/
+            # 3. User home directory ~/.insightface/models/
+            app_models_dir = None
 
-            # Fallback to user home directory if bundled models don't exist
-            if not os.path.exists(app_models_dir):
+            # Check for PyInstaller bundle first
+            if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+                # Running in PyInstaller bundle
+                bundle_dir = sys._MEIPASS
+                pyinstaller_models = os.path.join(bundle_dir, 'insightface')
+                if os.path.exists(pyinstaller_models):
+                    app_models_dir = pyinstaller_models
+                    logger.info(f"🎁 Running from PyInstaller bundle, using bundled models: {app_models_dir}")
+                else:
+                    logger.warning(f"⚠ PyInstaller bundle detected but models not found at {pyinstaller_models}")
+
+            # Check app directory if not in bundle
+            if not app_models_dir:
+                local_models = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')
+                if os.path.exists(local_models):
+                    app_models_dir = local_models
+                    logger.info(f"📁 Using local bundled models: {app_models_dir}")
+
+            # Fallback to user home directory
+            if not app_models_dir:
                 app_models_dir = os.path.expanduser('~/.insightface/models')
-
-            logger.info(f"📁 Using model directory: {app_models_dir}")
+                logger.info(f"🏠 Using user home models: {app_models_dir}")
 
             # Initialize InsightFace with buffalo_l model
             # Handle version compatibility: older versions don't support 'allowed_modules'
@@ -94,9 +116,12 @@ def _get_insightface_app():
                 logger.debug("Using InsightFace without allowed_modules (older version)")
 
             # Check if 'root' parameter is supported (for custom model directory)
-            if 'root' in sig.parameters and os.path.exists(app_models_dir):
-                init_params['root'] = app_models_dir
-                logger.info(f"Using bundled models from: {app_models_dir}")
+            if 'root' in sig.parameters:
+                if os.path.exists(app_models_dir):
+                    init_params['root'] = app_models_dir
+                    logger.info(f"✓ Using models from: {app_models_dir}")
+                else:
+                    logger.debug(f"Model directory doesn't exist yet: {app_models_dir}")
 
             _insightface_app = FaceAnalysis(**init_params)
 

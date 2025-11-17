@@ -16,6 +16,8 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+from PIL import Image, ImageOps
+
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
     QPushButton, QLineEdit, QScrollArea, QWidget, QFrame,
@@ -52,9 +54,9 @@ class FaceClusterCard(QFrame):
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(4)
 
-        # Face thumbnail
+        # Face thumbnail (increased from 128x128 to 192x192 for better visibility)
         self.thumbnail_label = QLabel()
-        self.thumbnail_label.setFixedSize(128, 128)
+        self.thumbnail_label.setFixedSize(192, 192)
         self.thumbnail_label.setScaledContents(True)
         self.thumbnail_label.setStyleSheet("QLabel { background-color: #f0f0f0; border: 1px solid #ccc; }")
 
@@ -91,19 +93,46 @@ class FaceClusterCard(QFrame):
         """)
 
     def load_thumbnail(self):
-        """Load face thumbnail from crop path or representative."""
+        """Load face thumbnail from crop path or representative with EXIF orientation correction."""
         rep_path = self.cluster_data.get("rep_path")
 
         if rep_path and os.path.exists(rep_path):
-            pixmap = QPixmap(rep_path)
-            if not pixmap.isNull():
-                pixmap = pixmap.scaled(
-                    128, 128,
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation
-                )
-                self.thumbnail_label.setPixmap(pixmap)
-                return
+            try:
+                # Load with PIL and apply EXIF orientation correction
+                pil_image = Image.open(rep_path)
+                pil_image = ImageOps.exif_transpose(pil_image)  # Auto-rotate based on EXIF
+
+                # Convert PIL Image to QPixmap
+                if pil_image.mode != 'RGB':
+                    pil_image = pil_image.convert('RGB')
+
+                # Convert to bytes and load into QImage
+                from io import BytesIO
+                buffer = BytesIO()
+                pil_image.save(buffer, format='PNG')
+                image = QImage.fromData(buffer.getvalue())
+
+                if not image.isNull():
+                    pixmap = QPixmap.fromImage(image)
+                    pixmap = pixmap.scaled(
+                        192, 192,  # Increased from 128 to 192
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    )
+                    self.thumbnail_label.setPixmap(pixmap)
+                    return
+            except Exception as e:
+                print(f"[FaceClusterCard] Failed to load thumbnail with EXIF correction: {e}")
+                # Fallback to direct QPixmap loading
+                pixmap = QPixmap(rep_path)
+                if not pixmap.isNull():
+                    pixmap = pixmap.scaled(
+                        192, 192,
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    )
+                    self.thumbnail_label.setPixmap(pixmap)
+                    return
 
         # Use PNG blob if available
         rep_thumb_png = self.cluster_data.get("rep_thumb_png")
@@ -112,7 +141,7 @@ class FaceClusterCard(QFrame):
             if not image.isNull():
                 pixmap = QPixmap.fromImage(image)
                 pixmap = pixmap.scaled(
-                    128, 128,
+                    192, 192,  # Increased from 128 to 192
                     Qt.KeepAspectRatio,
                     Qt.SmoothTransformation
                 )

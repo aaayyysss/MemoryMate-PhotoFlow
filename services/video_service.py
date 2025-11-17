@@ -750,6 +750,116 @@ class VideoService:
 
         return filtered
 
+    def filter_by_duration_key(self, videos: List[Dict[str, Any]], duration_key: str) -> List[Dict[str, Any]]:
+        """
+        Filter videos by duration range key.
+
+        Args:
+            videos: List of video metadata dicts
+            duration_key: Duration range key ('short', 'medium', 'long', 'very_long')
+
+        Returns:
+            Filtered list of videos
+        """
+        # Duration ranges in seconds
+        ranges = {
+            'short': (0, 60),           # 0-1 min
+            'medium': (60, 600),        # 1-10 min
+            'long': (600, 3600),        # 10-60 min
+            'very_long': (3600, None)   # >60 min
+        }
+
+        if duration_key not in ranges:
+            self.logger.warning(f"Unknown duration key: {duration_key}")
+            return videos
+
+        min_duration, max_duration = ranges[duration_key]
+
+        filtered = []
+        for video in videos:
+            duration = video.get('duration_sec')
+            if duration is None:
+                continue
+
+            if min_duration is not None and duration < min_duration:
+                continue
+            if max_duration is not None and duration >= max_duration:
+                continue
+
+            filtered.append(video)
+
+        return filtered
+
+    def filter_by_resolution_key(self, videos: List[Dict[str, Any]], resolution_key: str) -> List[Dict[str, Any]]:
+        """
+        Filter videos by resolution range key.
+
+        Args:
+            videos: List of video metadata dicts
+            resolution_key: Resolution key ('sd', 'hd', 'fhd', '4k', '8k')
+
+        Returns:
+            Filtered list of videos
+        """
+        # Resolution definitions (height in pixels)
+        resolutions = {
+            'sd': (0, 720),         # < 720p
+            'hd': (720, 1080),      # 720p
+            'fhd': (1080, 2160),    # 1080p (Full HD)
+            '4k': (2160, 4320),     # 4K (2160p)
+            '8k': (4320, None)      # 8K+ (4320p+)
+        }
+
+        if resolution_key not in resolutions:
+            self.logger.warning(f"Unknown resolution key: {resolution_key}")
+            return videos
+
+        min_height, max_height = resolutions[resolution_key]
+
+        filtered = []
+        for video in videos:
+            height = video.get('height')
+            if height is None:
+                continue
+
+            if min_height is not None and height < min_height:
+                continue
+            if max_height is not None and height >= max_height:
+                continue
+
+            filtered.append(video)
+
+        return filtered
+
+    def filter_by_codec_key(self, videos: List[Dict[str, Any]], codec_key: str) -> List[Dict[str, Any]]:
+        """
+        Filter videos by codec.
+
+        Args:
+            videos: List of video metadata dicts
+            codec_key: Codec name (e.g., 'h264', 'h265', 'vp9', 'av1')
+
+        Returns:
+            Filtered list of videos
+        """
+        # Normalize codec names
+        codec_key = codec_key.lower()
+
+        filtered = []
+        for video in videos:
+            video_codec = video.get('video_codec', '').lower()
+
+            # Handle codec variations
+            if codec_key in video_codec or video_codec in codec_key:
+                filtered.append(video)
+            # Special cases
+            elif codec_key == 'h264' and 'avc' in video_codec:
+                filtered.append(video)
+            elif codec_key == 'h265' and 'hevc' in video_codec:
+                filtered.append(video)
+
+        return filtered
+
     def filter_by_date(self, videos: List[Dict[str, Any]],
                       start_date: str = None,
                       end_date: str = None,

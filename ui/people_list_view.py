@@ -16,7 +16,7 @@ Signals:
 
 import os
 from io import BytesIO
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal, QSize, QEvent
 from PySide6.QtGui import (
     QPixmap, QIcon, QImage, QColor, QPainter, QPainterPath,
     QPen, QBrush
@@ -270,13 +270,13 @@ class PeopleListView(QWidget):
     def eventFilter(self, obj, event):
         """Track mouse hover for custom delegate"""
         if obj == self.table.viewport():
-            if event.type() == event.MouseMove:
+            if event.type() == QEvent.Type.MouseMove:
                 pos = event.pos()
                 row = self.table.rowAt(pos.y())
                 if row != self.delegate.hover_row:
                     self.delegate.hover_row = row
                     self.table.viewport().update()
-            elif event.type() == event.Leave:
+            elif event.type() == QEvent.Type.Leave:
                 self.delegate.hover_row = -1
                 self.table.viewport().update()
 

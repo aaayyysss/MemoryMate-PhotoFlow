@@ -1,5 +1,6 @@
 # MemoryMate-PhotoFlow Improvements Roadmap
 **Generated:** 2025-11-16
+**Last Updated:** 2025-11-17
 
 ## ✅ Recently Completed
 
@@ -11,11 +12,26 @@
 - ✅ Fixed AttributeError crash in cluster status polling
 - ✅ Removed corrupted status file blocking progress pollers
 
-### 2. UI/UX Improvements  
+### 2. UI/UX Improvements
 - ✅ Fixed people section count display (now shows total faces)
 - ✅ Unified thumbnail grid spacing (consistent 8px padding)
 - ✅ Enhanced face visibility with larger thumbnails
 - ✅ Added proper EXIF auto-rotation for all face displays
+- ✅ Removed deprecated code causing "Unable to display thumbnails" warnings
+- ✅ **NEW:** Created dedicated PeopleListView widget with Apple-style design (2025-11-17)
+  - Large circular face thumbnails (96x96 px)
+  - Hover effects and rounded selection styling
+  - Integrated search filtering
+  - Status bar updates on person activation
+  - Cleaner, more maintainable code architecture
+
+### 3. Deployment & Packaging (NEW - 2025-11-17)
+- ✅ Created PyInstaller spec file with ML model bundling
+- ✅ Added runtime hook for InsightFace model path resolution
+- ✅ Enhanced face detection service for PyInstaller bundle support
+- ✅ Created model download helper script
+- ✅ Comprehensive deployment documentation (DEPLOYMENT.md)
+- ✅ Support for deployment on PCs without Python
 
 ---
 
@@ -82,7 +98,7 @@
 - None currently identified
 
 ### Medium
-- [ ] Status directory needs to be in .gitignore
+- ✅ Status directory needs to be in .gitignore (FIXED - commit f64e98d)
 - [ ] Face crops directory can grow large (no cleanup)
 - [ ] No limit on max faces per cluster
 

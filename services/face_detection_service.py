@@ -50,225 +50,148 @@ def _detect_available_providers():
         return ['CPUExecutionProvider'], 'CPU'
 
 
+def _find_buffalo_directory():
+    """
+    Find buffalo_l directory, accepting both standard and non-standard structures.
+
+    Accepts:
+    - det_10g.onnx (standard detector)
+    - scrfd_10g_bnkps.onnx (alternative detector)
+
+    Returns:
+        Path to buffalo_l directory (not parent), or None if not found
+    """
+    import sys
+
+    # Detector variants (accept either one)
+    detector_variants = ['det_10g.onnx', 'scrfd_10g_bnkps.onnx']
+
+    def has_detector(path):
+        """Check if path contains at least one detector variant."""
+        for detector in detector_variants:
+            if os.path.exists(os.path.join(path, detector)):
+                return True
+        return False
+
+    # Priority 1: Custom path from settings (offline use)
+    try:
+        from settings_manager_qt import SettingsManager
+        settings = SettingsManager()
+        custom_path = settings.get_setting('insightface_model_path', '')
+        if custom_path and os.path.exists(custom_path):
+            # Check if this IS the buffalo_l directory
+            if has_detector(custom_path):
+                logger.info(f"🎯 Using custom model path (buffalo_l directory): {custom_path}")
+                return custom_path
+
+            # Check for models/buffalo_l/ subdirectory
+            buffalo_sub = os.path.join(custom_path, 'models', 'buffalo_l')
+            if os.path.exists(buffalo_sub) and has_detector(buffalo_sub):
+                logger.info(f"🎯 Using custom model path: {buffalo_sub}")
+                return buffalo_sub
+
+            # Check for buffalo_l/ subdirectory (non-standard)
+            buffalo_sub = os.path.join(custom_path, 'buffalo_l')
+            if os.path.exists(buffalo_sub) and has_detector(buffalo_sub):
+                logger.info(f"🎯 Using custom model path (nested): {buffalo_sub}")
+                return buffalo_sub
+
+            # Check for nested buffalo_l/buffalo_l/ (user's structure from log)
+            buffalo_nested = os.path.join(custom_path, 'buffalo_l', 'buffalo_l')
+            if os.path.exists(buffalo_nested) and has_detector(buffalo_nested):
+                logger.info(f"🎯 Using custom model path (double-nested): {buffalo_nested}")
+                return buffalo_nested
+
+            logger.warning(f"⚠️ Custom path configured but no valid buffalo_l found: {custom_path}")
+    except Exception as e:
+        logger.debug(f"Error checking custom path: {e}")
+
+    # Priority 2: PyInstaller bundle
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        bundle_dir = sys._MEIPASS
+        buffalo_path = os.path.join(bundle_dir, 'insightface', 'models', 'buffalo_l')
+        if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+            logger.info(f"🎁 Using bundled models: {buffalo_path}")
+            return buffalo_path
+
+    # Priority 3: App directory
+    try:
+        app_root = os.path.dirname(os.path.dirname(__file__))
+        buffalo_path = os.path.join(app_root, 'models', 'buffalo_l')
+        if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+            logger.info(f"📁 Using local bundled models: {buffalo_path}")
+            return buffalo_path
+    except Exception as e:
+        logger.debug(f"Error checking app directory: {e}")
+
+    # Priority 4: User home
+    user_home = os.path.expanduser('~/.insightface')
+    buffalo_path = os.path.join(user_home, 'models', 'buffalo_l')
+    if os.path.exists(buffalo_path) and has_detector(buffalo_path):
+        logger.info(f"🏠 Using user home models: {buffalo_path}")
+        return buffalo_path
+
+    # Not found - return None
+    logger.warning("⚠️ No buffalo_l models found in any location")
+    return None
+
+
 def _get_insightface_app():
     """
     Lazy load InsightFace application with automatic GPU/CPU detection.
 
     Uses the proven pattern from OldPy/photo_sorter.py proof of concept:
-    - Automatic provider detection (GPU if available, CPU fallback)
+    - Passes buffalo_l directory DIRECTLY as root (not parent)
+    - Does NOT pass providers to FaceAnalysis.__init__() for compatibility
+    - Only uses providers for ctx_id selection in prepare()
+    - Accepts both det_10g.onnx and scrfd_10g_bnkps.onnx detectors
     - Model caching to avoid reloading
-    - Proper error handling
-    - Version compatibility (works with old and new InsightFace versions)
-    - PyInstaller bundle support (looks for bundled models)
     """
     global _insightface_app, _providers_used
     if _insightface_app is None:
         try:
-            import sys
             from insightface.app import FaceAnalysis
-            import inspect
 
             # Detect best available providers
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
-            # Determine model root path - PRIORITY ORDER:
-            # 1. Custom path from settings (for offline use)
-            # 2. PyInstaller bundle (sys._MEIPASS/insightface/)
-            # 3. App directory (./ with models/buffalo_l/ inside)
-            # 4. User home directory (~/.insightface/)
-            app_models_dir = None
+            # Find buffalo_l directory
+            buffalo_dir = _find_buffalo_directory()
 
-            # Check for custom path from settings first (offline use)
+            if not buffalo_dir:
+                raise RuntimeError(
+                    "InsightFace models (buffalo_l) not found.\n\n"
+                    "Please configure the model path in Preferences → Face Detection\n"
+                    "or download models using: python download_face_models.py"
+                )
+
+            # CRITICAL: Pass buffalo_l directory DIRECTLY as root
+            # This matches the proof of concept approach from OldPy/photo_sorter.py
+            # Do NOT pass parent directory, pass the buffalo_l directory itself!
+            logger.info(f"✓ Initializing InsightFace with buffalo_l directory: {buffalo_dir}")
+
+            # Initialize FaceAnalysis - DO NOT pass providers parameter
+            # This matches proof of concept and ensures compatibility
+            _insightface_app = FaceAnalysis(name='buffalo_l', root=buffalo_dir)
+
+            # Use providers ONLY for ctx_id selection (proof of concept approach)
+            use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+            ctx_id = 0 if use_cuda else -1
+
+            logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
+
+            # Prepare model with simple parameters (matches proof of concept)
             try:
-                from settings_manager_qt import SettingsManager
-                settings = SettingsManager()
-                custom_model_path = settings.get_setting('insightface_model_path', '')
-                if custom_model_path:
-                    # Check if this is the buffalo_l directory itself
-                    if os.path.exists(custom_model_path):
-                        # Try as buffalo_l directory
-                        test_file = os.path.join(custom_model_path, 'det_10g.onnx')
-                        if os.path.exists(test_file):
-                            # This is the buffalo_l directory
-                            parent_dir = os.path.dirname(custom_model_path)
-
-                            # Check if parent has the standard models/ structure
-                            # Standard: parent/models/buffalo_l/
-                            standard_path = os.path.join(parent_dir, 'models', 'buffalo_l')
-                            if os.path.exists(standard_path) and os.path.samefile(custom_model_path, standard_path):
-                                # Standard structure: parent/models/buffalo_l/
-                                app_models_dir = parent_dir
-                                logger.info(f"🎯 Using custom model path (standard structure): {custom_model_path}")
-                                logger.info(f"   Model root set to: {app_models_dir}")
-                            else:
-                                # Non-standard structure: parent/buffalo_l/ (no models/ subdirectory)
-                                # InsightFace expects root/models/buffalo_l/, so we need to create models/ symlink
-                                logger.info(f"🎯 Detected non-standard structure: {custom_model_path}")
-
-                                # Create models/ directory if it doesn't exist
-                                models_dir = os.path.join(parent_dir, 'models')
-                                models_buffalo_link = os.path.join(models_dir, 'buffalo_l')
-
-                                if not os.path.exists(models_dir):
-                                    try:
-                                        os.makedirs(models_dir, exist_ok=True)
-                                        logger.info(f"   Created models/ directory: {models_dir}")
-                                    except Exception as e:
-                                        logger.error(f"   Failed to create models/ directory: {e}")
-                                        raise
-
-                                # Create symlink or copy structure
-                                if not os.path.exists(models_buffalo_link):
-                                    try:
-                                        # Try creating symlink first (Windows requires admin or dev mode)
-                                        if os.name == 'nt':
-                                            # Windows: try symlink, fallback to directory junction
-                                            try:
-                                                import _winapi
-                                                _winapi.CreateJunction(custom_model_path, models_buffalo_link)
-                                                logger.info(f"   Created junction: {models_buffalo_link} → {custom_model_path}")
-                                            except Exception:
-                                                # Fallback: create symlink (requires admin/dev mode)
-                                                os.symlink(custom_model_path, models_buffalo_link, target_is_directory=True)
-                                                logger.info(f"   Created symlink: {models_buffalo_link} → {custom_model_path}")
-                                        else:
-                                            # Linux/Mac: standard symlink
-                                            os.symlink(custom_model_path, models_buffalo_link, target_is_directory=True)
-                                            logger.info(f"   Created symlink: {models_buffalo_link} → {custom_model_path}")
-                                    except Exception as e:
-                                        logger.warning(f"   Could not create symlink: {e}")
-                                        logger.warning(f"   Attempting fallback: direct path usage")
-                                        # If symlink fails, we'll try a different approach below
-                                        models_buffalo_link = None
-
-                                if models_buffalo_link and os.path.exists(models_buffalo_link):
-                                    # Symlink successful, use parent as root
-                                    app_models_dir = parent_dir
-                                    logger.info(f"   Model root set to: {app_models_dir}")
-                                    logger.info(f"   InsightFace will use: {models_buffalo_link}")
-                                else:
-                                    # Symlink failed, use custom_model_path directly with special handling
-                                    logger.warning(f"⚠️ Using non-standard path directly (symlink unavailable)")
-                                    logger.warning(f"   This may cause issues. Recommended: reorganize to standard structure")
-                                    logger.warning(f"   Expected structure: {parent_dir}/models/buffalo_l/")
-                                    # Will fall through to other methods
-                                    app_models_dir = None
-                        else:
-                            # Try as parent directory with models/buffalo_l/
-                            buffalo_path = os.path.join(custom_model_path, 'models', 'buffalo_l')
-                            if os.path.exists(buffalo_path):
-                                app_models_dir = custom_model_path
-                                logger.info(f"🎯 Using custom model path: {buffalo_path}")
-                                logger.info(f"   Model root set to: {app_models_dir}")
-                            else:
-                                logger.warning(f"⚠️ Custom model path configured but buffalo_l not found at {custom_model_path}")
-                                logger.warning(f"   Expected: {custom_model_path}/det_10g.onnx or {buffalo_path}/det_10g.onnx")
-            except Exception as e:
-                logger.error(f"Error checking custom model path from settings: {e}")
-                import traceback
-                logger.debug(traceback.format_exc())
-
-            # Check for PyInstaller bundle if no custom path
-            if not app_models_dir and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-                # Running in PyInstaller bundle
-                bundle_dir = sys._MEIPASS
-                pyinstaller_models = os.path.join(bundle_dir, 'insightface')
-                # Verify the complete model path exists
-                buffalo_path = os.path.join(pyinstaller_models, 'models', 'buffalo_l')
-                if os.path.exists(buffalo_path):
-                    app_models_dir = pyinstaller_models
-                    logger.info(f"🎁 Running from PyInstaller bundle, using bundled models: {app_models_dir}")
-                else:
-                    logger.warning(f"⚠ PyInstaller bundle detected but buffalo_l not found at {buffalo_path}")
-
-            # Check app directory if not in bundle
-            # InsightFace expects: root/models/buffalo_l/
-            # So if we have ./models/buffalo_l/, root should be ./
-            if not app_models_dir:
-                app_root = os.path.dirname(os.path.dirname(__file__))
-                buffalo_path = os.path.join(app_root, 'models', 'buffalo_l')
-                if os.path.exists(buffalo_path):
-                    app_models_dir = app_root  # Point to app root, NOT models dir
-                    logger.info(f"📁 Using local bundled models: {buffalo_path}")
-                    logger.info(f"   Model root set to: {app_models_dir}")
-
-            # Fallback to user home directory
-            # InsightFace default: ~/.insightface/models/buffalo_l/
-            if not app_models_dir:
-                user_home = os.path.expanduser('~/.insightface')
-                buffalo_path = os.path.join(user_home, 'models', 'buffalo_l')
-                if os.path.exists(buffalo_path):
-                    app_models_dir = user_home
-                    logger.info(f"🏠 Using user home models: {buffalo_path}")
-                else:
-                    # Set anyway for auto-download
-                    app_models_dir = user_home
-                    logger.info(f"🏠 Will use user home for models (will download if needed): {user_home}")
-
-            # Initialize InsightFace with buffalo_l model
-            # Handle version compatibility: check which parameters are supported
-            init_params = {'name': 'buffalo_l'}
-            sig = inspect.signature(FaceAnalysis.__init__)
-
-            # Check if 'providers' parameter is supported (newer versions)
-            # ONNX Runtime 1.9+ requires explicit providers, but older InsightFace versions
-            # don't support passing providers during __init__
-            providers_supported = 'providers' in sig.parameters
-            if providers_supported:
-                # Newer version: pass providers during initialization
-                init_params['providers'] = providers
-                logger.info(f"✓ Using execution providers (via __init__): {providers}")
-            else:
-                # Older version: will pass providers during prepare() instead
-                logger.info(f"✓ Using execution providers (via prepare()): {providers}")
-                logger.debug("InsightFace version doesn't support 'providers' in __init__, will use in prepare()")
-
-            # Check if 'allowed_modules' parameter is supported
-            if 'allowed_modules' in sig.parameters:
-                # Newer version: restrict to detection and recognition only
-                init_params['allowed_modules'] = ['detection', 'recognition']
-                logger.debug("Using InsightFace with allowed_modules (newer version)")
-            else:
-                # Older version: parameter not supported
-                logger.debug("Using InsightFace without allowed_modules (older version)")
-
-            # Check if 'root' parameter is supported (for custom model directory)
-            if 'root' in sig.parameters:
-                init_params['root'] = app_models_dir
-                logger.info(f"✓ Setting model root to: {app_models_dir}")
-                logger.info(f"   InsightFace will look for: {app_models_dir}/models/buffalo_l/")
-
-            _insightface_app = FaceAnalysis(**init_params)
-
-            # Prepare with context:
-            # ctx_id=0 for GPU, ctx_id=-1 for CPU
-            ctx_id = 0 if hardware_type == 'GPU' else -1
-
-            # For older versions that don't support providers in __init__,
-            # check if prepare() supports providers parameter
-            prepare_params = {'ctx_id': ctx_id, 'det_size': (640, 640)}
-            if not providers_supported:
-                # Try to pass providers to prepare() for older versions
-                try:
-                    prepare_sig = inspect.signature(_insightface_app.prepare)
-                    if 'providers' in prepare_sig.parameters:
-                        prepare_params['providers'] = providers
-                        logger.debug("Passing providers to prepare() for older InsightFace version")
-                except Exception:
-                    pass
-
-            try:
-                _insightface_app.prepare(**prepare_params)
+                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
                 logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
             except Exception as prepare_error:
-                # If prepare fails, might be missing models - try to download
-                logger.warning(f"Model preparation failed: {prepare_error}")
-                logger.info("Attempting to download models automatically...")
-
-                # Try preparing again (this will trigger auto-download)
-                _insightface_app.prepare(**prepare_params)
-                logger.info(f"✅ Models downloaded and loaded with {hardware_type} acceleration")
+                logger.error(f"Model preparation failed: {prepare_error}")
+                logger.error("This usually means:")
+                logger.error("  1. Model files are corrupted or incomplete")
+                logger.error("  2. InsightFace version incompatible with models")
+                logger.error("  3. Wrong directory structure")
+                raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
 
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")

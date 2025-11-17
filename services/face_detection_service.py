@@ -119,6 +119,11 @@ def _get_insightface_app():
             # Handle version compatibility: older versions don't support 'allowed_modules'
             init_params = {'name': 'buffalo_l'}
 
+            # CRITICAL: Pass providers during initialization (required by ONNX Runtime 1.9+)
+            # The providers are needed when FaceAnalysis loads the models, not just during prepare()
+            init_params['providers'] = providers
+            logger.info(f"✓ Using execution providers: {providers}")
+
             # Check if 'allowed_modules' parameter is supported
             sig = inspect.signature(FaceAnalysis.__init__)
             if 'allowed_modules' in sig.parameters:

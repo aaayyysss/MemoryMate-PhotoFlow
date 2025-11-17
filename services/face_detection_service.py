@@ -116,16 +116,24 @@ def _get_insightface_app():
                     logger.info(f"🏠 Will use user home for models (will download if needed): {user_home}")
 
             # Initialize InsightFace with buffalo_l model
-            # Handle version compatibility: older versions don't support 'allowed_modules'
+            # Handle version compatibility: check which parameters are supported
             init_params = {'name': 'buffalo_l'}
+            sig = inspect.signature(FaceAnalysis.__init__)
 
-            # CRITICAL: Pass providers during initialization (required by ONNX Runtime 1.9+)
-            # The providers are needed when FaceAnalysis loads the models, not just during prepare()
-            init_params['providers'] = providers
-            logger.info(f"✓ Using execution providers: {providers}")
+            # Check if 'providers' parameter is supported (newer versions)
+            # ONNX Runtime 1.9+ requires explicit providers, but older InsightFace versions
+            # don't support passing providers during __init__
+            providers_supported = 'providers' in sig.parameters
+            if providers_supported:
+                # Newer version: pass providers during initialization
+                init_params['providers'] = providers
+                logger.info(f"✓ Using execution providers (via __init__): {providers}")
+            else:
+                # Older version: will pass providers during prepare() instead
+                logger.info(f"✓ Using execution providers (via prepare()): {providers}")
+                logger.debug("InsightFace version doesn't support 'providers' in __init__, will use in prepare()")
 
             # Check if 'allowed_modules' parameter is supported
-            sig = inspect.signature(FaceAnalysis.__init__)
             if 'allowed_modules' in sig.parameters:
                 # Newer version: restrict to detection and recognition only
                 init_params['allowed_modules'] = ['detection', 'recognition']
@@ -146,8 +154,21 @@ def _get_insightface_app():
             # ctx_id=0 for GPU, ctx_id=-1 for CPU
             ctx_id = 0 if hardware_type == 'GPU' else -1
 
+            # For older versions that don't support providers in __init__,
+            # check if prepare() supports providers parameter
+            prepare_params = {'ctx_id': ctx_id, 'det_size': (640, 640)}
+            if not providers_supported:
+                # Try to pass providers to prepare() for older versions
+                try:
+                    prepare_sig = inspect.signature(_insightface_app.prepare)
+                    if 'providers' in prepare_sig.parameters:
+                        prepare_params['providers'] = providers
+                        logger.debug("Passing providers to prepare() for older InsightFace version")
+                except Exception:
+                    pass
+
             try:
-                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                _insightface_app.prepare(**prepare_params)
                 logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
             except Exception as prepare_error:
                 # If prepare fails, might be missing models - try to download
@@ -155,7 +176,7 @@ def _get_insightface_app():
                 logger.info("Attempting to download models automatically...")
 
                 # Try preparing again (this will trigger auto-download)
-                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                _insightface_app.prepare(**prepare_params)
                 logger.info(f"✅ Models downloaded and loaded with {hardware_type} acceleration")
 
         except ImportError as e:

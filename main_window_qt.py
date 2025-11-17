@@ -1296,6 +1296,157 @@ class PreferencesDialog(QDialog):
 
         layout.addWidget(video_group)
 
+        # --- Face Detection Settings (InsightFace Models) ---
+        face_group = QGroupBox("🧑 Face Detection Models")
+        face_layout = QVBoxLayout(face_group)
+        face_layout.setSpacing(8)
+
+        # Model status display
+        self.lbl_model_status = QLabel("Checking model status...")
+        self.lbl_model_status.setWordWrap(True)
+        self.lbl_model_status.setStyleSheet("QLabel { padding: 6px; background-color: #f0f0f0; border-radius: 4px; }")
+        face_layout.addWidget(self.lbl_model_status)
+
+        # Button row for model management
+        model_btn_row = QWidget()
+        model_btn_layout = QHBoxLayout(model_btn_row)
+        model_btn_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.btn_download_models = QPushButton("📥 Download Models")
+        self.btn_download_models.setToolTip("Download buffalo_l face detection models (~200MB)")
+        self.btn_download_models.setMaximumWidth(150)
+
+        self.btn_check_models = QPushButton("🔍 Check Status")
+        self.btn_check_models.setToolTip("Check if models are properly installed")
+        self.btn_check_models.setMaximumWidth(120)
+
+        def check_model_status():
+            """Check and display current model status."""
+            from utils.insightface_check import get_model_download_status
+            status = get_model_download_status()
+
+            if not status['library_installed']:
+                self.lbl_model_status.setText(
+                    "❌ InsightFace library not installed\n"
+                    "Install with: pip install insightface onnxruntime"
+                )
+                self.lbl_model_status.setStyleSheet("QLabel { padding: 6px; background-color: #ffe0e0; border-radius: 4px; color: #d00; }")
+                self.btn_download_models.setEnabled(False)
+            elif status['models_available']:
+                self.lbl_model_status.setText(
+                    f"✅ Models installed and ready\n"
+                    f"Location: {status['model_path']}"
+                )
+                self.lbl_model_status.setStyleSheet("QLabel { padding: 6px; background-color: #e0ffe0; border-radius: 4px; color: #060; }")
+                self.btn_download_models.setEnabled(False)
+            else:
+                self.lbl_model_status.setText(
+                    "⚠️ Models not found\n"
+                    "Click 'Download Models' to install buffalo_l face detection models"
+                )
+                self.lbl_model_status.setStyleSheet("QLabel { padding: 6px; background-color: #fff4e0; border-radius: 4px; color: #840; }")
+                self.btn_download_models.setEnabled(True)
+
+        def download_models():
+            """Download InsightFace models with progress dialog."""
+            from PySide6.QtWidgets import QProgressDialog
+            from PySide6.QtCore import QThread, Signal
+
+            class DownloadThread(QThread):
+                progress = Signal(str)
+                finished_signal = Signal(bool, str)
+
+                def run(self):
+                    try:
+                        self.progress.emit("Initializing download...")
+                        import sys
+                        import subprocess
+                        from pathlib import Path
+
+                        # Run download_face_models.py script
+                        script_path = Path(__file__).parent / "download_face_models.py"
+                        if not script_path.exists():
+                            self.finished_signal.emit(False, "download_face_models.py not found")
+                            return
+
+                        self.progress.emit("Downloading buffalo_l models (~200MB)...")
+                        result = subprocess.run(
+                            [sys.executable, str(script_path)],
+                            capture_output=True,
+                            text=True,
+                            timeout=600  # 10 minute timeout
+                        )
+
+                        if result.returncode == 0:
+                            self.finished_signal.emit(True, "Models downloaded successfully!")
+                        else:
+                            error_msg = result.stderr or result.stdout or "Unknown error"
+                            self.finished_signal.emit(False, f"Download failed:\n{error_msg}")
+
+                    except subprocess.TimeoutExpired:
+                        self.finished_signal.emit(False, "Download timed out (>10 minutes)")
+                    except Exception as e:
+                        self.finished_signal.emit(False, f"Error: {str(e)}")
+
+            progress_dlg = QProgressDialog("Downloading InsightFace models...", "Cancel", 0, 0, self)
+            progress_dlg.setWindowTitle("Model Download")
+            progress_dlg.setWindowModality(Qt.WindowModal)
+            progress_dlg.setCancelButton(None)  # Disable cancel during download
+            progress_dlg.setMinimumDuration(0)
+
+            download_thread = DownloadThread()
+
+            def on_progress(msg):
+                progress_dlg.setLabelText(msg)
+
+            def on_finished(success, message):
+                progress_dlg.close()
+                if success:
+                    QMessageBox.information(
+                        self,
+                        "Download Complete",
+                        f"✅ {message}\n\n"
+                        "Face detection models are now installed.\n"
+                        "Restart the application to use face detection."
+                    )
+                    check_model_status()  # Update status display
+                else:
+                    QMessageBox.critical(
+                        self,
+                        "Download Failed",
+                        f"❌ {message}\n\n"
+                        "You can try manually running:\n"
+                        "python download_face_models.py"
+                    )
+
+            download_thread.progress.connect(on_progress)
+            download_thread.finished_signal.connect(on_finished)
+            download_thread.start()
+            progress_dlg.exec()
+
+        self.btn_download_models.clicked.connect(download_models)
+        self.btn_check_models.clicked.connect(check_model_status)
+
+        model_btn_layout.addWidget(self.btn_download_models)
+        model_btn_layout.addWidget(self.btn_check_models)
+        model_btn_layout.addStretch()
+
+        face_layout.addWidget(model_btn_row)
+
+        # Help text
+        face_help_label = QLabel(
+            "💡 <b>Note:</b> Face detection requires InsightFace library and buffalo_l models.<br>"
+            "Models are ~200MB and will be downloaded to ./models/buffalo_l/"
+        )
+        face_help_label.setWordWrap(True)
+        face_help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
+        face_layout.addWidget(face_help_label)
+
+        # Initial status check
+        check_model_status()
+
+        layout.addWidget(face_group)
+
         # --- Buttons ---
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         layout.addWidget(buttons)

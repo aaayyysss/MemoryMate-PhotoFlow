@@ -1936,19 +1936,7 @@ class SidebarQt(QWidget):
 
             else:
                 mw.grid.set_context("branch", val_str)
-        
-        elif mode == "people" and value:
-            # Load all images belonging to this face cluster
-            try:
-                paths = self.db.get_paths_for_cluster(self.project_id, value)
-                if hasattr(mw, "grid") and hasattr(mw.grid, "display_thumbnails"):
-                    mw.grid.display_thumbnails(paths)
-                else:
-                    print(f"[Sidebar] Unable to display thumbnails for people cluster {value}")
-            except Exception as e:
-                print(f"[Sidebar] Failed to open people cluster {value}: {e}")
-                        
-                
+
         elif mode == "date" and value:
             _clear_tag_if_needed()
             mw.grid.set_context("date", value)

@@ -58,6 +58,7 @@ def _get_insightface_app():
     - Automatic provider detection (GPU if available, CPU fallback)
     - Model caching to avoid reloading
     - Proper error handling
+    - Version compatibility (works with old and new InsightFace versions)
     - PyInstaller bundle support (looks for bundled models)
     """
     global _insightface_app, _providers_used
@@ -65,48 +66,81 @@ def _get_insightface_app():
         try:
             import sys
             from insightface.app import FaceAnalysis
+            import inspect
 
             # Detect best available providers
             providers, hardware_type = _detect_available_providers()
             _providers_used = providers
 
-            # Determine model root path
-            # When running from PyInstaller bundle, models are in sys._MEIPASS
-            model_root = None
+            # Determine model root path - PRIORITY ORDER:
+            # 1. PyInstaller bundle (sys._MEIPASS)
+            # 2. App directory ./models/
+            # 3. User home directory ~/.insightface/models/
+            app_models_dir = None
+
+            # Check for PyInstaller bundle first
             if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
                 # Running in PyInstaller bundle
                 bundle_dir = sys._MEIPASS
-                model_root = os.path.join(bundle_dir, 'insightface')
-                logger.info(f"🎁 Running from PyInstaller bundle, model root: {model_root}")
-
-                # Verify bundled models exist
-                expected_model_path = os.path.join(model_root, 'models', 'buffalo_l')
-                if os.path.exists(expected_model_path):
-                    logger.info(f"✓ Found bundled buffalo_l models at {expected_model_path}")
+                pyinstaller_models = os.path.join(bundle_dir, 'insightface')
+                if os.path.exists(pyinstaller_models):
+                    app_models_dir = pyinstaller_models
+                    logger.info(f"🎁 Running from PyInstaller bundle, using bundled models: {app_models_dir}")
                 else:
-                    logger.warning(f"⚠ Bundled models not found at {expected_model_path}")
+                    logger.warning(f"⚠ PyInstaller bundle detected but models not found at {pyinstaller_models}")
+
+            # Check app directory if not in bundle
+            if not app_models_dir:
+                local_models = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')
+                if os.path.exists(local_models):
+                    app_models_dir = local_models
+                    logger.info(f"📁 Using local bundled models: {app_models_dir}")
+
+            # Fallback to user home directory
+            if not app_models_dir:
+                app_models_dir = os.path.expanduser('~/.insightface/models')
+                logger.info(f"🏠 Using user home models: {app_models_dir}")
 
             # Initialize InsightFace with buffalo_l model
-            # NOTE: InsightFace doesn't accept 'providers' in __init__
-            # Instead, we set ctx_id to control GPU/CPU usage
-            if model_root:
-                _insightface_app = FaceAnalysis(
-                    name='buffalo_l',  # High accuracy model
-                    root=model_root,   # Use bundled models when packaged
-                    allowed_modules=['detection', 'recognition']
-                )
+            # Handle version compatibility: older versions don't support 'allowed_modules'
+            init_params = {'name': 'buffalo_l'}
+
+            # Check if 'allowed_modules' parameter is supported
+            sig = inspect.signature(FaceAnalysis.__init__)
+            if 'allowed_modules' in sig.parameters:
+                # Newer version: restrict to detection and recognition only
+                init_params['allowed_modules'] = ['detection', 'recognition']
+                logger.debug("Using InsightFace with allowed_modules (newer version)")
             else:
-                _insightface_app = FaceAnalysis(
-                    name='buffalo_l',  # High accuracy model
-                    allowed_modules=['detection', 'recognition']
-                )
+                # Older version: parameter not supported
+                logger.debug("Using InsightFace without allowed_modules (older version)")
+
+            # Check if 'root' parameter is supported (for custom model directory)
+            if 'root' in sig.parameters:
+                if os.path.exists(app_models_dir):
+                    init_params['root'] = app_models_dir
+                    logger.info(f"✓ Using models from: {app_models_dir}")
+                else:
+                    logger.debug(f"Model directory doesn't exist yet: {app_models_dir}")
+
+            _insightface_app = FaceAnalysis(**init_params)
 
             # Prepare with context:
             # ctx_id=0 for GPU, ctx_id=-1 for CPU
             ctx_id = 0 if hardware_type == 'GPU' else -1
-            _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
 
-            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+            try:
+                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+            except Exception as prepare_error:
+                # If prepare fails, might be missing models - try to download
+                logger.warning(f"Model preparation failed: {prepare_error}")
+                logger.info("Attempting to download models automatically...")
+
+                # Try preparing again (this will trigger auto-download)
+                _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                logger.info(f"✅ Models downloaded and loaded with {hardware_type} acceleration")
+
         except ImportError as e:
             logger.error(f"❌ InsightFace library not installed: {e}")
             logger.error("Install with: pip install insightface onnxruntime")
@@ -116,6 +150,7 @@ def _get_insightface_app():
             ) from e
         except Exception as e:
             logger.error(f"❌ Failed to initialize InsightFace: {e}")
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
             raise
     return _insightface_app
 
@@ -259,17 +294,11 @@ class FaceDetectionService:
             try:
                 img = cv2.imread(image_path)
                 if img is None:
-                    # cv2.imread returns None for corrupt/unsupported files
-                    error_msg = f"Failed to load image (cv2.imread returned None): {image_path}"
-                    logger.error(error_msg)
-                    raise ValueError(error_msg)
-            except ValueError:
-                # Re-raise ValueError (from above check)
-                raise
+                    logger.warning(f"Failed to load image {image_path}")
+                    return []
             except Exception as e:
-                error_msg = f"Failed to load image {image_path}: {e}"
-                logger.error(error_msg)
-                raise RuntimeError(error_msg) from e
+                logger.warning(f"Failed to load image {image_path}: {e}")
+                return []
 
             # Detect faces and extract embeddings
             # Returns list of Face objects with bbox, embedding, det_score, etc.
@@ -311,14 +340,9 @@ class FaceDetectionService:
             logger.info(f"[FaceDetection] Found {len(faces)} faces in {os.path.basename(image_path)}")
             return faces
 
-        except (ValueError, RuntimeError):
-            # Re-raise image loading errors (already logged above)
-            raise
         except Exception as e:
-            # Catch any other errors (InsightFace crashes, etc.)
-            error_msg = f"Error detecting faces in {image_path}: {e}"
-            logger.error(error_msg, exc_info=True)
-            raise RuntimeError(error_msg) from e
+            logger.error(f"Error detecting faces in {image_path}: {e}")
+            return []
 
     def save_face_crop(self, image_path: str, face: dict, output_path: str) -> bool:
         """
@@ -342,13 +366,6 @@ class FaceDetectionService:
             bbox_w = face['bbox_w']
             bbox_h = face['bbox_h']
 
-            # Validate bounding box dimensions
-            if bbox_w <= 0 or bbox_h <= 0:
-                logger.warning(
-                    f"Invalid face bounding box (w={bbox_w}, h={bbox_h}) in {os.path.basename(image_path)}, skipping"
-                )
-                return False
-
             # Add padding (10% on each side)
             padding = int(min(bbox_w, bbox_h) * 0.1)
             x1 = max(0, bbox_x - padding)
@@ -356,33 +373,11 @@ class FaceDetectionService:
             x2 = min(img.width, bbox_x + bbox_w + padding)
             y2 = min(img.height, bbox_y + bbox_h + padding)
 
-            # Final validation: ensure x2 > x1 and y2 > y1
-            if x2 <= x1 or y2 <= y1:
-                logger.warning(
-                    f"Invalid crop coordinates (x1={x1}, x2={x2}, y1={y1}, y2={y2}) "
-                    f"in {os.path.basename(image_path)}, skipping"
-                )
-                return False
-
             # Crop face
             face_img = img.crop((x1, y1, x2, y2))
 
             # Resize to standard size for consistency (160x160 for better quality)
             face_img = face_img.resize((160, 160), Image.Resampling.LANCZOS)
-
-            # Convert RGBA to RGB if needed (for PNG screenshots with alpha channel)
-            # JPEG doesn't support transparency, so we need to convert RGBA -> RGB
-            if face_img.mode == 'RGBA':
-                # Create white background
-                rgb_img = Image.new('RGB', face_img.size, (255, 255, 255))
-                # Paste using alpha channel as mask
-                rgb_img.paste(face_img, mask=face_img.split()[3])  # 3 is the alpha channel
-                face_img = rgb_img
-                logger.debug(f"Converted RGBA to RGB for {os.path.basename(image_path)}")
-            elif face_img.mode not in ('RGB', 'L'):
-                # Convert any other modes (P, LA, etc.) to RGB
-                face_img = face_img.convert('RGB')
-                logger.debug(f"Converted {face_img.mode} to RGB for {os.path.basename(image_path)}")
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)

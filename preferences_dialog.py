@@ -48,6 +48,9 @@ class PreferencesDialog(QDialog):
         self._load_settings()
         self._apply_styling()
 
+        # Check InsightFace model status after UI is ready
+        self._check_model_status()
+
     def _setup_ui(self):
         """Create the main UI layout with sidebar navigation."""
         main_layout = QHBoxLayout(self)
@@ -211,6 +214,27 @@ class PreferencesDialog(QDialog):
         self.chk_cache_cleanup.setToolTip(tr("preferences.cache.auto_cleanup_hint"))
         cache_layout.addWidget(self.chk_cache_cleanup)
 
+        # Cache management buttons
+        cache_btn_row = QWidget()
+        cache_btn_layout = QHBoxLayout(cache_btn_row)
+        cache_btn_layout.setContentsMargins(0, 8, 0, 0)
+
+        btn_cache_stats = QPushButton("📊 Show Cache Stats")
+        btn_cache_stats.setToolTip("View detailed thumbnail cache statistics")
+        btn_cache_stats.setMaximumWidth(150)
+        btn_cache_stats.clicked.connect(self._show_cache_stats)
+
+        btn_purge_cache = QPushButton("🗑️ Purge Old Entries")
+        btn_purge_cache.setToolTip("Remove thumbnails older than 7 days")
+        btn_purge_cache.setMaximumWidth(150)
+        btn_purge_cache.clicked.connect(self._purge_cache)
+
+        cache_btn_layout.addWidget(btn_cache_stats)
+        cache_btn_layout.addWidget(btn_purge_cache)
+        cache_btn_layout.addStretch()
+
+        cache_layout.addWidget(cache_btn_row)
+
         layout.addWidget(cache_group)
 
         layout.addStretch()
@@ -278,6 +302,82 @@ class PreferencesDialog(QDialog):
         model_layout.addRow("Model:", self.cmb_insightface_model)
 
         layout.addWidget(model_group)
+
+        # InsightFace Model Path Configuration
+        model_path_group = QGroupBox("Model Installation")
+        model_path_layout = QVBoxLayout(model_path_group)
+        model_path_layout.setSpacing(8)
+
+        # Custom model path row
+        path_row = QWidget()
+        path_layout = QHBoxLayout(path_row)
+        path_layout.setContentsMargins(0, 0, 0, 0)
+
+        path_label = QLabel("Custom Models Path:")
+        path_label.setToolTip(
+            "Path to buffalo_l model directory (offline use).\n"
+            "Leave empty to use default locations:\n"
+            "  1. ./models/buffalo_l/\n"
+            "  2. ~/.insightface/models/buffalo_l/\n\n"
+            "For offline use, point to a folder containing buffalo_l models."
+        )
+
+        self.txt_model_path = QLineEdit()
+        self.txt_model_path.setPlaceholderText("Leave empty to use default locations")
+
+        btn_browse_models = QPushButton("Browse...")
+        btn_browse_models.setMaximumWidth(80)
+        btn_browse_models.clicked.connect(self._browse_models)
+
+        btn_test_models = QPushButton("Test")
+        btn_test_models.setMaximumWidth(60)
+        btn_test_models.clicked.connect(self._test_model_path)
+
+        path_layout.addWidget(path_label)
+        path_layout.addWidget(self.txt_model_path, 1)
+        path_layout.addWidget(btn_browse_models)
+        path_layout.addWidget(btn_test_models)
+
+        model_path_layout.addWidget(path_row)
+
+        # Model status display
+        self.lbl_model_status = QLabel("Checking model status...")
+        self.lbl_model_status.setWordWrap(True)
+        self.lbl_model_status.setStyleSheet("QLabel { padding: 6px; background-color: #f0f0f0; border-radius: 4px; }")
+        model_path_layout.addWidget(self.lbl_model_status)
+
+        # Model management buttons
+        btn_row = QWidget()
+        btn_layout = QHBoxLayout(btn_row)
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.btn_download_models = QPushButton("📥 Download Models")
+        self.btn_download_models.setToolTip("Download buffalo_l face detection models (~200MB)")
+        self.btn_download_models.setMaximumWidth(150)
+        self.btn_download_models.clicked.connect(self._download_models)
+
+        self.btn_check_models = QPushButton("🔍 Check Status")
+        self.btn_check_models.setToolTip("Check if models are properly installed")
+        self.btn_check_models.setMaximumWidth(120)
+        self.btn_check_models.clicked.connect(self._check_model_status)
+
+        btn_layout.addWidget(self.btn_download_models)
+        btn_layout.addWidget(self.btn_check_models)
+        btn_layout.addStretch()
+
+        model_path_layout.addWidget(btn_row)
+
+        # Help text
+        help_label = QLabel(
+            "💡 <b>Note:</b> Face detection requires InsightFace library and buffalo_l models.<br>"
+            "<b>Option 1 (Online):</b> Click 'Download Models' to download ~200MB to ./models/buffalo_l/<br>"
+            "<b>Option 2 (Offline):</b> Use 'Browse' to select a folder containing pre-downloaded models"
+        )
+        help_label.setWordWrap(True)
+        help_label.setStyleSheet("QLabel { font-size: 10pt; color: #666; padding: 4px; }")
+        model_path_layout.addWidget(help_label)
+
+        layout.addWidget(model_path_group)
 
         # Detection Settings
         detection_group = QGroupBox("Detection Settings")
@@ -558,6 +658,9 @@ class PreferencesDialog(QDialog):
         self.spin_max_workers.setValue(self.face_config.get("max_workers", 4))
         self.spin_batch_size.setValue(self.face_config.get("batch_size", 50))
 
+        # InsightFace model path
+        self.txt_model_path.setText(self.settings.get("insightface_model_path", ""))
+
         # Video
         self.txt_ffprobe_path.setText(self.settings.get("ffprobe_path", ""))
 
@@ -589,6 +692,7 @@ class PreferencesDialog(QDialog):
             "auto_cluster_after_scan": self.face_config.get("auto_cluster_after_scan", True),
             "face_max_workers": self.face_config.get("max_workers", 4),
             "face_batch_size": self.face_config.get("batch_size", 50),
+            "insightface_model_path": self.settings.get("insightface_model_path", ""),
             "ffprobe_path": self.settings.get("ffprobe_path", ""),
             "show_decoder_warnings": self.settings.get("show_decoder_warnings", False),
             "db_debug_logging": self.settings.get("db_debug_logging", False),
@@ -661,6 +765,23 @@ class PreferencesDialog(QDialog):
         self.face_config.set("batch_size", self.spin_batch_size.value())
         print(f"✅ Face detection settings saved: model={self.cmb_insightface_model.currentData()}, "
               f"eps={self.spin_cluster_eps.value()}%, min_samples={self.spin_min_samples.value()}")
+
+        # InsightFace Model Path
+        model_path = self.txt_model_path.text().strip()
+        old_model_path = self.settings.get("insightface_model_path", "")
+        self.settings.set("insightface_model_path", model_path)
+
+        if model_path != old_model_path:
+            # Clear InsightFace check flag
+            flag_file = Path('.insightface_check_done')
+            if flag_file.exists():
+                try:
+                    flag_file.unlink()
+                    print("🔄 InsightFace check flag cleared - will re-check on next startup")
+                except Exception as e:
+                    print(f"⚠️ Failed to clear InsightFace check flag: {e}")
+
+            print(f"🧑 InsightFace model path configured: {model_path or '(using default locations)'}")
 
         # Video
         ffprobe_path = self.txt_ffprobe_path.text().strip()
@@ -745,6 +866,7 @@ class PreferencesDialog(QDialog):
             "auto_cluster_after_scan": self.chk_auto_cluster.isChecked(),
             "face_max_workers": self.spin_max_workers.value(),
             "face_batch_size": self.spin_batch_size.value(),
+            "insightface_model_path": self.txt_model_path.text().strip(),
             "ffprobe_path": self.txt_ffprobe_path.text().strip(),
             "show_decoder_warnings": self.chk_decoder_warnings.isChecked(),
             "db_debug_logging": self.chk_db_debug.isChecked(),
@@ -818,3 +940,247 @@ class PreferencesDialog(QDialog):
                 tr("preferences.video.ffprobe_test_error"),
                 tr("preferences.video.ffprobe_test_error_message", error=str(e))
             )
+
+    def _browse_models(self):
+        """Browse for InsightFace models directory."""
+        path = QFileDialog.getExistingDirectory(
+            self,
+            "Select InsightFace Models Directory (buffalo_l)",
+            "",
+            QFileDialog.ShowDirsOnly
+        )
+        if path:
+            self.txt_model_path.setText(path)
+
+    def _test_model_path(self):
+        """Test InsightFace model path."""
+        from PySide6.QtWidgets import QProgressDialog
+        from PySide6.QtCore import QThread, Signal
+
+        path = self.txt_model_path.text().strip()
+
+        if not path:
+            QMessageBox.information(
+                self,
+                "Model Path Test",
+                "No custom path specified.\n\n"
+                "App will use default locations:\n"
+                "  1. ./models/buffalo_l/\n"
+                "  2. ~/.insightface/models/buffalo_l/"
+            )
+            return
+
+        # Verify path exists
+        if not Path(path).exists():
+            QMessageBox.critical(
+                self,
+                "Model Path Test - Not Found",
+                f"✗ Path does not exist:\n{path}\n\n"
+                "Please check the path and try again."
+            )
+            return
+
+        # Run comprehensive test
+        class TestThread(QThread):
+            finished_signal = Signal(bool, str)
+
+            def __init__(self, test_path):
+                super().__init__()
+                self.test_path = test_path
+
+            def run(self):
+                try:
+                    from utils.test_insightface_models import test_model_path
+                    success, message = test_model_path(self.test_path)
+                    self.finished_signal.emit(success, message)
+                except Exception as e:
+                    self.finished_signal.emit(False, f"Test error: {str(e)}")
+
+        progress_dlg = QProgressDialog(
+            "Testing InsightFace model loading...\nThis may take a moment...",
+            None, 0, 0, self
+        )
+        progress_dlg.setWindowTitle("Model Test")
+        progress_dlg.setWindowModality(Qt.WindowModal)
+        progress_dlg.setCancelButton(None)
+        progress_dlg.setMinimumDuration(0)
+
+        test_thread = TestThread(path)
+
+        def on_test_finished(success, message):
+            progress_dlg.close()
+            if success:
+                QMessageBox.information(
+                    self,
+                    "Model Test - SUCCESS ✅",
+                    message + "\n\n💡 Remember to click Save to save settings, then restart the app."
+                )
+            else:
+                QMessageBox.critical(
+                    self,
+                    "Model Test - FAILED ❌",
+                    message
+                )
+
+        test_thread.finished_signal.connect(on_test_finished)
+        test_thread.start()
+        progress_dlg.exec()
+
+    def _check_model_status(self):
+        """Check and display current model status."""
+        try:
+            from utils.insightface_check import get_model_download_status
+            status = get_model_download_status()
+
+            if not status['library_installed']:
+                self.lbl_model_status.setText(
+                    "❌ InsightFace library not installed\n"
+                    "Install with: pip install insightface onnxruntime"
+                )
+                self.lbl_model_status.setStyleSheet(
+                    "QLabel { padding: 6px; background-color: #ffe0e0; border-radius: 4px; color: #d00; }"
+                )
+                self.btn_download_models.setEnabled(False)
+            elif status['models_available']:
+                self.lbl_model_status.setText(
+                    f"✅ Models installed and ready\n"
+                    f"Location: {status['model_path']}"
+                )
+                self.lbl_model_status.setStyleSheet(
+                    "QLabel { padding: 6px; background-color: #e0ffe0; border-radius: 4px; color: #060; }"
+                )
+                self.btn_download_models.setEnabled(False)
+            else:
+                self.lbl_model_status.setText(
+                    "⚠️ Models not found\n"
+                    "Click 'Download Models' to install buffalo_l face detection models"
+                )
+                self.lbl_model_status.setStyleSheet(
+                    "QLabel { padding: 6px; background-color: #fff4e0; border-radius: 4px; color: #840; }"
+                )
+                self.btn_download_models.setEnabled(True)
+        except Exception as e:
+            self.lbl_model_status.setText(f"⚠️ Error checking status: {str(e)}")
+            self.lbl_model_status.setStyleSheet(
+                "QLabel { padding: 6px; background-color: #fff4e0; border-radius: 4px; color: #840; }"
+            )
+
+    def _download_models(self):
+        """Download InsightFace models with progress dialog."""
+        from PySide6.QtWidgets import QProgressDialog
+        from PySide6.QtCore import QThread, Signal
+        import subprocess
+
+        class DownloadThread(QThread):
+            progress = Signal(str)
+            finished_signal = Signal(bool, str)
+
+            def run(self):
+                try:
+                    self.progress.emit("Initializing download...")
+
+                    # Run download_face_models.py script
+                    script_path = Path("download_face_models.py")
+                    if not script_path.exists():
+                        self.finished_signal.emit(False, "download_face_models.py not found")
+                        return
+
+                    self.progress.emit("Downloading buffalo_l models (~200MB)...")
+                    result = subprocess.run(
+                        [sys.executable, str(script_path)],
+                        capture_output=True,
+                        text=True,
+                        timeout=600  # 10 minute timeout
+                    )
+
+                    if result.returncode == 0:
+                        self.finished_signal.emit(True, "Models downloaded successfully!")
+                    else:
+                        error_msg = result.stderr or result.stdout or "Unknown error"
+                        self.finished_signal.emit(False, f"Download failed:\n{error_msg}")
+
+                except subprocess.TimeoutExpired:
+                    self.finished_signal.emit(False, "Download timed out (>10 minutes)")
+                except Exception as e:
+                    self.finished_signal.emit(False, f"Error: {str(e)}")
+
+        progress_dlg = QProgressDialog("Downloading InsightFace models...", "Cancel", 0, 0, self)
+        progress_dlg.setWindowTitle("Model Download")
+        progress_dlg.setWindowModality(Qt.WindowModal)
+        progress_dlg.setCancelButton(None)  # Disable cancel during download
+        progress_dlg.setMinimumDuration(0)
+
+        download_thread = DownloadThread()
+
+        def on_progress(msg):
+            progress_dlg.setLabelText(msg)
+
+        def on_finished(success, message):
+            progress_dlg.close()
+            if success:
+                QMessageBox.information(
+                    self,
+                    "Download Complete",
+                    f"✅ {message}\n\n"
+                    "Face detection models are now installed.\n"
+                    "Restart the application to use face detection."
+                )
+                self._check_model_status()  # Update status display
+            else:
+                QMessageBox.critical(
+                    self,
+                    "Download Failed",
+                    f"❌ {message}\n\n"
+                    "You can try manually running:\n"
+                    "python download_face_models.py"
+                )
+
+        download_thread.progress.connect(on_progress)
+        download_thread.finished_signal.connect(on_finished)
+        download_thread.start()
+        progress_dlg.exec()
+
+    def _show_cache_stats(self):
+        """Show thumbnail cache statistics."""
+        try:
+            from thumb_cache_db import get_cache
+            cache = get_cache()
+            stats = cache.get_stats()
+
+            if "error" in stats:
+                QMessageBox.warning(self, "Thumbnail Cache Stats", f"Error: {stats['error']}")
+                return
+
+            msg = (
+                f"Entries: {stats['entries']}\n"
+                f"Size: {stats['size_mb']} MB\n"
+                f"Last Updated: {stats['last_updated']}\n"
+                f"Path: {stats['path']}"
+            )
+            QMessageBox.information(self, "Thumbnail Cache Stats", msg)
+        except Exception as e:
+            QMessageBox.warning(self, "Cache Stats", f"Error retrieving cache stats:\n{str(e)}")
+
+    def _purge_cache(self):
+        """Purge old cache entries."""
+        try:
+            from thumb_cache_db import get_cache
+            cache = get_cache()
+
+            reply = QMessageBox.question(
+                self,
+                "Purge Cache",
+                "Remove thumbnails older than 7 days?\n\nThis will free up disk space.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+
+            if reply == QMessageBox.Yes:
+                cache.purge_stale(max_age_days=7)
+                QMessageBox.information(
+                    self,
+                    "Purge Complete",
+                    "Old thumbnails (older than 7 days) have been purged."
+                )
+        except Exception as e:
+            QMessageBox.warning(self, "Purge Cache", f"Error purging cache:\n{str(e)}")

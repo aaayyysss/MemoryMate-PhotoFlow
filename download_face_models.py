@@ -64,9 +64,24 @@ def download_buffalo_model():
         logger.info("\n📥 Downloading buffalo_l model (this may take a few minutes)...")
         logger.info("   Model size: ~200MB")
 
-        # Initialize FaceAnalysis with project root
+        # Detect available providers (ONNX Runtime 1.9+ requires explicit providers)
+        try:
+            import onnxruntime as ort
+            available_providers = ort.get_available_providers()
+            if 'CUDAExecutionProvider' in available_providers:
+                providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+                logger.info("   Using GPU acceleration for download")
+            else:
+                providers = ['CPUExecutionProvider']
+                logger.info("   Using CPU for download")
+        except ImportError:
+            providers = ['CPUExecutionProvider']
+            logger.warning("   ONNXRuntime not found, defaulting to CPU")
+
+        # Initialize FaceAnalysis with project root and providers
         # InsightFace will create: project_root/models/buffalo_l/
-        app = FaceAnalysis(name='buffalo_l', root=project_root)
+        # CRITICAL: Pass providers during init (required by ONNX Runtime 1.9+)
+        app = FaceAnalysis(name='buffalo_l', root=project_root, providers=providers)
 
         # Prepare the model - this downloads if not present
         logger.info("🔧 Preparing model...")

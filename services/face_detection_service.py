@@ -73,13 +73,42 @@ def _get_insightface_app():
             _providers_used = providers
 
             # Determine model root path - PRIORITY ORDER:
-            # 1. PyInstaller bundle (sys._MEIPASS/insightface/)
-            # 2. App directory (./ with models/buffalo_l/ inside)
-            # 3. User home directory (~/.insightface/)
+            # 1. Custom path from settings (for offline use)
+            # 2. PyInstaller bundle (sys._MEIPASS/insightface/)
+            # 3. App directory (./ with models/buffalo_l/ inside)
+            # 4. User home directory (~/.insightface/)
             app_models_dir = None
 
-            # Check for PyInstaller bundle first
-            if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            # Check for custom path from settings first (offline use)
+            try:
+                from settings_manager_qt import SettingsManager
+                settings = SettingsManager()
+                custom_model_path = settings.get_setting('insightface_model_path', '')
+                if custom_model_path:
+                    # Check if this is the buffalo_l directory itself
+                    if os.path.exists(custom_model_path):
+                        # Try as buffalo_l directory
+                        test_file = os.path.join(custom_model_path, 'det_10g.onnx')
+                        if os.path.exists(test_file):
+                            # This is the buffalo_l directory, parent is the root
+                            app_models_dir = os.path.dirname(custom_model_path)
+                            logger.info(f"🎯 Using custom model path: {custom_model_path}")
+                            logger.info(f"   Model root set to: {app_models_dir}")
+                        else:
+                            # Try as parent directory with models/buffalo_l/
+                            buffalo_path = os.path.join(custom_model_path, 'models', 'buffalo_l')
+                            if os.path.exists(buffalo_path):
+                                app_models_dir = custom_model_path
+                                logger.info(f"🎯 Using custom model path: {buffalo_path}")
+                                logger.info(f"   Model root set to: {app_models_dir}")
+                            else:
+                                logger.warning(f"⚠️ Custom model path configured but buffalo_l not found at {custom_model_path}")
+                                logger.warning(f"   Expected: {custom_model_path}/det_10g.onnx or {buffalo_path}/det_10g.onnx")
+            except Exception as e:
+                logger.debug(f"Could not check custom model path from settings: {e}")
+
+            # Check for PyInstaller bundle if no custom path
+            if not app_models_dir and getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
                 # Running in PyInstaller bundle
                 bundle_dir = sys._MEIPASS
                 pyinstaller_models = os.path.join(bundle_dir, 'insightface')

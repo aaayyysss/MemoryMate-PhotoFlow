@@ -29,8 +29,15 @@ class FaceDetectionConfig:
 
         # Clustering parameters
         "clustering_enabled": True,
-        "clustering_eps": 0.42,  # DBSCAN epsilon (distance threshold)
-        "clustering_min_samples": 3,  # Minimum faces to form a cluster
+        "clustering_eps": 0.35,  # DBSCAN epsilon (distance threshold)
+                                  # Lower = stricter grouping (more clusters, better separation)
+                                  # Higher = looser grouping (fewer clusters, may group different people)
+                                  # Optimal for InsightFace: 0.30-0.35 (cosine distance)
+                                  # Previous: 0.42 (too loose, grouped different people together)
+        "clustering_min_samples": 2,  # Minimum faces to form a cluster
+                                       # Allows people with 2+ photos to form a cluster
+                                       # Single-photo outliers will be marked as noise
+                                       # Previous: 3 (too high, missed people with only 2 photos)
         "auto_cluster_after_scan": True,
 
         # Performance

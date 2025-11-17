@@ -1,206 +1,268 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09>[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-17 15:16:18,917 [INFO] ================================================================================
-2025-11-17 15:16:18,917 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-17 15:16:18,917 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\app_log.txt
-2025-11-17 15:16:18,917 [INFO] ================================================================================
-2025-11-17 15:16:18,966 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-17 15:16:18,999 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-09\\thumbnails_cache.db', 'last_updated': '2025-11-17 15:16'}
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10>🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-17 15:55:04,685 [INFO] ================================================================================
+2025-11-17 15:55:04,685 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-17 15:55:04,695 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\app_log.txt
+2025-11-17 15:55:04,695 [INFO] ================================================================================
+2025-11-17 15:55:04,733 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-17 15:55:04,733 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 105, 'size_mb': 0.43, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-10\\thumbnails_cache.db', 'last_updated': '2025-11-17 15:55'}
+[ThumbCacheDB] Purged 102 stale thumbnails (> 30 days).
+[ThumbCacheDB] Purged 3 stale thumbnails (> 7 days).
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-17 15:16:19,508 [INFO] SearchService initialized
-[15:16:19.849] [Tabs] __init__ started
-[15:16:19.892] [Tabs] _build_tabs → building tab widgets
-[15:16:19.916] [Tabs] _on_tab_changed(idx=0)
-[15:16:20.036] [Tabs] _start_timeout idx=0 type=branches
-[15:16:20.051] [Tabs] _populate_tab(branches, idx=0, force=False)
-[15:16:20.195] [Tabs]   populated=False, loading=False
-[15:16:20.195] [Tabs]   Starting load for branches
-[15:16:20.195] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[15:16:20.195] [Tabs] _clear_tab idx=0
-[15:16:20.207] [Tabs] _on_tab_changed → tab_type=branches
-[15:16:20.216] [Tabs] _build_tabs → added 6 tabs
-[15:16:20.216] [Tabs] __init__ completed
-[SidebarQt] _build_tree_model() called with project_id=None
+2025-11-17 15:55:05,019 [INFO] SearchService initialized
+[15:55:05.449] [Tabs] __init__ started
+[15:55:05.449] [Tabs] _build_tabs → building tab widgets
+[15:55:05.449] [Tabs] _on_tab_changed(idx=0)
+[15:55:05.449] [Tabs] _start_timeout idx=0 type=branches
+[15:55:05.449] [Tabs] _populate_tab(branches, idx=0, force=False)
+[15:55:05.449] [Tabs]   populated=False, loading=False
+[15:55:05.449] [Tabs]   Starting load for branches
+[15:55:05.456] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[15:55:05.456] [Tabs] _clear_tab idx=0
+[15:55:05.456] [Tabs] _on_tab_changed → tab_type=branches
+[15:55:05.456] [Tabs] _build_tabs → added 6 tabs
+[15:55:05.456] [Tabs] __init__ completed
+[SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 181}]
+[Sidebar] Loaded 61 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 72 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=2] running for 1 targets...
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[15:16:20.349] [Tabs] hide_tabs() called - canceling pending workers
+[15:55:05.547] [Tabs] hide_tabs() called - canceling pending workers
+[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
 [SidebarQt] Calling _build_tree_model()
-[SidebarQt] _build_tree_model() called with project_id=None
+[SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 181}]
+[Sidebar] Loaded 61 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 72 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
-2025-11-17 15:16:20,533 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-17 15:16:20,533 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-17 15:16:20,533 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+2025-11-17 15:55:05,658 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-17 15:55:05,664 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-17 15:55:05,664 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
-   Location: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\models\buffalo_l
-[15:16:24.215] [Tabs] _finish_branches (stale gen=1) — ignoring
-[15:16:24.225] [Tabs] _on_tab_changed(idx=0)
-[15:16:24.282] [Tabs] _start_timeout idx=0 type=branches
-[15:16:24.318] [Tabs] _populate_tab(branches, idx=0, force=False)
-[15:16:24.318] [Tabs]   populated=False, loading=False
-[15:16:24.318] [Tabs]   Starting load for branches
-[15:16:24.318] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[15:16:24.354] [Tabs] _clear_tab idx=0
-[15:16:24.365] [Tabs] _on_tab_changed → tab_type=branches
-[15:16:24.381] [Tabs] _clear_tab idx=0
-[MainWindow] Set grid.project_id = 1
-[SidebarQt] set_project(1) called
-[15:16:32.912] [Tabs] refresh_all(force=True) called
-[15:16:32.912] [Tabs] refresh_all: key=branches, idx=0, force=True
-[15:16:32.912] [Tabs] _populate_tab(branches, idx=0, force=True)
-[15:16:32.912] [Tabs]   populated=True, loading=False
-[15:16:32.912] [Tabs]   Force refresh: removing branches from populated set
-[15:16:32.912] [Tabs]   Starting load for branches
-[15:16:32.912] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[15:16:32.912] [Tabs] _clear_tab idx=0
-[15:16:32.912] [Tabs] refresh_all: key=folders, idx=1, force=True
-[15:16:32.912] [Tabs] _populate_tab(folders, idx=1, force=True)
-[15:16:32.912] [Tabs]   populated=False, loading=False
-[15:16:32.912] [Tabs]   Starting load for folders
-[15:16:32.912] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[15:16:32.912] [Tabs] _clear_tab idx=1
-[15:16:32.915] [Tabs] refresh_all: key=dates, idx=2, force=True
-[15:16:32.915] [Tabs] _populate_tab(dates, idx=2, force=True)
-[15:16:32.915] [Tabs]   populated=False, loading=False
-[15:16:32.915] [Tabs]   Starting load for dates
-[15:16:32.915] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[15:16:32.915] [Tabs] _clear_tab idx=2
-[15:16:32.915] [Tabs] _load_folders → got 0 rows for project_id=1
-[15:16:32.915] [Tabs] refresh_all: key=tags, idx=3, force=True
-[15:16:32.915] [Tabs] _populate_tab(tags, idx=3, force=True)
-[15:16:32.915] [Tabs]   populated=False, loading=False
-[15:16:32.915] [Tabs]   Starting load for tags
-[15:16:32.915] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[15:16:32.915] [Tabs] _clear_tab idx=3
-[15:16:32.915] [Tabs] refresh_all: key=quick, idx=5, force=True
-[15:16:32.915] [Tabs] _populate_tab(quick, idx=5, force=True)
-[15:16:32.915] [Tabs]   populated=False, loading=False
-[15:16:32.915] [Tabs]   Starting load for quick
-[15:16:32.915] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[15:16:32.915] [Tabs] _clear_tab idx=5
-[15:16:32.915] [Tabs] _load_dates → got hierarchy data for project_id=1
-[15:16:32.915] [Tabs] _load_tags → got 0 rows for project_id=1
-[15:16:32.915] [Tabs] refresh_all(force=True) completed
-[SidebarQt] Calling reload() after setting project_id
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[15:16:32.915] [Tabs] _clear_tab idx=0
-[15:16:32.923] [Tabs] _load_quick → got 6 rows
+   Location: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\models\buffalo_l
+[15:55:08.689] [Tabs] _finish_branches (stale gen=1) — ignoring
+[15:55:08.689] [Tabs] _on_tab_changed(idx=0)
+[15:55:08.689] [Tabs] _start_timeout idx=0 type=branches
+[15:55:08.690] [Tabs] _populate_tab(branches, idx=0, force=False)
+[15:55:08.690] [Tabs]   populated=False, loading=False
+[15:55:08.690] [Tabs]   Starting load for branches
+[15:55:08.691] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[15:55:08.691] [Tabs] _clear_tab idx=0
+[15:55:08.692] [Tabs] _on_tab_changed → tab_type=branches
+[15:55:08.704] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[15:16:32.933] [Tabs] _clear_tab idx=1
-[15:16:32.939] [Tabs] _clear_tab idx=2
-[15:16:32.939] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[15:16:32.939] [Tabs] _clear_tab idx=3
-[15:16:32.947] [Tabs] _clear_tab idx=5
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] starting async count population for 1 branch targets
+[get_images_by_branch] Found 181 photos
+[GRID] Loaded 181 thumbnails.
+[GRID] Reloaded 181 thumbnails in branch-mode (base=181)
+[GRID] Using scroll-based start position: 0 (scroll: 0/3137)
+[GRID] Loading viewport range: 0-56 of 181
+[GRID] Queued 57 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/3158)
+[GRID] Loading viewport range: 0-56 of 181
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+================================================================================
+2025-11-17 15:55:27,612 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 3 thumbnails in videos-mode.
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x000002177FE53340>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x217614262b0) at 0x00000217620B8980>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=3
+[open_lightbox] paths=['c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\qouzleh_mitsubtitles.mp4', 'c:\\users\\suleimaa\\desktop\\eigen\\syria\\syria-song.mp4']
+[open_lightbox] path=c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/desktop/eigen/syria/qouzleh_mitsubtitles-ezgif.com-resize-video.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf60.16.100
+    comment         : MP4 resized with https://ezgif.com/resize-video
+  Duration: 00:01:15.95, start: 0.000000, bitrate: 1411 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuvj420p(pc, bt709, progressive), 640x360 [SAR 1:1 DAR 16:9], 1274 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc60.31.102 libx264
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 127 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 1:15
+[LightboxDialog] Video playback state: Playing
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
 [get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[Sidebar][counts worker gen=4] running for 1 targets...
-[GRID] Loaded 0 thumbnails.
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[MainWindow] Switched to project ID: 1
-[Breadcrumb] Switched to project ID: 1
-[MainWindow] Refreshed project list: 1 projects
-[Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanController] ScanWorker imported successfully
-[ScanController] QThread created
-[ScanController] ScanWorker instance created with project_id=1
-[ScanController] Worker moved to thread
-[ScanController] Signals connected
-[ScanController] Starting scan thread...
-[ScanController] thread.start() called
-2025-11-17 15:16:45,759 [INFO] DBWriter timer started in worker thread
-[ScanWorkerAdapter] run() method called!
-[ScanWorkerAdapter] folder=C:/Users/suleimaa/Downloads/Photo-Sorter/Images, incremental=True
-2025-11-17 15:16:45,761 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanWorkerAdapter] Starting scan...
-2025-11-17 15:16:45,761 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
-2025-11-17 15:16:45,763 [INFO] Discovered 15 candidate image files and 0 video files
-2025-11-17 15:16:45,763 [INFO] Loading existing metadata for incremental scan...
-2025-11-17 15:16:45,765 [INFO] ✓ Loaded 0 existing file records
-[ScanController] QThread STARTED!
-2025-11-17 15:16:46,122 [INFO] Bulk upserted 15 photos for project 1
-2025-11-17 15:16:46,131 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
-2025-11-17 15:16:46,132 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.4s
-[ScanController] scan finished: 1 folders, 15 photos, 0 videos
-[ScanController] cleanup after scan
-2025-11-17 15:16:47,937 [INFO] Building date branches...
-2025-11-17 15:16:47,937 [INFO] Building date branches for project_id=1
-[build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 15 photos for project 1
-[build_date_branches] Inserted 15/15 photos into 'all' branch
-[build_date_branches] Found 6 unique dates for project 1
-[build_date_branches] Date 2024-08-11: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg
-[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-18: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg
-[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-29: found 3 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg
-[build_date_branches] Date 2024-11-29: inserted 3/3 into project_images (new)
-[build_date_branches] Date 2024-12-02: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg
-[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-30: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg
-[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-08-09: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg
-[build_date_branches] Date 2025-08-09: inserted 1/1 into project_images (new)
-[build_date_branches] Total entries processed: 8
-[build_date_branches] project_images table has 23 rows for project 1
-2025-11-17 15:16:47,977 [INFO] Created 8 photo date branch entries for project 1
-2025-11-17 15:16:47,977 [INFO] Building video date branches for project_id=1
-[build_video_date_branches] Using project_id=1
-[build_video_date_branches] Found 0 videos with dates for project 1
-[build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-17 15:16:47,977 [INFO] Created 0 video date branch entries for project 1
-2025-11-17 15:16:47,982 [INFO] Backfilling created_date fields for photos...
-2025-11-17 15:16:47,987 [INFO] Backfilled 7 photo rows with created_date
-2025-11-17 15:16:47,987 [INFO] Backfilling created_date fields for videos...
-2025-11-17 15:16:47,999 [INFO] Reloading sidebar after date branches built...
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[get_images_by_branch] Found 181 photos
+[GRID] Loaded 181 thumbnails.
+[GRID] Reloaded 181 thumbnails in branch-mode (base=181)
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[merge_face_clusters] project_id=1, target='face_002', sources=['face_000']
+[merge_face_clusters] Found 2 branches. Row type: <class 'sqlite3.Row'>
+[merge_face_clusters] Found 2 face_branch_reps rows
+[merge_face_clusters] Updated count for target 'face_002' (rowcount=1)
+[merge_face_clusters] SUCCESS: {'moved_faces': 4, 'moved_images': 4, 'deleted_reps': 1, 'sources': ['face_000'], 'target': 'face_002'}
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
@@ -208,103 +270,45 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
 [SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 181}]
+[Sidebar] Loaded 61 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 72 days
 [Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=6] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
+[Sidebar][counts worker gen=7] running for 1 targets...
 [Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
+[Sidebar][counts worker gen=7] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2024-08-11', 'by_date:2024-10-07', 'by_date:2024-11-18', 'by_date:2024-11-29', 'by_date:2024-12-02', 'by_date:2024-12-16', 'by_date:2025-03-07', 'by_date:2025-07-04', 'by_date:2025-07-06']
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Queued 15 new thumbnail workers
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[MainWindow] Launching automatic face grouping pipeline for project 1
-2025-11-17 15:16:52,666 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-17 15:16:52,680 [INFO] 💻 Using CPU for face detection (CUDA not available)
-2025-11-17 15:16:52,680 [INFO] 📁 Using local bundled models: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\models\buffalo_l
-2025-11-17 15:16:52,682 [INFO] ✓ Initializing InsightFace with buffalo_l directory: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\models\buffalo_l
-2025-11-17 15:16:52,715 [INFO] ✓ Using ctx_id approach (older InsightFace, proof of concept compatible)
-find model: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\models\buffalo_l\buffalo_l\scrfd_10g_bnkps.onnx detection
-input mean and std: 127.5 127.5
-find model: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\models\buffalo_l\buffalo_l\w600k_r50.onnx recognition
-2025-11-17 15:16:53,394 [INFO] ✓ Using CPU acceleration (ctx_id=-1)
-set det-size: (640, 640)
-2025-11-17 15:16:53,865 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
-2025-11-17 15:16:53,865 [INFO] [FaceDetection] Initialized InsightFace with model=hog
-2025-11-17 15:16:53,873 [INFO] [FaceDetectionWorker] Processing 15 photos
-[FaceDetection] [1/15] Detecting faces: alya1_2_2_2.jpeg
-2025-11-17 15:16:54,099 [INFO] [FaceDetection] Found 1 faces in alya1_2_2_2.jpeg
-2025-11-17 15:16:54,183 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg: 1 faces
-[FaceDetection] [2/15] Detecting faces: alya1_3_2.jpeg
-2025-11-17 15:16:54,482 [INFO] [FaceDetection] Found 1 faces in alya1_3_2.jpeg
-2025-11-17 15:16:54,582 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_3_2.jpeg: 1 faces
-[FaceDetection] [3/15] Detecting faces: alya2_2_2_2_2.jpeg
-2025-11-17 15:16:54,749 [INFO] [FaceDetection] Found 1 faces in alya2_2_2_2_2.jpeg
-2025-11-17 15:16:54,798 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg: 1 faces
-[FaceDetection] [4/15] Detecting faces: alya3_2_2_2_2.jpeg
-2025-11-17 15:16:55,151 [INFO] [FaceDetection] Found 3 faces in alya3_2_2_2_2.jpeg
-2025-11-17 15:16:55,232 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya3_2_2_2_2.jpeg: 3 faces
-[FaceDetection] [5/15] Detecting faces: alya_2_2.jpeg
-2025-11-17 15:16:55,454 [INFO] [FaceDetection] Found 1 faces in alya_2_2.jpeg
-2025-11-17 15:16:55,515 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya_2_2.jpeg: 1 faces
-[FaceDetection] [6/15] Detecting faces: alya_2_2_2_2.jpeg
-2025-11-17 15:16:55,732 [INFO] [FaceDetection] Found 1 faces in alya_2_2_2_2.jpeg
-2025-11-17 15:16:55,799 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya_2_2_2_2.jpeg: 1 faces
-[FaceDetection] [7/15] Detecting faces: ammar-ref(1)_2_2.png
-2025-11-17 15:16:56,043 [INFO] [FaceDetection] Found 1 faces in ammar-ref(1)_2_2.png
-2025-11-17 15:16:56,107 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref(1)_2_2.png: 1 faces
-[FaceDetection] [8/15] Detecting faces: ammar-ref_2_2_2.png
-2025-11-17 15:16:56,300 [INFO] [FaceDetection] Found 1 faces in ammar-ref_2_2_2.png
-2025-11-17 15:16:56,379 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref_2_2_2.png: 1 faces
-[FaceDetection] [9/15] Detecting faces: ammar-ref_3_2.png
-2025-11-17 15:16:56,619 [INFO] [FaceDetection] Found 1 faces in ammar-ref_3_2.png
-2025-11-17 15:16:56,699 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref_3_2.png: 1 faces
-[FaceDetection] [10/15] Detecting faces: ammar1_2_2_2.jpeg
-2025-11-17 15:16:56,994 [INFO] [FaceDetection] Found 1 faces in ammar1_2_2_2.jpeg
-2025-11-17 15:16:57,125 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg: 1 faces
-[FaceDetection] [11/15] Detecting faces: ammar2_2_2_2.jpeg
-2025-11-17 15:16:57,376 [INFO] [FaceDetection] Found 1 faces in ammar2_2_2_2.jpeg
-2025-11-17 15:16:57,502 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg: 1 faces
-[FaceDetection] [12/15] Detecting faces: ammar3_2_2_2_2.jpeg
-2025-11-17 15:16:57,760 [INFO] [FaceDetection] Found 2 faces in ammar3_2_2_2_2.jpeg
-2025-11-17 15:16:57,889 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar3_2_2_2_2.jpeg: 2 faces
-[FaceDetection] [13/15] Detecting faces: img_6850_2_2_2.jpeg
-2025-11-17 15:16:58,318 [INFO] [FaceDetection] Found 3 faces in img_6850_2_2_2.jpeg
-2025-11-17 15:16:58,590 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg: 3 faces
-[FaceDetection] [14/15] Detecting faces: img_6995_2_2_2.jpeg
-2025-11-17 15:16:58,832 [INFO] [FaceDetection] Found 1 faces in img_6995_2_2_2.jpeg
-2025-11-17 15:16:58,998 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg: 1 faces
-[FaceDetection] [15/15] Detecting faces: عليا_2_2_2.jpeg
-2025-11-17 15:16:59,215 [INFO] [FaceDetection] Found 1 faces in عليا_2_2_2.jpeg
-2025-11-17 15:16:59,332 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/عليا_2_2_2.jpeg: 1 faces
-2025-11-17 15:16:59,332 [INFO] [FaceDetectionWorker] Complete in 6.7s: 15 processed, 20 faces detected, 0 failed
-[FaceDetection] Complete: 15 photos, 20 faces detected
-2025-11-17 15:16:59,332 [INFO] [FaceClusterWorker] Starting face clustering for project 1
-[FaceCluster] Loading face embeddings...
-2025-11-17 15:16:59,332 [INFO] [FaceClusterWorker] Loaded 20 face embeddings
-[FaceCluster] Clustering 20 faces...
-2025-11-17 15:16:59,343 [INFO] [FaceClusterWorker] Found 2 clusters
-[FaceCluster] Found 2 person groups...
-2025-11-17 15:16:59,343 [INFO] [FaceClusterWorker] Cluster 0 → 8 faces
-[FaceCluster] Saving cluster 1/2: Person 1 (8 faces)
-2025-11-17 15:16:59,349 [INFO] [FaceClusterWorker] Cluster 1 → 5 faces
-[FaceCluster] Saving cluster 2/2: Person 2 (5 faces)
-2025-11-17 15:16:59,349 [INFO] [FaceClusterWorker] Complete in 0.0s: 2 clusters created
-[FaceCluster] Clustering complete: 2 people found
-[FaceCluster] Complete: 2 person groups created
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[GRID] Loading viewport range: 0-5 of 6
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
@@ -312,118 +316,133 @@ set det-size: (640, 640)
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
 [SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 181}]
+[Sidebar] Loaded 61 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 72 days
 [Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=8] running for 1 targets...
-[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Queued 8 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[Sidebar][counts worker gen=9] running for 1 targets...
+[Sidebar][counts worker gen=9] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
-[GRID] Queued 5 new thumbnail workers
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
+[GRID] Loading viewport range: 0-1 of 2
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Queued 8 new thumbnail workers
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[GRID] Loading viewport range: 0-3 of 4
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-3 of 4
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
-[GRID] Queued 5 new thumbnail workers
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
+[GRID] Loading viewport range: 0-1 of 2
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Queued 8 new thumbnail workers
+[GRID] Loading viewport range: 0-3 of 4
+[GRID] Queued 4 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[GRID] Loading viewport range: 0-3 of 4
+[get_images_by_branch] project_id=1, branch_key='face_003'
+[get_images_by_branch] Found 4 photos
+[GRID] Loaded 4 thumbnails.
+[GRID] Reloaded 4 thumbnails in branch-mode (base=4)
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
-[GRID] Queued 5 new thumbnail workers
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
+[GRID] Loading viewport range: 0-1 of 2
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Queued 8 new thumbnail workers
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 8 photos
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in branch-mode (base=8)
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
 [get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 5 photos
-[GRID] Loaded 5 thumbnails.
-[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
-[GRID] Queued 5 new thumbnail workers
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-4 of 5
+[GRID] Loading viewport range: 0-1 of 2
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.

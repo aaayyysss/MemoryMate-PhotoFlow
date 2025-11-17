@@ -1,28 +1,28 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22> python main_qt.py
+python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-16 20:34:09,666 [INFO] ================================================================================
-2025-11-16 20:34:09,667 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-16 20:34:09,667 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\app_log.txt
-2025-11-16 20:34:09,668 [INFO] ================================================================================
-2025-11-16 20:34:09,705 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-16 20:34:09,706 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_28.01.01-Photo-App\\MemoryMate-PhotoFlow-main-22\\thumbnails_cache.db', 'last_updated': '2025-11-16 20:34'}
+2025-11-17 09:14:29,537 [INFO] ================================================================================
+2025-11-17 09:14:29,537 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-17 09:14:29,537 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\app_log.txt
+2025-11-17 09:14:29,537 [INFO] ================================================================================
+2025-11-17 09:14:29,592 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-17 09:14:29,592 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-01\\thumbnails_cache.db', 'last_updated': '2025-11-17 09:14'}
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-16 20:34:09,956 [INFO] SearchService initialized
-[20:34:10.521] [Tabs] __init__ started
-[20:34:10.522] [Tabs] _build_tabs → building tab widgets
-[20:34:10.522] [Tabs] _on_tab_changed(idx=0)
-[20:34:10.523] [Tabs] _start_timeout idx=0 type=branches
-[20:34:10.523] [Tabs] _populate_tab(branches, idx=0, force=False)
-[20:34:10.523] [Tabs]   populated=False, loading=False
-[20:34:10.523] [Tabs]   Starting load for branches
-[20:34:10.523] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[20:34:10.523] [Tabs] _clear_tab idx=0
-[20:34:10.524] [Tabs] _on_tab_changed → tab_type=branches
-[20:34:10.525] [Tabs] _build_tabs → added 6 tabs
-[20:34:10.525] [Tabs] __init__ completed
+2025-11-17 09:14:29,846 [INFO] SearchService initialized
+[09:14:30.124] [Tabs] __init__ started
+[09:14:30.131] [Tabs] _build_tabs → building tab widgets
+[09:14:30.131] [Tabs] _on_tab_changed(idx=0)
+[09:14:30.131] [Tabs] _start_timeout idx=0 type=branches
+[09:14:30.131] [Tabs] _populate_tab(branches, idx=0, force=False)
+[09:14:30.131] [Tabs]   populated=False, loading=False
+[09:14:30.131] [Tabs]   Starting load for branches
+[09:14:30.131] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[09:14:30.131] [Tabs] _clear_tab idx=0
+[09:14:30.131] [Tabs] _on_tab_changed → tab_type=branches
+[09:14:30.136] [Tabs] _build_tabs → added 6 tabs
+[09:14:30.136] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -32,7 +32,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[20:34:10.555] [Tabs] hide_tabs() called - canceling pending workers
+[09:14:30.138] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -45,43 +45,587 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
+2025-11-17 09:14:30,154 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-17 09:14:30,154 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-17 09:14:30,154 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Startup] Database schema initialized successfully
+✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
+[09:14:33.137] [Tabs] _finish_branches (stale gen=1) — ignoring
+[09:14:33.137] [Tabs] _on_tab_changed(idx=0)
+[09:14:33.137] [Tabs] _start_timeout idx=0 type=branches
+[09:14:33.137] [Tabs] _populate_tab(branches, idx=0, force=False)
+[09:14:33.137] [Tabs]   populated=False, loading=False
+[09:14:33.137] [Tabs]   Starting load for branches
+[09:14:33.137] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[09:14:33.137] [Tabs] _clear_tab idx=0
+[09:14:33.137] [Tabs] _on_tab_changed → tab_type=branches
+[09:14:33.155] [Tabs] _clear_tab idx=0
+[MainWindow] Set grid.project_id = 1
+[SidebarQt] set_project(1) called
+[09:14:41.555] [Tabs] refresh_all(force=True) called
+[09:14:41.555] [Tabs] refresh_all: key=branches, idx=0, force=True
+[09:14:41.555] [Tabs] _populate_tab(branches, idx=0, force=True)
+[09:14:41.555] [Tabs]   populated=True, loading=False
+[09:14:41.555] [Tabs]   Force refresh: removing branches from populated set
+[09:14:41.555] [Tabs]   Starting load for branches
+[09:14:41.555] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[09:14:41.555] [Tabs] _clear_tab idx=0
+[09:14:41.555] [Tabs] refresh_all: key=folders, idx=1, force=True
+[09:14:41.555] [Tabs] _populate_tab(folders, idx=1, force=True)
+[09:14:41.555] [Tabs]   populated=False, loading=False
+[09:14:41.555] [Tabs]   Starting load for folders
+[09:14:41.555] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[09:14:41.555] [Tabs] _clear_tab idx=1
+[09:14:41.555] [Tabs] refresh_all: key=dates, idx=2, force=True
+[09:14:41.555] [Tabs] _populate_tab(dates, idx=2, force=True)
+[09:14:41.555] [Tabs]   populated=False, loading=False
+[09:14:41.555] [Tabs]   Starting load for dates
+[09:14:41.555] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[09:14:41.555] [Tabs] _clear_tab idx=2
+[09:14:41.555] [Tabs] _load_folders → got 0 rows for project_id=1
+[09:14:41.555] [Tabs] refresh_all: key=tags, idx=3, force=True
+[09:14:41.555] [Tabs] _populate_tab(tags, idx=3, force=True)
+[09:14:41.555] [Tabs]   populated=False, loading=False
+[09:14:41.555] [Tabs]   Starting load for tags
+[09:14:41.555] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[09:14:41.555] [Tabs] _clear_tab idx=3
+[09:14:41.565] [Tabs] refresh_all: key=quick, idx=5, force=True
+[09:14:41.565] [Tabs] _populate_tab(quick, idx=5, force=True)
+[09:14:41.565] [Tabs]   populated=False, loading=False
+[09:14:41.565] [Tabs]   Starting load for quick
+[09:14:41.565] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[09:14:41.565] [Tabs] _clear_tab idx=5
+[09:14:41.565] [Tabs] _load_dates → got hierarchy data for project_id=1
+[09:14:41.565] [Tabs] refresh_all(force=True) completed
+[SidebarQt] Calling reload() after setting project_id
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[09:14:41.568] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[09:14:41.575] [Tabs] _load_tags → got 0 rows for project_id=1
+[get_images_by_branch] project_id=1, branch_key='all'
+[09:14:41.578] [Tabs] _load_quick → got 6 rows
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[09:14:41.578] [Tabs] _clear_tab idx=1
+[09:14:41.584] [Tabs] _clear_tab idx=2
+[09:14:41.585] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[09:14:41.585] [Tabs] _clear_tab idx=3
+[09:14:41.585] [Tabs] _clear_tab idx=5
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[MainWindow] Switched to project ID: 1
+[Breadcrumb] Switched to project ID: 1
+[MainWindow] Refreshed project list: 1 projects
+[Schema] Database schema initialized successfully
+[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Downloads/Photo-Sorter/Images
+[ScanController] ScanWorker imported successfully
+[ScanController] QThread created
+[ScanController] ScanWorker instance created with project_id=1
+[ScanController] Worker moved to thread
+[ScanController] Signals connected
+[ScanController] Starting scan thread...
+[ScanController] thread.start() called
+2025-11-17 09:15:01,315 [INFO] DBWriter timer started in worker thread
+[ScanWorkerAdapter] run() method called!
+[ScanWorkerAdapter] folder=C:/Users/suleimaa/Downloads/Photo-Sorter/Images, incremental=True
+2025-11-17 09:15:01,315 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
+[ScanWorkerAdapter] Starting scan...
+2025-11-17 09:15:01,316 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
+2025-11-17 09:15:01,322 [INFO] Discovered 15 candidate image files and 0 video files
+2025-11-17 09:15:01,322 [INFO] Loading existing metadata for incremental scan...
+2025-11-17 09:15:01,323 [INFO] ✓ Loaded 0 existing file records
+[ScanController] QThread STARTED!
+2025-11-17 09:15:01,672 [INFO] Bulk upserted 15 photos for project 1
+2025-11-17 09:15:01,680 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
+2025-11-17 09:15:01,680 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.4s
+[ScanController] scan finished: 1 folders, 15 photos, 0 videos
+[ScanController] cleanup after scan
+2025-11-17 09:15:04,830 [INFO] Building date branches...
+2025-11-17 09:15:04,837 [INFO] Building date branches for project_id=1
+[build_date_branches] Using project_id=1
+[build_date_branches] Populating 'all' branch with 15 photos for project 1
+[build_date_branches] Inserted 15/15 photos into 'all' branch
+[build_date_branches] Found 6 unique dates for project 1
+[build_date_branches] Date 2024-08-11: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg
+[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-11-18: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg
+[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2024-11-29: found 3 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg
+[build_date_branches] Date 2024-11-29: inserted 3/3 into project_images (new)
+[build_date_branches] Date 2024-12-02: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg
+[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-30: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg
+[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-08-09: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg
+[build_date_branches] Date 2025-08-09: inserted 1/1 into project_images (new)
+[build_date_branches] Total entries processed: 8
+[build_date_branches] project_images table has 23 rows for project 1
+2025-11-17 09:15:04,859 [INFO] Created 8 photo date branch entries for project 1
+2025-11-17 09:15:04,860 [INFO] Building video date branches for project_id=1
+[build_video_date_branches] Using project_id=1
+[build_video_date_branches] Found 0 videos with dates for project 1
+[build_video_date_branches] No videos with dates found, skipping branch creation
+2025-11-17 09:15:04,861 [INFO] Created 0 video date branch entries for project 1
+2025-11-17 09:15:04,862 [INFO] Backfilling created_date fields for photos...
+2025-11-17 09:15:04,868 [INFO] Backfilled 7 photo rows with created_date
+2025-11-17 09:15:04,868 [INFO] Backfilling created_date fields for videos...
+2025-11-17 09:15:04,874 [INFO] Reloading sidebar after date branches built...
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
+[Sidebar] Loaded 2 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=6] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
+[get_images_by_branch] Found 15 photos
+[GRID] Loaded 15 thumbnails.
+[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Queued 15 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[Schema] Database schema initialized successfully
+[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Desktop
+2025-11-17 09:15:15,387 [INFO] DBWriter timer started in worker thread
+[ScanController] ScanWorker imported successfully
+[ScanController] QThread created
+[ScanController] ScanWorker instance created with project_id=1
+[ScanController] Worker moved to thread
+[ScanController] Signals connected
+[ScanController] Starting scan thread...
+[ScanController] thread.start() called
+[ScanWorkerAdapter] run() method called!
+[ScanWorkerAdapter] folder=C:/Users/suleimaa/Desktop, incremental=True
+2025-11-17 09:15:15,416 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Desktop
+[ScanWorkerAdapter] Starting scan...
+2025-11-17 09:15:15,417 [INFO] Starting scan: C:/Users/suleimaa/Desktop (incremental=True)
+[ScanController] QThread STARTED!
+2025-11-17 09:15:15,473 [INFO] Discovered 166 candidate image files and 3 video files
+2025-11-17 09:15:15,474 [INFO] Loading existing metadata for incremental scan...
+2025-11-17 09:15:15,475 [INFO] ✓ Loaded 15 existing file records
+2025-11-17 09:15:21,323 [INFO] Bulk upserted 166 photos for project 1
+2025-11-17 09:15:21,323 [INFO] Processing 3 videos...
+2025-11-17 09:15:21,397 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles-ezgif.com-resize-video.mp4 (id=1, status=pending)
+2025-11-17 09:15:21,416 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Qouzleh_mitSubtitles.mp4 (id=2, status=pending)
+2025-11-17 09:15:21,435 [INFO] Indexed video C:\Users\suleimaa\Desktop\eigen\Syria\Syria-Song.mp4 (id=3, status=pending)
+2025-11-17 09:15:21,438 [INFO] Indexed 3 videos (metadata extraction pending)
+2025-11-17 09:15:21,451 [INFO] Launching background workers for 3 videos...
+2025-11-17 09:15:21,452 [INFO] Using ffprobe from settings: C:/ffmpeg/bin/ffprobe.exe
+2025-11-17 09:15:22,773 [INFO] ffprobe detected at 'C:/ffmpeg/bin/ffprobe.exe' - video metadata extraction enabled
+2025-11-17 09:15:22,780 [INFO] Connected metadata finished callback for sidebar refresh
+2025-11-17 09:15:22,781 [INFO] ✓ Video metadata extraction worker started
+2025-11-17 09:15:22,781 [INFO] [VideoMetadataWorker] Starting for project_id=1
+2025-11-17 09:15:22,804 [INFO] Using ffmpeg from same directory as ffprobe: C:\ffmpeg\bin\ffmpeg.exe
+2025-11-17 09:15:22,891 [INFO] [VideoMetadataWorker] Found 3 videos to process
+2025-11-17 09:15:23,159 [INFO] [VideoMetadataWorker] Processing with 8 parallel workers
+2025-11-17 09:15:23,286 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+2025-11-17 09:15:23,286 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4
+2025-11-17 09:15:23,302 [INFO] [VideoMetadataWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+2025-11-17 09:15:23,302 [INFO] [VideoMetadataWorker] Finished: 3 success, 0 failed
+2025-11-17 09:15:24,046 [INFO] ffmpeg detected at 'C:\ffmpeg\bin\ffmpeg.exe' - video thumbnail generation enabled
+2025-11-17 09:15:24,046 [INFO] ✓ Video thumbnail generation worker started
+2025-11-17 09:15:24,046 [INFO] [VideoThumbnailWorker] Starting for project_id=1
+2025-11-17 09:15:24,046 [INFO] 🎬 Processing 3 videos in background (check logs for progress)
+2025-11-17 09:15:24,046 [INFO] Scan complete: 166 photos indexed, 3 videos indexed, 0 skipped, 0 failed in 8.6s
+2025-11-17 09:15:24,046 [INFO] Scan completed: 166 photos, 3 videos, 45 folders in 8.6s
+[ScanController] scan finished: 45 folders, 166 photos, 3 videos
+[ScanController] cleanup after scan
+2025-11-17 09:15:24,054 [INFO] [VideoThumbnailWorker] Found 3 videos to process
+2025-11-17 09:15:24,054 [INFO] [VideoThumbnailWorker] Processing with 8 parallel workers
+2025-11-17 09:15:24,386 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4 at .thumb_cache\qouzleh_mitsubtitles-ezgif.com-resize-video_mp4_thumb.jpg
+2025-11-17 09:15:24,388 [INFO] [VideoThumbnailWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles-ezgif.com-resize-video.mp4
+2025-11-17 09:15:24,403 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4 at .thumb_cache\syria-song_mp4_thumb.jpg
+2025-11-17 09:15:24,404 [INFO] Generated thumbnail for c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4 at .thumb_cache\qouzleh_mitsubtitles_mp4_thumb.jpg
+2025-11-17 09:15:24,404 [INFO] [VideoThumbnailWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\syria-song.mp4
+2025-11-17 09:15:24,420 [INFO] [VideoThumbnailWorker] ✓ c:\users\suleimaa\desktop\eigen\syria\qouzleh_mitsubtitles.mp4
+2025-11-17 09:15:24,420 [INFO] [VideoThumbnailWorker] Finished: 3 success, 0 failed
+2025-11-17 09:15:26,870 [INFO] Building date branches...
+2025-11-17 09:15:26,870 [INFO] Building date branches for project_id=1
+[build_date_branches] Using project_id=1
+[build_date_branches] Populating 'all' branch with 181 photos for project 1
+[build_date_branches] Inserted 166/181 photos into 'all' branch
+[build_date_branches] Found 14 unique dates for project 1
+[build_date_branches] Date 2024-08-11: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg
+[build_date_branches] Date 2024-08-11: inserted 1/2 into project_images (new)
+[build_date_branches] Date 2024-10-07: found 7 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/mietwohnung/1-wohnzimmer.jpeg
+[build_date_branches] Date 2024-10-07: inserted 7/7 into project_images (new)
+[build_date_branches] Date 2024-11-18: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg
+[build_date_branches] Date 2024-11-18: inserted 1/2 into project_images (new)
+[build_date_branches] Date 2024-11-29: found 4 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg
+[build_date_branches] Date 2024-11-29: inserted 1/4 into project_images (new)
+[build_date_branches] Date 2024-12-02: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg
+[build_date_branches] Date 2024-12-02: inserted 1/2 into project_images (new)
+[build_date_branches] Date 2024-12-16: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/1.jpeg
+[build_date_branches] Date 2024-12-16: inserted 2/2 into project_images (new)
+[build_date_branches] Date 2025-03-07: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/syria/cnn/6.jpg
+[build_date_branches] Date 2025-03-07: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-04: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya5.jpeg
+[build_date_branches] Date 2025-07-04: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-06: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/desktop/eigen/alya/photos/inbox/alya6.jpeg
+[build_date_branches] Date 2025-07-06: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-07-30: found 2 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg
+[build_date_branches] Date 2025-07-30: inserted 1/2 into project_images (new)
+[build_date_branches] Date 2025-08-09: found 3 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg
+[build_date_branches] Date 2025-08-09: inserted 2/3 into project_images (new)
+[build_date_branches] Date 2025-08-21: found 5 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya_2_2.jpeg
+[build_date_branches] Date 2025-08-21: inserted 5/5 into project_images (new)
+[build_date_branches] Date 2025-08-22: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref_3_2.png
+[build_date_branches] Date 2025-08-22: inserted 1/1 into project_images (new)
+[build_date_branches] Date 2025-08-25: found 1 photos for project 1
+[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya3_2_2_2_2.jpeg
+[build_date_branches] Date 2025-08-25: inserted 1/1 into project_images (new)
+[build_date_branches] Total entries processed: 34
+[build_date_branches] project_images table has 215 rows for project 1
+2025-11-17 09:15:26,887 [INFO] Created 34 photo date branch entries for project 1
+2025-11-17 09:15:26,887 [INFO] Building video date branches for project_id=1
+[build_video_date_branches] Using project_id=1
+[build_video_date_branches] Found 3 videos with dates for project 1
+[build_video_date_branches] Inserted 3/3 videos into 'all' branch
+[build_video_date_branches] Found 1 unique video dates
+[build_video_date_branches] Date 2025-05-06: inserted 3/3 (new)
+[build_video_date_branches] Total entries processed: 3
+[build_video_date_branches] project_videos table has 6 rows for project 1
+2025-11-17 09:15:26,887 [INFO] Created 3 video date branch entries for project 1
+2025-11-17 09:15:26,887 [INFO] Backfilling created_date fields for photos...
+2025-11-17 09:15:26,904 [INFO] Backfilled 147 photo rows with created_date
+2025-11-17 09:15:26,904 [INFO] Backfilling created_date fields for videos...
+2025-11-17 09:15:26,917 [INFO] Reloading sidebar after date branches built...
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 181}]
+[Sidebar] Loaded 61 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 4 years, 20 months, 72 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 3 videos in project 1
+[VideoDateHierarchy] Building: 1 years, 1 months, 3 videos
+[Sidebar] Added 🎬 Videos section with 3 videos and filters.
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=8] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 181 photos
+[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+[GRID] Loaded 181 thumbnails.
+[GRID] Reloaded 181 thumbnails in branch-mode (base=181)
+[GRID] Using scroll-based start position: 0 (scroll: 0/3158)
+[GRID] Loading viewport range: 0-56 of 181
+[GRID] Queued 57 new thumbnail workers
+[GRID] Using scroll-based start position: 161 (scroll: 1998/1998)
+[GRID] Loading viewport range: 153-180 of 181
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1998)
+[GRID] Loading viewport range: 0-32 of 181
+[GRID] Queued 33 new thumbnail workers
+[GRID] Using scroll-based start position: 158 (scroll: 1971/1998)
+[GRID] Loading viewport range: 150-180 of 181
+[GRID] Queued 31 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1998)
+[GRID] Loading viewport range: 0-32 of 181
+[GRID] Queued 33 new thumbnail workers
+[GRID] Using scroll-based start position: 161 (scroll: 1998/1998)
+[GRID] Loading viewport range: 153-180 of 181
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/1998)
+[GRID] Loading viewport range: 0-32 of 181
+[GRID] Queued 33 new thumbnail workers
+[Grid Preset] Set to small (zoom: 0.75)
+[Grid Preset] Set to medium (zoom: 1.0)
+[GRID] Using scroll-based start position: 161 (scroll: 2646/2646)
+[GRID] Loading viewport range: 153-180 of 181
+[GRID] Queued 28 new thumbnail workers
+[GRID] Using scroll-based start position: 101 (scroll: 1769/2646)
+[GRID] Near bottom, loading all remaining 23 items
+[GRID] Loading viewport range: 93-180 of 181
+[GRID] Queued 88 new thumbnail workers
+[GRID] Using scroll-based start position: 73 (scroll: 1369/2646)
+[GRID] Near bottom, loading all remaining 51 items
+[GRID] Loading viewport range: 65-180 of 181
+[GRID] Queued 95 new thumbnail workers
+2025-11-17 09:15:58,421 [WARNING] Cannot open image file c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png: cannot identify image file 'C:\\Users\\suleimaa\\Desktop\\eigen\\Syria\\ChatGPT Image 6. Mai 2025, 16_50_55.png'
+2025-11-17 09:15:58,421 [INFO] Marked as failed (will not retry): c:/users/suleimaa/desktop/eigen/syria/chatgpt image 6. mai 2025, 16_50_55.png
+[GRID] Using scroll-based start position: 0 (scroll: 0/2646)
+[GRID] Loading viewport range: 0-24 of 181
+[GRID] Queued 25 new thumbnail workers
+[Grid Preset] Set to small (zoom: 0.75)
+[GRID] Using scroll-based start position: 161 (scroll: 1346/1346)
+[GRID] Loading viewport range: 153-180 of 181
+[GRID] Queued 28 new thumbnail workers
+[GRID] Loaded 3 thumbnails in videos-mode.
 ================================================================================
 UNHANDLED EXCEPTION CAUGHT:
 ================================================================================
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_qt.py", line 111, in on_finished
-    win = MainWindow()
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_window_qt.py", line 3008, in __init__
-    self.grid = ThumbnailGridQt(project_id=default_pid)
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\thumbnail_grid_qt.py", line 522, in __init__
-    self.settings = settings  # use module-level settings instance
-UnboundLocalError: local variable 'settings' referenced before assignment
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'
 ================================================================================
-2025-11-16 20:34:10,574 [ERROR] Unhandled exception
+2025-11-17 09:16:22,398 [ERROR] Unhandled exception
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_qt.py", line 111, in on_finished
-    win = MainWindow()
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_window_qt.py", line 3008, in __init__
-    self.grid = ThumbnailGridQt(project_id=default_pid)
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\thumbnail_grid_qt.py", line 522, in __init__
-    self.settings = settings  # use module-level settings instance
-UnboundLocalError: local variable 'settings' referenced before assignment
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'
 Traceback (most recent call last):
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_qt.py", line 111, in on_finished
-    win = MainWindow()
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\main_window_qt.py", line 3008, in __init__
-    self.grid = ThumbnailGridQt(project_id=default_pid)
-  File "C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22\thumbnail_grid_qt.py", line 522, in __init__
-    self.settings = settings  # use module-level settings instance
-UnboundLocalError: local variable 'settings' referenced before assignment
-[20:34:10.582] [Tabs] _finish_branches (stale gen=1) — ignoring
-[20:34:10.582] [Tabs] _on_tab_changed(idx=0)
-[20:34:10.582] [Tabs] _start_timeout idx=0 type=branches
-[20:34:10.582] [Tabs] _populate_tab(branches, idx=0, force=False)
-[20:34:10.582] [Tabs]   populated=False, loading=False
-[20:34:10.582] [Tabs]   Starting load for branches
-[20:34:10.582] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[20:34:10.582] [Tabs] _clear_tab idx=0
-[20:34:10.583] [Tabs] _on_tab_changed → tab_type=branches
-[ThumbCacheDB] Closing cache gracefully...
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_28.01.01-Photo-App\MemoryMate-PhotoFlow-main-22>
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'. Did you mean: 'filter_by_duration'?
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'
+================================================================================
+2025-11-17 09:16:49,825 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1810, in _on_item_clicked
+    filtered = video_service.filter_by_duration_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_duration_key'. Did you mean: 'filter_by_duration'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+================================================================================
+2025-11-17 09:16:56,198 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'. Did you mean: 'filter_by_resolution'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+================================================================================
+2025-11-17 09:16:57,481 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'. Did you mean: 'filter_by_resolution'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+================================================================================
+2025-11-17 09:16:58,546 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'. Did you mean: 'filter_by_resolution'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+================================================================================
+2025-11-17 09:17:04,867 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'. Did you mean: 'filter_by_resolution'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+================================================================================
+2025-11-17 09:17:05,845 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1821, in _on_item_clicked
+    filtered = video_service.filter_by_resolution_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_resolution_key'. Did you mean: 'filter_by_resolution'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1831, in _on_item_clicked
+    filtered = video_service.filter_by_codec_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_codec_key'
+================================================================================
+2025-11-17 09:17:07,909 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1831, in _on_item_clicked
+    filtered = video_service.filter_by_codec_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_codec_key'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1831, in _on_item_clicked
+    filtered = video_service.filter_by_codec_key(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VideoService' object has no attribute 'filter_by_codec_key'. Did you mean: 'filter_by_codec'?
+================================================================================
+UNHANDLED EXCEPTION CAUGHT:
+================================================================================
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+================================================================================
+2025-11-17 09:17:10,080 [ERROR] Unhandled exception
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\sidebar_qt.py", line 1841, in _on_item_clicked
+    filtered = video_service.filter_by_file_size(videos, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\video_service.py", line 744, in filter_by_file_size
+    if min_mb is not None and size_mb < min_mb:
+                              ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'float' and 'str'
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 0 thumbnails in videos-mode.
+[GRID] Loaded 3 thumbnails in videos-mode.
+[MainWindow] Launching automatic face grouping pipeline for project 1
+2025-11-17 09:17:28,294 [INFO] [FaceDetectionWorker] Starting face detection for project 1
+2025-11-17 09:17:28,893 [INFO] 💻 Using CPU for face detection (CUDA not available)
+2025-11-17 09:17:28,893 [ERROR] ❌ Failed to initialize InsightFace: FaceAnalysis.__init__() got an unexpected keyword argument 'allowed_modules'
+2025-11-17 09:17:28,893 [ERROR] [FaceDetectionWorker] Fatal error: FaceAnalysis.__init__() got an unexpected keyword argument 'allowed_modules'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\workers\face_detection_worker.py", line 104, in run
+    face_service = get_face_detection_service(model=self.model)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\face_detection_service.py", line 455, in get_face_detection_service
+    _face_detection_service = FaceDetectionService(model=model)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\face_detection_service.py", line 214, in __init__
+    self.app = _get_insightface_app()
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.30.01.01-Photo-App\MemoryMate-PhotoFlow-main-01\services\face_detection_service.py", line 99, in _get_insightface_app
+    _insightface_app = FaceAnalysis(
+                       ^^^^^^^^^^^^^
+TypeError: FaceAnalysis.__init__() got an unexpected keyword argument 'allowed_modules'
+[FaceDetection] Complete: 0 photos, 0 faces detected

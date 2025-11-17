@@ -78,14 +78,37 @@ def download_buffalo_model():
             providers = ['CPUExecutionProvider']
             logger.warning("   ONNXRuntime not found, defaulting to CPU")
 
-        # Initialize FaceAnalysis with project root and providers
+        # Initialize FaceAnalysis with project root
         # InsightFace will create: project_root/models/buffalo_l/
-        # CRITICAL: Pass providers during init (required by ONNX Runtime 1.9+)
-        app = FaceAnalysis(name='buffalo_l', root=project_root, providers=providers)
+        # Check version compatibility for providers parameter
+        import inspect
+        sig = inspect.signature(FaceAnalysis.__init__)
+        init_params = {'name': 'buffalo_l', 'root': project_root}
+
+        if 'providers' in sig.parameters:
+            # Newer version: pass providers during init
+            init_params['providers'] = providers
+            logger.info("   Passing providers to FaceAnalysis.__init__")
+        else:
+            logger.info("   InsightFace version doesn't support providers in __init__")
+
+        app = FaceAnalysis(**init_params)
 
         # Prepare the model - this downloads if not present
         logger.info("🔧 Preparing model...")
-        app.prepare(ctx_id=-1, det_size=(640, 640))
+        prepare_params = {'ctx_id': -1, 'det_size': (640, 640)}
+
+        # For older versions, try passing providers to prepare()
+        if 'providers' not in sig.parameters:
+            try:
+                prepare_sig = inspect.signature(app.prepare)
+                if 'providers' in prepare_sig.parameters:
+                    prepare_params['providers'] = providers
+                    logger.info("   Passing providers to prepare() instead")
+            except Exception:
+                pass
+
+        app.prepare(**prepare_params)
 
         logger.info("\n✅ Model downloaded successfully!")
         logger.info(f"📁 Location: {buffalo_dir}")

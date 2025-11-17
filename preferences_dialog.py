@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 from translation_manager import get_translation_manager, tr
+from config.face_detection_config import get_face_config
 
 
 class PreferencesDialog(QDialog):
@@ -30,6 +31,7 @@ class PreferencesDialog(QDialog):
     def __init__(self, settings, parent=None):
         super().__init__(parent)
         self.settings = settings
+        self.face_config = get_face_config()
         self.tm = get_translation_manager()
 
         # Load current language from settings
@@ -258,11 +260,87 @@ class PreferencesDialog(QDialog):
         title.setStyleSheet("font-size: 18pt; font-weight: bold;")
         layout.addWidget(title)
 
-        # Placeholder for future face detection settings
-        info = QLabel("Face detection settings will be added here.\nCurrently using buffalo_l model with default settings.")
-        info.setStyleSheet("color: gray; padding: 20px;")
-        info.setWordWrap(True)
-        layout.addWidget(info)
+        # InsightFace Model Selection
+        model_group = QGroupBox("InsightFace Model")
+        model_layout = QFormLayout(model_group)
+        model_layout.setSpacing(10)
+
+        self.cmb_insightface_model = QComboBox()
+        self.cmb_insightface_model.addItem("buffalo_s (Fast, smaller memory)", "buffalo_s")
+        self.cmb_insightface_model.addItem("buffalo_l (Balanced, recommended)", "buffalo_l")
+        self.cmb_insightface_model.addItem("antelopev2 (Most accurate)", "antelopev2")
+        self.cmb_insightface_model.setToolTip(
+            "Choose the face detection model:\n"
+            "• buffalo_s: Faster, uses less memory\n"
+            "• buffalo_l: Best balance (recommended)\n"
+            "• antelopev2: Most accurate but slower"
+        )
+        model_layout.addRow("Model:", self.cmb_insightface_model)
+
+        layout.addWidget(model_group)
+
+        # Detection Settings
+        detection_group = QGroupBox("Detection Settings")
+        detection_layout = QFormLayout(detection_group)
+        detection_layout.setSpacing(10)
+
+        self.spin_min_face_size = QSpinBox()
+        self.spin_min_face_size.setRange(10, 100)
+        self.spin_min_face_size.setSuffix(" px")
+        self.spin_min_face_size.setToolTip("Minimum face size in pixels (smaller = detect smaller/distant faces)")
+        detection_layout.addRow("Min Face Size:", self.spin_min_face_size)
+
+        self.spin_confidence = QSpinBox()
+        self.spin_confidence.setRange(30, 95)
+        self.spin_confidence.setSuffix(" %")
+        self.spin_confidence.setToolTip("Minimum confidence threshold (higher = fewer false positives)")
+        detection_layout.addRow("Confidence:", self.spin_confidence)
+
+        layout.addWidget(detection_group)
+
+        # Clustering Settings
+        cluster_group = QGroupBox("Face Clustering")
+        cluster_layout = QFormLayout(cluster_group)
+        cluster_layout.setSpacing(10)
+
+        self.spin_cluster_eps = QSpinBox()
+        self.spin_cluster_eps.setRange(20, 60)
+        self.spin_cluster_eps.setSuffix(" %")
+        self.spin_cluster_eps.setToolTip(
+            "Clustering threshold (lower = stricter grouping):\n"
+            "• 30-35%: Recommended (prevents grouping different people)\n"
+            "• <30%: Very strict (may split same person)\n"
+            "• >40%: Loose (may group different people)"
+        )
+        cluster_layout.addRow("Threshold (eps):", self.spin_cluster_eps)
+
+        self.spin_min_samples = QSpinBox()
+        self.spin_min_samples.setRange(1, 10)
+        self.spin_min_samples.setToolTip("Minimum faces needed to form a cluster")
+        cluster_layout.addRow("Min Samples:", self.spin_min_samples)
+
+        self.chk_auto_cluster = QCheckBox("Auto-cluster after face detection scan")
+        self.chk_auto_cluster.setToolTip("Automatically group faces after detection completes")
+        cluster_layout.addRow("", self.chk_auto_cluster)
+
+        layout.addWidget(cluster_group)
+
+        # Performance Settings
+        perf_group = QGroupBox("Performance")
+        perf_layout = QFormLayout(perf_group)
+        perf_layout.setSpacing(10)
+
+        self.spin_max_workers = QSpinBox()
+        self.spin_max_workers.setRange(1, 16)
+        self.spin_max_workers.setToolTip("Number of parallel face detection workers")
+        perf_layout.addRow("Max Workers:", self.spin_max_workers)
+
+        self.spin_batch_size = QSpinBox()
+        self.spin_batch_size.setRange(10, 200)
+        self.spin_batch_size.setToolTip("Number of images to process before saving to database")
+        perf_layout.addRow("Batch Size:", self.spin_batch_size)
+
+        layout.addWidget(perf_group)
 
         layout.addStretch()
 
@@ -466,6 +544,20 @@ class PreferencesDialog(QDialog):
         ignore_folders = self.settings.get("ignore_folders", [])
         self.txt_ignore_folders.setPlainText("\n".join(ignore_folders))
 
+        # Face Detection
+        model = self.face_config.get("insightface_model", "buffalo_l")
+        index = self.cmb_insightface_model.findData(model)
+        if index >= 0:
+            self.cmb_insightface_model.setCurrentIndex(index)
+
+        self.spin_min_face_size.setValue(self.face_config.get("min_face_size", 20))
+        self.spin_confidence.setValue(int(self.face_config.get("confidence_threshold", 0.6) * 100))
+        self.spin_cluster_eps.setValue(int(self.face_config.get("clustering_eps", 0.35) * 100))
+        self.spin_min_samples.setValue(self.face_config.get("clustering_min_samples", 2))
+        self.chk_auto_cluster.setChecked(self.face_config.get("auto_cluster_after_scan", True))
+        self.spin_max_workers.setValue(self.face_config.get("max_workers", 4))
+        self.spin_batch_size.setValue(self.face_config.get("batch_size", 50))
+
         # Video
         self.txt_ffprobe_path.setText(self.settings.get("ffprobe_path", ""))
 
@@ -489,6 +581,14 @@ class PreferencesDialog(QDialog):
             "cache_size_mb": self.settings.get("cache_size_mb", 500),
             "cache_auto_cleanup": self.settings.get("cache_auto_cleanup", True),
             "ignore_folders": self.settings.get("ignore_folders", []),
+            "insightface_model": self.face_config.get("insightface_model", "buffalo_l"),
+            "min_face_size": self.face_config.get("min_face_size", 20),
+            "confidence_threshold": self.face_config.get("confidence_threshold", 0.6),
+            "clustering_eps": self.face_config.get("clustering_eps", 0.35),
+            "clustering_min_samples": self.face_config.get("clustering_min_samples", 2),
+            "auto_cluster_after_scan": self.face_config.get("auto_cluster_after_scan", True),
+            "face_max_workers": self.face_config.get("max_workers", 4),
+            "face_batch_size": self.face_config.get("batch_size", 50),
             "ffprobe_path": self.settings.get("ffprobe_path", ""),
             "show_decoder_warnings": self.settings.get("show_decoder_warnings", False),
             "db_debug_logging": self.settings.get("db_debug_logging", False),
@@ -549,6 +649,18 @@ class PreferencesDialog(QDialog):
         # Scanning
         ignore_list = [x.strip() for x in self.txt_ignore_folders.toPlainText().splitlines() if x.strip()]
         self.settings.set("ignore_folders", ignore_list)
+
+        # Face Detection
+        self.face_config.set("insightface_model", self.cmb_insightface_model.currentData())
+        self.face_config.set("min_face_size", self.spin_min_face_size.value())
+        self.face_config.set("confidence_threshold", self.spin_confidence.value() / 100.0)
+        self.face_config.set("clustering_eps", self.spin_cluster_eps.value() / 100.0)
+        self.face_config.set("clustering_min_samples", self.spin_min_samples.value())
+        self.face_config.set("auto_cluster_after_scan", self.chk_auto_cluster.isChecked())
+        self.face_config.set("max_workers", self.spin_max_workers.value())
+        self.face_config.set("batch_size", self.spin_batch_size.value())
+        print(f"✅ Face detection settings saved: model={self.cmb_insightface_model.currentData()}, "
+              f"eps={self.spin_cluster_eps.value()}%, min_samples={self.spin_min_samples.value()}")
 
         # Video
         ffprobe_path = self.txt_ffprobe_path.text().strip()
@@ -625,6 +737,14 @@ class PreferencesDialog(QDialog):
             "cache_size_mb": int(self.cmb_cache_size.currentText()) if self.cmb_cache_size.currentText().isdigit() else 500,
             "cache_auto_cleanup": self.chk_cache_cleanup.isChecked(),
             "ignore_folders": [x.strip() for x in self.txt_ignore_folders.toPlainText().splitlines() if x.strip()],
+            "insightface_model": self.cmb_insightface_model.currentData(),
+            "min_face_size": self.spin_min_face_size.value(),
+            "confidence_threshold": self.spin_confidence.value() / 100.0,
+            "clustering_eps": self.spin_cluster_eps.value() / 100.0,
+            "clustering_min_samples": self.spin_min_samples.value(),
+            "auto_cluster_after_scan": self.chk_auto_cluster.isChecked(),
+            "face_max_workers": self.spin_max_workers.value(),
+            "face_batch_size": self.spin_batch_size.value(),
             "ffprobe_path": self.txt_ffprobe_path.text().strip(),
             "show_decoder_warnings": self.chk_decoder_warnings.isChecked(),
             "db_debug_logging": self.chk_db_debug.isChecked(),

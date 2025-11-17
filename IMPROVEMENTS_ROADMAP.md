@@ -18,6 +18,12 @@
 - ✅ Enhanced face visibility with larger thumbnails
 - ✅ Added proper EXIF auto-rotation for all face displays
 - ✅ Removed deprecated code causing "Unable to display thumbnails" warnings
+- ✅ **NEW:** Created dedicated PeopleListView widget with Apple-style design (2025-11-17)
+  - Large circular face thumbnails (96x96 px)
+  - Hover effects and rounded selection styling
+  - Integrated search filtering
+  - Status bar updates on person activation
+  - Cleaner, more maintainable code architecture
 
 ### 3. Deployment & Packaging (NEW - 2025-11-17)
 - ✅ Created PyInstaller spec file with ML model bundling

@@ -1,0 +1,263 @@
+{
+  "_metadata": {
+    "language_code": "es",
+    "language_name": "Español",
+    "version": "1.0.0",
+    "last_updated": "2025-11-17"
+  },
+
+  "app": {
+    "name": "MemoryMate-PhotoFlow",
+    "tagline": "Tu Gestor Personal de Biblioteca de Fotos"
+  },
+
+  "common": {
+    "ok": "Aceptar",
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "browse": "Explorar...",
+    "test": "Probar",
+    "refresh": "Actualizar",
+    "search": "Buscar",
+    "clear": "Limpiar",
+    "select_all": "Seleccionar Todo",
+    "deselect_all": "Deseleccionar Todo",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "warning": "Advertencia",
+    "error": "Error",
+    "success": "Éxito",
+    "info": "Información",
+    "loading": "Cargando..."
+  },
+
+  "menu": {
+    "file": "Archivo",
+    "file_scan": "Escanear Fotos...",
+    "file_preferences": "Preferencias",
+    "file_exit": "Salir",
+    "edit": "Editar",
+    "edit_select_all": "Seleccionar Todo",
+    "edit_deselect_all": "Deseleccionar Todo",
+    "view": "Ver",
+    "view_refresh": "Actualizar",
+    "view_dark_mode": "Modo Oscuro",
+    "tools": "Herramientas",
+    "tools_detect_faces": "Detectar Rostros",
+    "tools_cluster_faces": "Agrupar Rostros",
+    "tools_metadata_backfill": "Extraer Metadatos",
+    "help": "Ayuda",
+    "help_about": "Acerca de"
+  },
+
+  "sidebar": {
+    "all_photos": "Todas las Fotos",
+    "favorites": "Favoritos",
+    "albums": "Álbumes",
+    "people": "Personas",
+    "places": "Lugares",
+    "dates": "Fechas",
+    "search_results": "Resultados de Búsqueda",
+    "photo_count": "{count} fotos",
+    "photo_count_singular": "1 foto",
+    "face_count": "{count} rostros",
+    "face_count_singular": "1 rostro"
+  },
+
+  "preferences": {
+    "title": "Preferencias de la Aplicación",
+    "unsaved_changes": "Cambios No Guardados",
+    "unsaved_changes_message": "Tiene cambios no guardados. ¿Desea guardarlos antes de cerrar?",
+
+    "nav": {
+      "general": "General",
+      "appearance": "Apariencia",
+      "scanning": "Escaneo",
+      "face_detection": "Detección de Rostros",
+      "video": "Video",
+      "advanced": "Avanzado"
+    },
+
+    "general": {
+      "title": "Configuración General",
+      "skip_unchanged": "Omitir fotos sin cambios durante el escaneo",
+      "skip_unchanged_hint": "Solo procesar fotos que han sido modificadas desde el último escaneo",
+      "use_exif_dates": "Usar datos EXIF para fechas de fotos",
+      "use_exif_dates_hint": "Extraer fecha/hora de los metadatos de la foto en lugar de la fecha de modificación del archivo"
+    },
+
+    "appearance": {
+      "title": "Apariencia",
+      "dark_mode": "Activar modo oscuro",
+      "dark_mode_hint": "Usar esquema de colores oscuro para la interfaz",
+      "language": "Idioma",
+      "language_hint": "Seleccione su idioma preferido",
+      "restart_required": "Reinicio Requerido",
+      "restart_required_message": "La aplicación necesita reiniciarse para que los cambios de idioma surtan efecto."
+    },
+
+    "scanning": {
+      "title": "Configuración de Escaneo",
+      "ignore_folders": "Ignorar Carpetas",
+      "ignore_folders_hint": "Un patrón por línea (ej., .git, node_modules, *_backup)",
+      "ignore_folders_placeholder": "Ingrese patrones de carpetas a ignorar...\nEjemplo:\n.git\nnode_modules\n*_backup"
+    },
+
+    "face_detection": {
+      "title": "Detección de Rostros",
+      "model": "Modelo de Detección",
+      "model_hint": "Elija el modelo de detección de rostros (buffalo_l recomendado)",
+      "sensitivity": "Sensibilidad de Detección",
+      "sensitivity_low": "Baja (menos falsos positivos)",
+      "sensitivity_medium": "Media (equilibrada)",
+      "sensitivity_high": "Alta (detectar más rostros)",
+      "min_face_size": "Tamaño Mínimo de Rostro",
+      "min_face_size_hint": "Tamaño mínimo del rostro en píxeles (menor = detectar rostros más pequeños)"
+    },
+
+    "cache": {
+      "title": "Caché de Miniaturas",
+      "enabled": "Activar caché de miniaturas",
+      "enabled_hint": "Guardar miniaturas generadas para carga más rápida",
+      "size_mb": "Tamaño del Caché (MB)",
+      "size_mb_hint": "Espacio máximo en disco para miniaturas en caché",
+      "auto_cleanup": "Limpieza automática",
+      "auto_cleanup_hint": "Eliminar automáticamente miniaturas antiguas cuando el caché esté lleno",
+      "current_size": "Tamaño actual del caché: {size} MB",
+      "clear_cache": "Limpiar Caché",
+      "clear_cache_confirm": "¿Está seguro de que desea limpiar el caché de miniaturas?",
+      "cache_cleared": "Caché limpiado exitosamente"
+    },
+
+    "diagnostics": {
+      "title": "Diagnósticos",
+      "decoder_warnings": "Mostrar advertencias del decodificador de imágenes",
+      "decoder_warnings_hint": "Mostrar advertencias para archivos de imagen corruptos o no compatibles",
+      "restart_required": "Reinicio Requerido",
+      "restart_required_message": "Las advertencias del decodificador han sido activadas.\nPor favor reinicie la aplicación para aplicar los cambios.",
+      "restart_recommended": "Reinicio Recomendado",
+      "restart_recommended_message": "La supresión de advertencias del decodificador se aplicará completamente después de reiniciar la aplicación."
+    },
+
+    "developer": {
+      "title": "Herramientas de Desarrollador",
+      "db_debug": "Activar registro de depuración de base de datos",
+      "db_debug_hint": "Registrar todas las operaciones de base de datos (verbose)",
+      "sql_queries": "Mostrar consultas SQL en consola",
+      "sql_queries_hint": "Mostrar todas las consultas SQL en la salida de la consola",
+      "developer_mode_enabled": "🧩 Modo desarrollador: Registro de depuración de BD activado."
+    },
+
+    "metadata": {
+      "title": "Extracción de Metadatos",
+      "workers": "Hilos de Trabajo",
+      "workers_hint": "Número de hilos paralelos para la extracción de metadatos",
+      "timeout": "Tiempo de Espera por Archivo (segundos)",
+      "timeout_hint": "Tiempo máximo para procesar cada archivo",
+      "batch_size": "Lote de Actualización de Base de Datos",
+      "batch_size_hint": "Número de archivos a procesar antes de escribir en la base de datos",
+      "auto_run": "Ejecutar automáticamente después del escaneo",
+      "auto_run_hint": "Extraer metadatos automáticamente después de completar el escaneo de fotos"
+    },
+
+    "video": {
+      "title": "Configuración de Video",
+      "ffprobe_path": "Ruta de FFprobe",
+      "ffprobe_path_hint": "Ruta al ejecutable ffprobe para extracción de metadatos de video.\nDejar vacío para usar PATH del sistema.\nRequerido para miniaturas de video, duración y filtrado por fecha.",
+      "ffprobe_path_placeholder": "Dejar vacío para usar PATH del sistema",
+      "ffprobe_test_success": "Prueba de FFprobe - Éxito",
+      "ffprobe_test_success_message": "✓ ¡FFprobe está funcionando!\n\n{version}\n\n💡 Recuerde hacer clic en Aceptar para guardar la configuración, luego reinicie la aplicación.",
+      "ffprobe_test_failed": "Prueba de FFprobe - Fallo",
+      "ffprobe_test_failed_message": "✗ FFprobe devolvió el código de error {code}\n\n{error}",
+      "ffprobe_not_found": "Prueba de FFprobe - No Encontrado",
+      "ffprobe_not_found_message": "✗ FFprobe no encontrado en:\n{path}\n\nPor favor instale FFmpeg o especifique la ruta correcta.",
+      "ffprobe_test_error": "Prueba de FFprobe - Error",
+      "ffprobe_test_error_message": "✗ Error al probar ffprobe:\n{error}",
+      "ffmpeg_note": "💡 <b>Nota:</b> FFmpeg/FFprobe es requerido para soporte de video.<br>Sin él, los videos no tendrán miniaturas ni información de fecha.",
+      "ffmpeg_path_changed": "🔄 Bandera de verificación de FFmpeg borrada - se verificará en el próximo inicio",
+      "ffmpeg_path_configured": "🎬 Ruta de FFprobe configurada: {path}",
+      "ffmpeg_path_system": "(usando PATH del sistema)",
+      "restart_required": "Reinicio Requerido - Configuración de FFmpeg",
+      "restart_required_message": "La configuración de FFmpeg/FFprobe ha sido actualizada.\n\nLa aplicación necesita reiniciarse para que los cambios surtan efecto.\nLa verificación de disponibilidad de FFmpeg se ejecutará en el próximo inicio.\n\n¿Desea reiniciar ahora?"
+    }
+  },
+
+  "face_detection": {
+    "detecting_faces": "Detectando rostros...",
+    "faces_found": "Se encontraron {count} rostros",
+    "clustering_faces": "Agrupando rostros...",
+    "clusters_created": "Se crearon {count} grupos",
+    "no_faces_found": "No se encontraron rostros en las fotos",
+    "model_loading": "Cargando modelo de detección de rostros...",
+    "model_loaded": "✅ InsightFace (buffalo_l) cargado exitosamente",
+    "model_failed": "❌ Fallo al inicializar InsightFace",
+    "processing_photo": "Procesando {current} de {total}: {filename}"
+  },
+
+  "people": {
+    "unnamed_person": "Persona Sin Nombre",
+    "person_photos": "{count} fotos",
+    "person_photos_singular": "1 foto",
+    "merge_people": "Fusionar Personas",
+    "merge_confirm": "¿Está seguro de que desea fusionar estas personas?",
+    "rename_person": "Renombrar Persona",
+    "delete_person": "Eliminar Persona",
+    "delete_confirm": "¿Está seguro de que desea eliminar esta persona?"
+  },
+
+  "photo_grid": {
+    "select_mode": "Modo Selección",
+    "selected_count": "{count} seleccionados",
+    "delete_selected": "Eliminar Seleccionados",
+    "delete_confirm": "¿Está seguro de que desea eliminar {count} fotos?",
+    "add_to_album": "Agregar al Álbum",
+    "remove_from_album": "Eliminar del Álbum",
+    "set_favorite": "Agregar a Favoritos",
+    "unset_favorite": "Eliminar de Favoritos"
+  },
+
+  "scanning": {
+    "select_folder": "Seleccionar Carpeta de Fotos",
+    "scanning_folder": "Escaneando carpeta: {path}",
+    "found_photos": "Se encontraron {count} fotos",
+    "processing": "Procesando fotos...",
+    "scan_complete": "¡Escaneo completo!",
+    "scan_failed": "Escaneo fallido: {error}"
+  },
+
+  "status_bar": {
+    "ready": "Listo",
+    "total_photos": "{count} fotos",
+    "selected": "{count} seleccionados",
+    "loading": "Cargando...",
+    "face_detection_running": "Detección de rostros en progreso...",
+    "metadata_extraction": "Extrayendo metadatos...",
+    "person_selected": "Seleccionado: {name}"
+  },
+
+  "errors": {
+    "database_error": "Error de Base de Datos",
+    "database_error_message": "Ocurrió un error al acceder a la base de datos:\n{error}",
+    "file_not_found": "Archivo No Encontrado",
+    "file_not_found_message": "No se pudo encontrar el archivo:\n{path}",
+    "permission_denied": "Permiso Denegado",
+    "permission_denied_message": "No tiene permiso para acceder a:\n{path}",
+    "image_load_failed": "Fallo al Cargar Imagen",
+    "image_load_failed_message": "No se pudo cargar la imagen:\n{path}\n\nError: {error}",
+    "unknown_error": "Error Desconocido",
+    "unknown_error_message": "Ocurrió un error inesperado:\n{error}"
+  },
+
+  "about": {
+    "title": "Acerca de MemoryMate-PhotoFlow",
+    "version": "Versión {version}",
+    "description": "Un gestor de biblioteca de fotos personal con detección y agrupación de rostros.",
+    "copyright": "Copyright © 2025",
+    "license": "Licenciado bajo Licencia MIT"
+  }
+}

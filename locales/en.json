@@ -1,0 +1,263 @@
+{
+  "_metadata": {
+    "language_code": "en",
+    "language_name": "English",
+    "version": "1.0.0",
+    "last_updated": "2025-11-17"
+  },
+
+  "app": {
+    "name": "MemoryMate-PhotoFlow",
+    "tagline": "Your Personal Photo Library Manager"
+  },
+
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "browse": "Browse...",
+    "test": "Test",
+    "refresh": "Refresh",
+    "search": "Search",
+    "clear": "Clear",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "warning": "Warning",
+    "error": "Error",
+    "success": "Success",
+    "info": "Information",
+    "loading": "Loading..."
+  },
+
+  "menu": {
+    "file": "File",
+    "file_scan": "Scan Photos...",
+    "file_preferences": "Preferences",
+    "file_exit": "Exit",
+    "edit": "Edit",
+    "edit_select_all": "Select All",
+    "edit_deselect_all": "Deselect All",
+    "view": "View",
+    "view_refresh": "Refresh",
+    "view_dark_mode": "Dark Mode",
+    "tools": "Tools",
+    "tools_detect_faces": "Detect Faces",
+    "tools_cluster_faces": "Cluster Faces",
+    "tools_metadata_backfill": "Extract Metadata",
+    "help": "Help",
+    "help_about": "About"
+  },
+
+  "sidebar": {
+    "all_photos": "All Photos",
+    "favorites": "Favorites",
+    "albums": "Albums",
+    "people": "People",
+    "places": "Places",
+    "dates": "Dates",
+    "search_results": "Search Results",
+    "photo_count": "{count} photos",
+    "photo_count_singular": "1 photo",
+    "face_count": "{count} faces",
+    "face_count_singular": "1 face"
+  },
+
+  "preferences": {
+    "title": "Application Preferences",
+    "unsaved_changes": "Unsaved Changes",
+    "unsaved_changes_message": "You have unsaved changes. Do you want to save them before closing?",
+
+    "nav": {
+      "general": "General",
+      "appearance": "Appearance",
+      "scanning": "Scanning",
+      "face_detection": "Face Detection",
+      "video": "Video",
+      "advanced": "Advanced"
+    },
+
+    "general": {
+      "title": "General Settings",
+      "skip_unchanged": "Skip unchanged photos during scan",
+      "skip_unchanged_hint": "Only process photos that have been modified since last scan",
+      "use_exif_dates": "Use EXIF data for photo dates",
+      "use_exif_dates_hint": "Extract date/time from photo metadata instead of file modification date"
+    },
+
+    "appearance": {
+      "title": "Appearance",
+      "dark_mode": "Enable dark mode",
+      "dark_mode_hint": "Use dark color scheme for the interface",
+      "language": "Language",
+      "language_hint": "Select your preferred language",
+      "restart_required": "Restart Required",
+      "restart_required_message": "The application needs to restart for language changes to take effect."
+    },
+
+    "scanning": {
+      "title": "Scanning Settings",
+      "ignore_folders": "Ignore Folders",
+      "ignore_folders_hint": "One pattern per line (e.g., .git, node_modules, *_backup)",
+      "ignore_folders_placeholder": "Enter folder patterns to ignore...\nExample:\n.git\nnode_modules\n*_backup"
+    },
+
+    "face_detection": {
+      "title": "Face Detection",
+      "model": "Detection Model",
+      "model_hint": "Choose the face detection model (buffalo_l recommended)",
+      "sensitivity": "Detection Sensitivity",
+      "sensitivity_low": "Low (fewer false positives)",
+      "sensitivity_medium": "Medium (balanced)",
+      "sensitivity_high": "High (detect more faces)",
+      "min_face_size": "Minimum Face Size",
+      "min_face_size_hint": "Minimum face size in pixels (smaller = detect smaller faces)"
+    },
+
+    "cache": {
+      "title": "Thumbnail Cache",
+      "enabled": "Enable thumbnail cache",
+      "enabled_hint": "Cache generated thumbnails for faster loading",
+      "size_mb": "Cache Size (MB)",
+      "size_mb_hint": "Maximum disk space for cached thumbnails",
+      "auto_cleanup": "Automatic cleanup",
+      "auto_cleanup_hint": "Automatically remove old thumbnails when cache is full",
+      "current_size": "Current cache size: {size} MB",
+      "clear_cache": "Clear Cache",
+      "clear_cache_confirm": "Are you sure you want to clear the thumbnail cache?",
+      "cache_cleared": "Cache cleared successfully"
+    },
+
+    "diagnostics": {
+      "title": "Diagnostics",
+      "decoder_warnings": "Show image decoder warnings",
+      "decoder_warnings_hint": "Display warnings for corrupted or unsupported image files",
+      "restart_required": "Restart Required",
+      "restart_required_message": "Decoder warnings have been enabled.\nPlease restart the app to apply changes.",
+      "restart_recommended": "Restart Recommended",
+      "restart_recommended_message": "Decoder warning silencing will apply fully after restarting the app."
+    },
+
+    "developer": {
+      "title": "Developer Tools",
+      "db_debug": "Enable database debug logging",
+      "db_debug_hint": "Log all database operations (verbose)",
+      "sql_queries": "Show SQL queries in console",
+      "sql_queries_hint": "Echo all SQL queries to console output",
+      "developer_mode_enabled": "🧩 Developer mode: DB debug logging enabled."
+    },
+
+    "metadata": {
+      "title": "Metadata Extraction",
+      "workers": "Worker Threads",
+      "workers_hint": "Number of parallel threads for metadata extraction",
+      "timeout": "Per-file Timeout (seconds)",
+      "timeout_hint": "Maximum time to spend on each file",
+      "batch_size": "Database Update Batch",
+      "batch_size_hint": "Number of files to process before writing to database",
+      "auto_run": "Auto-run after scan",
+      "auto_run_hint": "Automatically extract metadata after completing photo scan"
+    },
+
+    "video": {
+      "title": "Video Settings",
+      "ffprobe_path": "FFprobe Path",
+      "ffprobe_path_hint": "Path to ffprobe executable for video metadata extraction.\nLeave empty to use system PATH.\nRequired for video thumbnails, duration, and date filtering.",
+      "ffprobe_path_placeholder": "Leave empty to use system PATH",
+      "ffprobe_test_success": "FFprobe Test - Success",
+      "ffprobe_test_success_message": "✓ FFprobe is working!\n\n{version}\n\n💡 Remember to click OK to save settings, then restart the app.",
+      "ffprobe_test_failed": "FFprobe Test - Failed",
+      "ffprobe_test_failed_message": "✗ FFprobe returned error code {code}\n\n{error}",
+      "ffprobe_not_found": "FFprobe Test - Not Found",
+      "ffprobe_not_found_message": "✗ FFprobe not found at:\n{path}\n\nPlease install FFmpeg or specify the correct path.",
+      "ffprobe_test_error": "FFprobe Test - Error",
+      "ffprobe_test_error_message": "✗ Error testing ffprobe:\n{error}",
+      "ffmpeg_note": "💡 <b>Note:</b> FFmpeg/FFprobe is required for video support.<br>Without it, videos won't have thumbnails or date information.",
+      "ffmpeg_path_changed": "🔄 FFmpeg check flag cleared - will re-check on next startup",
+      "ffmpeg_path_configured": "🎬 FFprobe path configured: {path}",
+      "ffmpeg_path_system": "(using system PATH)",
+      "restart_required": "Restart Required - FFmpeg Configuration",
+      "restart_required_message": "FFmpeg/FFprobe configuration has been updated.\n\nThe application needs to restart for the changes to take effect.\nThe FFmpeg availability check will run on next startup.\n\nWould you like to restart now?"
+    }
+  },
+
+  "face_detection": {
+    "detecting_faces": "Detecting faces...",
+    "faces_found": "Found {count} faces",
+    "clustering_faces": "Clustering faces...",
+    "clusters_created": "Created {count} clusters",
+    "no_faces_found": "No faces found in photos",
+    "model_loading": "Loading face detection model...",
+    "model_loaded": "✅ InsightFace (buffalo_l) loaded successfully",
+    "model_failed": "❌ Failed to initialize InsightFace",
+    "processing_photo": "Processing {current} of {total}: {filename}"
+  },
+
+  "people": {
+    "unnamed_person": "Unnamed Person",
+    "person_photos": "{count} photos",
+    "person_photos_singular": "1 photo",
+    "merge_people": "Merge People",
+    "merge_confirm": "Are you sure you want to merge these people?",
+    "rename_person": "Rename Person",
+    "delete_person": "Delete Person",
+    "delete_confirm": "Are you sure you want to delete this person?"
+  },
+
+  "photo_grid": {
+    "select_mode": "Select Mode",
+    "selected_count": "{count} selected",
+    "delete_selected": "Delete Selected",
+    "delete_confirm": "Are you sure you want to delete {count} photos?",
+    "add_to_album": "Add to Album",
+    "remove_from_album": "Remove from Album",
+    "set_favorite": "Add to Favorites",
+    "unset_favorite": "Remove from Favorites"
+  },
+
+  "scanning": {
+    "select_folder": "Select Photo Folder",
+    "scanning_folder": "Scanning folder: {path}",
+    "found_photos": "Found {count} photos",
+    "processing": "Processing photos...",
+    "scan_complete": "Scan complete!",
+    "scan_failed": "Scan failed: {error}"
+  },
+
+  "status_bar": {
+    "ready": "Ready",
+    "total_photos": "{count} photos",
+    "selected": "{count} selected",
+    "loading": "Loading...",
+    "face_detection_running": "Face detection in progress...",
+    "metadata_extraction": "Extracting metadata...",
+    "person_selected": "Selected: {name}"
+  },
+
+  "errors": {
+    "database_error": "Database Error",
+    "database_error_message": "An error occurred while accessing the database:\n{error}",
+    "file_not_found": "File Not Found",
+    "file_not_found_message": "The file could not be found:\n{path}",
+    "permission_denied": "Permission Denied",
+    "permission_denied_message": "You don't have permission to access:\n{path}",
+    "image_load_failed": "Failed to Load Image",
+    "image_load_failed_message": "Could not load image:\n{path}\n\nError: {error}",
+    "unknown_error": "Unknown Error",
+    "unknown_error_message": "An unexpected error occurred:\n{error}"
+  },
+
+  "about": {
+    "title": "About MemoryMate-PhotoFlow",
+    "version": "Version {version}",
+    "description": "A personal photo library manager with face detection and clustering.",
+    "copyright": "Copyright © 2025",
+    "license": "Licensed under MIT License"
+  }
+}

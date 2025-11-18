@@ -38,10 +38,18 @@ class MediaThumbnailWidget(QFrame):
 
     toggled = Signal(bool)  # Emitted when checkbox changes
 
-    def __init__(self, media_file: DeviceMediaFile, parent=None):
+    def __init__(self, media_file: DeviceMediaFile, parent=None, skip_duplicates: bool = True):
         super().__init__(parent)
         self.media_file = media_file
-        self.selected = not media_file.already_imported  # Auto-select new files
+
+        # Phase 3: Determine default selection state
+        # Deselect if already imported OR if cross-device duplicate (when skip enabled)
+        if media_file.already_imported:
+            self.selected = False
+        elif skip_duplicates and media_file.is_cross_device_duplicate:
+            self.selected = False  # Deselect cross-device duplicates by default
+        else:
+            self.selected = True  # Select new files
 
         self._init_ui()
 
@@ -103,6 +111,39 @@ class MediaThumbnailWidget(QFrame):
                 }
             """)
             layout.addWidget(badge)
+
+        # Phase 3: Cross-device duplicate badge
+        if self.media_file.is_cross_device_duplicate and self.media_file.duplicate_info:
+            dup = self.media_file.duplicate_info[0]  # Most recent duplicate
+            device_name = dup.device_name
+            if len(device_name) > 20:
+                device_name = device_name[:17] + "..."
+
+            dup_badge = QLabel(f"⚠️ {device_name}")
+            dup_badge.setStyleSheet("""
+                QLabel {
+                    color: #856404;
+                    font-size: 10px;
+                    background-color: #fff3cd;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    border: 1px solid #ffc107;
+                }
+            """)
+
+            # Build tooltip with duplicate details
+            tooltip_lines = ["Cross-device duplicate found:", ""]
+            for i, d in enumerate(self.media_file.duplicate_info[:3]):  # Show up to 3
+                date_str = d.import_date.strftime("%b %d, %Y")
+                tooltip_lines.append(f"• {d.device_name} ({date_str})")
+                if d.project_name != "Unknown Project":
+                    tooltip_lines.append(f"  Project: {d.project_name}")
+
+            if len(self.media_file.duplicate_info) > 3:
+                tooltip_lines.append(f"... and {len(self.media_file.duplicate_info) - 3} more")
+
+            dup_badge.setToolTip("\n".join(tooltip_lines))
+            layout.addWidget(dup_badge)
 
         # Style frame
         self.setFrameShape(QFrame.Box)
@@ -203,6 +244,7 @@ class DeviceImportDialog(QDialog):
         self.thumbnail_widgets: List[MediaThumbnailWidget] = []
         self.show_new_only = True  # Phase 2: Default to showing only new files
         self.current_session_id = None  # Phase 2: Track current import session
+        self.skip_cross_device_duplicates = True  # Phase 3: Default duplicate handling
 
         self.setWindowTitle(f"Import from Device")
         self.setMinimumSize(800, 600)
@@ -247,10 +289,32 @@ class DeviceImportDialog(QDialog):
             filter_layout.addStretch()
 
             layout.addLayout(filter_layout)
+
+            # Phase 3: Duplicate handling options
+            dup_layout = QHBoxLayout()
+
+            self.skip_duplicates_checkbox = QCheckBox("Skip Cross-Device Duplicates")
+            self.skip_duplicates_checkbox.setChecked(self.skip_cross_device_duplicates)
+            self.skip_duplicates_checkbox.setToolTip(
+                "Automatically skip files that were already imported from other devices"
+            )
+            self.skip_duplicates_checkbox.toggled.connect(self._on_duplicate_handling_toggled)
+
+            self.duplicate_count_label = QLabel("")
+            self.duplicate_count_label.setStyleSheet("color: #856404; font-size: 12px;")
+
+            dup_layout.addWidget(self.skip_duplicates_checkbox)
+            dup_layout.addSpacing(20)
+            dup_layout.addWidget(self.duplicate_count_label)
+            dup_layout.addStretch()
+
+            layout.addLayout(dup_layout)
         else:
             # No device tracking - hide filter controls
             self.new_only_checkbox = None
             self.stats_label = None
+            self.skip_duplicates_checkbox = None
+            self.duplicate_count_label = None
 
         # Thumbnail grid (scrollable)
         scroll_area = QScrollArea()
@@ -371,10 +435,23 @@ class DeviceImportDialog(QDialog):
             new_count = sum(1 for f in self.media_files if not f.already_imported)
             imported_count = len(self.media_files) - new_count
 
+            # Phase 3: Count cross-device duplicates
+            cross_device_dup_count = sum(
+                1 for f in self.media_files if f.is_cross_device_duplicate
+            )
+
             self.status_label.setText(
                 f"Found {len(self.media_files)} files "
                 f"({new_count} new, {imported_count} already imported)"
             )
+
+            # Phase 3: Update duplicate count label
+            if self.duplicate_count_label and cross_device_dup_count > 0:
+                self.duplicate_count_label.setText(
+                    f"⚠️ {cross_device_dup_count} cross-device duplicate(s)"
+                )
+            elif self.duplicate_count_label:
+                self.duplicate_count_label.setText("")
 
             # Display thumbnails
             self._display_thumbnails()
@@ -387,14 +464,18 @@ class DeviceImportDialog(QDialog):
             traceback.print_exc()
 
     def _display_thumbnails(self):
-        """Display media file thumbnails in grid"""
+        """Display media file thumbnails in grid (Phase 3: with duplicate handling)"""
         columns = 5  # 5 thumbnails per row
 
         for idx, media_file in enumerate(self.media_files):
             row = idx // columns
             col = idx % columns
 
-            thumbnail_widget = MediaThumbnailWidget(media_file, self)
+            # Phase 3: Pass skip_duplicates setting to widget
+            thumbnail_widget = MediaThumbnailWidget(
+                media_file, self,
+                skip_duplicates=self.skip_cross_device_duplicates
+            )
             thumbnail_widget.toggled.connect(self._update_import_button)
 
             self.thumbnail_widgets.append(thumbnail_widget)
@@ -428,6 +509,23 @@ class DeviceImportDialog(QDialog):
 
         # Re-scan with new filter
         self._scan_device()
+
+    def _on_duplicate_handling_toggled(self, checked: bool):
+        """Handle duplicate handling checkbox toggle (Phase 3)"""
+        self.skip_cross_device_duplicates = checked
+
+        # Update selection state of cross-device duplicates
+        for widget in self.thumbnail_widgets:
+            if widget.media_file.is_cross_device_duplicate:
+                if self.skip_cross_device_duplicates:
+                    # Deselect duplicates
+                    widget.checkbox.setChecked(False)
+                else:
+                    # Re-select if not already imported
+                    if not widget.media_file.already_imported:
+                        widget.checkbox.setChecked(True)
+
+        self._update_import_button()
 
     def _update_import_button(self):
         """Update import button text with count"""

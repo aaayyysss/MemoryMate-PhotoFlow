@@ -4328,7 +4328,14 @@ class SidebarQt(QWidget):
 
                     # Check if this item matches the branch_key
                     item_branch_key = child_item.data(Qt.UserRole + 1)
-                    if item_branch_key == branch_key:
+
+                    # CRITICAL FIX: Normalize both keys for comparison
+                    # Tree items store "facecluster:face_000" but branch_key is just "face_000"
+                    normalized_item_key = item_branch_key
+                    if isinstance(normalized_item_key, str) and normalized_item_key.startswith("facecluster:"):
+                        normalized_item_key = normalized_item_key.split(":", 1)[1]
+
+                    if normalized_item_key == branch_key:
                         # Found it! Update the display name
                         print(f"[Sidebar] Updating person name in tree: {branch_key} → {new_label}")
                         child_item.setText(new_label)

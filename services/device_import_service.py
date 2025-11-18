@@ -8,6 +8,12 @@ Phase 2: Incremental Sync Support
 - Preserve device folder structure (Camera/Screenshots)
 - Detect deleted files on device
 
+Phase 3: Smart Deduplication
+- Cross-device duplicate detection
+- Show which device already has this file
+- Give user control over duplicate handling
+- Link duplicates across devices
+
 Usage:
     service = DeviceImportService(db, project_id, device_id="android:ABC123")
 
@@ -25,10 +31,25 @@ import shutil
 import hashlib
 from pathlib import Path
 from typing import List, Dict, Optional, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from PySide6.QtCore import QObject, Signal, QRunnable, QThreadPool
+
+
+@dataclass
+class DuplicateInfo:
+    """Information about a duplicate file from another source (Phase 3)"""
+    photo_id: int                    # Photo ID in database
+    device_id: str                   # Which device has this file
+    device_name: str                 # User-friendly device name
+    device_folder: Optional[str]     # Folder on device (Camera/Screenshots)
+    import_date: datetime            # When it was imported
+    project_id: int                  # Which project contains it
+    project_name: str                # Project name
+    file_path: str                   # Local path to imported file
+    is_same_device: bool = False     # True if from current device
+    is_same_project: bool = False    # True if in current project
 
 
 @dataclass
@@ -43,6 +64,9 @@ class DeviceMediaFile:
     file_hash: Optional[str] = None       # SHA256 hash for dedup
     device_folder: Optional[str] = None   # Device folder (Camera/Screenshots/etc)
     import_status: str = "new"            # new/imported/skipped/modified
+    # Phase 3: Cross-device duplicate detection
+    duplicate_info: List[DuplicateInfo] = field(default_factory=list)  # Duplicates from other sources
+    is_cross_device_duplicate: bool = False  # True if exists from another device
 
 
 class DeviceImportService:
@@ -166,6 +190,10 @@ class DeviceImportService:
                                 device_path, file_hash
                             )
 
+                            # Phase 3: Check for cross-device duplicates
+                            cross_device_dups = self.check_cross_device_duplicates(file_hash)
+                            is_cross_device_dup = len(cross_device_dups) > 0
+
                             media_file = DeviceMediaFile(
                                 path=device_path,
                                 filename=item.name,
@@ -174,7 +202,9 @@ class DeviceImportService:
                                 file_hash=file_hash,
                                 device_folder=device_folder,
                                 import_status=import_status,
-                                already_imported=already_imported
+                                already_imported=already_imported,
+                                duplicate_info=cross_device_dups,  # Phase 3
+                                is_cross_device_duplicate=is_cross_device_dup  # Phase 3
                             )
 
                             media_files.append(media_file)
@@ -400,6 +430,134 @@ class DeviceImportService:
         except Exception:
             # If file_hash column doesn't exist, can't check
             return False
+
+    # ============================================================================
+    # PHASE 3: CROSS-DEVICE DUPLICATE DETECTION
+    # ============================================================================
+
+    def get_duplicate_info(self, file_hash: str, include_same_device: bool = True) -> List[DuplicateInfo]:
+        """
+        Get all instances of this file across devices and projects (Phase 3).
+
+        Args:
+            file_hash: SHA256 hash of file
+            include_same_device: Include duplicates from current device
+
+        Returns:
+            List of DuplicateInfo objects with details about each duplicate
+        """
+        if not file_hash:
+            return []
+
+        duplicates = []
+
+        try:
+            with self.db._connect() as conn:
+                # Query photo_metadata joined with device info and project info
+                cur = conn.execute("""
+                    SELECT
+                        pm.id,
+                        pm.device_id,
+                        md.device_name,
+                        pm.device_folder,
+                        pm.import_session_id,
+                        pm.project_id,
+                        p.name AS project_name,
+                        pm.path
+                    FROM photo_metadata pm
+                    LEFT JOIN mobile_devices md ON pm.device_id = md.device_id
+                    LEFT JOIN projects p ON pm.project_id = p.id
+                    WHERE pm.file_hash = ?
+                    ORDER BY pm.import_session_id DESC
+                """, (file_hash,))
+
+                for row in cur.fetchall():
+                    photo_id, device_id, device_name, device_folder, session_id, \
+                        project_id, project_name, file_path = row
+
+                    # Get import date from session
+                    import_date = None
+                    if session_id:
+                        session_cur = conn.execute("""
+                            SELECT import_date FROM import_sessions WHERE id = ?
+                        """, (session_id,))
+                        session_row = session_cur.fetchone()
+                        if session_row:
+                            import_date = datetime.fromisoformat(session_row[0])
+
+                    # Create duplicate info
+                    duplicate = DuplicateInfo(
+                        photo_id=photo_id,
+                        device_id=device_id or "unknown",
+                        device_name=device_name or "Unknown Device",
+                        device_folder=device_folder,
+                        import_date=import_date or datetime.now(),
+                        project_id=project_id,
+                        project_name=project_name or "Unknown Project",
+                        file_path=file_path,
+                        is_same_device=(device_id == self.device_id),
+                        is_same_project=(project_id == self.project_id)
+                    )
+
+                    # Filter by device if requested
+                    if include_same_device or not duplicate.is_same_device:
+                        duplicates.append(duplicate)
+
+        except Exception as e:
+            print(f"[DeviceImport] Error getting duplicate info: {e}")
+            import traceback
+            traceback.print_exc()
+
+        return duplicates
+
+    def check_cross_device_duplicates(self, file_hash: str) -> List[DuplicateInfo]:
+        """
+        Check if file exists from OTHER devices (Phase 3).
+
+        This is the main method for cross-device deduplication.
+        It only returns duplicates from different devices.
+
+        Args:
+            file_hash: SHA256 hash of file
+
+        Returns:
+            List of DuplicateInfo for duplicates from other devices
+        """
+        all_duplicates = self.get_duplicate_info(file_hash, include_same_device=True)
+
+        # Filter to only other devices
+        cross_device_duplicates = [
+            dup for dup in all_duplicates
+            if dup.device_id != self.device_id
+        ]
+
+        return cross_device_duplicates
+
+    def get_duplicate_summary(self, file_hash: str) -> str:
+        """
+        Get human-readable summary of duplicates (Phase 3).
+
+        Args:
+            file_hash: SHA256 hash of file
+
+        Returns:
+            String like "Already imported from Galaxy S22 on Nov 15, 2024"
+        """
+        cross_device_dups = self.check_cross_device_duplicates(file_hash)
+
+        if not cross_device_dups:
+            return ""
+
+        # Get most recent duplicate
+        most_recent = cross_device_dups[0]
+
+        device_name = most_recent.device_name
+        import_date_str = most_recent.import_date.strftime("%b %d, %Y")
+
+        if len(cross_device_dups) == 1:
+            return f"Already imported from {device_name} on {import_date_str}"
+        else:
+            return f"Already imported from {device_name} and {len(cross_device_dups)-1} other device(s)"
 
     def import_files(
         self,

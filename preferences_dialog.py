@@ -62,7 +62,7 @@ class PreferencesDialog(QDialog):
         self.sidebar.setMaximumWidth(180)
         self.sidebar.setSpacing(2)
         self.sidebar.setFocusPolicy(Qt.NoFocus)
-        self.sidebar.currentRowChanged.connect(self._on_sidebar_changed)
+        # NOTE: Signal connection moved after content_stack creation to prevent AttributeError
 
         # Add navigation items
         nav_items = [
@@ -119,6 +119,9 @@ class PreferencesDialog(QDialog):
         right_layout.addWidget(self.content_stack)
 
         main_layout.addWidget(right_widget, 1)
+
+        # Connect sidebar signal AFTER content_stack is created (prevents AttributeError)
+        self.sidebar.currentRowChanged.connect(self._on_sidebar_changed)
 
     def _create_scrollable_panel(self, content_widget: QWidget) -> QScrollArea:
         """Wrap content in a scrollable area."""

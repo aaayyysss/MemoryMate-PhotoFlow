@@ -20,8 +20,11 @@ class FaceDetectionConfig:
         # Detection parameters
         "detection_model": "hog",  # face_recognition: "hog" (fast) or "cnn" (accurate)
         "upsample_times": 1,  # Number of times to upsample image for detection
-        "min_face_size": 20,  # Minimum face size in pixels
-        "confidence_threshold": 0.6,  # Minimum confidence for face detection
+        "min_face_size": 20,  # Minimum face size in pixels (smaller = detect smaller/distant faces)
+        "confidence_threshold": 0.65,  # Minimum confidence for face detection (0.6-0.7 recommended)
+                                        # Higher = fewer false positives, fewer missed faces
+                                        # Lower = more faces detected, more false positives
+                                        # Default 0.65 balances accuracy and recall
 
         # InsightFace specific
         "insightface_model": "buffalo_l",  # Model: buffalo_s, buffalo_l, antelopev2
@@ -132,8 +135,8 @@ class FaceDetectionConfig:
     def get_clustering_params(self) -> Dict[str, Any]:
         """Get clustering parameters."""
         return {
-            "eps": self.config.get("clustering_eps", 0.42),
-            "min_samples": self.config.get("clustering_min_samples", 3),
+            "eps": self.config.get("clustering_eps", 0.35),
+            "min_samples": self.config.get("clustering_min_samples", 2),
         }
 
     def get_face_cache_dir(self) -> Path:

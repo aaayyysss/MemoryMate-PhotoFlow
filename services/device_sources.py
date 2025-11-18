@@ -41,11 +41,18 @@ class DeviceScanner:
     # Common DCIM folder patterns for Android
     ANDROID_PATTERNS = [
         "DCIM/Camera",
+        "DCIM",
         "DCIM/.thumbnails",
+        "Internal Storage/DCIM",
+        "Internal Storage/DCIM/Camera",
         "Pictures",
         "Pictures/Screenshots",
         "Pictures/WhatsApp",
+        "Camera",
+        "Photos",
         "Download",
+        "100MEDIA",
+        "PRIVATE/AVCHD",
     ]
 
     # Common folder patterns for iOS
@@ -53,6 +60,20 @@ class DeviceScanner:
         "DCIM",
         "DCIM/100APPLE",
         "DCIM/101APPLE",
+        "DCIM/102APPLE",
+        "DCIM/103APPLE",
+        "Photos",
+    ]
+
+    # SD Card / Camera patterns
+    CAMERA_PATTERNS = [
+        "DCIM",
+        "DCIM/100CANON",
+        "DCIM/100NIKON",
+        "DCIM/100SONY",
+        "DCIM/100OLYMP",
+        "100MEDIA",
+        "PRIVATE/AVCHD",
     ]
 
     # Supported media extensions
@@ -159,7 +180,8 @@ class DeviceScanner:
 
     def _check_device_at_path(self, root_path: str) -> Optional[MobileDevice]:
         """
-        Check if a path contains a mobile device by looking for DCIM folder.
+        Check if a path contains a mobile device by looking for DCIM folder
+        or other common camera/media folder structures.
 
         Args:
             root_path: Path to check (drive, volume, or mount point)
@@ -167,10 +189,29 @@ class DeviceScanner:
         Returns:
             MobileDevice if detected, None otherwise
         """
-        dcim_path = Path(root_path) / "DCIM"
+        root = Path(root_path)
 
-        # Must have DCIM folder to be considered a camera device
-        if not dcim_path.exists() or not dcim_path.is_dir():
+        # Primary check: DCIM folder (standard for cameras and phones)
+        has_dcim = (root / "DCIM").exists() and (root / "DCIM").is_dir()
+
+        # Alternate checks for devices without standard DCIM structure
+        alternate_indicators = [
+            "Internal Storage/DCIM",  # Some Android devices
+            "Camera",                  # Some cameras
+            "Pictures",                # Alternative structure
+            "Photos",                  # Alternative structure
+            "100MEDIA",                # Some cameras
+            "PRIVATE/AVCHD",          # Video cameras
+        ]
+
+        has_alternate = False
+        for alt_path in alternate_indicators:
+            if (root / alt_path).exists() and (root / alt_path).is_dir():
+                has_alternate = True
+                break
+
+        # Must have either DCIM or alternate structure
+        if not has_dcim and not has_alternate:
             return None
 
         # Determine device type
@@ -195,26 +236,45 @@ class DeviceScanner:
 
     def _detect_device_type(self, root_path: str) -> str:
         """
-        Detect if device is Android or iOS based on folder structure.
+        Detect if device is Android, iOS, or camera/SD card based on folder structure.
 
         Args:
             root_path: Device root path
 
         Returns:
-            "android" or "ios"
+            "android", "ios", or "camera"
         """
         root = Path(root_path)
+        dcim = root / "DCIM"
 
         # iOS devices have DCIM/100APPLE, 101APPLE patterns
-        dcim = root / "DCIM"
         if dcim.exists():
-            for folder in dcim.iterdir():
-                if folder.is_dir() and "APPLE" in folder.name.upper():
-                    return "ios"
+            try:
+                for folder in dcim.iterdir():
+                    if folder.is_dir() and "APPLE" in folder.name.upper():
+                        return "ios"
+            except (PermissionError, OSError):
+                pass
+
+        # Check for camera-specific patterns (Canon, Nikon, Sony, etc.)
+        camera_markers = [
+            "DCIM/100CANON",
+            "DCIM/100NIKON",
+            "DCIM/100SONY",
+            "DCIM/100OLYMP",
+            "DCIM/100PANA",
+            "DCIM/100FUJI",
+            "100MEDIA",
+            "PRIVATE/AVCHD",
+        ]
+        for marker in camera_markers:
+            if (root / marker).exists():
+                return "camera"
 
         # Check for Android-specific folders
         android_markers = [
             "Android",
+            "Internal Storage",
             "Pictures/Screenshots",
             "Pictures/WhatsApp",
         ]
@@ -222,7 +282,20 @@ class DeviceScanner:
             if (root / marker).exists():
                 return "android"
 
-        # Default to android (more common)
+        # If has only DCIM and nothing else specific, likely a camera/SD card
+        if dcim.exists():
+            # Check if it's a simple structure (just DCIM, no other phone folders)
+            try:
+                root_contents = [item.name for item in root.iterdir() if item.is_dir()]
+                phone_folders = ["Android", "Music", "Movies", "Downloads", "Documents"]
+                has_phone_folders = any(pf in root_contents for pf in phone_folders)
+
+                if not has_phone_folders and "DCIM" in root_contents:
+                    return "camera"
+            except (PermissionError, OSError):
+                pass
+
+        # Default to android (more common for phones)
         return "android"
 
     def _get_device_label(self, root_path: str) -> str:
@@ -233,7 +306,7 @@ class DeviceScanner:
             root_path: Device root path
 
         Returns:
-            Device label (e.g., "Samsung Galaxy S22", "iPhone 14 Pro")
+            Device label (e.g., "Samsung Galaxy S22", "iPhone 14 Pro", "SD Card")
         """
         # Extract volume/directory name
         path = Path(root_path)
@@ -241,11 +314,27 @@ class DeviceScanner:
 
         # Add device emoji based on type
         device_type = self._detect_device_type(root_path)
-        emoji = "📱"
 
-        # Clean up common prefixes
+        emoji_map = {
+            "android": "🤖",
+            "ios": "🍎",
+            "camera": "📷",
+        }
+        emoji = emoji_map.get(device_type, "📱")
+
+        # Clean up common prefixes and improve labels
         if base_name.upper() in ("DCIM", "CAMERA", "PHONE"):
-            base_name = "Mobile Device"
+            if device_type == "camera":
+                base_name = "SD Card / Camera"
+            elif device_type == "ios":
+                base_name = "iPhone"
+            else:
+                base_name = "Android Device"
+        elif base_name.upper() in ("NO NAME", "UNTITLED", ""):
+            if device_type == "camera":
+                base_name = "SD Card"
+            else:
+                base_name = "Mobile Device"
 
         return f"{emoji} {base_name}"
 
@@ -255,7 +344,7 @@ class DeviceScanner:
 
         Args:
             root_path: Device root path
-            device_type: "android" or "ios"
+            device_type: "android", "ios", or "camera"
 
         Returns:
             List of DeviceFolder objects
@@ -264,7 +353,12 @@ class DeviceScanner:
         root = Path(root_path)
 
         # Use appropriate patterns based on device type
-        patterns = self.ANDROID_PATTERNS if device_type == "android" else self.IOS_PATTERNS
+        if device_type == "camera":
+            patterns = self.CAMERA_PATTERNS
+        elif device_type == "ios":
+            patterns = self.IOS_PATTERNS
+        else:  # android
+            patterns = self.ANDROID_PATTERNS
 
         # Scan each pattern
         for pattern in patterns:
@@ -279,6 +373,10 @@ class DeviceScanner:
                 # Get display name (last part of path)
                 display_name = self._get_folder_display_name(pattern)
 
+                # Skip if display name is None (hidden folders)
+                if display_name is None:
+                    continue
+
                 folders.append(DeviceFolder(
                     name=display_name,
                     path=str(folder_path),
@@ -292,21 +390,49 @@ class DeviceScanner:
         Convert folder pattern to display name.
 
         Args:
-            pattern: Folder pattern (e.g., "DCIM/Camera")
+            pattern: Folder pattern (e.g., "DCIM/Camera", "DCIM/100CANON")
 
         Returns:
-            Display name (e.g., "Camera")
+            Display name (e.g., "Camera", "Canon Photos") or None to skip
         """
         parts = pattern.split('/')
         name = parts[-1]
 
-        # Special cases
+        # Skip hidden folders
+        if name.startswith('.'):
+            return None
+
+        # Special cases for common folders
         if name == "DCIM":
             return "Camera Roll"
-        if "APPLE" in name:
+
+        if "APPLE" in name.upper():
             return "Camera Roll"
-        if name.startswith('.'):
-            return None  # Skip hidden folders
+
+        # Camera-specific folders
+        camera_brands = {
+            "CANON": "Canon Photos",
+            "NIKON": "Nikon Photos",
+            "SONY": "Sony Photos",
+            "OLYMP": "Olympus Photos",
+            "PANA": "Panasonic Photos",
+            "FUJI": "Fujifilm Photos",
+        }
+
+        for brand, display in camera_brands.items():
+            if brand in name.upper():
+                return display
+
+        # Generic media folders
+        if "100MEDIA" in name or "MEDIA" in name:
+            return "Media"
+
+        if "AVCHD" in name:
+            return "Videos"
+
+        # Clean up "Internal Storage" prefix
+        if "Internal Storage" in pattern:
+            return name
 
         return name
 

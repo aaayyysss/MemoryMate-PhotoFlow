@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QWidget, QTreeView, QMenu, QFileDialog,
     QVBoxLayout, QMessageBox, QTreeWidgetItem, QTreeWidget,
     QHeaderView, QHBoxLayout, QPushButton, QLabel, QTabWidget, QListWidget, QListWidgetItem, QProgressBar, QAbstractItemView,
-    QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit
+    QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit, QTextBrowser, QDialog
 )
 from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
 from PySide6.QtGui import (
@@ -1447,7 +1447,17 @@ class SidebarQt(QWidget):
         self._spin_angle = 0
         self._base_pm = self._make_reload_pixmap(18, 18)
 
-        
+        # Device auto-refresh timer
+        self._device_refresh_timer = QTimer(self)
+        self._device_refresh_timer.setInterval(30000)  # 30 seconds
+        self._device_refresh_timer.timeout.connect(self._check_device_changes)
+        self._last_device_count = 0
+        self._device_auto_refresh_enabled = self.settings.get("device_auto_refresh", True) if self.settings else True
+
+        if self._device_auto_refresh_enabled:
+            self._device_refresh_timer.start()
+
+
         # Header
         header_bar = QWidget()
         header_layout = QHBoxLayout(header_bar)
@@ -1474,7 +1484,7 @@ class SidebarQt(QWidget):
         self.btn_refresh.setFixedSize(28, 24)
         self.btn_refresh.setIcon(QIcon(self._base_pm))
         self.btn_refresh.setIconSize(self._base_pm.size())
-        self.btn_refresh.setToolTip("Reload folder tree from database")
+        self.btn_refresh.setToolTip("Reload folder tree and scan for mobile devices")
         header_layout.addWidget(self.btn_refresh)
         self.btn_refresh.clicked.connect(self._on_refresh_clicked)
 
@@ -2703,13 +2713,19 @@ class SidebarQt(QWidget):
                     mobile_devices = scan_mobile_devices()
                     print(f"[Sidebar] Found {len(mobile_devices)} mobile device(s)")
 
-                    if mobile_devices:
-                        # Create Mobile Devices root
-                        devices_root = QStandardItem("📱 Mobile Devices")
-                        devices_root.setEditable(False)
-                        devices_count_item = _make_count_item("")
-                        self.model.appendRow([devices_root, devices_count_item])
+                    # Update device count for auto-refresh tracking
+                    self._last_device_count = len(mobile_devices)
 
+                    # Always show Mobile Devices section (even if no devices found)
+                    # This makes the feature discoverable and accessible for troubleshooting
+                    devices_root = QStandardItem("📱 Mobile Devices")
+                    devices_root.setEditable(False)
+                    devices_root.setData("mobile_devices_root", Qt.UserRole)
+                    devices_count_item = _make_count_item("")
+                    self.model.appendRow([devices_root, devices_count_item])
+
+                    if mobile_devices:
+                        # Devices found - show them
                         total_device_photos = 0
 
                         for device in mobile_devices:
@@ -2740,11 +2756,44 @@ class SidebarQt(QWidget):
                         # Set total count on root
                         devices_count_item.setText(str(total_device_photos) if total_device_photos > 0 else "")
                         print(f"[Sidebar] Added Mobile Devices section with {len(mobile_devices)} devices, {total_device_photos} total photos")
+                    else:
+                        # No devices found - show helpful message
+                        no_devices_item = QStandardItem("  No devices detected")
+                        no_devices_item.setEditable(False)
+                        no_devices_item.setForeground(QColor("#888888"))
+                        no_devices_item.setData("no_devices", Qt.UserRole)
+                        devices_root.appendRow([no_devices_item, QStandardItem("")])
+
+                        help_item = QStandardItem("  → Right-click for help")
+                        help_item.setEditable(False)
+                        help_item.setForeground(QColor("#0066CC"))
+                        help_item.setData("no_devices_help", Qt.UserRole)
+                        devices_root.appendRow([help_item, QStandardItem("")])
+
+                        print("[Sidebar] No mobile devices detected - added help message")
 
                 except Exception as e:
                     print(f"[Sidebar] Failed to scan mobile devices: {e}")
                     import traceback
                     traceback.print_exc()
+
+                    # Show error in sidebar
+                    devices_root = QStandardItem("📱 Mobile Devices")
+                    devices_root.setEditable(False)
+                    devices_root.setData("mobile_devices_root", Qt.UserRole)
+                    self.model.appendRow([devices_root, QStandardItem("")])
+
+                    error_item = QStandardItem(f"  ⚠️ Scan failed: {str(e)[:50]}")
+                    error_item.setEditable(False)
+                    error_item.setForeground(QColor("#CC0000"))
+                    error_item.setData("device_error", Qt.UserRole)
+                    devices_root.appendRow([error_item, QStandardItem("")])
+
+                    help_item = QStandardItem("  → Right-click for help")
+                    help_item.setEditable(False)
+                    help_item.setForeground(QColor("#0066CC"))
+                    help_item.setData("no_devices_help", Qt.UserRole)
+                    devices_root.appendRow([help_item, QStandardItem("")])
 
                 # ---------------------------------------------------------
                 # NEW POSITION: Build Tags AFTER Mobile Devices
@@ -3361,13 +3410,55 @@ class SidebarQt(QWidget):
         if chosen is act_export:
             self._do_export(item.data(Qt.UserRole + 1))
 
+    def _show_empty_area_menu(self, global_pos: QPoint):
+        """
+        Show context menu when right-clicking on empty area of sidebar.
+        Provides general actions like refresh and troubleshooting.
+        """
+        menu = QMenu(self)
+
+        act_refresh_all = menu.addAction("🔄 Refresh All")
+        act_refresh_all.setToolTip("Reload folders, tags, people, and scan for mobile devices")
+
+        act_refresh_devices = menu.addAction("📱 Refresh Devices")
+        act_refresh_devices.setToolTip("Scan for newly connected mobile devices")
+
+        menu.addSeparator()
+
+        act_help_devices = menu.addAction("❓ Mobile Device Troubleshooting...")
+        act_help_devices.setToolTip("Help with connecting Android/iOS devices")
+
+        chosen = menu.exec(global_pos)
+
+        if chosen == act_refresh_all:
+            # Full refresh
+            self._start_spinner()
+            self.reload()
+            QTimer.singleShot(150, self._stop_spinner)
+            self.window().statusBar().showMessage("✓ Refreshed sidebar and devices")
+
+        elif chosen == act_refresh_devices:
+            # Device-specific refresh
+            self._start_spinner()
+            self.reload()
+            QTimer.singleShot(150, self._stop_spinner)
+            self.window().statusBar().showMessage("✓ Scanned for mobile devices")
+
+        elif chosen == act_help_devices:
+            # Show troubleshooting dialog
+            self._show_device_troubleshooting()
+
     def _show_menu(self, pos: QPoint):
         # Always convert local click position to global screen position
         global_pos = self.tree.viewport().mapToGlobal(pos)
-        
+
         index = self.tree.indexAt(pos)
+
+        # Handle click on empty area - show general menu
         if not index.isValid():
+            self._show_empty_area_menu(global_pos)
             return
+
         index = index.sibling(index.row(), 0)
         item = self.model.itemFromIndex(index)
         if not item:
@@ -3378,6 +3469,30 @@ class SidebarQt(QWidget):
         label = item.text().strip()
         db = self.db
         menu = QMenu(self)
+
+        # Mobile Devices root context menu
+        if mode == "mobile_devices_root":
+            act_refresh = menu.addAction("🔄 Refresh Devices")
+            act_help = menu.addAction("❓ Device Troubleshooting...")
+
+            chosen = menu.exec(global_pos)
+            if chosen == act_refresh:
+                self.reload()
+            elif chosen == act_help:
+                self._show_device_troubleshooting()
+            return
+
+        # Help/error items in Mobile Devices section
+        if mode in ("no_devices", "no_devices_help", "device_error"):
+            act_refresh = menu.addAction("🔄 Scan for Devices")
+            act_help = menu.addAction("❓ Troubleshooting Help...")
+
+            chosen = menu.exec(global_pos)
+            if chosen == act_refresh:
+                self.reload()
+            elif chosen == act_help:
+                self._show_device_troubleshooting()
+            return
 
         # Face cluster context menu (People)
         if mode in ("facecluster", "people"):
@@ -3463,6 +3578,8 @@ class SidebarQt(QWidget):
             act_import = menu.addAction("📥 Import from this folder…")
             act_browse = menu.addAction("👁️ Browse (view only)")
             act_refresh = menu.addAction("🔄 Refresh device")
+            menu.addSeparator()
+            act_help = menu.addAction("❓ Device Troubleshooting...")
 
             chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
             if chosen is act_import:
@@ -3474,6 +3591,8 @@ class SidebarQt(QWidget):
                     self._on_item_clicked(index)
             elif chosen is act_refresh:
                 self.reload()
+            elif chosen == act_help:
+                self._show_device_troubleshooting()
             return
 
         if mode == "device" and isinstance(value, str):
@@ -3481,6 +3600,8 @@ class SidebarQt(QWidget):
 
             act_scan = menu.addAction("📱 Scan device for photos…")
             act_refresh = menu.addAction("🔄 Refresh device list")
+            menu.addSeparator()
+            act_help = menu.addAction("❓ Device Troubleshooting...")
 
             chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
             if chosen is act_scan:
@@ -3488,6 +3609,8 @@ class SidebarQt(QWidget):
                 self._import_from_device_folder(device_root_path)
             elif chosen is act_refresh:
                 self.reload()
+            elif chosen == act_help:
+                self._show_device_troubleshooting()
             return
 
         act_export = menu.addAction("📁 Export Photos to Folder…")
@@ -3539,6 +3662,233 @@ class SidebarQt(QWidget):
                 self,
                 "Import Error",
                 f"Failed to show import dialog:\n{e}"
+            )
+
+    def _show_device_troubleshooting(self):
+        """
+        Show platform-specific troubleshooting guide for mobile device detection.
+        """
+        import platform
+
+        system = platform.system()
+
+        # Build help text based on platform
+        help_text = """<h2>📱 Mobile Device Troubleshooting</h2>"""
+
+        # Current device detection status
+        try:
+            from services.device_sources import scan_mobile_devices
+            devices = scan_mobile_devices()
+            if devices:
+                help_text += f"<p><b>✓ Currently detected:</b> {len(devices)} device(s)</p>"
+                for dev in devices:
+                    help_text += f"<p style='margin-left: 20px;'>• {dev.label} ({len(dev.folders)} folders)</p>"
+            else:
+                help_text += "<p><b>⚠️ No devices currently detected</b></p>"
+        except Exception as e:
+            help_text += f"<p><b>❌ Error scanning:</b> {e}</p>"
+
+        help_text += "<hr>"
+
+        # Android instructions
+        help_text += """
+        <h3>🤖 For Android Devices:</h3>
+        <ol>
+            <li><b>Connect</b> your device via USB cable</li>
+            <li><b>Swipe down</b> the notification panel on your phone</li>
+            <li><b>Tap</b> the "USB" notification</li>
+            <li><b>Select</b> "File Transfer" or "MTP" mode (NOT "Charging Only")</li>
+        """
+
+        if system == "Linux":
+            help_text += """
+            <li><b>Linux specific:</b> Install MTP tools if not already installed:
+                <pre style='background: #f0f0f0; padding: 5px;'>sudo apt install mtp-tools libmtp-common libmtp-runtime</pre>
+            </li>
+        """
+
+        help_text += """
+            <li><b>Verify:</b> Open your file manager and check if device appears</li>
+            <li><b>Refresh:</b> Click the refresh button in sidebar or right-click → "Refresh Devices"</li>
+        </ol>
+        """
+
+        # iOS instructions
+        help_text += """
+        <h3>🍎 For iOS Devices (iPhone/iPad):</h3>
+        <ol>
+            <li><b>Connect</b> your device via USB cable</li>
+            <li><b>Unlock</b> your iPhone/iPad</li>
+            <li><b>Tap</b> "Trust This Computer" when prompted</li>
+            <li><b>Enter</b> device passcode if asked</li>
+        """
+
+        if system == "Linux":
+            help_text += """
+            <li><b>Linux specific:</b> Install iOS tools:
+                <pre style='background: #f0f0f0; padding: 5px;'>sudo apt install libimobiledevice-utils ifuse</pre>
+            </li>
+            <li><b>Pair device:</b> Run in terminal:
+                <pre style='background: #f0f0f0; padding: 5px;'>idevicepair pair</pre>
+            </li>
+        """
+        elif system == "Windows":
+            help_text += """
+            <li><b>Windows specific:</b> Install iTunes or Apple Mobile Device Support from Apple's website</li>
+        """
+
+        help_text += """
+            <li><b>Verify:</b> Device should appear in file manager</li>
+            <li><b>Refresh:</b> Click refresh button in sidebar</li>
+        </ol>
+        """
+
+        # SD Cards
+        help_text += """
+        <h3>💾 For SD Cards:</h3>
+        <ol>
+            <li><b>Insert</b> SD card into card reader</li>
+            <li><b>Connect</b> card reader to computer</li>
+            <li><b>Wait</b> for auto-mount (usually automatic)</li>
+            <li><b>Verify:</b> Card should have a DCIM folder</li>
+            <li><b>Refresh:</b> Click refresh button in sidebar</li>
+        </ol>
+        """
+
+        # Troubleshooting tips
+        help_text += """
+        <hr>
+        <h3>🔍 Still Not Working?</h3>
+        <ol>
+            <li><b>Check file manager:</b> If you can't see your device in your system's file manager (Finder/Explorer/Nautilus),
+               the operating system hasn't mounted it yet. Fix OS-level mounting first.</li>
+            <li><b>Try different USB port/cable:</b> Some cables are charge-only</li>
+            <li><b>Restart devices:</b> Unplug device, restart app, reconnect device</li>
+            <li><b>Check DCIM folder:</b> Device must have a DCIM folder to be detected</li>
+        """
+
+        if system == "Linux":
+            help_text += """
+            <li><b>Check permissions:</b> Add yourself to plugdev group:
+                <pre style='background: #f0f0f0; padding: 5px;'>sudo usermod -a -G plugdev $USER</pre>
+                Then log out and back in.
+            </li>
+            <li><b>Check device in terminal:</b> For Android, run: <code>mtp-detect</code></li>
+        """
+
+        help_text += """
+            <li><b>Run diagnostic tool:</b> From terminal in app directory:
+                <pre style='background: #f0f0f0; padding: 5px;'>python debug_device_detection.py</pre>
+            </li>
+        </ol>
+        """
+
+        # Common mount locations
+        help_text += f"""
+        <hr>
+        <h3>📂 Where App Looks for Devices:</h3>
+        """
+
+        if system == "Windows":
+            help_text += "<p><b>Windows:</b> Drive letters D: through Z:</p>"
+        elif system == "Darwin":
+            help_text += "<p><b>macOS:</b> /Volumes/</p>"
+        elif system == "Linux":
+            help_text += """
+            <p><b>Linux:</b></p>
+            <ul>
+                <li>/media/ and /media/$USER/</li>
+                <li>/mnt/</li>
+                <li>/run/media/ and /run/media/$USER/</li>
+            </ul>
+            """
+
+        help_text += """
+        <hr>
+        <p><b>For more details,</b> see MOBILE_DEVICE_GUIDE.md in the app directory.</p>
+        """
+
+        # Show dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Mobile Device Troubleshooting")
+        dialog.setMinimumWidth(700)
+        dialog.setMinimumHeight(600)
+
+        layout = QVBoxLayout(dialog)
+
+        # Scrollable text area
+        text_browser = QTextBrowser()
+        text_browser.setHtml(help_text)
+        text_browser.setOpenExternalLinks(True)
+        layout.addWidget(text_browser)
+
+        # Buttons
+        button_box = QHBoxLayout()
+
+        btn_run_diagnostic = QPushButton("🔍 Run Diagnostic Tool")
+        btn_run_diagnostic.setToolTip("Opens terminal with diagnostic script")
+        btn_run_diagnostic.clicked.connect(lambda: self._run_diagnostic_tool())
+
+        btn_refresh = QPushButton("🔄 Refresh Devices Now")
+        btn_refresh.clicked.connect(lambda: (dialog.accept(), self.reload()))
+
+        btn_close = QPushButton("Close")
+        btn_close.clicked.connect(dialog.accept)
+
+        button_box.addWidget(btn_run_diagnostic)
+        button_box.addWidget(btn_refresh)
+        button_box.addStretch()
+        button_box.addWidget(btn_close)
+
+        layout.addLayout(button_box)
+
+        dialog.exec()
+
+    def _run_diagnostic_tool(self):
+        """
+        Open terminal and run the diagnostic script.
+        """
+        import os
+        import platform
+
+        # Get script path
+        script_path = os.path.join(os.path.dirname(__file__), "debug_device_detection.py")
+
+        if not os.path.exists(script_path):
+            QMessageBox.warning(
+                self,
+                "Diagnostic Tool Not Found",
+                f"Could not find debug_device_detection.py\n\nExpected location:\n{script_path}"
+            )
+            return
+
+        system = platform.system()
+
+        try:
+            if system == "Windows":
+                # Windows: Open cmd and run script
+                os.system(f'start cmd /k python "{script_path}"')
+            elif system == "Darwin":
+                # macOS: Open Terminal.app and run script
+                os.system(f'open -a Terminal.app "{script_path}"')
+            elif system == "Linux":
+                # Linux: Try common terminal emulators
+                terminals = ["gnome-terminal", "konsole", "xterm", "x-terminal-emulator"]
+                for term in terminals:
+                    if os.system(f"which {term} > /dev/null 2>&1") == 0:
+                        os.system(f'{term} -e "python {script_path}; read -p \'Press Enter to close...\'" &')
+                        break
+            else:
+                QMessageBox.information(
+                    self,
+                    "Manual Run Required",
+                    f"Please run manually from terminal:\n\npython {script_path}"
+                )
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Failed to Open Terminal",
+                f"Could not open terminal automatically.\n\nPlease run manually:\n\npython {script_path}\n\nError: {e}"
             )
 
     # --------------------------------------------------
@@ -4305,7 +4655,43 @@ class SidebarQt(QWidget):
         finally:
             # Always reset flag, even if error occurs
             self._refreshing = False
-        
+
+    def _check_device_changes(self):
+        """
+        Periodically check for device changes and refresh if needed.
+        Called by auto-refresh timer every 30 seconds.
+        """
+        if self._refreshing:
+            # Skip if already refreshing
+            return
+
+        try:
+            from services.device_sources import scan_mobile_devices
+
+            # Quick scan for devices
+            devices = scan_mobile_devices()
+            current_count = len(devices)
+
+            # Check if device count changed
+            if current_count != self._last_device_count:
+                if current_count > self._last_device_count:
+                    # New device(s) connected
+                    new_count = current_count - self._last_device_count
+                    print(f"[Sidebar] Auto-refresh: {new_count} new device(s) detected")
+                    self.window().statusBar().showMessage(f"✓ Detected {new_count} new device(s), refreshing...", 3000)
+                else:
+                    # Device(s) disconnected
+                    removed_count = self._last_device_count - current_count
+                    print(f"[Sidebar] Auto-refresh: {removed_count} device(s) disconnected")
+                    self.window().statusBar().showMessage(f"Device(s) disconnected, refreshing...", 3000)
+
+                # Update count and refresh
+                self._last_device_count = current_count
+                self.reload()
+
+        except Exception as e:
+            print(f"[Sidebar] Device auto-refresh check failed: {e}")
+            # Don't show error to user, just log it
 
     def _start_spinner(self):
         if not self._spin_timer.isActive():

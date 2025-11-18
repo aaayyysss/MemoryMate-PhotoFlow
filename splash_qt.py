@@ -28,33 +28,41 @@ class StartupWorker(QThread):
 
     def run(self):
         """
-        Perform startup steps — can be expanded later.
-        This runs BEFORE MainWindow is shown.
+        Perform early startup steps BEFORE MainWindow is created.
+        Covers: database, cache, translations, services initialization.
         """
         from reference_db import ReferenceDB
         from thumb_cache_db import get_cache
 
         try:
-            # STEP 1 — DB initialization
-            self.progress.emit(10, "Opening database…")
-            db = ReferenceDB()
-            time.sleep(0.1)  # simulate a brief pause
+            # STEP 1 — Initial setup (5%)
+            self.progress.emit(5, "Initializing application…")
+            time.sleep(0.05)
+            if self._cancel:
+                return
 
-            # STEP 2 — Verify database schema
+            # STEP 2 — DB initialization (15%)
+            self.progress.emit(15, "Opening database…")
+            db = ReferenceDB()
+            time.sleep(0.05)
+            if self._cancel:
+                return
+
+            # STEP 3 — Verify database schema (30%)
             self.progress.emit(30, "Verifying database schema…")
             # NOTE: Schema creation and migrations are now handled automatically
             # by repository.DatabaseConnection during ReferenceDB initialization.
-            # No need to manually call ensure_created_date_fields() anymore.
+            print("[Startup] Database schema initialized successfully")
 
             # Optimize indexes if method exists (optional performance tuning)
             if hasattr(db, "optimize_indexes"):
                 db.optimize_indexes()
-            
+
             if self._cancel:
                 return
 
-            # STEP 3 — Backfill created_* if needed
-            self.progress.emit(50, "Verifying timestamps…")
+            # STEP 4 — Backfill created_* if needed (45%)
+            self.progress.emit(45, "Verifying timestamps…")
             try:
                 updated = db.single_pass_backfill_created_fields()
                 if updated:
@@ -64,25 +72,41 @@ class StartupWorker(QThread):
             if self._cancel:
                 return
 
-            # STEP 4 — Cache cleanup / check
-            self.progress.emit(70, "Checking thumbnail cache…")
+            # STEP 5 — Cache initialization (55%)
+            self.progress.emit(55, "Initializing thumbnail cache…")
             cache = get_cache()
             stats = cache.get_stats()
             print(f"[Cache] {stats}")
             if self.settings.get("cache_auto_cleanup", True):
-                # optional cleanup policy
                 cache.purge_stale(max_age_days=7)
             if self._cancel:
                 return
 
-            # STEP 5 — Folder tree preload
-            self.progress.emit(90, "Preloading folder tree…")
-            if self._cancel: return
-            # not strictly required to fetch fully here — just force index creation
-            # Sidebar reload happens after MainWindow is shown.
+            # STEP 6 — Initialize SearchService (65%)
+            self.progress.emit(65, "Initializing search service…")
+            try:
+                from services import SearchService
+                search_service = SearchService()
+                print("[Startup] SearchService initialized")
+            except Exception as e:
+                print(f"[Startup] SearchService initialization failed: {e}")
+            if self._cancel:
+                return
 
-            # Done
-            self.progress.emit(100, "Startup complete")
+            # STEP 7 — Initialize ThumbnailService (75%)
+            self.progress.emit(75, "Initializing thumbnail service…")
+            try:
+                from services import get_thumbnail_service
+                thumb_service = get_thumbnail_service()
+                print("[Startup] ThumbnailService initialized")
+            except Exception as e:
+                print(f"[Startup] ThumbnailService initialization failed: {e}")
+            if self._cancel:
+                return
+
+            # Done with background initialization
+            # MainWindow creation happens next (on main thread)
+            self.progress.emit(80, "Preparing main window…")
             self.finished.emit(True)
 
         except Exception as e:

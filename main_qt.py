@@ -4,7 +4,7 @@
 
 import sys
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from main_window_qt import MainWindow
 
 # ✅ Logging setup (must be first!)
@@ -101,15 +101,31 @@ if __name__ == "__main__":
     
     # 4️: When startup finishes
     def on_finished(ok: bool):
-        splash.close()
+        # DON'T close splash yet - MainWindow creation still needs to happen
         if not ok:
+            splash.close()
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "Startup Error", "Failed to initialize the app.")
             sys.exit(1)
 
+        # Keep splash visible while creating MainWindow (heavy initialization)
+        splash.update_progress(85, "Building user interface…")
+        QApplication.processEvents()
+
         # Launch main window after worker completes
         win = MainWindow()
+
+        # Update progress while MainWindow initializes
+        splash.update_progress(95, "Finalizing…")
+        QApplication.processEvents()
+
+        # Show window and close splash
         win.show()
+        splash.update_progress(100, "Ready!")
+        QApplication.processEvents()
+
+        # Close splash after a brief delay
+        QTimer.singleShot(300, splash.close)
 
         # Check FFmpeg availability and notify user if needed
         try:

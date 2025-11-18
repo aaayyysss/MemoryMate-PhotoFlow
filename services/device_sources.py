@@ -146,17 +146,139 @@ class DeviceScanner:
         return devices
 
     def _scan_windows(self) -> List[MobileDevice]:
-        """Scan Windows drives D: through Z: for mobile devices"""
+        """
+        Scan Windows for mobile devices.
+
+        Checks both:
+        1. Drive letters (D: through Z:) - for SD cards, cameras mounted as drives
+        2. Portable devices (MTP) - for Android/iOS phones under "This PC"
+        """
         devices = []
 
+        # Method 1: Scan drive letters (for SD cards, cameras)
+        print(f"[DeviceScanner]   Checking drive letters D:-Z:...")
         for drive_letter in "DEFGHIJKLMNOPQRSTUVWXYZ":
             drive_path = f"{drive_letter}:\\"
             if not os.path.exists(drive_path):
                 continue
 
+            print(f"[DeviceScanner]     Drive {drive_letter}: exists, checking...")
             device = self._check_device_at_path(drive_path)
             if device:
+                print(f"[DeviceScanner]       ✓ Device found on drive {drive_letter}:")
                 devices.append(device)
+            else:
+                print(f"[DeviceScanner]       ✗ No device on drive {drive_letter}:")
+
+        # Method 2: Scan portable devices (MTP/PTP - Android/iOS phones)
+        print(f"[DeviceScanner]   Checking portable devices (MTP/PTP)...")
+        portable_devices = self._scan_windows_portable_devices()
+        devices.extend(portable_devices)
+
+        return devices
+
+    def _scan_windows_portable_devices(self) -> List[MobileDevice]:
+        """
+        Detect Windows MTP/PTP portable devices (Android/iOS phones).
+
+        Uses win32com.shell to enumerate devices under "This PC" namespace.
+        Falls back to wmic if COM is not available.
+        """
+        devices = []
+
+        # Try using win32com.shell (more reliable)
+        try:
+            print(f"[DeviceScanner]     Attempting Shell COM enumeration...")
+            import win32com.client
+
+            shell = win32com.client.Dispatch("Shell.Application")
+            # Namespace 17 = "This PC" / "Computer"
+            computer_folder = shell.Namespace(17)
+
+            if computer_folder:
+                items = computer_folder.Items()
+                print(f"[DeviceScanner]     Found {items.Count} items under 'This PC'")
+
+                for item in items:
+                    # Check if it's a portable device
+                    # Portable devices have IsFileSystem=False and IsFolder=True
+                    if item.IsFolder and not item.IsFileSystem:
+                        device_name = item.Name
+                        print(f"[DeviceScanner]       • Portable device found: {device_name}")
+
+                        # Try to access the device folder
+                        try:
+                            device_folder = shell.Namespace(item.Path)
+                            if device_folder:
+                                # Enumerate storage locations (Phone, Card, etc.)
+                                storage_items = device_folder.Items()
+                                print(f"[DeviceScanner]         Storage locations: {storage_items.Count}")
+
+                                for storage in storage_items:
+                                    if storage.IsFolder:
+                                        storage_name = storage.Name
+                                        storage_path = storage.Path
+                                        print(f"[DeviceScanner]           • Storage: {storage_name}")
+                                        print(f"[DeviceScanner]             Path: {storage_path}")
+
+                                        # Check if this storage location has DCIM
+                                        device = self._check_device_at_path(storage_path)
+                                        if device:
+                                            print(f"[DeviceScanner]             ✓ Device detected!")
+                                            devices.append(device)
+                                        else:
+                                            print(f"[DeviceScanner]             ✗ No DCIM found")
+                        except Exception as e:
+                            print(f"[DeviceScanner]         ERROR accessing {device_name}: {e}")
+            else:
+                print(f"[DeviceScanner]     ✗ Could not access 'This PC' namespace")
+
+        except ImportError:
+            print(f"[DeviceScanner]     ✗ win32com not available, trying fallback...")
+            # Fallback: Use wmic to list portable devices
+            devices.extend(self._scan_windows_portable_wmic())
+        except Exception as e:
+            print(f"[DeviceScanner]     ✗ Shell COM enumeration failed: {e}")
+            # Fallback: Use wmic
+            devices.extend(self._scan_windows_portable_wmic())
+
+        return devices
+
+    def _scan_windows_portable_wmic(self) -> List[MobileDevice]:
+        """
+        Fallback: Use wmic to detect portable devices.
+        This is less reliable but works without win32com.
+        """
+        devices = []
+        print(f"[DeviceScanner]     Using wmic fallback...")
+
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["wmic", "logicaldisk", "get", "caption,volumename,drivetype"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+
+            if result.returncode == 0:
+                print(f"[DeviceScanner]     wmic output received")
+                # Parse output for portable devices (DriveType=2 is removable)
+                lines = result.stdout.strip().split('\n')
+                for line in lines[1:]:  # Skip header
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            drive = parts[0]
+                            if os.path.exists(drive):
+                                print(f"[DeviceScanner]       Checking {drive}...")
+                                device = self._check_device_at_path(drive)
+                                if device:
+                                    devices.append(device)
+            else:
+                print(f"[DeviceScanner]     ✗ wmic failed")
+        except Exception as e:
+            print(f"[DeviceScanner]     ✗ wmic fallback failed: {e}")
 
         return devices
 

@@ -1,30 +1,31 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06> python main_qt.py
-[Startup] pillow_heif available — HEIC/HEIF support enabled.
-🔇 Decoder warnings suppressed per settings.
-🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-18 01:23:23,759 [INFO] ================================================================================
-2025-11-18 01:23:23,759 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-18 01:23:23,760 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06\app_log.txt
-2025-11-18 01:23:23,760 [INFO] ================================================================================
-2025-11-18 01:23:23,796 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-18 01:23:23,797 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 21, 'size_mb': 0.07, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-06\\thumbnails_cache.db', 'last_updated': '2025-11-18 01:19'}
-[ThumbCacheDB] Purged 21 stale thumbnails (> 30 days).
-🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-18 01:23:24,042 [INFO] SearchService initialized
-[01:23:24.500] [Tabs] __init__ started
-[01:23:24.501] [Tabs] _build_tabs → building tab widgets
-[01:23:24.501] [Tabs] _on_tab_changed(idx=0)
-[01:23:24.501] [Tabs] _start_timeout idx=0 type=branches
-[01:23:24.501] [Tabs] _populate_tab(branches, idx=0, force=False)
-[01:23:24.501] [Tabs]   populated=False, loading=False
-[01:23:24.502] [Tabs]   Starting load for branches
-[01:23:24.502] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[01:23:24.502] [Tabs] _clear_tab idx=0
-[01:23:24.504] [Tabs] _on_tab_changed → tab_type=branches
-[01:23:24.505] [Tabs] _build_tabs → added 6 tabs
-[01:23:24.505] [Tabs] __init__ completed
+FaceCluster] Clustering 33 faces...
+2025-11-18 01:40:24,542 [INFO] [FaceClusterWorker] Found 7 clusters
+2025-11-18 01:40:24,543 [INFO] [FaceClusterWorker] Found 9 unclustered faces (will create 'Unidentified' branch)
+[FaceCluster] Found 7 person groups...
+2025-11-18 01:40:24,548 [INFO] [FaceClusterWorker] Cluster 0 → 2 faces
+[FaceCluster] Saving cluster 1/7: Person 1 (2 faces)
+2025-11-18 01:40:24,549 [INFO] [FaceClusterWorker] Cluster 1 → 3 faces
+[FaceCluster] Saving cluster 2/7: Person 2 (3 faces)
+2025-11-18 01:40:24,551 [INFO] [FaceClusterWorker] Cluster 2 → 7 faces
+[FaceCluster] Saving cluster 3/7: Person 3 (7 faces)
+2025-11-18 01:40:24,551 [INFO] [FaceClusterWorker] Cluster 3 → 2 faces
+[FaceCluster] Saving cluster 4/7: Person 4 (2 faces)
+2025-11-18 01:40:24,553 [INFO] [FaceClusterWorker] Cluster 4 → 5 faces
+[FaceCluster] Saving cluster 5/7: Person 5 (5 faces)
+2025-11-18 01:40:24,554 [INFO] [FaceClusterWorker] Cluster 5 → 2 faces
+[FaceCluster] Saving cluster 6/7: Person 6 (2 faces)
+2025-11-18 01:40:24,555 [INFO] [FaceClusterWorker] Cluster 6 → 3 faces
+[FaceCluster] Saving cluster 7/7: Person 7 (3 faces)
+[FaceCluster] Processing 9 unidentified faces...
+2025-11-18 01:40:24,557 [INFO] [FaceClusterWorker] Created 'Unidentified' branch with 9 faces from 6 photos
+2025-11-18 01:40:24,563 [INFO] [FaceClusterWorker] Complete in 0.0s: 7 person clusters + 9 unidentified faces
+[FaceCluster] Clustering complete: 8 branches created
+[FaceCluster] Complete: 7 person groups created
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
@@ -35,16 +36,107 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=2] running for 1 targets...
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
-[01:23:24.585] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
+[Sidebar][counts worker gen=8] running for 1 targets...
+[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 5 photos
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[GRID] Queued 5 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 5 photos
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[GRID] Queued 3 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[get_images_by_branch] project_id=1, branch_key='face_006'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[GRID] Queued 3 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[get_images_by_branch] project_id=1, branch_key='face_006'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 5 photos
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[GRID] Queued 5 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[merge_face_clusters] project_id=1, target='face_000', sources=['face_004']
+[merge_face_clusters] Found 2 branches. Row type: <class 'sqlite3.Row'>
+[merge_face_clusters] Found 2 face_branch_reps rows
+[merge_face_clusters] Updated count for target 'face_000' (rowcount=1)
+[merge_face_clusters] SUCCESS: {'moved_faces': 5, 'moved_images': 5, 'deleted_reps': 1, 'sources': ['face_004'], 'target': 'face_000'}
 [SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
@@ -55,43 +147,15 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-2025-11-18 01:23:24,649 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-18 01:23:24,649 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-18 01:23:24,650 [INFO] Global ThumbnailService created with Phase 1B memory limits
-[Startup] Database schema initialized successfully
-💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
-✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
-✅ InsightFace detected with buffalo_l models
-   Location: C:\Users\ASUS\.insightface\models\buffalo_l
-[01:23:27.173] [Tabs] _on_tab_changed(idx=0)
-[01:23:27.173] [Tabs] _start_timeout idx=0 type=branches
-[01:23:27.173] [Tabs] _populate_tab(branches, idx=0, force=False)
-[01:23:27.173] [Tabs]   populated=False, loading=False
-[01:23:27.173] [Tabs]   Starting load for branches
-[01:23:27.174] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[01:23:27.174] [Tabs] _clear_tab idx=0
-[01:23:27.175] [Tabs] _on_tab_changed → tab_type=branches
-[01:23:27.176] [Tabs] _finish_branches (stale gen=1) — ignoring
-[01:23:27.192] [Tabs] _clear_tab idx=0
-[TAG FILTER] Cleared by navigation.
+[Sidebar][counts worker gen=10] running for 1 targets...
+[Sidebar][counts worker gen=10] finished scanning targets, scheduling UI update
+[Sidebar][counts worker gen=11] running for 1 targets...
+[Sidebar][counts worker gen=11] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
 [GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 21 photos
-[GRID] Loaded 21 thumbnails.
-[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-20 of 21
-[GRID] Queued 21 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-20 of 21
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 21 photos
-[GRID] Loaded 21 thumbnails.
-[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='face_000'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
@@ -101,9 +165,243 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [GRID] Queued 7 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[SidebarQt] switch_display_mode(tabs) - canceling old workers
+[SidebarQt] Canceled list workers (new gen=12)
+[SidebarQt] Hiding tree view
+[SidebarQt] Showing tabs controller
+[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
+[01:43:18.423] [Tabs] refresh_all(force=True) called
+[01:43:18.423] [Tabs] refresh_all: key=branches, idx=0, force=True
+[01:43:18.424] [Tabs] _populate_tab(branches, idx=0, force=True)
+[01:43:18.424] [Tabs]   populated=True, loading=False
+[01:43:18.424] [Tabs]   Force refresh: removing branches from populated set
+[01:43:18.424] [Tabs]   Starting load for branches
+[01:43:18.424] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[01:43:18.424] [Tabs] _clear_tab idx=0
+[01:43:18.426] [Tabs] refresh_all: key=folders, idx=1, force=True
+[01:43:18.426] [Tabs] _populate_tab(folders, idx=1, force=True)
+[01:43:18.426] [Tabs]   populated=True, loading=False
+[01:43:18.426] [Tabs]   Force refresh: removing folders from populated set
+[01:43:18.426] [Tabs]   Starting load for folders
+[01:43:18.426] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[01:43:18.427] [Tabs] _clear_tab idx=1
+[01:43:18.428] [Tabs] refresh_all: key=dates, idx=2, force=True
+[01:43:18.428] [Tabs] _populate_tab(dates, idx=2, force=True)
+[01:43:18.428] [Tabs]   populated=True, loading=False
+[01:43:18.428] [Tabs]   Force refresh: removing dates from populated set
+[01:43:18.429] [Tabs]   Starting load for dates
+[01:43:18.429] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[01:43:18.429] [Tabs] _clear_tab idx=2
+[01:43:18.430] [Tabs] _load_folders → got 6 rows for project_id=1
+[01:43:18.430] [Tabs] refresh_all: key=tags, idx=3, force=True
+[01:43:18.430] [Tabs] _populate_tab(tags, idx=3, force=True)
+[01:43:18.431] [Tabs]   populated=True, loading=False
+[01:43:18.431] [Tabs]   Force refresh: removing tags from populated set
+[01:43:18.431] [Tabs]   Starting load for tags
+[01:43:18.431] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[01:43:18.431] [Tabs] _clear_tab idx=3
+[01:43:18.432] [Tabs] _load_dates → got hierarchy data for project_id=1
+[01:43:18.433] [Tabs] refresh_all: key=quick, idx=5, force=True
+[01:43:18.433] [Tabs] _populate_tab(quick, idx=5, force=True)
+[01:43:18.433] [Tabs]   populated=True, loading=False
+[01:43:18.433] [Tabs]   Force refresh: removing quick from populated set
+[01:43:18.433] [Tabs]   Starting load for quick
+[01:43:18.433] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[01:43:18.434] [Tabs] _load_tags → got 0 rows for project_id=1
+[01:43:18.434] [Tabs] _clear_tab idx=5
+[01:43:18.435] [Tabs] refresh_all(force=True) completed
+[SidebarQt] tabs_controller.refresh_all() completed after mode switch
+[01:43:18.437] [Tabs] _load_quick → got 6 rows
+[01:43:18.440] [Tabs] _clear_tab idx=0
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[01:43:18.470] [Tabs] _clear_tab idx=1
+[01:43:18.485] [Tabs] _clear_tab idx=2
+[01:43:18.511] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
+[01:43:18.511] [Tabs] _clear_tab idx=3
+[01:43:18.519] [Tabs] _clear_tab idx=5
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Queued 21 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[01:43:20.370] [Tabs] _on_tab_changed(idx=4)
+[01:43:20.370] [Tabs] _start_timeout idx=4 type=people
+[01:43:20.370] [Tabs] _populate_tab(people, idx=4, force=False)
+[01:43:20.370] [Tabs]   populated=False, loading=False
+[01:43:20.371] [Tabs]   Starting load for people
+[01:43:20.371] [Tabs] _show_loading idx=4 label='Loading People…'
+[01:43:20.371] [Tabs] _clear_tab idx=4
+[01:43:20.372] [Tabs] _on_tab_changed → tab_type=people
+[01:43:20.373] [Tabs] _load_people → got 7 clusters
+[01:43:20.376] [Tabs] _clear_tab idx=4
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[get_images_by_branch] project_id=1, branch_key='facecluster:face_000'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[01:43:52.925] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Processing pending events after hide_tabs()
+[SidebarQt] Finished processing events
+[SidebarQt] Clearing tree view selection before rebuild
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 21}]
+[Sidebar] Loaded 6 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 5 years, 8 months, 15 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=14] running for 1 targets...
+[SidebarQt] _build_tree_model() completed
+[Sidebar][counts worker gen=14] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='facecluster:face_000'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Queued 6 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-5 of 6
+[get_images_by_branch] project_id=1, branch_key='face_unidentified'
+[get_images_by_branch] Found 6 photos
+[GRID] Loaded 6 thumbnails.
+[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[Sidebar] Person face_000 not found in tree (may need refresh)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_002'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[Sidebar] Person face_000 not found in tree (may need refresh)
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-06>
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07>

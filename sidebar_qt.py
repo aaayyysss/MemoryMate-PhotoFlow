@@ -1447,7 +1447,17 @@ class SidebarQt(QWidget):
         self._spin_angle = 0
         self._base_pm = self._make_reload_pixmap(18, 18)
 
-        
+        # Device auto-refresh timer
+        self._device_refresh_timer = QTimer(self)
+        self._device_refresh_timer.setInterval(30000)  # 30 seconds
+        self._device_refresh_timer.timeout.connect(self._check_device_changes)
+        self._last_device_count = 0
+        self._device_auto_refresh_enabled = self.settings.get("device_auto_refresh", True) if self.settings else True
+
+        if self._device_auto_refresh_enabled:
+            self._device_refresh_timer.start()
+
+
         # Header
         header_bar = QWidget()
         header_layout = QHBoxLayout(header_bar)
@@ -2702,6 +2712,9 @@ class SidebarQt(QWidget):
                     print("[Sidebar] Scanning for mobile devices...")
                     mobile_devices = scan_mobile_devices()
                     print(f"[Sidebar] Found {len(mobile_devices)} mobile device(s)")
+
+                    # Update device count for auto-refresh tracking
+                    self._last_device_count = len(mobile_devices)
 
                     # Always show Mobile Devices section (even if no devices found)
                     # This makes the feature discoverable and accessible for troubleshooting
@@ -4642,7 +4655,43 @@ class SidebarQt(QWidget):
         finally:
             # Always reset flag, even if error occurs
             self._refreshing = False
-        
+
+    def _check_device_changes(self):
+        """
+        Periodically check for device changes and refresh if needed.
+        Called by auto-refresh timer every 30 seconds.
+        """
+        if self._refreshing:
+            # Skip if already refreshing
+            return
+
+        try:
+            from services.device_sources import scan_mobile_devices
+
+            # Quick scan for devices
+            devices = scan_mobile_devices()
+            current_count = len(devices)
+
+            # Check if device count changed
+            if current_count != self._last_device_count:
+                if current_count > self._last_device_count:
+                    # New device(s) connected
+                    new_count = current_count - self._last_device_count
+                    print(f"[Sidebar] Auto-refresh: {new_count} new device(s) detected")
+                    self.window().statusBar().showMessage(f"✓ Detected {new_count} new device(s), refreshing...", 3000)
+                else:
+                    # Device(s) disconnected
+                    removed_count = self._last_device_count - current_count
+                    print(f"[Sidebar] Auto-refresh: {removed_count} device(s) disconnected")
+                    self.window().statusBar().showMessage(f"Device(s) disconnected, refreshing...", 3000)
+
+                # Update count and refresh
+                self._last_device_count = current_count
+                self.reload()
+
+        except Exception as e:
+            print(f"[Sidebar] Device auto-refresh check failed: {e}")
+            # Don't show error to user, just log it
 
     def _start_spinner(self):
         if not self._spin_timer.isActive():

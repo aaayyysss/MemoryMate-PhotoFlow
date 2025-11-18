@@ -237,6 +237,18 @@ class SidebarTabs(QWidget):
     def hide_tabs(self):
         """Hide tabs and cancel any pending workers"""
         self._dbg("hide_tabs() called - canceling pending workers")
+
+        # CRITICAL FIX: Cleanup PeopleListView before hiding
+        # This ensures signals are disconnected and prevents crashes on toggle
+        if hasattr(self, 'people_list_view') and self.people_list_view:
+            try:
+                if hasattr(self.people_list_view, '_cleanup'):
+                    self._dbg("hide_tabs() - calling _cleanup() on people_list_view")
+                    self.people_list_view._cleanup()
+            except (RuntimeError, AttributeError) as e:
+                self._dbg(f"hide_tabs() - people_list_view cleanup error: {e}")
+            self.people_list_view = None
+
         # Bump all generations to invalidate any in-flight workers
         for key in self._tab_gen.keys():
             self._bump_gen(key)
@@ -354,6 +366,16 @@ class SidebarTabs(QWidget):
                     continue
                 w = item.widget()
                 if w:
+                    # CRITICAL FIX: Call _cleanup() on widgets that have it
+                    # This ensures signals are disconnected and event filters removed
+                    # BEFORE deleteLater() is called, preventing crashes from pending signals
+                    if hasattr(w, '_cleanup') and callable(w._cleanup):
+                        try:
+                            self._dbg(f"_clear_tab idx={idx} - calling _cleanup() on {type(w).__name__}")
+                            w._cleanup()
+                        except Exception as cleanup_err:
+                            self._dbg(f"_clear_tab idx={idx} - _cleanup() failed: {cleanup_err}")
+
                     w.setParent(None)
                     w.deleteLater()
         except Exception as e:
@@ -996,6 +1018,12 @@ class SidebarTabs(QWidget):
             self._dbg(f"_finish_people (stale gen={gen}) — ignoring")
             return
         self._cancel_timeout(idx)
+
+        # CRITICAL FIX: Clear people_list_view reference before deleting old widget
+        # This prevents accessing stale widget references during deletion
+        if hasattr(self, 'people_list_view'):
+            self.people_list_view = None
+
         self._clear_tab(idx)
 
         tab = self.tab_widget.widget(idx)

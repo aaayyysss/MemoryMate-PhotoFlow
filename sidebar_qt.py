@@ -1583,6 +1583,24 @@ class SidebarQt(QWidget):
         # Mark initialization as complete - safe to call processEvents() now
         self._initialized = True
 
+    def closeEvent(self, event):
+        """
+        Clean up timers and resources when sidebar is closed.
+        Prevents crashes from timers firing after widget deletion.
+        """
+        # Stop auto-refresh timer to prevent it from interfering with cleanup
+        if hasattr(self, '_device_refresh_timer'):
+            self._device_refresh_timer.stop()
+
+        # Stop other timers
+        if hasattr(self, '_reload_timer'):
+            self._reload_timer.stop()
+
+        if hasattr(self, '_spin_timer'):
+            self._spin_timer.stop()
+
+        event.accept()
+
     # ---- header helpers ----
 
 
@@ -4619,6 +4637,22 @@ class SidebarQt(QWidget):
             self._reload_block = False
 
     def reload(self):
+        # CRITICAL: Guard against crashes during widget deletion
+        try:
+            # Check if widget is being deleted
+            if not self.isVisible():
+                print("[SidebarQt] reload() blocked - widget not visible (likely being deleted)")
+                return
+
+            # Check if model exists
+            if not hasattr(self, 'model') or not self.model:
+                print("[SidebarQt] reload() blocked - model not initialized")
+                return
+
+        except (RuntimeError, AttributeError):
+            print("[SidebarQt] reload() blocked - widget deleted or being deleted")
+            return
+
         # Guard against concurrent reloads
         if self._refreshing:
             print("[SidebarQt] reload() blocked - already refreshing")
@@ -4661,8 +4695,28 @@ class SidebarQt(QWidget):
         Periodically check for device changes and refresh if needed.
         Called by auto-refresh timer every 30 seconds.
         """
-        if self._refreshing:
+        # CRITICAL: Safety checks to prevent crashes during cleanup
+        try:
+            # Check if widget is being deleted (prevents RuntimeError)
+            if not self.isVisible():
+                return
+
+            # Check if parent window exists
+            if not self.window():
+                return
+
             # Skip if already refreshing
+            if self._refreshing:
+                return
+
+            # Check if model is valid
+            if not hasattr(self, 'model') or not self.model:
+                return
+
+        except (RuntimeError, AttributeError):
+            # Widget deleted or being deleted, stop timer
+            if hasattr(self, '_device_refresh_timer'):
+                self._device_refresh_timer.stop()
             return
 
         try:
@@ -4678,18 +4732,40 @@ class SidebarQt(QWidget):
                     # New device(s) connected
                     new_count = current_count - self._last_device_count
                     print(f"[Sidebar] Auto-refresh: {new_count} new device(s) detected")
-                    self.window().statusBar().showMessage(f"✓ Detected {new_count} new device(s), refreshing...", 3000)
+
+                    # Safe status bar access
+                    try:
+                        main_window = self.window()
+                        if main_window and hasattr(main_window, 'statusBar'):
+                            main_window.statusBar().showMessage(f"✓ Detected {new_count} new device(s), refreshing...", 3000)
+                    except (RuntimeError, AttributeError):
+                        pass
+
                 else:
                     # Device(s) disconnected
                     removed_count = self._last_device_count - current_count
                     print(f"[Sidebar] Auto-refresh: {removed_count} device(s) disconnected")
-                    self.window().statusBar().showMessage(f"Device(s) disconnected, refreshing...", 3000)
+
+                    # Safe status bar access
+                    try:
+                        main_window = self.window()
+                        if main_window and hasattr(main_window, 'statusBar'):
+                            main_window.statusBar().showMessage(f"Device(s) disconnected, refreshing...", 3000)
+                    except (RuntimeError, AttributeError):
+                        pass
 
                 # Update count and refresh
                 self._last_device_count = current_count
                 self.reload()
 
+        except (RuntimeError, AttributeError) as widget_error:
+            # Widget deleted during execution, stop timer
+            print(f"[Sidebar] Widget deleted during auto-refresh, stopping timer: {widget_error}")
+            if hasattr(self, '_device_refresh_timer'):
+                self._device_refresh_timer.stop()
+
         except Exception as e:
+            # Other errors - log but don't crash
             print(f"[Sidebar] Device auto-refresh check failed: {e}")
             # Don't show error to user, just log it
 

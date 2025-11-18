@@ -4603,6 +4603,347 @@ class ReferenceDB:
         suggestions.sort(key=lambda d: d["distance"])
         return suggestions[:max_pairs]
 
+    # =========================================================================
+    # MOBILE DEVICE TRACKING METHODS (Phase 1: Device Registry)
+    # =========================================================================
+
+    def register_device(self, device_id: str, device_name: str, device_type: str,
+                       serial_number: str = None, volume_guid: str = None,
+                       mount_point: str = None) -> None:
+        """
+        Register a new mobile device or update existing device's last_seen.
+
+        Args:
+            device_id: Unique device identifier
+            device_name: Human-readable name
+            device_type: Type ("android", "ios", "camera", "usb", "sd_card")
+            serial_number: Physical serial (optional)
+            volume_guid: Volume GUID for Windows (optional)
+            mount_point: Current mount path (optional)
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Check if device exists
+            cur.execute("""
+                SELECT device_id FROM mobile_devices WHERE device_id = ?
+            """, (device_id,))
+
+            if cur.fetchone():
+                # Update existing device
+                cur.execute("""
+                    UPDATE mobile_devices
+                    SET device_name = ?,
+                        device_type = ?,
+                        serial_number = ?,
+                        volume_guid = ?,
+                        mount_point = ?,
+                        last_seen = CURRENT_TIMESTAMP
+                    WHERE device_id = ?
+                """, (device_name, device_type, serial_number, volume_guid,
+                      mount_point, device_id))
+            else:
+                # Insert new device
+                cur.execute("""
+                    INSERT INTO mobile_devices (
+                        device_id, device_name, device_type,
+                        serial_number, volume_guid, mount_point,
+                        last_seen
+                    ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (device_id, device_name, device_type, serial_number,
+                      volume_guid, mount_point))
+
+            conn.commit()
+
+    def get_device(self, device_id: str) -> dict | None:
+        """Get device information by ID."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT device_id, device_name, device_type, serial_number,
+                       volume_guid, mount_point, first_seen, last_seen,
+                       last_import_session, total_imports,
+                       total_photos_imported, total_videos_imported, notes
+                FROM mobile_devices
+                WHERE device_id = ?
+            """, (device_id,))
+
+            row = cur.fetchone()
+            if not row:
+                return None
+
+            return {
+                "device_id": row[0],
+                "device_name": row[1],
+                "device_type": row[2],
+                "serial_number": row[3],
+                "volume_guid": row[4],
+                "mount_point": row[5],
+                "first_seen": row[6],
+                "last_seen": row[7],
+                "last_import_session": row[8],
+                "total_imports": row[9],
+                "total_photos_imported": row[10],
+                "total_videos_imported": row[11],
+                "notes": row[12]
+            }
+
+    def list_all_devices(self, device_type: str = None) -> list[dict]:
+        """
+        List all registered devices, optionally filtered by type.
+
+        Args:
+            device_type: Filter by type (optional)
+
+        Returns:
+            List of device dictionaries, sorted by last_seen (newest first)
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            if device_type:
+                cur.execute("""
+                    SELECT device_id, device_name, device_type,
+                           first_seen, last_seen, total_imports,
+                           total_photos_imported, total_videos_imported
+                    FROM mobile_devices
+                    WHERE device_type = ?
+                    ORDER BY last_seen DESC
+                """, (device_type,))
+            else:
+                cur.execute("""
+                    SELECT device_id, device_name, device_type,
+                           first_seen, last_seen, total_imports,
+                           total_photos_imported, total_videos_imported
+                    FROM mobile_devices
+                    ORDER BY last_seen DESC
+                """)
+
+            devices = []
+            for row in cur.fetchall():
+                devices.append({
+                    "device_id": row[0],
+                    "device_name": row[1],
+                    "device_type": row[2],
+                    "first_seen": row[3],
+                    "last_seen": row[4],
+                    "total_imports": row[5],
+                    "total_photos_imported": row[6],
+                    "total_videos_imported": row[7]
+                })
+
+            return devices
+
+    def create_import_session(self, device_id: str, project_id: int,
+                             import_type: str = "manual") -> int:
+        """
+        Create a new import session.
+
+        Args:
+            device_id: Source device ID
+            project_id: Target project ID
+            import_type: Type of import ("manual", "auto", "incremental")
+
+        Returns:
+            New session ID
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO import_sessions (
+                    device_id, project_id, import_type, status
+                ) VALUES (?, ?, ?, 'in_progress')
+            """, (device_id, project_id, import_type))
+
+            session_id = cur.lastrowid
+            conn.commit()
+            return session_id
+
+    def complete_import_session(self, session_id: int, photos_imported: int = 0,
+                               videos_imported: int = 0, duplicates_skipped: int = 0,
+                               bytes_imported: int = 0, duration_seconds: int = None,
+                               error_message: str = None) -> None:
+        """
+        Mark import session as completed and update device statistics.
+
+        Args:
+            session_id: Import session ID
+            photos_imported: Number of photos imported
+            videos_imported: Number of videos imported
+            duplicates_skipped: Number of duplicates skipped
+            bytes_imported: Total bytes imported
+            duration_seconds: Import duration
+            error_message: Error message if failed
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Update session
+            status = "completed" if not error_message else "failed"
+            cur.execute("""
+                UPDATE import_sessions
+                SET status = ?,
+                    photos_imported = ?,
+                    videos_imported = ?,
+                    duplicates_skipped = ?,
+                    bytes_imported = ?,
+                    duration_seconds = ?,
+                    error_message = ?
+                WHERE id = ?
+            """, (status, photos_imported, videos_imported, duplicates_skipped,
+                  bytes_imported, duration_seconds, error_message, session_id))
+
+            # Get device_id for this session
+            cur.execute("""
+                SELECT device_id FROM import_sessions WHERE id = ?
+            """, (session_id,))
+            row = cur.fetchone()
+            if row:
+                device_id = row[0]
+
+                # Update device statistics
+                cur.execute("""
+                    UPDATE mobile_devices
+                    SET last_import_session = ?,
+                        total_imports = total_imports + 1,
+                        total_photos_imported = total_photos_imported + ?,
+                        total_videos_imported = total_videos_imported + ?
+                    WHERE device_id = ?
+                """, (session_id, photos_imported, videos_imported, device_id))
+
+            conn.commit()
+
+    def get_device_import_history(self, device_id: str, limit: int = 10) -> list[dict]:
+        """
+        Get import history for a device.
+
+        Args:
+            device_id: Device ID
+            limit: Maximum number of sessions to return
+
+        Returns:
+            List of import session dictionaries
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, project_id, import_date, import_type,
+                       photos_imported, videos_imported, duplicates_skipped,
+                       status, duration_seconds
+                FROM import_sessions
+                WHERE device_id = ?
+                ORDER BY import_date DESC
+                LIMIT ?
+            """, (device_id, limit))
+
+            sessions = []
+            for row in cur.fetchall():
+                sessions.append({
+                    "session_id": row[0],
+                    "project_id": row[1],
+                    "import_date": row[2],
+                    "import_type": row[3],
+                    "photos_imported": row[4],
+                    "videos_imported": row[5],
+                    "duplicates_skipped": row[6],
+                    "status": row[7],
+                    "duration_seconds": row[8]
+                })
+
+            return sessions
+
+    def track_device_file(self, device_id: str, device_path: str,
+                         device_folder: str, file_hash: str, file_size: int,
+                         file_mtime: str, import_session_id: int = None,
+                         local_photo_id: int = None, local_video_id: int = None) -> None:
+        """
+        Track a file seen on a device.
+
+        Args:
+            device_id: Device ID
+            device_path: Path on device
+            device_folder: Folder name (Camera, Screenshots, etc.)
+            file_hash: SHA256 hash
+            file_size: File size in bytes
+            file_mtime: Modification time
+            import_session_id: Import session ID (if imported)
+            local_photo_id: Local photo ID (if imported)
+            local_video_id: Local video ID (if imported)
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Check if file already tracked
+            cur.execute("""
+                SELECT id, import_status FROM device_files
+                WHERE device_id = ? AND device_path = ?
+            """, (device_id, device_path))
+
+            existing = cur.fetchone()
+
+            if existing:
+                # Update existing entry
+                file_id, current_status = existing
+                new_status = "imported" if (local_photo_id or local_video_id) else current_status
+
+                cur.execute("""
+                    UPDATE device_files
+                    SET last_seen = CURRENT_TIMESTAMP,
+                        import_status = ?,
+                        local_photo_id = ?,
+                        local_video_id = ?,
+                        import_session_id = ?
+                    WHERE id = ?
+                """, (new_status, local_photo_id, local_video_id,
+                      import_session_id, file_id))
+            else:
+                # Insert new entry
+                import_status = "imported" if (local_photo_id or local_video_id) else "new"
+
+                cur.execute("""
+                    INSERT INTO device_files (
+                        device_id, device_path, device_folder, file_hash,
+                        file_size, file_mtime, import_status,
+                        local_photo_id, local_video_id, import_session_id,
+                        last_seen
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (device_id, device_path, device_folder, file_hash,
+                      file_size, file_mtime, import_status,
+                      local_photo_id, local_video_id, import_session_id))
+
+            conn.commit()
+
+    def get_new_files_on_device(self, device_id: str) -> list[dict]:
+        """
+        Get list of files on device that haven't been imported yet.
+
+        Args:
+            device_id: Device ID
+
+        Returns:
+            List of file dictionaries with import_status='new'
+        """
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT device_path, device_folder, file_hash, file_size, file_mtime
+                FROM device_files
+                WHERE device_id = ? AND import_status = 'new'
+                ORDER BY device_path
+            """, (device_id,))
+
+            files = []
+            for row in cur.fetchall():
+                files.append({
+                    "device_path": row[0],
+                    "device_folder": row[1],
+                    "file_hash": row[2],
+                    "file_size": row[3],
+                    "file_mtime": row[4]
+                })
+
+            return files
+
     # --- end new methods ---------------------------------------------------------
 
 

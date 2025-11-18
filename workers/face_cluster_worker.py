@@ -67,6 +67,10 @@ class FaceClusterWorker(QRunnable):
                  Lower = stricter grouping (more clusters, fewer false positives)
                  Higher = looser grouping (fewer clusters, more false positives)
                  Range: 0.30-0.40, optimal: 0.35 for InsightFace
+                 Recommended values:
+                   • 0.30: Very strict (best for preventing false matches)
+                   • 0.35: Balanced (recommended, minimizes false clustering)
+                   • 0.40: Looser (may group different people)
                  Updated from 0.42 (was grouping different people together)
             min_samples: Minimum number of faces to form a cluster
                         Higher = larger clusters only (fewer clusters total)

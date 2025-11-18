@@ -111,15 +111,25 @@ class DeviceScanner:
         Returns:
             List of MobileDevice objects representing detected devices
         """
+        print(f"\n[DeviceScanner] ===== Starting device scan =====")
+        print(f"[DeviceScanner] Platform: {self.system}")
+        print(f"[DeviceScanner] Database registration: {'enabled' if self.db and self.register_devices else 'disabled'}")
+
         devices = []
 
         if self.system == "Windows":
+            print(f"[DeviceScanner] Scanning Windows drives...")
             devices.extend(self._scan_windows())
         elif self.system == "Darwin":  # macOS
+            print(f"[DeviceScanner] Scanning macOS volumes...")
             devices.extend(self._scan_macos())
         elif self.system == "Linux":
+            print(f"[DeviceScanner] Scanning Linux mount points...")
             devices.extend(self._scan_linux())
+        else:
+            print(f"[DeviceScanner] WARNING: Unknown platform '{self.system}'")
 
+        print(f"[DeviceScanner] ===== Scan complete: {len(devices)} device(s) found =====\n")
         return devices
 
     def _scan_windows(self) -> List[MobileDevice]:
@@ -171,27 +181,113 @@ class DeviceScanner:
 
         # Add current user's media directory
         user = os.getenv("USER")
+        print(f"[DeviceScanner] Current user: {user}")
         if user:
             mount_bases.extend([
                 f"/media/{user}",
                 f"/run/media/{user}",
             ])
 
+        print(f"[DeviceScanner] Checking mount locations: {mount_bases}")
+
         for base in mount_bases:
             base_path = Path(base)
             if not base_path.exists():
+                print(f"[DeviceScanner]   ✗ {base} - does not exist")
                 continue
+
+            print(f"[DeviceScanner]   ✓ {base} - exists")
 
             # Check each subdirectory
             try:
-                for mount_point in base_path.iterdir():
+                mount_points = list(base_path.iterdir())
+                print(f"[DeviceScanner]     Found {len(mount_points)} mount points")
+
+                for mount_point in mount_points:
                     if not mount_point.is_dir():
+                        print(f"[DeviceScanner]       • {mount_point.name} - skipping (not a directory)")
                         continue
 
+                    print(f"[DeviceScanner]       • {mount_point.name} - checking...")
                     device = self._check_device_at_path(str(mount_point))
                     if device:
+                        print(f"[DeviceScanner]         ✓ Device detected: {device.label}")
                         devices.append(device)
-            except (PermissionError, OSError):
+                    else:
+                        print(f"[DeviceScanner]         ✗ No device detected")
+            except (PermissionError, OSError) as e:
+                print(f"[DeviceScanner]   ✗ {base} - permission denied: {e}")
+                continue
+
+        # ================================================================
+        # GVFS MTP mount detection (used by most Linux file managers)
+        # ================================================================
+        print(f"[DeviceScanner] Checking GVFS MTP mounts...")
+        devices.extend(self._scan_gvfs_mtp())
+
+        return devices
+
+    def _scan_gvfs_mtp(self) -> List[MobileDevice]:
+        """
+        Scan GVFS MTP mounts for mobile devices.
+
+        GVFS (GNOME Virtual File System) is used by most Linux file managers
+        to mount MTP devices at paths like:
+        - /run/user/<uid>/gvfs/mtp:host=...
+        - ~/.gvfs/mtp:host=... (older systems)
+        """
+        devices = []
+        gvfs_paths = []
+
+        # Modern GVFS location
+        uid = os.getuid()
+        modern_gvfs = Path(f"/run/user/{uid}/gvfs")
+        if modern_gvfs.exists():
+            gvfs_paths.append(modern_gvfs)
+            print(f"[DeviceScanner]   ✓ Found modern GVFS: {modern_gvfs}")
+        else:
+            print(f"[DeviceScanner]   ✗ Modern GVFS not found: {modern_gvfs}")
+
+        # Legacy GVFS location
+        home = os.path.expanduser("~")
+        legacy_gvfs = Path(f"{home}/.gvfs")
+        if legacy_gvfs.exists():
+            gvfs_paths.append(legacy_gvfs)
+            print(f"[DeviceScanner]   ✓ Found legacy GVFS: {legacy_gvfs}")
+        else:
+            print(f"[DeviceScanner]   ✗ Legacy GVFS not found: {legacy_gvfs}")
+
+        if not gvfs_paths:
+            print(f"[DeviceScanner]   No GVFS mount points found")
+            return devices
+
+        # Scan each GVFS location for MTP mounts
+        for gvfs_base in gvfs_paths:
+            try:
+                mounts = list(gvfs_base.iterdir())
+                print(f"[DeviceScanner]   Found {len(mounts)} GVFS mount(s)")
+
+                for mount in mounts:
+                    if not mount.is_dir():
+                        continue
+
+                    # Look for MTP mounts (mtp:host=..., gphoto2:host=..., afc:host=...)
+                    mount_name = mount.name
+                    if any(prefix in mount_name.lower() for prefix in ["mtp:", "gphoto2:", "afc:"]):
+                        print(f"[DeviceScanner]     • Found MTP/PTP mount: {mount_name}")
+
+                        # Check if this is a mobile device
+                        device = self._check_device_at_path(str(mount))
+                        if device:
+                            print(f"[DeviceScanner]       ✓ Device detected: {device.label}")
+                            devices.append(device)
+                        else:
+                            print(f"[DeviceScanner]       ✗ No device detected")
+                    else:
+                        print(f"[DeviceScanner]     • Skipping non-MTP mount: {mount_name}")
+
+            except (PermissionError, OSError) as e:
+                print(f"[DeviceScanner]   ✗ Cannot access GVFS {gvfs_base}: {e}")
                 continue
 
         return devices
@@ -208,9 +304,19 @@ class DeviceScanner:
             MobileDevice if detected, None otherwise
         """
         root = Path(root_path)
+        print(f"[DeviceScanner]           Checking path: {root_path}")
+
+        # List directory contents for debugging
+        try:
+            contents = [item.name for item in root.iterdir() if item.is_dir()]
+            print(f"[DeviceScanner]           Directories found: {contents}")
+        except (PermissionError, OSError) as e:
+            print(f"[DeviceScanner]           ERROR: Cannot list directory: {e}")
+            return None
 
         # Primary check: DCIM folder (standard for cameras and phones)
         has_dcim = (root / "DCIM").exists() and (root / "DCIM").is_dir()
+        print(f"[DeviceScanner]           Has DCIM folder: {has_dcim}")
 
         # Alternate checks for devices without standard DCIM structure
         alternate_indicators = [
@@ -223,26 +329,39 @@ class DeviceScanner:
         ]
 
         has_alternate = False
+        found_alternate = None
         for alt_path in alternate_indicators:
             if (root / alt_path).exists() and (root / alt_path).is_dir():
                 has_alternate = True
+                found_alternate = alt_path
                 break
+
+        if has_alternate:
+            print(f"[DeviceScanner]           Has alternate structure: {found_alternate}")
+        else:
+            print(f"[DeviceScanner]           No alternate structure found")
 
         # Must have either DCIM or alternate structure
         if not has_dcim and not has_alternate:
+            print(f"[DeviceScanner]           REJECTED: No DCIM or alternate structure")
             return None
 
         # Determine device type
         device_type = self._detect_device_type(root_path)
+        print(f"[DeviceScanner]           Device type: {device_type}")
 
         # Get device label (volume name or directory name)
         label = self._get_device_label(root_path)
+        print(f"[DeviceScanner]           Device label: {label}")
 
         # Scan for media folders
+        print(f"[DeviceScanner]           Scanning for media folders...")
         folders = self._scan_media_folders(root_path, device_type)
+        print(f"[DeviceScanner]           Found {len(folders)} media folder(s)")
 
         if not folders:
             # No media folders found, skip this device
+            print(f"[DeviceScanner]           REJECTED: No media folders with photos/videos")
             return None
 
         # Extract unique device ID (Phase 1: Device Tracking)
@@ -250,6 +369,7 @@ class DeviceScanner:
         serial_number = None
         volume_guid = None
 
+        print(f"[DeviceScanner]           Extracting device ID...")
         try:
             from services.device_id_extractor import get_device_id
             device_identifier = get_device_id(root_path, device_type)
@@ -257,6 +377,10 @@ class DeviceScanner:
             device_id = device_identifier.device_id
             serial_number = device_identifier.serial_number
             volume_guid = device_identifier.volume_guid
+
+            print(f"[DeviceScanner]           Device ID: {device_id}")
+            print(f"[DeviceScanner]           Serial: {serial_number}")
+            print(f"[DeviceScanner]           Volume GUID: {volume_guid}")
 
             # Register device in database if db provided
             if self.db and self.register_devices and device_id:
@@ -269,14 +393,17 @@ class DeviceScanner:
                         volume_guid=volume_guid,
                         mount_point=root_path
                     )
-                    print(f"[DeviceScanner] Registered device: {device_id} ({label})")
+                    print(f"[DeviceScanner]           ✓ Registered in database")
                 except Exception as e:
-                    print(f"[DeviceScanner] Failed to register device in DB: {e}")
+                    print(f"[DeviceScanner]           WARNING: Failed to register device in DB: {e}")
 
         except Exception as e:
             # Device ID extraction failed - not critical, continue without ID
-            print(f"[DeviceScanner] Device ID extraction failed for {root_path}: {e}")
+            print(f"[DeviceScanner]           WARNING: Device ID extraction failed: {e}")
+            import traceback
+            traceback.print_exc()
 
+        print(f"[DeviceScanner]           ✓✓✓ DEVICE ACCEPTED: {label} ({device_type})")
         return MobileDevice(
             label=label,
             root_path=root_path,

@@ -52,16 +52,21 @@ class DeviceIDExtractor:
         Returns:
             DeviceIdentifier with unique ID and metadata
         """
+        print(f"[DeviceIDExtractor] Extracting ID for {device_type} device at: {root_path}")
+
         # Normalize path
         root_path = os.path.abspath(root_path)
 
         # Try type-specific extraction
         if device_type == "android":
+            print(f"[DeviceIDExtractor] Using Android extraction method")
             return self._extract_android_id(root_path)
         elif device_type == "ios":
+            print(f"[DeviceIDExtractor] Using iOS extraction method")
             return self._extract_ios_id(root_path)
         else:
             # Generic USB/SD card/camera
+            print(f"[DeviceIDExtractor] Using generic volume extraction method")
             return self._extract_volume_id(root_path, device_type)
 
     def _extract_android_id(self, root_path: str) -> DeviceIdentifier:
@@ -73,21 +78,32 @@ class DeviceIDExtractor:
         - Windows: WMI to query device serial
         - macOS: Android File Transfer detection
         """
+        print(f"[DeviceIDExtractor] _extract_android_id() called")
+        print(f"[DeviceIDExtractor]   System: {self.system}")
+
         serial = None
         device_name = Path(root_path).name or "Android Device"
+        print(f"[DeviceIDExtractor]   Device name: {device_name}")
 
         if self.system == "Linux":
+            print(f"[DeviceIDExtractor]   Attempting Linux MTP detection...")
             serial = self._get_mtp_serial_linux(root_path)
         elif self.system == "Windows":
+            print(f"[DeviceIDExtractor]   Attempting Windows MTP detection...")
             serial = self._get_mtp_serial_windows(root_path)
         elif self.system == "Darwin":
+            print(f"[DeviceIDExtractor]   Attempting macOS MTP detection...")
             serial = self._get_mtp_serial_macos(root_path)
 
         if serial:
             device_id = f"android:{serial}"
+            print(f"[DeviceIDExtractor]   ✓ Serial extracted: {serial}")
+            print(f"[DeviceIDExtractor]   Device ID: {device_id}")
         else:
             # Fallback: Hash mount path + timestamp (not ideal but works)
             device_id = f"android:unknown:{self._hash_path(root_path)}"
+            print(f"[DeviceIDExtractor]   ✗ No serial found, using fallback")
+            print(f"[DeviceIDExtractor]   Device ID (fallback): {device_id}")
 
         return DeviceIdentifier(
             device_id=device_id,
@@ -105,19 +121,29 @@ class DeviceIDExtractor:
         - Linux/macOS: idevice_id from libimobiledevice
         - Windows: iTunes device enumeration
         """
+        print(f"[DeviceIDExtractor] _extract_ios_id() called")
+        print(f"[DeviceIDExtractor]   System: {self.system}")
+
         device_uuid = None
         device_name = Path(root_path).name or "iPhone"
+        print(f"[DeviceIDExtractor]   Device name: {device_name}")
 
         if self.system in ["Linux", "Darwin"]:
+            print(f"[DeviceIDExtractor]   Attempting Unix iOS detection (idevice_id)...")
             device_uuid = self._get_ios_uuid_unix(root_path)
         elif self.system == "Windows":
+            print(f"[DeviceIDExtractor]   Attempting Windows iOS detection...")
             device_uuid = self._get_ios_uuid_windows(root_path)
 
         if device_uuid:
             device_id = f"ios:{device_uuid}"
+            print(f"[DeviceIDExtractor]   ✓ UUID extracted: {device_uuid}")
+            print(f"[DeviceIDExtractor]   Device ID: {device_id}")
         else:
             # Fallback
             device_id = f"ios:unknown:{self._hash_path(root_path)}"
+            print(f"[DeviceIDExtractor]   ✗ No UUID found, using fallback")
+            print(f"[DeviceIDExtractor]   Device ID (fallback): {device_id}")
 
         return DeviceIdentifier(
             device_id=device_id,
@@ -136,21 +162,33 @@ class DeviceIDExtractor:
         - macOS: diskutil to get UUID
         - Windows: wmic to get VolumeSerialNumber
         """
+        print(f"[DeviceIDExtractor] _extract_volume_id() called")
+        print(f"[DeviceIDExtractor]   System: {self.system}")
+        print(f"[DeviceIDExtractor]   Device type: {device_type}")
+
         volume_uuid = None
         volume_label = Path(root_path).name or "Storage Device"
+        print(f"[DeviceIDExtractor]   Volume label: {volume_label}")
 
         if self.system == "Linux":
+            print(f"[DeviceIDExtractor]   Attempting Linux volume UUID detection (blkid)...")
             volume_uuid = self._get_volume_uuid_linux(root_path)
         elif self.system == "Darwin":
+            print(f"[DeviceIDExtractor]   Attempting macOS volume UUID detection (diskutil)...")
             volume_uuid = self._get_volume_uuid_macos(root_path)
         elif self.system == "Windows":
+            print(f"[DeviceIDExtractor]   Attempting Windows volume UUID detection (wmic)...")
             volume_uuid = self._get_volume_uuid_windows(root_path)
 
         if volume_uuid:
             device_id = f"{device_type}:{volume_uuid}"
+            print(f"[DeviceIDExtractor]   ✓ Volume UUID extracted: {volume_uuid}")
+            print(f"[DeviceIDExtractor]   Device ID: {device_id}")
         else:
             # Fallback: Use volume label + hash
             device_id = f"{device_type}:{self._hash_path(root_path)}"
+            print(f"[DeviceIDExtractor]   ✗ No volume UUID found, using fallback")
+            print(f"[DeviceIDExtractor]   Device ID (fallback): {device_id}")
 
         return DeviceIdentifier(
             device_id=device_id,
@@ -166,8 +204,10 @@ class DeviceIDExtractor:
 
     def _get_mtp_serial_linux(self, root_path: str) -> Optional[str]:
         """Get Android MTP device serial on Linux via mtp-detect."""
+        print(f"[DeviceIDExtractor]     _get_mtp_serial_linux() - root_path: {root_path}")
         try:
             # Run mtp-detect to list MTP devices
+            print(f"[DeviceIDExtractor]     Running: mtp-detect")
             result = subprocess.run(
                 ["mtp-detect"],
                 capture_output=True,
@@ -176,15 +216,30 @@ class DeviceIDExtractor:
             )
 
             if result.returncode == 0:
+                print(f"[DeviceIDExtractor]     ✓ mtp-detect succeeded")
+                print(f"[DeviceIDExtractor]     Output length: {len(result.stdout)} chars")
                 # Parse output for serial number
                 for line in result.stdout.splitlines():
                     if "Serial number:" in line:
                         serial = line.split(":", 1)[1].strip()
+                        print(f"[DeviceIDExtractor]     Found serial line: {line}")
                         if serial and serial != "0":
+                            print(f"[DeviceIDExtractor]     ✓ Valid serial: {serial}")
                             return serial
-        except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
-            print(f"[DeviceID] MTP detection failed on Linux: {e}")
+                        else:
+                            print(f"[DeviceIDExtractor]     ✗ Invalid serial (empty or '0')")
+                print(f"[DeviceIDExtractor]     ✗ No 'Serial number:' line found in output")
+            else:
+                print(f"[DeviceIDExtractor]     ✗ mtp-detect failed with return code {result.returncode}")
+                print(f"[DeviceIDExtractor]     stderr: {result.stderr}")
+        except FileNotFoundError:
+            print(f"[DeviceIDExtractor]     ✗ mtp-detect command not found (libmtp not installed?)")
+        except subprocess.TimeoutExpired:
+            print(f"[DeviceIDExtractor]     ✗ mtp-detect timed out after 5 seconds")
+        except Exception as e:
+            print(f"[DeviceIDExtractor]     ✗ MTP detection failed: {e}")
 
+        print(f"[DeviceIDExtractor]     Returning None (no MTP serial found)")
         return None
 
     def _get_mtp_serial_windows(self, root_path: str) -> Optional[str]:
@@ -202,8 +257,10 @@ class DeviceIDExtractor:
 
     def _get_ios_uuid_unix(self, root_path: str) -> Optional[str]:
         """Get iOS device UUID on Linux/macOS via idevice_id."""
+        print(f"[DeviceIDExtractor]     _get_ios_uuid_unix() - root_path: {root_path}")
         try:
             # List all connected iOS devices
+            print(f"[DeviceIDExtractor]     Running: idevice_id -l")
             result = subprocess.run(
                 ["idevice_id", "-l"],
                 capture_output=True,
@@ -212,13 +269,27 @@ class DeviceIDExtractor:
             )
 
             if result.returncode == 0:
+                print(f"[DeviceIDExtractor]     ✓ idevice_id succeeded")
                 # Get first device UUID
                 lines = result.stdout.strip().splitlines()
+                print(f"[DeviceIDExtractor]     Found {len(lines)} iOS device(s)")
                 if lines:
-                    return lines[0].strip()
-        except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
-            print(f"[DeviceID] iOS detection failed: {e}")
+                    uuid = lines[0].strip()
+                    print(f"[DeviceIDExtractor]     ✓ First device UUID: {uuid}")
+                    return uuid
+                else:
+                    print(f"[DeviceIDExtractor]     ✗ No iOS devices found")
+            else:
+                print(f"[DeviceIDExtractor]     ✗ idevice_id failed with return code {result.returncode}")
+                print(f"[DeviceIDExtractor]     stderr: {result.stderr}")
+        except FileNotFoundError:
+            print(f"[DeviceIDExtractor]     ✗ idevice_id command not found (libimobiledevice not installed?)")
+        except subprocess.TimeoutExpired:
+            print(f"[DeviceIDExtractor]     ✗ idevice_id timed out after 5 seconds")
+        except Exception as e:
+            print(f"[DeviceIDExtractor]     ✗ iOS detection failed: {e}")
 
+        print(f"[DeviceIDExtractor]     Returning None (no iOS UUID found)")
         return None
 
     def _get_ios_uuid_windows(self, root_path: str) -> Optional[str]:
@@ -230,8 +301,10 @@ class DeviceIDExtractor:
 
     def _get_volume_uuid_linux(self, root_path: str) -> Optional[str]:
         """Get volume UUID on Linux via blkid."""
+        print(f"[DeviceIDExtractor]     _get_volume_uuid_linux() - root_path: {root_path}")
         try:
             # Find device for mount point
+            print(f"[DeviceIDExtractor]     Running: findmnt -n -o SOURCE {root_path}")
             result = subprocess.run(
                 ["findmnt", "-n", "-o", "SOURCE", root_path],
                 capture_output=True,
@@ -241,8 +314,10 @@ class DeviceIDExtractor:
 
             if result.returncode == 0:
                 device = result.stdout.strip()
+                print(f"[DeviceIDExtractor]     ✓ Found device: {device}")
 
                 # Get UUID for device
+                print(f"[DeviceIDExtractor]     Running: blkid -s UUID -o value {device}")
                 result2 = subprocess.run(
                     ["blkid", "-s", "UUID", "-o", "value", device],
                     capture_output=True,
@@ -253,10 +328,20 @@ class DeviceIDExtractor:
                 if result2.returncode == 0:
                     uuid_val = result2.stdout.strip()
                     if uuid_val:
+                        print(f"[DeviceIDExtractor]     ✓ UUID found: {uuid_val}")
                         return uuid_val
+                    else:
+                        print(f"[DeviceIDExtractor]     ✗ blkid returned empty UUID")
+                else:
+                    print(f"[DeviceIDExtractor]     ✗ blkid failed with return code {result2.returncode}")
+                    print(f"[DeviceIDExtractor]     stderr: {result2.stderr}")
+            else:
+                print(f"[DeviceIDExtractor]     ✗ findmnt failed with return code {result.returncode}")
+                print(f"[DeviceIDExtractor]     stderr: {result.stderr}")
         except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
-            print(f"[DeviceID] Linux volume UUID extraction failed: {e}")
+            print(f"[DeviceIDExtractor]     ✗ Linux volume UUID extraction failed: {e}")
 
+        print(f"[DeviceIDExtractor]     Returning None (no UUID found)")
         return None
 
     def _get_volume_uuid_macos(self, root_path: str) -> Optional[str]:

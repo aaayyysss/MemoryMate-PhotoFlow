@@ -2727,9 +2727,24 @@ class SidebarQt(QWidget):
                     from services.device_sources import scan_mobile_devices
 
                     # Scan for mounted mobile devices (with device registration)
-                    print("[Sidebar] Scanning for mobile devices...")
+                    print("\n[Sidebar] ===== Initiating mobile device scan from sidebar =====")
+                    print(f"[Sidebar] Database: {self.db}")
+                    print(f"[Sidebar] Register devices: True")
                     mobile_devices = scan_mobile_devices(db=self.db, register_devices=True)
-                    print(f"[Sidebar] Found {len(mobile_devices)} mobile device(s)")
+                    print(f"[Sidebar] ===== Scan complete: {len(mobile_devices)} mobile device(s) found =====")
+
+                    if mobile_devices:
+                        for i, dev in enumerate(mobile_devices, 1):
+                            print(f"[Sidebar]   Device {i}: {dev.label}")
+                            print(f"[Sidebar]     - Root path: {dev.root_path}")
+                            print(f"[Sidebar]     - Device ID: {dev.device_id}")
+                            print(f"[Sidebar]     - Device type: {dev.device_type}")
+                            print(f"[Sidebar]     - Folders: {len(dev.folders)}")
+                            for folder in dev.folders:
+                                print(f"[Sidebar]       • {folder.name} ({folder.file_count} files)")
+                    else:
+                        print("[Sidebar]   ✗ No devices found")
+                    print("[Sidebar] ===== End device scan =====\n")
 
                     # Update device count for auto-refresh tracking
                     self._last_device_count = len(mobile_devices)
@@ -5028,10 +5043,19 @@ class SidebarQt(QWidget):
             from services.device_sources import scan_mobile_devices
 
             # Quick scan for devices (with device registration)
+            print("\n[Sidebar] ===== Auto-refresh device check =====")
+            print(f"[Sidebar] Previous device count: {self._last_device_count}")
             devices = scan_mobile_devices(db=self.db, register_devices=True)
             current_count = len(devices)
+            print(f"[Sidebar] Current device count: {current_count}")
 
             # Check if device count changed
+            if current_count != self._last_device_count:
+                print(f"[Sidebar] Device count changed: {self._last_device_count} → {current_count}")
+            else:
+                print(f"[Sidebar] No change in device count")
+            print("[Sidebar] ===== End auto-refresh check =====\n")
+
             if current_count != self._last_device_count:
                 if current_count > self._last_device_count:
                     # New device(s) connected

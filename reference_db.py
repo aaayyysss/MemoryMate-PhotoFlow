@@ -4944,6 +4944,108 @@ class ReferenceDB:
 
             return files
 
+    # =========================================================================
+    # PHASE 4: AUTO-IMPORT PREFERENCES
+    # =========================================================================
+
+    def set_device_auto_import(self, device_id: str, enabled: bool, folder: str = None) -> None:
+        """
+        Enable or disable auto-import for a device (Phase 4).
+
+        Args:
+            device_id: Device ID
+            enabled: True to enable, False to disable
+            folder: Folder to auto-import from (e.g., "Camera")
+        """
+        with self._connect() as conn:
+            if enabled:
+                conn.execute("""
+                    UPDATE mobile_devices
+                    SET auto_import = 1,
+                        auto_import_folder = ?,
+                        auto_import_enabled_date = CURRENT_TIMESTAMP
+                    WHERE device_id = ?
+                """, (folder, device_id))
+            else:
+                conn.execute("""
+                    UPDATE mobile_devices
+                    SET auto_import = 0,
+                        auto_import_folder = NULL
+                    WHERE device_id = ?
+                """, (device_id,))
+            conn.commit()
+
+    def get_device_auto_import_status(self, device_id: str) -> dict:
+        """
+        Get auto-import settings for a device (Phase 4).
+
+        Args:
+            device_id: Device ID
+
+        Returns:
+            Dict with 'enabled', 'folder', and 'last_import' keys
+        """
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT auto_import, auto_import_folder, last_auto_import
+                FROM mobile_devices
+                WHERE device_id = ?
+            """, (device_id,))
+            row = cur.fetchone()
+
+            if row:
+                return {
+                    'enabled': bool(row[0]),
+                    'folder': row[1],
+                    'last_import': row[2]
+                }
+
+        return {'enabled': False, 'folder': None, 'last_import': None}
+
+    def update_device_last_auto_import(self, device_id: str) -> None:
+        """
+        Update last auto-import timestamp (Phase 4).
+
+        Args:
+            device_id: Device ID
+        """
+        with self._connect() as conn:
+            conn.execute("""
+                UPDATE mobile_devices
+                SET last_auto_import = CURRENT_TIMESTAMP
+                WHERE device_id = ?
+            """, (device_id,))
+            conn.commit()
+
+    def get_auto_import_devices(self) -> list[dict]:
+        """
+        Get all devices with auto-import enabled (Phase 4).
+
+        Returns:
+            List of device dicts with auto_import=1
+        """
+        with self._connect() as conn:
+            cur = conn.execute("""
+                SELECT device_id, device_name, device_type, auto_import_folder,
+                       mount_point, last_auto_import
+                FROM mobile_devices
+                WHERE auto_import = 1
+                ORDER BY device_name
+            """)
+
+            devices = []
+            for row in cur.fetchall():
+                devices.append({
+                    'device_id': row[0],
+                    'device_name': row[1],
+                    'device_type': row[2],
+                    'auto_import_folder': row[3],
+                    'mount_point': row[4],
+                    'last_auto_import': row[5]
+                })
+
+            return devices
+
     # --- end new methods ---------------------------------------------------------
 
 

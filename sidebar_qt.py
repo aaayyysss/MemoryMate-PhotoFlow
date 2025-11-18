@@ -3671,7 +3671,22 @@ class SidebarQt(QWidget):
         if mode == "device_folder" and isinstance(value, str):
             device_folder_path = value
 
+            # Get device_id from parent device item (Phase 4)
+            device_id = None
+            device_root_path = None
+            parent_item = item.parent()
+            if parent_item:
+                device_id = parent_item.data(Qt.UserRole + 2)
+                device_root_path = parent_item.data(Qt.UserRole + 1)
+
             act_import = menu.addAction("📥 Import from this folder…")
+
+            # Phase 4B: Add quick import button if device_id available
+            act_quick_import = None
+            if device_id:
+                act_quick_import = menu.addAction("⚡ Import New Files (Quick)")
+                act_quick_import.setToolTip("Import only new files with smart defaults")
+
             act_browse = menu.addAction("👁️ Browse (view only)")
             act_refresh = menu.addAction("🔄 Refresh device")
             menu.addSeparator()
@@ -3679,7 +3694,10 @@ class SidebarQt(QWidget):
 
             chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
             if chosen is act_import:
-                self._import_from_device_folder(device_folder_path)
+                self._import_from_device_folder(device_folder_path, device_id, device_root_path)
+            elif act_quick_import and chosen is act_quick_import:
+                # Phase 4B: Quick import
+                self._quick_import_from_device(device_folder_path, device_root_path, device_id)
             elif chosen is act_browse:
                 # Browse without importing (existing behavior)
                 index = self.tree.currentIndex()
@@ -3693,16 +3711,44 @@ class SidebarQt(QWidget):
 
         if mode == "device" and isinstance(value, str):
             device_root_path = value
+            device_id = item.data(Qt.UserRole + 2)
 
             act_scan = menu.addAction("📱 Scan device for photos…")
-            act_refresh = menu.addAction("🔄 Refresh device list")
+
+            # Phase 4B: Add quick import button if device_id available
+            act_quick_import = None
+            if device_id:
+                act_quick_import = menu.addAction("⚡ Import New Files (Quick)")
+                act_quick_import.setToolTip("Import only new files from all folders")
+
             menu.addSeparator()
+
+            # Phase 4B: Add auto-import toggle
+            act_auto_import = None
+            if device_id:
+                # Check current auto-import status
+                auto_import_status = self.db.get_device_auto_import_status(device_id)
+                if auto_import_status.get('enabled'):
+                    act_auto_import = menu.addAction("✓ Disable Auto-Import")
+                    act_auto_import.setToolTip(f"Currently auto-importing from: {auto_import_status.get('folder', 'Camera')}")
+                else:
+                    act_auto_import = menu.addAction("⚙️ Enable Auto-Import…")
+                    act_auto_import.setToolTip("Configure this device to auto-import")
+
+            menu.addSeparator()
+            act_refresh = menu.addAction("🔄 Refresh device list")
             act_help = menu.addAction("❓ Device Troubleshooting...")
 
             chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
             if chosen is act_scan:
                 # Show import dialog for entire device
-                self._import_from_device_folder(device_root_path)
+                self._import_from_device_folder(device_root_path, device_id, device_root_path)
+            elif act_quick_import and chosen is act_quick_import:
+                # Phase 4B: Quick import from device root
+                self._quick_import_from_device(device_root_path, device_root_path, device_id)
+            elif act_auto_import and chosen is act_auto_import:
+                # Phase 4B: Toggle auto-import
+                self._toggle_auto_import(device_id, auto_import_status.get('enabled'))
             elif chosen is act_refresh:
                 self.reload()
             elif chosen == act_help:
@@ -3720,22 +3766,26 @@ class SidebarQt(QWidget):
     # MOBILE DEVICE IMPORT
     # --------------------------------------------------
 
-    def _import_from_device_folder(self, device_folder_path: str):
+    def _import_from_device_folder(self, device_folder_path: str, device_id: str = None, root_path: str = None):
         """
-        Show import dialog for device folder.
+        Show import dialog for device folder (Phase 4: Enhanced with device tracking).
 
         Args:
             device_folder_path: Path to device folder
+            device_id: Device identifier (Phase 4, optional)
+            root_path: Device root path (Phase 4, optional)
         """
         try:
             from ui.device_import_dialog import DeviceImportDialog
 
-            # Show import dialog
+            # Show import dialog (Phase 4: Pass device_id and root_path)
             dialog = DeviceImportDialog(
                 self.db,
                 self.project_id,
                 device_folder_path,
-                parent=self
+                parent=self,
+                device_id=device_id,
+                root_path=root_path
             )
 
             # If import successful, reload sidebar
@@ -3758,6 +3808,176 @@ class SidebarQt(QWidget):
                 self,
                 "Import Error",
                 f"Failed to show import dialog:\n{e}"
+            )
+
+    def _quick_import_from_device(self, device_folder_path: str, root_path: str, device_id: str):
+        """
+        Quick import: Import only new files with smart defaults (Phase 4B).
+
+        Uses DeviceImportService.quick_import_new_files() to:
+        - Scan incrementally (new files only)
+        - Skip cross-device duplicates
+        - Import without showing dialog
+        - Show toast notification when complete
+
+        Args:
+            device_folder_path: Path to device folder to import from
+            root_path: Device root path
+            device_id: Device identifier
+        """
+        try:
+            from services.device_import_service import DeviceImportService
+            from PySide6.QtWidgets import QProgressDialog
+            from PySide6.QtCore import Qt
+
+            # Create progress dialog
+            progress = QProgressDialog("Scanning device for new files...", "Cancel", 0, 0, self)
+            progress.setWindowTitle("Quick Import")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setMinimumDuration(0)
+            progress.setValue(0)
+            progress.show()
+
+            # Create import service
+            service = DeviceImportService(self.db, self.project_id, device_id=device_id)
+
+            try:
+                # Run quick import
+                print(f"[Sidebar] Starting quick import from {device_folder_path}")
+                stats = service.quick_import_new_files(
+                    device_folder_path,
+                    root_path,
+                    skip_cross_device_duplicates=True
+                )
+
+                progress.close()
+
+                # Show results
+                imported = stats.get('imported', 0)
+                skipped = stats.get('skipped', 0)
+                failed = stats.get('failed', 0)
+
+                if imported > 0:
+                    # Success - show toast notification
+                    message = f"✓ Imported {imported} new photo(s)"
+                    if skipped > 0:
+                        message += f"\nSkipped {skipped} duplicate(s)"
+
+                    QMessageBox.information(self, "Quick Import Complete", message)
+
+                    # Reload sidebar and grid
+                    self.reload()
+                    mw = self.window()
+                    if hasattr(mw, 'grid') and hasattr(mw.grid, 'reload'):
+                        mw.grid.reload()
+                    mw.statusBar().showMessage(f"✓ Quick import: {imported} photos imported")
+
+                elif skipped > 0:
+                    QMessageBox.information(
+                        self,
+                        "No New Files",
+                        f"No new files to import.\n{skipped} file(s) already imported or duplicates."
+                    )
+                else:
+                    QMessageBox.information(
+                        self,
+                        "No New Files",
+                        "No new files found on device."
+                    )
+
+            except Exception as e:
+                progress.close()
+                print(f"[Sidebar] Quick import failed: {e}")
+                import traceback
+                traceback.print_exc()
+                QMessageBox.critical(
+                    self,
+                    "Quick Import Failed",
+                    f"Failed to import files:\n{e}"
+                )
+
+        except Exception as e:
+            print(f"[Sidebar] Quick import error: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Quick Import Error",
+                f"Failed to start quick import:\n{e}"
+            )
+
+    def _toggle_auto_import(self, device_id: str, currently_enabled: bool):
+        """
+        Toggle auto-import for a device (Phase 4B).
+
+        Args:
+            device_id: Device identifier
+            currently_enabled: Whether auto-import is currently enabled
+        """
+        try:
+            if currently_enabled:
+                # Disable auto-import
+                reply = QMessageBox.question(
+                    self,
+                    "Disable Auto-Import",
+                    "Disable auto-import for this device?\n\n"
+                    "You will need to manually import files.",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+
+                if reply == QMessageBox.Yes:
+                    self.db.set_device_auto_import(device_id, enabled=False)
+                    QMessageBox.information(
+                        self,
+                        "Auto-Import Disabled",
+                        "Auto-import has been disabled for this device."
+                    )
+                    # Reload to update menu
+                    self.reload()
+            else:
+                # Enable auto-import - ask which folder
+                from PySide6.QtWidgets import QInputDialog
+
+                folders = ["Camera", "DCIM", "All Folders", "Custom..."]
+                folder, ok = QInputDialog.getItem(
+                    self,
+                    "Enable Auto-Import",
+                    "Which folder should be auto-imported?",
+                    folders,
+                    0,
+                    False
+                )
+
+                if ok and folder:
+                    if folder == "Custom...":
+                        folder, ok = QInputDialog.getText(
+                            self,
+                            "Custom Folder",
+                            "Enter folder name:"
+                        )
+                        if not ok or not folder:
+                            return
+
+                    self.db.set_device_auto_import(device_id, enabled=True, folder=folder)
+                    QMessageBox.information(
+                        self,
+                        "Auto-Import Enabled",
+                        f"Auto-import enabled for folder: {folder}\n\n"
+                        f"Note: Auto-import currently requires manual trigger.\n"
+                        f"Use 'Import New Files' to quickly import."
+                    )
+                    # Reload to update menu
+                    self.reload()
+
+        except Exception as e:
+            print(f"[Sidebar] Auto-import toggle error: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Auto-Import Error",
+                f"Failed to toggle auto-import:\n{e}"
             )
 
     def _show_device_troubleshooting(self):

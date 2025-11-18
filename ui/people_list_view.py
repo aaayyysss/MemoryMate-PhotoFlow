@@ -156,16 +156,44 @@ class PeopleListView(QWidget):
         self._cleanup()
 
     def _cleanup(self):
-        """Remove event filter and cleanup resources"""
+        """Remove event filter, disconnect signals, and cleanup resources"""
         if self._is_being_deleted:
             return
         self._is_being_deleted = True
 
+        # CRITICAL FIX: Disconnect all signals before widget deletion
+        # This prevents signals from firing after deleteLater() is called
+        # which was causing crashes when processEvents() processed pending signals
         try:
-            if hasattr(self, 'table') and self.table and hasattr(self.table, 'viewport'):
-                viewport = self.table.viewport()
-                if viewport:
-                    viewport.removeEventFilter(self)
+            if hasattr(self, 'search_box') and self.search_box:
+                # Disconnect textChanged signal to prevent crash on pending text changes
+                try:
+                    self.search_box.textChanged.disconnect()
+                except (RuntimeError, AttributeError, TypeError):
+                    pass
+        except (RuntimeError, AttributeError):
+            pass
+
+        try:
+            if hasattr(self, 'table') and self.table:
+                # Disconnect table signals
+                try:
+                    self.table.customContextMenuRequested.disconnect()
+                except (RuntimeError, AttributeError, TypeError):
+                    pass
+                try:
+                    self.table.cellDoubleClicked.disconnect()
+                except (RuntimeError, AttributeError, TypeError):
+                    pass
+
+                # Remove event filter from viewport
+                if hasattr(self.table, 'viewport'):
+                    try:
+                        viewport = self.table.viewport()
+                        if viewport:
+                            viewport.removeEventFilter(self)
+                    except (RuntimeError, AttributeError):
+                        pass
         except (RuntimeError, AttributeError):
             # Widget already deleted or C++ object gone
             pass

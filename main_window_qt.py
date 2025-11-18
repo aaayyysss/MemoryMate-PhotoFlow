@@ -482,8 +482,7 @@ class ScanController:
 
                             # CRITICAL FIX: Show progress dialog to prevent frozen UI appearance
                             # Create non-modal progress dialog
-                            from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar
-                            from PySide6.QtCore import Qt
+                            # Note: All required widgets already imported at module level
 
                             progress_dialog = QDialog(self.main)
                             progress_dialog.setWindowTitle("Processing Photos")
@@ -563,7 +562,6 @@ class ScanController:
                             QApplication.processEvents()
 
                             # Close dialog after short delay
-                            from PySide6.QtCore import QTimer
                             QTimer.singleShot(1500, progress_dialog.accept)
                     else:
                         self.logger.warning(f"Face detection backend '{backend}' is not available")

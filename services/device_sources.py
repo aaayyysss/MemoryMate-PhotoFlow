@@ -246,39 +246,96 @@ class DeviceScanner:
 
     def _scan_windows_portable_wmic(self) -> List[MobileDevice]:
         """
-        Fallback: Use wmic to detect portable devices.
-        This is less reliable but works without win32com.
+        Fallback: Use PowerShell to enumerate portable devices.
+        This works on all Windows systems without requiring pywin32.
         """
         devices = []
-        print(f"[DeviceScanner]     Using wmic fallback...")
+        print(f"[DeviceScanner]     Using PowerShell fallback to enumerate portable devices...")
 
         try:
             import subprocess
+
+            # PowerShell script to enumerate Shell namespace for portable devices
+            ps_script = """
+            $shell = New-Object -ComObject Shell.Application
+            $computer = $shell.Namespace(17)  # 17 = This PC
+
+            foreach ($item in $computer.Items()) {
+                if ($item.IsFolder -and !$item.IsFileSystem) {
+                    Write-Host "PORTABLE_DEVICE:$($item.Name):$($item.Path)"
+
+                    # Try to enumerate storage locations inside the device
+                    try {
+                        $deviceFolder = $shell.Namespace($item.Path)
+                        if ($deviceFolder) {
+                            foreach ($storage in $deviceFolder.Items()) {
+                                if ($storage.IsFolder) {
+                                    Write-Host "STORAGE:$($storage.Name):$($storage.Path)"
+                                }
+                            }
+                        }
+                    } catch {
+                        # Ignore errors accessing device contents
+                    }
+                }
+            }
+            """
+
+            # Run PowerShell script
             result = subprocess.run(
-                ["wmic", "logicaldisk", "get", "caption,volumename,drivetype"],
+                ["powershell", "-NoProfile", "-Command", ps_script],
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=30
             )
 
             if result.returncode == 0:
-                print(f"[DeviceScanner]     wmic output received")
-                # Parse output for portable devices (DriveType=2 is removable)
-                lines = result.stdout.strip().split('\n')
-                for line in lines[1:]:  # Skip header
-                    if line.strip():
-                        parts = line.split()
-                        if len(parts) >= 2:
-                            drive = parts[0]
-                            if os.path.exists(drive):
-                                print(f"[DeviceScanner]       Checking {drive}...")
-                                device = self._check_device_at_path(drive)
+                print(f"[DeviceScanner]     PowerShell enumeration successful")
+
+                # Parse PowerShell output
+                for line in result.stdout.strip().split('\n'):
+                    line = line.strip()
+
+                    if line.startswith("PORTABLE_DEVICE:"):
+                        parts = line.split(':', 2)
+                        if len(parts) >= 3:
+                            device_name = parts[1]
+                            device_path = parts[2]
+                            print(f"[DeviceScanner]       • Portable device found: {device_name}")
+                            print(f"[DeviceScanner]         Path: {device_path}")
+
+                    elif line.startswith("STORAGE:"):
+                        parts = line.split(':', 2)
+                        if len(parts) >= 3:
+                            storage_name = parts[1]
+                            storage_path = parts[2]
+                            print(f"[DeviceScanner]           • Storage: {storage_name}")
+                            print(f"[DeviceScanner]             Path: {storage_path}")
+
+                            # Check if this storage location has DCIM
+                            try:
+                                device = self._check_device_at_path(storage_path)
                                 if device:
+                                    print(f"[DeviceScanner]             ✓ Device detected!")
                                     devices.append(device)
+                                else:
+                                    print(f"[DeviceScanner]             ✗ No DCIM found")
+                            except Exception as e:
+                                print(f"[DeviceScanner]             ERROR checking path: {e}")
+
             else:
-                print(f"[DeviceScanner]     ✗ wmic failed")
+                print(f"[DeviceScanner]     ✗ PowerShell failed (return code: {result.returncode})")
+                if result.stderr:
+                    print(f"[DeviceScanner]     Error: {result.stderr[:200]}")
+
+        except FileNotFoundError:
+            print(f"[DeviceScanner]     ✗ PowerShell not found")
+        except subprocess.TimeoutExpired:
+            print(f"[DeviceScanner]     ✗ PowerShell enumeration timed out")
         except Exception as e:
-            print(f"[DeviceScanner]     ✗ wmic fallback failed: {e}")
+            print(f"[DeviceScanner]     ✗ PowerShell fallback failed: {e}")
+            import traceback
+            traceback.print_exc()
 
         return devices
 

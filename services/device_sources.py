@@ -219,6 +219,77 @@ class DeviceScanner:
                 print(f"[DeviceScanner]   ✗ {base} - permission denied: {e}")
                 continue
 
+        # ================================================================
+        # GVFS MTP mount detection (used by most Linux file managers)
+        # ================================================================
+        print(f"[DeviceScanner] Checking GVFS MTP mounts...")
+        devices.extend(self._scan_gvfs_mtp())
+
+        return devices
+
+    def _scan_gvfs_mtp(self) -> List[MobileDevice]:
+        """
+        Scan GVFS MTP mounts for mobile devices.
+
+        GVFS (GNOME Virtual File System) is used by most Linux file managers
+        to mount MTP devices at paths like:
+        - /run/user/<uid>/gvfs/mtp:host=...
+        - ~/.gvfs/mtp:host=... (older systems)
+        """
+        devices = []
+        gvfs_paths = []
+
+        # Modern GVFS location
+        uid = os.getuid()
+        modern_gvfs = Path(f"/run/user/{uid}/gvfs")
+        if modern_gvfs.exists():
+            gvfs_paths.append(modern_gvfs)
+            print(f"[DeviceScanner]   ✓ Found modern GVFS: {modern_gvfs}")
+        else:
+            print(f"[DeviceScanner]   ✗ Modern GVFS not found: {modern_gvfs}")
+
+        # Legacy GVFS location
+        home = os.path.expanduser("~")
+        legacy_gvfs = Path(f"{home}/.gvfs")
+        if legacy_gvfs.exists():
+            gvfs_paths.append(legacy_gvfs)
+            print(f"[DeviceScanner]   ✓ Found legacy GVFS: {legacy_gvfs}")
+        else:
+            print(f"[DeviceScanner]   ✗ Legacy GVFS not found: {legacy_gvfs}")
+
+        if not gvfs_paths:
+            print(f"[DeviceScanner]   No GVFS mount points found")
+            return devices
+
+        # Scan each GVFS location for MTP mounts
+        for gvfs_base in gvfs_paths:
+            try:
+                mounts = list(gvfs_base.iterdir())
+                print(f"[DeviceScanner]   Found {len(mounts)} GVFS mount(s)")
+
+                for mount in mounts:
+                    if not mount.is_dir():
+                        continue
+
+                    # Look for MTP mounts (mtp:host=..., gphoto2:host=..., afc:host=...)
+                    mount_name = mount.name
+                    if any(prefix in mount_name.lower() for prefix in ["mtp:", "gphoto2:", "afc:"]):
+                        print(f"[DeviceScanner]     • Found MTP/PTP mount: {mount_name}")
+
+                        # Check if this is a mobile device
+                        device = self._check_device_at_path(str(mount))
+                        if device:
+                            print(f"[DeviceScanner]       ✓ Device detected: {device.label}")
+                            devices.append(device)
+                        else:
+                            print(f"[DeviceScanner]       ✗ No device detected")
+                    else:
+                        print(f"[DeviceScanner]     • Skipping non-MTP mount: {mount_name}")
+
+            except (PermissionError, OSError) as e:
+                print(f"[DeviceScanner]   ✗ Cannot access GVFS {gvfs_base}: {e}")
+                continue
+
         return devices
 
     def _check_device_at_path(self, root_path: str) -> Optional[MobileDevice]:

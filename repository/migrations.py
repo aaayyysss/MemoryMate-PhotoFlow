@@ -278,11 +278,33 @@ VALUES ('3.0.0', 'Added project_id to photo_folders and photo_metadata for clean
 )
 
 
+# Migration to v4.0.0 (add file_hash for duplicate detection during device imports)
+MIGRATION_4_0_0 = Migration(
+    version="4.0.0",
+    description="Add file_hash column for duplicate detection during device imports",
+    sql="""
+-- This migration adds file_hash column to photo_metadata for duplicate detection
+-- during mobile device imports (prevents importing same photo twice)
+
+-- Note: ALTER TABLE will be handled in code (see _add_file_hash_column_if_missing)
+
+-- Create index for faster duplicate detection
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_hash ON photo_metadata(file_hash);
+
+-- Record migration
+INSERT OR REPLACE INTO schema_version (version, description, applied_at)
+VALUES ('4.0.0', 'Added file_hash column for duplicate detection during device imports', CURRENT_TIMESTAMP);
+""",
+    rollback_sql=""
+)
+
+
 # Ordered list of all migrations
 ALL_MIGRATIONS = [
     MIGRATION_1_5_0,
     MIGRATION_2_0_0,
     MIGRATION_3_0_0,
+    MIGRATION_4_0_0,
 ]
 
 
@@ -435,6 +457,8 @@ class MigrationManager:
                     self._add_metadata_columns_if_missing(conn)
                 elif migration.version == "3.0.0":
                     self._add_project_id_columns_if_missing(conn)
+                elif migration.version == "4.0.0":
+                    self._add_file_hash_column_if_missing(conn)
 
                 # Execute migration SQL
                 conn.executescript(migration.sql)
@@ -644,6 +668,32 @@ class MigrationManager:
 
         conn.commit()
         self.logger.info("✓ Project ID columns added successfully")
+
+    def _add_file_hash_column_if_missing(self, conn: sqlite3.Connection):
+        """
+        Add file_hash column to photo_metadata if it doesn't exist.
+
+        This is the core of the v4.0.0 migration - adds file_hash for duplicate detection
+        during mobile device imports.
+
+        Args:
+            conn: Database connection
+        """
+        cur = conn.cursor()
+
+        # Check photo_metadata for file_hash column
+        cur.execute("PRAGMA table_info(photo_metadata)")
+        metadata_columns = {row['name'] for row in cur.fetchall()}
+
+        if 'file_hash' not in metadata_columns:
+            self.logger.info("Adding column photo_metadata.file_hash")
+            cur.execute("""
+                ALTER TABLE photo_metadata
+                ADD COLUMN file_hash TEXT
+            """)
+
+        conn.commit()
+        self.logger.info("✓ File hash column added successfully")
 
 
 def get_migration_status(db_connection) -> Dict[str, Any]:

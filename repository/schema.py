@@ -19,7 +19,7 @@ Schema Version: 2.0.0
 - Adds schema_version tracking table
 """
 
-SCHEMA_VERSION = "3.3.0"
+SCHEMA_VERSION = "4.0.0"
 
 # Complete schema SQL - executed as a script for new databases
 SCHEMA_SQL = """
@@ -198,6 +198,7 @@ CREATE TABLE IF NOT EXISTS photo_metadata (
     created_ts INTEGER,
     created_date TEXT,
     created_year INTEGER,
+    file_hash TEXT,
     FOREIGN KEY(folder_id) REFERENCES photo_folders(id),
     FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
     UNIQUE(path, project_id)
@@ -327,6 +328,9 @@ CREATE INDEX IF NOT EXISTS idx_meta_status ON photo_metadata(metadata_status);
 CREATE INDEX IF NOT EXISTS idx_photo_created_year ON photo_metadata(created_year);
 CREATE INDEX IF NOT EXISTS idx_photo_created_date ON photo_metadata(created_date);
 CREATE INDEX IF NOT EXISTS idx_photo_created_ts ON photo_metadata(created_ts);
+
+-- Photo metadata indexes (file_hash for duplicate detection during imports)
+CREATE INDEX IF NOT EXISTS idx_photo_metadata_hash ON photo_metadata(file_hash);
 
 -- Tag indexes (v3.1.0: Added project_id indexes)
 CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name);

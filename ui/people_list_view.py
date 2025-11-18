@@ -548,6 +548,19 @@ class PeopleListView(QWidget):
                     item = self.table.item(row, 1)
                     if item:
                         item.setText(new_name.strip())
+
+                    # CRITICAL FIX: Notify parent sidebar to update list view tree model
+                    # This ensures rename in tabs view syncs to list view
+                    try:
+                        parent_widget = self.parent()
+                        if parent_widget and hasattr(parent_widget, 'parent'):
+                            sidebar = parent_widget.parent()
+                            if sidebar and hasattr(sidebar, '_update_person_name_in_tree'):
+                                print(f"[PeopleListView] Syncing rename to list view: {branch_key} → {new_name.strip()}")
+                                sidebar._update_person_name_in_tree(branch_key, new_name.strip())
+                    except Exception as sync_err:
+                        print(f"[PeopleListView] Failed to sync rename to list view: {sync_err}")
+
                     QMessageBox.information(self.table, "Renamed", f"Person renamed to '{new_name.strip()}'")
             except Exception as e:
                 QMessageBox.critical(self.table, "Rename Failed", str(e))

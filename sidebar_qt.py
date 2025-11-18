@@ -1337,6 +1337,10 @@ class SidebarTabs(QWidget):
         people_view.set_database(self.db, self.project_id)
         people_view.load_people(rows)
 
+        # CRITICAL FIX: Store reference for cross-view rename sync
+        # This allows list view to update tabs view after rename
+        self.people_list_view = people_view
+
         # Wire up signals
         def on_person_activated(branch_data):
             """Handle person activation with status bar update"""
@@ -3621,9 +3625,23 @@ class SidebarQt(QWidget):
                         if cnt is None:
                             count_item.setText("")
                         else:
-                            count_item.setText(str(cnt))
+                            # CRITICAL FIX: Handle bytes/int/str types before setText()
+                            # After merge, member_count can be bytes which displays as random chars
+                            if isinstance(cnt, (int, float)):
+                                count_text = str(int(cnt))
+                            elif isinstance(cnt, bytes):
+                                try:
+                                    count_text = str(int.from_bytes(cnt, byteorder='little'))
+                                except (ValueError, OverflowError):
+                                    count_text = "0"
+                            elif isinstance(cnt, str):
+                                count_text = cnt
+                            else:
+                                count_text = str(cnt)
+
+                            count_item.setText(count_text)
                             try:
-                                total_faces += int(cnt)
+                                total_faces += int(count_text)
                             except Exception:
                                 pass
                     # Update the People root count (second column in the top-level row)
@@ -3701,17 +3719,19 @@ class SidebarQt(QWidget):
 
     def _update_person_name_in_tree(self, branch_key: str, new_label: str):
         """
-        Update a specific person's display name in the tree without rebuilding.
+        Update a specific person's display name in BOTH tree and tabs views.
 
         This is a targeted, lightweight update that prevents the freeze/crash
         caused by calling _build_tree_model() after renaming.
+
+        CRITICAL FIX: Also updates PeopleListView in tabs to sync both views.
 
         Args:
             branch_key: The branch_key of the person (e.g., "face_000")
             new_label: The new display name for the person
         """
         try:
-            # Find the "👥 People" root item
+            # Update LIST VIEW (tree model)
             people_root = None
             for row in range(self.model.rowCount()):
                 item = self.model.item(row, 0)
@@ -3719,29 +3739,41 @@ class SidebarQt(QWidget):
                     people_root = item
                     break
 
-            if not people_root:
+            if people_root:
+                # Find the specific person item under People root
+                for child_row in range(people_root.rowCount()):
+                    child_item = people_root.child(child_row, 0)
+                    if not child_item:
+                        continue
+
+                    # Check if this item matches the branch_key
+                    item_branch_key = child_item.data(Qt.UserRole + 1)
+                    if item_branch_key == branch_key:
+                        # Found it! Update the display name
+                        print(f"[Sidebar] Updating person name in tree: {branch_key} → {new_label}")
+                        child_item.setText(new_label)
+                        self.tree.update()
+                        break
+            else:
                 print(f"[Sidebar] Could not find People root to update {branch_key}")
-                return
 
-            # Find the specific person item under People root
-            for child_row in range(people_root.rowCount()):
-                child_item = people_root.child(child_row, 0)
-                if not child_item:
-                    continue
+            # CRITICAL FIX: Also update TABS VIEW (PeopleListView) for cross-view sync
+            if hasattr(self, 'tabs_controller') and self.tabs_controller:
+                if hasattr(self.tabs_controller, 'people_list_view'):
+                    people_view = self.tabs_controller.people_list_view
+                    if people_view:
+                        # Find and update the row in PeopleListView
+                        for row_idx in range(people_view.table.rowCount()):
+                            item = people_view.table.item(row_idx, 1)  # Name column
+                            if item:
+                                stored_key = item.data(Qt.UserRole + 1)
+                                if stored_key == branch_key:
+                                    print(f"[Sidebar] Updating person name in tabs view: {branch_key} → {new_label}")
+                                    item.setText(new_label)
+                                    people_view.table.update()
+                                    break
 
-                # Check if this item matches the branch_key
-                item_branch_key = child_item.data(Qt.UserRole + 1)
-                if item_branch_key == branch_key:
-                    # Found it! Update the display name
-                    print(f"[Sidebar] Updating person name: {branch_key} → {new_label}")
-                    child_item.setText(new_label)
-
-                    # Trigger view update
-                    self.tree.update()
-                    print(f"[Sidebar] Successfully updated person name in tree")
-                    return
-
-            print(f"[Sidebar] Person {branch_key} not found in tree (may need refresh)")
+            print(f"[Sidebar] Successfully updated person name in both views")
 
         except Exception as e:
             print(f"[Sidebar] Failed to update person name in tree: {e}")

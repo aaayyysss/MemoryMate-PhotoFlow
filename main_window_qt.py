@@ -480,17 +480,69 @@ class ScanController:
                         if face_detection_enabled:
                             self.logger.info(f"Starting face detection with backend: {backend}")
 
+                            # CRITICAL FIX: Show progress dialog to prevent frozen UI appearance
+                            # Create non-modal progress dialog
+                            from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar
+                            from PySide6.QtCore import Qt
+
+                            progress_dialog = QDialog(self.main)
+                            progress_dialog.setWindowTitle("Processing Photos")
+                            progress_dialog.setModal(False)  # Non-modal allows UI to stay responsive
+                            progress_dialog.setMinimumWidth(500)
+                            progress_dialog.setWindowFlags(
+                                progress_dialog.windowFlags() & ~Qt.WindowCloseButtonHint
+                            )
+
+                            layout = QVBoxLayout()
+                            status_label = QLabel("Initializing face detection...")
+                            status_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+                            progress_bar = QProgressBar()
+                            progress_bar.setMinimum(0)
+                            progress_bar.setMaximum(100)
+                            progress_bar.setValue(0)
+                            detail_label = QLabel("Please wait...")
+                            detail_label.setWordWrap(True)
+
+                            layout.addWidget(status_label)
+                            layout.addWidget(progress_bar)
+                            layout.addWidget(detail_label)
+                            progress_dialog.setLayout(layout)
+
+                            # Show dialog immediately
+                            progress_dialog.show()
+                            QApplication.processEvents()  # Force UI update
+
                             # Run face detection worker
                             from workers.face_detection_worker import FaceDetectionWorker
                             face_worker = FaceDetectionWorker(current_project_id)
+
+                            # Connect progress signals to update dialog
+                            def update_progress(current, total, filename):
+                                percent = int((current / total) * 80) if total > 0 else 0  # 80% for detection
+                                progress_bar.setValue(percent)
+                                status_label.setText(f"Detecting faces... ({current}/{total})")
+                                detail_label.setText(f"Processing: {filename}")
+                                QApplication.processEvents()
+
+                            face_worker.signals.progress.connect(update_progress)
+
+                            # Update initial status
+                            status_label.setText("Loading face detection models...")
+                            detail_label.setText("This may take a few seconds on first run...")
+                            QApplication.processEvents()
 
                             # Run with progress reporting
                             stats = face_worker.run()
 
                             self.logger.info(f"Face detection completed: {stats['total_faces']} faces detected in {stats['images_with_faces']} images")
 
-                            # Run clustering if enabled
+                            # Update for clustering phase
                             if face_config.get("clustering_enabled", True) and stats['total_faces'] > 0:
+                                progress_bar.setValue(85)
+                                status_label.setText("Grouping similar faces...")
+                                detail_label.setText(f"Clustering {stats['total_faces']} detected faces into person groups...")
+                                QApplication.processEvents()
+
                                 self.logger.info("Starting face clustering...")
 
                                 from workers.face_cluster_worker import cluster_faces
@@ -503,6 +555,16 @@ class ScanController:
                                 )
 
                                 self.logger.info("Face clustering completed")
+
+                            # Final update
+                            progress_bar.setValue(100)
+                            status_label.setText("Complete!")
+                            detail_label.setText(f"Found {stats['total_faces']} faces in {stats['images_with_faces']} photos")
+                            QApplication.processEvents()
+
+                            # Close dialog after short delay
+                            from PySide6.QtCore import QTimer
+                            QTimer.singleShot(1500, progress_dialog.accept)
                     else:
                         self.logger.warning(f"Face detection backend '{backend}' is not available")
                         self.logger.warning(f"Available backends: {[k for k, v in availability.items() if v]}")

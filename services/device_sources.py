@@ -53,6 +53,16 @@ class DeviceScanner:
         "DCIM/.thumbnails",
         "Internal Storage/DCIM",
         "Internal Storage/DCIM/Camera",
+        # MTP mount subdirectories (common on GVFS mounts)
+        "Internal shared storage/DCIM",
+        "Internal shared storage/DCIM/Camera",
+        "Phone storage/DCIM",
+        "Phone storage/DCIM/Camera",
+        "Card/DCIM",
+        "Card/DCIM/Camera",
+        "SD card/DCIM",
+        "SD card/DCIM/Camera",
+        # Other common Android folders
         "Pictures",
         "Pictures/Screenshots",
         "Pictures/WhatsApp",
@@ -70,6 +80,9 @@ class DeviceScanner:
         "DCIM/101APPLE",
         "DCIM/102APPLE",
         "DCIM/103APPLE",
+        # AFC/MTP subdirectories (if iOS device is mounted via third-party tools)
+        "Internal Storage/DCIM",
+        "Internal Storage/DCIM/100APPLE",
         "Photos",
     ]
 
@@ -341,8 +354,35 @@ class DeviceScanner:
         else:
             print(f"[DeviceScanner]           No alternate structure found")
 
-        # Must have either DCIM or alternate structure
+        # MTP/GVFS-specific check: Look for DCIM in subdirectories
+        # This handles Android phones mounted via MTP where structure is:
+        # mtp:host=Phone/ → Internal shared storage/ → DCIM/
+        has_dcim_in_subdir = False
         if not has_dcim and not has_alternate:
+            print(f"[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...")
+            try:
+                for subdir in root.iterdir():
+                    if not subdir.is_dir():
+                        continue
+
+                    # Common MTP subdirectory names
+                    subdir_name_lower = subdir.name.lower()
+                    if any(name in subdir_name_lower for name in [
+                        "internal", "storage", "phone", "card", "sdcard", "shared"
+                    ]):
+                        print(f"[DeviceScanner]             Checking subdirectory: {subdir.name}")
+                        if (subdir / "DCIM").exists() and (subdir / "DCIM").is_dir():
+                            has_dcim_in_subdir = True
+                            print(f"[DeviceScanner]             ✓ Found DCIM in: {subdir.name}/DCIM")
+                            break
+            except (PermissionError, OSError) as e:
+                print(f"[DeviceScanner]           Cannot scan subdirectories: {e}")
+
+        if has_dcim_in_subdir:
+            print(f"[DeviceScanner]           Has DCIM in subdirectory: True")
+
+        # Must have either DCIM or alternate structure
+        if not has_dcim and not has_alternate and not has_dcim_in_subdir:
             print(f"[DeviceScanner]           REJECTED: No DCIM or alternate structure")
             return None
 

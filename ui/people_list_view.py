@@ -551,13 +551,22 @@ class PeopleListView(QWidget):
 
                     # CRITICAL FIX: Notify parent sidebar to update list view tree model
                     # This ensures rename in tabs view syncs to list view
+                    # SAFETY: Wrapped in try-except to prevent crashes from widget access
                     try:
                         parent_widget = self.parent()
                         if parent_widget and hasattr(parent_widget, 'parent'):
                             sidebar = parent_widget.parent()
+
+                            # Check if sidebar is still valid before calling method
                             if sidebar and hasattr(sidebar, '_update_person_name_in_tree'):
-                                print(f"[PeopleListView] Syncing rename to list view: {branch_key} → {new_name.strip()}")
-                                sidebar._update_person_name_in_tree(branch_key, new_name.strip())
+                                try:
+                                    # Test sidebar validity
+                                    _ = sidebar.isVisible()
+                                    print(f"[PeopleListView] Syncing rename to list view: {branch_key} → {new_name.strip()}")
+                                    sidebar._update_person_name_in_tree(branch_key, new_name.strip())
+                                except (RuntimeError, AttributeError) as err:
+                                    # Sidebar widget deleted or C++ object gone
+                                    print(f"[PeopleListView] Sidebar deleted, skipping sync: {err}")
                     except Exception as sync_err:
                         print(f"[PeopleListView] Failed to sync rename to list view: {sync_err}")
 

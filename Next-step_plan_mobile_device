@@ -1,0 +1,323 @@
+🎯 **TOP PRIORITY NOW:
+
+FULL, ROBUST, STABLE IMPORT PIPELINE FOR ALL MOBILE DEVICES & REMOVABLE STORAGE**
+
+Meaning:
+
+✔ Android phones (MTP or mounted DCIM)
+✔ iPhones (DCIM via Apple Mobile Device driver, or as PTP)
+✔ SD cards
+✔ USB sticks
+✔ External hard drives
+✔ Cloud-local caches (later but same pipeline)
+
+And:
+
+✔ Detect a device
+✔ Read its media
+✔ Import the original files
+✔ Track import history
+✔ Detect changes next time
+✔ Incremental synchronization
+✔ Preserve the device’s internal structure in the DB
+✔ Recreate the structure even when device is unplugged
+✔ Refresh thumbnails
+✔ Avoid duplicates
+✔ Multi-pass import (resume on reconnect)
+✔ Support for both Photos + Videos (separated in the UI)
+
+This core functionality is far more important than cloud albums.
+This core will influence:
+
+Date Branches
+
+Event Clustering
+
+Face Recognition later
+
+Tag system
+
+Lightbox
+
+Sorting
+
+User experience
+
+Performance
+
+Cloud integration should ONLY be added after this foundation is locked in.
+
+🟨 THIS IS EXACTLY WHAT PROFESSIONAL APPS DO
+Apple Photos
+
+Imports entire device → creates a local master index → incremental sync next time.
+
+Lightroom
+
+Imports entire SD card → builds catalog → incremental folder updates.
+
+Mylio
+
+Treats devices as “Sources” with incremental sync.
+
+ImageRanger
+
+Scans folders → local database → incremental re-scan.
+
+Google Photos
+
+Syncs device library → dedup → cloud DB.
+
+➡️ All follow the same universal model:
+Device → Local-DB Index → Incremental Sync
+
+You are now making MemoryMate-PhotoFlow behave like a serious photo management engine.
+
+🟦 RECOMMENDED ARCHITECTURE FOR YOUR APP (Phase NOW)
+
+Below is the architecture I strongly recommend based on your goals.
+
+✔ Step 1 — Device Scanner (Detect device / SD / external drive)
+
+Maintain:
+
+device_sources.py
+
+
+Add:
+
+Device ID extraction
+
+Android phones → MTP device serial
+iPhone → PTP UUID
+SD card → Volume GUID
+USB stick → Volume GUID
+
+Store in DB:
+
+device_id
+device_name
+first_seen
+last_seen
+physical_type (ios, android, sd, usb)
+
+✔ Step 2 — Device Indexer (read DCIM, subfolders, videos)
+
+Instead of scanning EVERY folder every time:
+
+Store per-file metadata:
+path
+filename
+size
+mtime
+hash (optional, SHA1)
+imported_ts
+device_id
+
+Mark state transitions:
+
+New
+
+Modified
+
+Deleted
+
+Moved
+
+Already imported
+
+This allows incremental sync.
+
+✔ Step 3 — Local Media Archive (Permanent Storage)
+
+Your app should store:
+
+/photos
+/videos
+/thumbnails
+/import_history
+/device_cache/device_id/
+
+✔ Step 4 — Incremental Sync Engine
+
+When a device reconnects:
+
+1. Identify device by ID
+2. Read DCIM structure
+3. Compare with DB
+4. Only import:
+   - new files
+   - modified files
+   - missing thumbnails
+5. Maintain DB references
+
+
+This is extremely powerful.
+
+✔ Step 5 — Folder/Album Reconstruction (Auto-build MemoryMate structure)
+
+Based entirely on:
+
+Modified Date
+
+Creation Date
+
+EXIF original date
+
+Video metadata
+
+Image content (optional later)
+
+This produces:
+
+✔ Year / Month / Day
+✔ Event clusters
+✔ Trip groups
+✔ Smart sets (People, Favorites, etc.)
+✔ Saved views
+
+No need for Google/iCloud albums currently.
+
+✔ Step 6 — The UI should show:
+Photos (Camera roll content)
+Videos (Separated)
+Timeline (date clusters)
+Device History (previous imports)
+Sync State
+Missing originals?
+Restart import
+🟧 WHAT YOU SHOULD NOT DO NOW
+
+(And postpone until the above pipeline is complete)
+
+Cloud album picker
+
+Manual photo selection inside cloud albums
+
+Smart AI albums
+
+Location clustering
+
+Faces UI
+
+Advanced tags
+
+Lightbox editing tools
+
+Cloud device sync logic
+
+Multi-process clusterers
+
+These depend 100% on the import pipeline working perfectly.
+
+🟥 THE CURRENT STATE OF YOUR APP
+
+From the ZIP audit yesterday:
+
+✔ UI is progressing nicely
+✔ Sidebar has core logic
+✔ Grid is functional
+✔ Thumbnails mostly work
+❌ Import pipeline is NOT stable yet
+❌ Device history is NOT implemented
+❌ Incremental sync is NOT implemented
+❌ Device ID tracking is NOT implemented
+❌ Removing device breaks UI
+❌ Video metadata branch is incomplete
+❌ Backfill video dates is half-finished
+❌ Date branches logic is not stable
+
+You are doing the RIGHT THING:
+Freeze everything and finalize import pipeline first.
+
+🟩 MY STRONG RECOMMENDATION
+✔ YES — postpone album picker
+✔ YES — stabilize device import
+✔ YES — build incremental sync
+✔ YES — store device history
+✔ YES — unify Photos+Videos import
+✔ YES — keep cloud only as “source of files”
+✔ YES — let your app build all albums locally
+
+This creates a professional-grade photo engine.
+
+🟦 NEXT STEPS I CAN DO FOR YOU
+
+If you confirm, I will generate:
+
+**1. A Full Plan:
+
+"MemoryMate Import Pipeline Version 1.0"**
+including:
+
+Device ID subsystem
+
+Device mount detection
+
+Physical + virtual path mapping
+
+DCIM scanner (photos + videos)
+
+DB schema update (device_files table, incremental state flags)
+
+Import service rewrite
+
+Incremental scanning logic
+
+Sync event signals
+
+Metadata enrichment
+
+Thumbnail refresh
+
+Device history view in Sidebar
+
+2. A Unified .patch file
+
+Implementing the foundation:
+
+new device_indexer.py
+
+new DB tables
+
+rewritten import_service.py
+
+new sidebar_sync_panel_qt.py
+
+updated sidebar_qt.py
+
+updated thumbnails_grid_qt.py
+
+updated event signals
+
+3. UI Mockups
+
+For:
+
+Device Structure
+
+Incremental sync dialog
+
+Sync summary
+
+Device history
+
+4. Step-by-step testing instructions
+
+For:
+
+First import
+
+Reconnect
+
+Incremental update
+
+Delete on device → reflect (but keep local copy)
+
+New photos → detect and import
+
+Videos → correct date mapping
+
+Normalization tests
+
+Missing originals detection

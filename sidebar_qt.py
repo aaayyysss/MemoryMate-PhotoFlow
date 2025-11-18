@@ -1921,6 +1921,57 @@ class SidebarQt(QWidget):
                 mw.grid.load_custom_paths(paths, content_type="videos")
             return
 
+        # ==========================================================
+        # MOBILE DEVICE FOLDERS — Direct access to device media
+        # ==========================================================
+        if mode == "device_folder" and value:
+            _clear_tag_if_needed()
+            from pathlib import Path
+
+            device_folder_path = Path(value)
+            if not device_folder_path.exists():
+                mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
+                return
+
+            # Scan folder for media files
+            media_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.heic', '.heif',
+                              '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'}
+            media_paths = []
+
+            try:
+                # Recursively scan folder for media files (limited depth for performance)
+                def scan_folder(folder, depth=0, max_depth=3):
+                    if depth > max_depth:
+                        return
+                    try:
+                        for item in folder.iterdir():
+                            if item.is_file():
+                                if item.suffix.lower() in media_extensions:
+                                    media_paths.append(str(item))
+                            elif item.is_dir() and not item.name.startswith('.'):
+                                scan_folder(item, depth + 1, max_depth)
+                    except (PermissionError, OSError):
+                        pass
+
+                scan_folder(device_folder_path)
+
+                # Load paths into grid
+                mw.grid.model.clear()
+                mw.grid.load_custom_paths(media_paths, content_type="mixed")
+
+                folder_name = device_folder_path.name
+                mw.statusBar().showMessage(f"📱 Showing {len(media_paths)} item(s) from {folder_name}")
+
+                print(f"[Sidebar] Loaded {len(media_paths)} media files from device folder: {value}")
+
+            except Exception as e:
+                print(f"[Sidebar] Failed to load device folder: {e}")
+                import traceback
+                traceback.print_exc()
+                mw.statusBar().showMessage(f"⚠️ Failed to load device folder: {e}")
+
+            return
+
         # ------------------------------------------------------
         # After any content change: reflow
         # ------------------------------------------------------
@@ -2642,7 +2693,61 @@ class SidebarQt(QWidget):
 
 
                 # ---------------------------------------------------------
-                # NEW POSITION: Build Tags AFTER People
+                # 📱 MOBILE DEVICES SECTION — Direct access to mounted phones
+                # ---------------------------------------------------------
+                try:
+                    from services.device_sources import scan_mobile_devices
+
+                    # Scan for mounted mobile devices
+                    print("[Sidebar] Scanning for mobile devices...")
+                    mobile_devices = scan_mobile_devices()
+                    print(f"[Sidebar] Found {len(mobile_devices)} mobile device(s)")
+
+                    if mobile_devices:
+                        # Create Mobile Devices root
+                        devices_root = QStandardItem("📱 Mobile Devices")
+                        devices_root.setEditable(False)
+                        devices_count_item = _make_count_item("")
+                        self.model.appendRow([devices_root, devices_count_item])
+
+                        total_device_photos = 0
+
+                        for device in mobile_devices:
+                            # Create device item
+                            device_item = QStandardItem(device.label)
+                            device_item.setEditable(False)
+                            device_item.setData("device", Qt.UserRole)
+                            device_item.setData(device.root_path, Qt.UserRole + 1)
+
+                            # Count total photos across all folders on this device
+                            device_photo_count = sum(folder.photo_count for folder in device.folders)
+                            total_device_photos += device_photo_count
+
+                            device_count_item = _make_count_item(device_photo_count if device_photo_count > 0 else "")
+                            devices_root.appendRow([device_item, device_count_item])
+
+                            # Add device folders as children
+                            for folder in device.folders:
+                                folder_name = f"  • {folder.name}"
+                                folder_item = QStandardItem(folder_name)
+                                folder_item.setEditable(False)
+                                folder_item.setData("device_folder", Qt.UserRole)
+                                folder_item.setData(folder.path, Qt.UserRole + 1)
+
+                                folder_count_item = _make_count_item(folder.photo_count if folder.photo_count > 0 else "")
+                                device_item.appendRow([folder_item, folder_count_item])
+
+                        # Set total count on root
+                        devices_count_item.setText(str(total_device_photos) if total_device_photos > 0 else "")
+                        print(f"[Sidebar] Added Mobile Devices section with {len(mobile_devices)} devices, {total_device_photos} total photos")
+
+                except Exception as e:
+                    print(f"[Sidebar] Failed to scan mobile devices: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+                # ---------------------------------------------------------
+                # NEW POSITION: Build Tags AFTER Mobile Devices
                 # ---------------------------------------------------------
                 self._build_tag_section()
 

@@ -119,6 +119,7 @@ from video_backfill_dialog import VideoBackfillDialog
 
 # --- Preferences dialog (new version with i18n and sidebar navigation) ---
 from preferences_dialog import PreferencesDialog
+from translation_manager import get_translation_manager
 
 # --- Backfill / process management imports ---
 import subprocess, shlex, sys
@@ -2019,7 +2020,14 @@ class MainWindow(QMainWindow):
         self.settings = SettingsManager()
         self._committed_total = 0
         self._scan_result = (0, 0)  # folders, photos
-        
+
+        # CRITICAL FIX: Load language from settings and apply to TranslationManager
+        # This ensures the entire app (not just preferences dialog) uses the selected language
+        saved_language = self.settings.get("language", "en")
+        tm = get_translation_manager()
+        tm.set_language(saved_language)
+        print(f"[MainWindow] Language loaded from settings: {saved_language}")
+
         self.setAttribute(Qt.WA_AcceptTouchEvents, True)
         QApplication.instance().setAttribute(Qt.AA_SynthesizeMouseForUnhandledTouchEvents, True)
         QApplication.instance().setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, True)

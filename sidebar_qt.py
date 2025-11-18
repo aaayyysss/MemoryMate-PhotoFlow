@@ -3645,6 +3645,9 @@ class SidebarQt(QWidget):
         """
         Rename a single face cluster (person) and refresh the sidebar.
         Works with raw 'face_000' or 'facecluster:face_000' values.
+
+        CRITICAL FIX: Uses targeted item update instead of full rebuild to prevent
+        freeze/crash caused by heavy _build_tree_model() operation.
         """
         from PySide6.QtWidgets import QInputDialog
 
@@ -3692,8 +3695,58 @@ class SidebarQt(QWidget):
             )
             return
 
-        # Rebuild to update both People section and any branch labels
-        self._build_tree_model()
+        # CRITICAL FIX: Use targeted update instead of full rebuild
+        # This prevents the freeze/crash caused by _build_tree_model()
+        self._update_person_name_in_tree(branch_key, new_label)
+
+    def _update_person_name_in_tree(self, branch_key: str, new_label: str):
+        """
+        Update a specific person's display name in the tree without rebuilding.
+
+        This is a targeted, lightweight update that prevents the freeze/crash
+        caused by calling _build_tree_model() after renaming.
+
+        Args:
+            branch_key: The branch_key of the person (e.g., "face_000")
+            new_label: The new display name for the person
+        """
+        try:
+            # Find the "👥 People" root item
+            people_root = None
+            for row in range(self.model.rowCount()):
+                item = self.model.item(row, 0)
+                if item and item.text().startswith("👥 People"):
+                    people_root = item
+                    break
+
+            if not people_root:
+                print(f"[Sidebar] Could not find People root to update {branch_key}")
+                return
+
+            # Find the specific person item under People root
+            for child_row in range(people_root.rowCount()):
+                child_item = people_root.child(child_row, 0)
+                if not child_item:
+                    continue
+
+                # Check if this item matches the branch_key
+                item_branch_key = child_item.data(Qt.UserRole + 1)
+                if item_branch_key == branch_key:
+                    # Found it! Update the display name
+                    print(f"[Sidebar] Updating person name: {branch_key} → {new_label}")
+                    child_item.setText(new_label)
+
+                    # Trigger view update
+                    self.tree.update()
+                    print(f"[Sidebar] Successfully updated person name in tree")
+                    return
+
+            print(f"[Sidebar] Person {branch_key} not found in tree (may need refresh)")
+
+        except Exception as e:
+            print(f"[Sidebar] Failed to update person name in tree: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _show_face_merge_suggestions(self):
         """

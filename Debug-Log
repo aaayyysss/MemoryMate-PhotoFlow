@@ -1,39 +1,38 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-08> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-18 21:57:56,175 [INFO] ================================================================================
-2025-11-18 21:57:56,175 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-18 21:57:56,176 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\app_log.txt
-2025-11-18 21:57:56,176 [INFO] ================================================================================
-2025-11-18 21:57:56,213 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-18 21:57:56,214 [INFO] Qt message handler installed to suppress TIFF warnings
+2025-11-19 00:23:11,882 [INFO] ================================================================================
+2025-11-19 00:23:11,883 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-19 00:23:11,883 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-08\app_log.txt
+2025-11-19 00:23:11,884 [INFO] ================================================================================
+2025-11-19 00:23:11,930 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-19 00:23:11,931 [INFO] Qt message handler installed to suppress TIFF warnings
 [Startup] Database schema initialized successfully
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-05\\thumbnails_cache.db', 'last_updated': '2025-11-18 21:57'}
-2025-11-18 21:57:56,448 [INFO] SearchService initialized
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-08\\thumbnails_cache.db', 'last_updated': '2025-11-19 00:23'}
+2025-11-19 00:23:12,267 [INFO] SearchService initialized
 [Startup] SearchService initialized
-2025-11-18 21:57:56,450 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-18 21:57:56,451 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-18 21:57:56,451 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-19 00:23:12,269 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-19 00:23:12,269 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-19 00:23:12,270 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] ThumbnailService initialized
-✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\locales\en.json
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-08\locales\en.json
 🌍 Language switched to: en
 [MainWindow] Language loaded from settings: en
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-18 21:57:56,474 [INFO] SearchService initialized
-[21:57:56.847] [Tabs] __init__ started
-[21:57:56.848] [Tabs] _build_tabs → building tab widgets
-[21:57:56.848] [Tabs] _on_tab_changed(idx=0)
-[21:57:56.848] [Tabs] _start_timeout idx=0 type=branches
-[21:57:56.848] [Tabs] _populate_tab(branches, idx=0, force=False)
-[21:57:56.848] [Tabs]   populated=False, loading=False
-[21:57:56.850] [Tabs]   Starting load for branches
-[21:57:56.850] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[21:57:56.850] [Tabs] _clear_tab idx=0
-[21:57:56.851] [Tabs] _on_tab_changed → tab_type=branches
-[21:57:56.852] [Tabs] _build_tabs → added 6 tabs
-[21:57:56.853] [Tabs] __init__ completed
+2025-11-19 00:23:12,292 [INFO] SearchService initialized
+[00:23:14.592] [Tabs] __init__ started
+[00:23:14.593] [Tabs] _build_tabs → building tab widgets
+[00:23:14.593] [Tabs] _on_tab_changed(idx=0)
+[00:23:14.594] [Tabs] _start_timeout idx=0 type=branches
+[00:23:14.594] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:23:14.594] [Tabs]   populated=False, loading=False
+[00:23:14.594] [Tabs]   Starting load for branches
+[00:23:14.594] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:23:14.594] [Tabs] _clear_tab idx=0
+[00:23:14.595] [Tabs] _on_tab_changed → tab_type=branches
+[00:23:14.596] [Tabs] _build_tabs → added 6 tabs
+[00:23:14.596] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -41,12 +40,57 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [SidebarQt] list_branches() returned 0 branches
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002A346997820>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[21:57:56.899] [Tabs] hide_tabs() called - canceling pending workers
+[00:23:15.256] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -58,255 +102,520 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [SidebarQt] list_branches() returned 0 branches
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002A346997820>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] _build_tree_model() completed
 [Startup] Database schema initialized successfully
-[21:57:57.023] [Tabs] _finish_branches (stale gen=1) — ignoring
-[21:57:57.024] [Tabs] _on_tab_changed(idx=0)
-[21:57:57.024] [Tabs] _start_timeout idx=0 type=branches
-[21:57:57.024] [Tabs] _populate_tab(branches, idx=0, force=False)
-[21:57:57.024] [Tabs]   populated=False, loading=False
-[21:57:57.024] [Tabs]   Starting load for branches
-[21:57:57.025] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[21:57:57.025] [Tabs] _clear_tab idx=0
-[21:57:57.026] [Tabs] _on_tab_changed → tab_type=branches
-[21:57:57.027] [Tabs] _clear_tab idx=0
+[00:23:15.572] [Tabs] _finish_branches (stale gen=1) — ignoring
+[00:23:15.572] [Tabs] _on_tab_changed(idx=0)
+[00:23:15.573] [Tabs] _start_timeout idx=0 type=branches
+[00:23:15.573] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:23:15.573] [Tabs]   populated=False, loading=False
+[00:23:15.573] [Tabs]   Starting load for branches
+[00:23:15.573] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:23:15.573] [Tabs] _clear_tab idx=0
+[00:23:15.574] [Tabs] _on_tab_changed → tab_type=branches
+[00:23:15.574] [Tabs] _clear_tab idx=0
 💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
    Location: C:\Users\ASUS\.insightface\models\buffalo_l
-[MainWindow] Set grid.project_id = 1
-[SidebarQt] set_project(1) called
-[21:58:20.004] [Tabs] refresh_all(force=True) called
-[21:58:20.004] [Tabs] refresh_all: key=branches, idx=0, force=True
-[21:58:20.004] [Tabs] _populate_tab(branches, idx=0, force=True)
-[21:58:20.004] [Tabs]   populated=True, loading=False
-[21:58:20.004] [Tabs]   Force refresh: removing branches from populated set
-[21:58:20.004] [Tabs]   Starting load for branches
-[21:58:20.005] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[21:58:20.005] [Tabs] _clear_tab idx=0
-[21:58:20.006] [Tabs] refresh_all: key=folders, idx=1, force=True
-[21:58:20.006] [Tabs] _populate_tab(folders, idx=1, force=True)
-[21:58:20.006] [Tabs]   populated=False, loading=False
-[21:58:20.006] [Tabs]   Starting load for folders
-[21:58:20.006] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[21:58:20.006] [Tabs] _clear_tab idx=1
-[21:58:20.007] [Tabs] refresh_all: key=dates, idx=2, force=True
-[21:58:20.007] [Tabs] _populate_tab(dates, idx=2, force=True)
-[21:58:20.008] [Tabs]   populated=False, loading=False
-[21:58:20.008] [Tabs]   Starting load for dates
-[21:58:20.008] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[21:58:20.008] [Tabs] _clear_tab idx=2
-[21:58:20.009] [Tabs] _load_folders → got 0 rows for project_id=1
-[21:58:20.009] [Tabs] refresh_all: key=tags, idx=3, force=True
-[21:58:20.009] [Tabs] _populate_tab(tags, idx=3, force=True)
-[21:58:20.010] [Tabs]   populated=False, loading=False
-[21:58:20.010] [Tabs]   Starting load for tags
-[21:58:20.010] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[21:58:20.010] [Tabs] _clear_tab idx=3
-[21:58:20.012] [Tabs] refresh_all: key=quick, idx=5, force=True
-[21:58:20.012] [Tabs] _populate_tab(quick, idx=5, force=True)
-[21:58:20.012] [Tabs]   populated=False, loading=False
-[21:58:20.013] [Tabs]   Starting load for quick
-[21:58:20.013] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[21:58:20.013] [Tabs] _clear_tab idx=5
-[21:58:20.014] [Tabs] refresh_all(force=True) completed
-[SidebarQt] Calling reload() after setting project_id
-[21:58:20.014] [Tabs] _load_dates → got hierarchy data for project_id=1
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[21:58:20.015] [Tabs] _clear_tab idx=0
-[21:58:20.015] [Tabs] _load_tags → got 0 rows for project_id=1
-[TAG FILTER] Cleared by navigation.
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in None-mode (base=0)
-[21:58:20.024] [Tabs] _load_quick → got 6 rows
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[21:58:20.035] [Tabs] _clear_tab idx=1
-[21:58:20.037] [Tabs] _clear_tab idx=2
-[21:58:20.042] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[21:58:20.042] [Tabs] _clear_tab idx=3
-[21:58:20.044] [Tabs] _clear_tab idx=5
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=4] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: []
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[MainWindow] Switched to project ID: 1
-[Breadcrumb] Switched to project ID: 1
-[MainWindow] Refreshed project list: 1 projects
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=6] running for 1 targets...
-[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
+[SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002A346997820>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
 [Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=8] running for 1 targets...
-[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
+[SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002A346997820>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
 [Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=10] running for 1 targets...
-[Sidebar][counts worker gen=10] finished scanning targets, scheduling UI update
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
+[SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002A346997820>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
 [Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=12] running for 1 targets...
-[Sidebar][counts worker gen=12] finished scanning targets, scheduling UI update
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=14] running for 1 targets...
-[Sidebar][counts worker gen=14] finished scanning targets, scheduling UI update
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=16] running for 1 targets...
-[Sidebar][counts worker gen=16] finished scanning targets, scheduling UI update
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=18] running for 1 targets...
-[Sidebar][counts worker gen=18] finished scanning targets, scheduling UI update
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-[Sidebar] Scanning for mobile devices...
-[Sidebar] Found 0 mobile device(s)
-[Sidebar] No mobile devices detected - added help message
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=20] running for 1 targets...
-[Sidebar][counts worker gen=20] finished scanning targets, scheduling UI update
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     ✗ win32com not available, trying fallback...
+[DeviceScanner]     Using wmic fallback...
+[DeviceScanner]     wmic output received
+[DeviceScanner]       Checking C:...
+[DeviceScanner]           Checking path: C:
+[DeviceScanner]           Directories found: ['config', 'docs', 'lang', 'locales', 'migrations', 'OldPy', 'old_sessions', 'Proof_Of_Concept', 'repository', 'Screenshots', 'services', 'status', 'tests', 'ui', 'utils', 'workers', '__pycache__']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       Checking D:...
+[DeviceScanner]           Checking path: D:
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+

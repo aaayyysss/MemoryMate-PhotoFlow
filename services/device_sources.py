@@ -484,19 +484,237 @@ class DeviceScanner:
 
         return devices
 
+    def _check_shell_namespace_device(self, shell_path: str) -> Optional[MobileDevice]:
+        """
+        Check Windows Shell namespace path for mobile device using COM API.
+
+        Shell namespace paths (starting with ::) cannot be accessed with normal
+        file system APIs. Must use Shell.Application COM interface.
+
+        Args:
+            shell_path: Shell namespace path (e.g., ::{20D04FE0...}\\\\?\\usb#...)
+
+        Returns:
+            MobileDevice if detected, None otherwise
+        """
+        print(f"[DeviceScanner]           Checking Shell namespace path via COM...")
+
+        try:
+            import win32com.client
+
+            shell = win32com.client.Dispatch("Shell.Application")
+            folder = shell.Namespace(shell_path)
+
+            if not folder:
+                print(f"[DeviceScanner]           ✗ Cannot access Shell namespace")
+                return None
+
+            # Get folder items
+            items = folder.Items()
+            print(f"[DeviceScanner]           Found {items.Count} items in device storage")
+
+            # List folder names
+            folder_names = []
+            for item in items:
+                if item.IsFolder:
+                    folder_names.append(item.Name)
+
+            print(f"[DeviceScanner]           Folders found: {folder_names}")
+
+            # Check for DCIM folder
+            has_dcim = "DCIM" in folder_names
+            print(f"[DeviceScanner]           Has DCIM folder: {has_dcim}")
+
+            # Check subdirectories for DCIM (Internal shared storage, etc.)
+            has_dcim_in_subdir = False
+            if not has_dcim:
+                print(f"[DeviceScanner]           Checking subdirectories for DCIM...")
+                for item in items:
+                    if item.IsFolder:
+                        subdir_name = item.Name
+                        subdir_name_lower = subdir_name.lower()
+
+                        # Check if this looks like a storage subdirectory
+                        if any(name in subdir_name_lower for name in [
+                            "internal", "storage", "phone", "card", "sdcard", "shared"
+                        ]):
+                            print(f"[DeviceScanner]             Checking subdirectory: {subdir_name}")
+                            try:
+                                # Access subdirectory
+                                subfolder = shell.Namespace(item.Path)
+                                if subfolder:
+                                    subitems = subfolder.Items()
+                                    subfolders = [si.Name for si in subitems if si.IsFolder]
+                                    if "DCIM" in subfolders:
+                                        has_dcim_in_subdir = True
+                                        print(f"[DeviceScanner]             ✓ Found DCIM in: {subdir_name}/DCIM")
+                                        break
+                            except Exception as e:
+                                print(f"[DeviceScanner]             ERROR accessing {subdir_name}: {e}")
+
+            if has_dcim_in_subdir:
+                print(f"[DeviceScanner]           Has DCIM in subdirectory: True")
+
+            if not has_dcim and not has_dcim_in_subdir:
+                print(f"[DeviceScanner]           REJECTED: No DCIM found in Shell namespace")
+                return None
+
+            # Device detected! Extract device label from path
+            # Shell path format: ::{GUID}\?\usb#vid_04e8&pid_6860#...
+            device_label = "Mobile Device"
+            try:
+                # Try to get friendly name from folder
+                device_label = folder.Title or folder.Self.Name or "Mobile Device"
+            except:
+                # Fallback: parse from path
+                if "samsung" in shell_path.lower():
+                    device_label = "Samsung Device"
+                elif "iphone" in shell_path.lower() or "apple" in shell_path.lower():
+                    device_label = "iPhone"
+
+            print(f"[DeviceScanner]           Device label: {device_label}")
+
+            # Detect device type
+            device_type = "android"
+            if "iphone" in shell_path.lower() or "apple" in shell_path.lower():
+                device_type = "ios"
+
+            print(f"[DeviceScanner]           Device type: {device_type}")
+
+            # Build device folders list using COM
+            print(f"[DeviceScanner]           Scanning for media folders via COM...")
+            folders_list = self._scan_shell_namespace_folders(shell, shell_path, device_type)
+            print(f"[DeviceScanner]           Found {len(folders_list)} media folder(s)")
+
+            if not folders_list:
+                print(f"[DeviceScanner]           REJECTED: No media folders found")
+                return None
+
+            # Extract device ID from Shell path
+            device_id = f"windows_shell:{hash(shell_path) & 0xFFFFFFFF:08x}"
+            print(f"[DeviceScanner]           Device ID: {device_id}")
+
+            # Register device if database available
+            if self.db and self.register_devices:
+                try:
+                    self.db.register_device(
+                        device_id=device_id,
+                        device_name=device_label,
+                        device_type=device_type,
+                        serial_number=None,
+                        volume_guid=None
+                    )
+                    print(f"[DeviceScanner]           ✓ Registered in database")
+                except Exception as e:
+                    print(f"[DeviceScanner]           WARNING: Database registration failed: {e}")
+
+            print(f"[DeviceScanner]           ✓✓✓ DEVICE ACCEPTED: {device_label} ({device_type})")
+
+            return MobileDevice(
+                label=device_label,
+                root_path=shell_path,
+                folders=folders_list,
+                device_id=device_id,
+                device_type=device_type,
+                is_mtp=True
+            )
+
+        except ImportError:
+            print(f"[DeviceScanner]           ✗ win32com not available for Shell namespace access")
+            return None
+        except Exception as e:
+            print(f"[DeviceScanner]           ✗ Shell namespace check failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _scan_shell_namespace_folders(self, shell, root_path: str, device_type: str) -> List[DeviceFolder]:
+        """
+        Scan Shell namespace path for media folders using COM API.
+
+        Args:
+            shell: Shell.Application COM object
+            root_path: Shell namespace path
+            device_type: Device type (android, ios, camera)
+
+        Returns:
+            List of DeviceFolder objects
+        """
+        folders = []
+
+        # Use appropriate patterns based on device type
+        if device_type == "camera":
+            patterns = self.CAMERA_PATTERNS
+        elif device_type == "ios":
+            patterns = self.IOS_PATTERNS
+        else:  # android
+            patterns = self.ANDROID_PATTERNS
+
+        print(f"[DeviceScanner]             Using {len(patterns)} folder patterns for {device_type}")
+
+        # For each pattern, try to access via Shell namespace
+        for pattern in patterns:
+            try:
+                # Build full path
+                pattern_windows = pattern.replace('/', '\\')
+                full_path = f"{root_path}\\{pattern_windows}"
+
+                # Try to access this folder
+                folder_obj = shell.Namespace(full_path)
+                if folder_obj:
+                    # Folder exists! Count media files
+                    items = folder_obj.Items()
+                    media_count = 0
+
+                    # Quick count of image/video files
+                    for item in items:
+                        if not item.IsFolder:
+                            name_lower = item.Name.lower()
+                            if any(name_lower.endswith(ext) for ext in [
+                                '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic',
+                                '.mp4', '.mov', '.avi', '.mkv', '.m4v', '.3gp'
+                            ]):
+                                media_count += 1
+
+                    if media_count > 0:
+                        display_name = self._get_folder_display_name(pattern)
+                        if display_name:
+                            print(f"[DeviceScanner]               ✓ Found folder: {display_name} ({media_count} files)")
+                            folders.append(DeviceFolder(
+                                name=display_name,
+                                path=full_path,
+                                photo_count=media_count
+                            ))
+            except Exception as e:
+                # Folder doesn't exist or can't be accessed
+                continue
+
+        return folders
+
     def _check_device_at_path(self, root_path: str) -> Optional[MobileDevice]:
         """
         Check if a path contains a mobile device by looking for DCIM folder
         or other common camera/media folder structures.
 
+        Handles both regular file system paths and Windows Shell namespace paths.
+
         Args:
-            root_path: Path to check (drive, volume, or mount point)
+            root_path: Path to check (drive, volume, mount point, or Shell namespace)
 
         Returns:
             MobileDevice if detected, None otherwise
         """
-        root = Path(root_path)
         print(f"[DeviceScanner]           Checking path: {root_path}")
+
+        # Check if this is a Windows Shell namespace path (starts with ::)
+        is_shell_path = root_path.startswith("::")
+
+        if is_shell_path:
+            print(f"[DeviceScanner]           Detected Shell namespace path")
+            return self._check_shell_namespace_device(root_path)
+
+        # Regular file system path handling
+        root = Path(root_path)
 
         # List directory contents for debugging
         try:

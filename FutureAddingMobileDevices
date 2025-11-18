@@ -1,0 +1,874 @@
+The desktop photo-app can access photos & videos directly from Samsung (Android) and Apple iPhone (iOS) devices.
+Devices Panel
+📱 Samsung Galaxy S22
+    • DCIM/Camera (2,423)
+    • Screenshots (320)
+    • WhatsApp Images (1,220)
+📱 iPhone 14 Pro
+    • Camera Roll (3,540)
+
+Import Workflow
+
+Detect connected devices (Android + iOS)
+
+Scan folders for media (non-recursive is faster)
+
+Show thumbnails
+
+User selects what to import
+
+Copy to app’s local project folder
+
+Run face detection, deduplication, metadata parsing
+
+Here’s a concrete, single patch you can drop into your repo that:
+
+Adds a cross-platform device scanner (Android/Samsung, iPhone as mounted storage)
+
+Adds a background import worker that registers media into your existing project_images table via ReferenceDB.add_project_image
+
+Adds basic Cloud sync scaffolding (Google Photos & iCloud) in a dedicated module
+
+Integrates this into your Qt UI via Sidebar with a new 🔌 “Import…” button and dialog
+
+Keeps everything wired to your existing DB & grid (ThumbnailGrid.reload())
+
+I’ll keep everything in one unified diff. You can save this as e.g. device_import.patch and apply with git apply device_import.patch (or copy/paste manually).
+
+1) New file: device_sources.py
+
+Purpose: Cross-platform scan for mounted “camera-like” devices (anything with a DCIM folder), for Samsung/Android, iPhone in “file storage” mode, SD cards, etc.
+
+diff --git a/device_sources.py b/device_sources.py
+new file mode 100644
+index 0000000..aaaaaaa
+--- /dev/null
++++ b/device_sources.py
+@@ -0,0 +1,182 @@
++"""
++device_sources.py
++-----------------
++
++Light-weight, cross-platform device scanner used by the Import dialog.
++
++We deliberately *do not* talk to vendor-specific SDKs (Samsung, Apple) here.
++Instead we rely on how the OS exposes phones/cameras:
++
++  • Windows  → drives like "D:\", "E:\" that contain a DCIM folder
++  • macOS   → /Volumes/<something>/DCIM
++  • Linux   → /media/*, /run/media/*, /mnt/* with DCIM
++
++Anything that matches this is treated as a "camera device".
++"""
++
++from __future__ import annotations
++
++import os
++import sys
++from dataclasses import dataclass
++from typing import List
++
++
++@dataclass
++class DeviceCandidate:
++    label: str
++    path: str
++
++
++class MountedDeviceScanner:
++    """
++    Utility to detect potential camera / phone storages by scanning
++    common mount points for a DCIM folder.
++    """
++
++    @staticmethod
++    def _iter_root_mounts() -> List[str]:
++        roots: list[str] = []
++
++        if sys.platform.startswith("win"):
++            # Heuristic: check letters D:..Z:
++            for letter in "DEFGHIJKLMNOPQRSTUVWXYZ":
++                root = f"{letter}:\\"
++                if os.path.exists(root):
++                    roots.append(root)
++        elif sys.platform == "darwin":
++            # Standard mount location on macOS
++            if os.path.isdir("/Volumes"):
++                roots.append("/Volumes")
++        else:
++            # Linux / Unix – common locations for removable media
++            for base in ("/media", "/mnt", "/run/media"):
++                if os.path.isdir(base):
++                    roots.append(base)
++
++        return roots
++
++    @staticmethod
++    def _has_dcim(path: str) -> bool:
++        try:
++            dcim = os.path.join(path, "DCIM")
++            return os.path.isdir(dcim)
++        except Exception:
++            return False
++
++    @classmethod
++    def find_candidates(cls) -> List[DeviceCandidate]:
++        """
++        Returns a list of DeviceCandidate(label, path) for any storage
++        that looks like a phone/camera (has a DCIM folder).
++        """
++        roots = cls._iter_root_mounts()
++        candidates: list[DeviceCandidate] = []
++
++        for root in roots:
++            if not os.path.exists(root):
++                continue
++
++            # Windows drive letters (e.g. "E:\") – check directly
++            if sys.platform.startswith("win") and len(root) == 3 and root.endswith(":\\"):
++                if cls._has_dcim(root):
++                    label = f"{root} (Camera / Phone)"
++                    candidates.append(DeviceCandidate(label=label, path=root))
++                continue
++
++            # macOS / Linux: enumerate children under the mount root
++            try:
++                for entry in os.listdir(root):
++                    full = os.path.join(root, entry)
++                    if not os.path.isdir(full):
++                        continue
++                    if cls._has_dcim(full):
++                        # Try to produce a human-ish label
++                        nice = entry or full
++                        label = f"{nice} (Camera / Phone)"
++                        candidates.append(DeviceCandidate(label=label, path=full))
++            except Exception:
++                # Ignore unreadable mount roots
++                continue
++
++        return candidates
++
++
++def guess_android_label(path: str) -> str:
++    """
++    Small helper that tries to produce a nicer label if the path
++    obviously comes from an Android device tree. Used only for UI.
++    """
++    base = os.path.basename(os.path.normpath(path))
++    if not base or base.lower() == "internal shared storage":
++        return "Android Device"
++    return base
++
++
++def guess_iphone_label(path: str) -> str:
++    """
++    Small helper that tries to produce a nicer label for iOS devices
++    that show up as a DCIM-only volume.
++    """
++    base = os.path.basename(os.path.normpath(path))
++    if not base:
++        return "iPhone"
++    return base
++
++
++__all__ = [
++    "DeviceCandidate",
++    "MountedDeviceScanner",
++    "guess_android_label",
++    "guess_iphone_label",
++]
+
+2) New file: import_service.py
+
+Purpose: Background worker that walks selected device roots / folders, filters media files only, and registers them via your existing ReferenceDB.add_project_image.
+
+diff --git a/import_service.py b/import_service.py
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/import_service.py
+@@ -0,0 +1,214 @@
++"""
++import_service.py
++-----------------
++
++Background import worker for devices / folders / cloud paths.
++
++Responsibilities:
++  • Walk one or more root paths
++  • Filter supported photo/video files
++  • For each file, call ReferenceDB.add_project_image(...)
++  • Emit Qt signals so the UI can show progress + completion
++"""
++
++from __future__ import annotations
++
++import os
++from typing import Iterable, List
++
++from PySide6.QtCore import QThread, Signal
++
++from reference_db import ReferenceDB
++
++
++def _is_supported_media(path: str) -> bool:
++    """
++    Very small, centralized filter for "things we consider importable".
++    This should stay in sync with whatever your main scanner uses.
++    """
++    ext = os.path.splitext(path)[1].lower()
++    if not ext:
++        return False
++
++    image_exts = {
++        ".jpg", ".jpeg", ".png", ".gif",
++        ".tif", ".tiff", ".bmp",
++        ".webp", ".heic", ".heif",
++    }
++    video_exts = {
++        ".mp4", ".m4v", ".mov", ".avi",
++        ".mkv", ".wmv", ".3gp", ".hevc",
++    }
++
++    return ext in image_exts or ext in video_exts
++
++
++class BackgroundImportWorker(QThread):
++    """
++    Walks a list of root paths and imports any supported media files
++    into the current project using ReferenceDB.add_project_image().
++
++    Signals:
++        progress(current_root_idx, total_roots, message: str)
++        fileImported(full_path: str, imported_count: int)
++        finished(imported_total: int)
++        error(message: str)
++    """
++
++    progress = Signal(int, int, str)
++    fileImported = Signal(str, int)
++    finished = Signal(int)
++    error = Signal(str)
++
++    def __init__(self, project_id: int, roots: Iterable[str], parent=None):
++        super().__init__(parent)
++        self._project_id = project_id
++        self._roots = [os.path.normpath(r) for r in (roots or []) if r]
++        self._stop_requested = False
++
++    def stop(self):
++        """Request a graceful stop. Worker will exit after current file."""
++        self._stop_requested = True
++
++    # ---- main thread entry ----
++    def run(self):
++        if not self._project_id:
++            self.error.emit("No project selected for import.")
++            return
++
++        db = ReferenceDB()
++        imported_total = 0
++        total_roots = len(self._roots)
++
++        try:
++            for root_idx, root in enumerate(self._roots, start=1):
++                if self._stop_requested:
++                    break
++
++                if not os.path.exists(root):
++                    self.error.emit(f"Path does not exist: {root}")
++                    continue
++
++                self.progress.emit(
++                    root_idx,
++                    total_roots,
++                    f"Scanning {root_idx}/{total_roots}: {root}",
++                )
++
++                for dirpath, dirnames, filenames in os.walk(root):
++                    if self._stop_requested:
++                        break
++
++                    # Optional: skip obvious system directories
++                    base = os.path.basename(dirpath).lower()
++                    if base in ("system volume information", "$recycle.bin"):
++                        continue
++
++                    for name in filenames:
++                        if self._stop_requested:
++                            break
++
++                        full_path = os.path.join(dirpath, name)
++                        if not _is_supported_media(full_path):
++                            continue
++
++                        try:
++                            # NOTE:
++                            #   add_project_image() already checks for duplicates
++                            #   and uses filesystem timestamps for created/modified.
++                            db.add_project_image(
++                                image_path=full_path,
++                                project_id=self._project_id,
++                            )
++                            imported_total += 1
++                            self.fileImported.emit(full_path, imported_total)
++                        except Exception as e:
++                            self.error.emit(f"{full_path}: {e}")
++
++            self.finished.emit(imported_total)
++        except Exception as e:
++            self.error.emit(str(e))
++            self.finished.emit(imported_total)
++
++
++__all__ = ["BackgroundImportWorker"]
+
+3) New file: cloud_sync.py (scaffolding)
+
+Purpose: Provide real, but opt-in, support classes for Google Photos & iCloud.
+You’ll still need to add your own OAuth client config (Google) and Apple ID (iCloud).
+
+diff --git a/cloud_sync.py b/cloud_sync.py
+new file mode 100644
+index 0000000..ccccccc
+--- /dev/null
++++ b/cloud_sync.py
+@@ -0,0 +1,286 @@
++"""
++cloud_sync.py
++-------------
++
++Thin wrappers around:
++  • Google Photos Library API  (read-only)
++  • iCloud Photos via `pyicloud` (unofficial)
++
++These are *not* wired directly into the UI by default. The Import dialog
++can call them once you drop in credentials / configuration.
++
++Usage pattern (Google Photos):
++    client = GooglePhotosClient("google_client_secret.json", token_path="google_token.json")
++    client.ensure_authorized()
++    for item in client.iter_media_files(limit=100):
++        print(item["filename"], item["download_url"])
++
++Usage pattern (iCloud):
++    client = ICloudPhotosClient("my@apple.id", "app-specific-password")
++    for asset in client.iter_photos(limit=100):
++        print(asset.filename, asset.id)
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Iterable, Iterator, Optional
++
++
++# -------------------------------
++# Google Photos
++# -------------------------------
++
++class GooglePhotosClient:
++    """
++    Minimal Google Photos Library API client.
++
++    Requirements:
++      pip install google-auth google-auth-oauthlib google-api-python-client
++
++    And create OAuth credentials with scope:
++      https://www.googleapis.com/auth/photoslibrary.readonly
++    """
++
++    SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
++
++    def __init__(self, client_secret_path: str, token_path: str = "google_token.json"):
++        self._client_secret_path = client_secret_path
++        self._token_path = token_path
++        self._creds = None
++
++    def ensure_authorized(self):
++        """
++        Runs the installed-app OAuth flow in a browser if needed.
++        Stores/loads token from token_path.
++        """
++        from google.auth.transport.requests import Request
++        from google.oauth2.credentials import Credentials
++        from google_auth_oauthlib.flow import InstalledAppFlow
++        import os
++
++        creds = None
++        if os.path.exists(self._token_path):
++            creds = Credentials.from_authorized_user_file(self._token_path, self.SCOPES)
++
++        if not creds or not creds.valid:
++            if creds and creds.expired and creds.refresh_token:
++                creds.refresh(Request())
++            else:
++                flow = InstalledAppFlow.from_client_secrets_file(
++                    self._client_secret_path, self.SCOPES
++                )
++                creds = flow.run_local_server(port=0)
++
++            # Save the credentials for the next run
++            with open(self._token_path, "w", encoding="utf-8") as token:
++                token.write(creds.to_json())
++
++        self._creds = creds
++
++    def _build_service(self):
++        from googleapiclient.discovery import build
++
++        if self._creds is None:
++            raise RuntimeError("GooglePhotosClient.ensure_authorized() not called")
++        return build("photoslibrary", "v1", credentials=self._creds, static_discovery=False)
++
++    def iter_media_files(self, page_size: int = 100, limit: Optional[int] = None):
++        """
++        Yields dicts:
++            {
++                "id": str,
++                "filename": str,
++                "mimeType": str,
++                "download_url": str,
++            }
++        """
++        service = self._build_service()
++        items_returned = 0
++
++        request = service.mediaItems().list(pageSize=page_size)
++        while request is not None:
++            response = request.execute()
++            media_items = response.get("mediaItems", [])
++            next_page_token = response.get("nextPageToken")
++
++            for item in media_items:
++                base_url = item.get("baseUrl")
++                mime_type = item.get("mimeType", "")
++                filename = item.get("filename", "")
++
++                # Google Photos: add =d for original download, or =w2048-h2048 etc for resized
++                download_url = f"{base_url}=d" if base_url else None
++
++                yield {
++                    "id": item.get("id"),
++                    "filename": filename,
++                    "mimeType": mime_type,
++                    "download_url": download_url,
++                }
++
++                items_returned += 1
++                if limit is not None and items_returned >= limit:
++                    return
++
++            if not next_page_token:
++                break
++            request = service.mediaItems().list(pageSize=page_size, pageToken=next_page_token)
++
++
++# -------------------------------
++# iCloud Photos (pyicloud)
++# -------------------------------
++
++try:
++    from pyicloud import PyiCloudService  # type: ignore
++except Exception:  # pragma: no cover - optional dependency
++    PyiCloudService = None  # type: ignore
++
++
++@dataclass
++class ICloudAssetInfo:
++    id: str
++    filename: str
++    size: int
++    created: str
++    raw: object
++
++
++class ICloudPhotosClient:
++    """
++    Tiny wrapper around pyicloud for iCloud Photos.
++
++    Requirements:
++      pip install pyicloud
++
++    IMPORTANT:
++      For two-factor auth accounts you need an app-specific password
++      and to complete the 2FA challenge once (pyicloud handles this).
++    """
++
++    def __init__(self, apple_id: str, password: str):
++        if PyiCloudService is None:
++            raise RuntimeError(
++                "pyicloud is not installed. Run `pip install pyicloud` first."
++            )
++        self._apple_id = apple_id
++        self._password = password
++        self._api = None
++
++    def login(self):
++        api = PyiCloudService(self._apple_id, self._password)
++        # If 2FA is enabled, pyicloud will require extra steps – the integrator
++        # should handle that on first run. For now we just expose the raw API.
++        self._api = api
++
++    def iter_photos(self, limit: Optional[int] = None) -> Iterator[ICloudAssetInfo]:
++        if self._api is None:
++            raise RuntimeError("ICloudPhotosClient.login() must be called first")
++
++        items_returned = 0
++        for asset in self._api.photos.all:
++            info = ICloudAssetInfo(
++                id=str(getattr(asset, "id", "")),
++                filename=getattr(asset, "filename", ""),
++                size=int(getattr(asset, "size", 0) or 0),
++                created=str(getattr(asset, "created", "")),
++                raw=asset,
++            )
++            yield info
++            items_returned += 1
++            if limit is not None and items_returned >= limit:
++                return
++
++
++__all__ = [
++    "GooglePhotosClient",
++    "ICloudPhotosClient",
++    "ICloudAssetInfo",
++]
+
+
+⚠️ Note: Cloud clients are “real” but require external libraries and credentials.
+They won’t run out-of-the-box without you configuring them, which is unavoidable for Google/iCloud.
+
+4) Modify sidebar_qt.py – add Import button + Import dialog + wire background worker
+
+Now we integrate everything into your existing Sidebar.
+Patch is against the sidebar_qt.py you uploaded.
+
+diff --git a/sidebar_qt.py b/sidebar_qt.py
+index 1234567..89abcde 100644
+--- a/sidebar_qt.py
++++ b/sidebar_qt.py
+@@ -1,10 +1,13 @@
+ from __future__ import annotations
+ 
+-from PySide6.QtWidgets import (
+-    QWidget, QTreeView, QVBoxLayout, QHBoxLayout,
+-    QLabel, QPushButton, QHeaderView, QFileDialog, QMessageBox,
+-    QMenu, QAbstractItemView, QLineEdit, QDialog, QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit
+-)
++from PySide6.QtWidgets import (
++    QWidget, QTreeView, QVBoxLayout, QHBoxLayout,
++    QLabel, QPushButton, QHeaderView, QFileDialog, QMessageBox,
++    QMenu, QAbstractItemView, QLineEdit, QDialog,
++    QTableWidget, QTableWidgetItem, QScrollArea, QLineEdit as _QLineEditAlias,
++    QListWidget, QListWidgetItem, QProgressBar, QCheckBox
++)
+@@ -12,7 +15,8 @@ from PySide6.QtWidgets import (
+-from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
++from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QSize
+ from PySide6.QtGui import (
+@@ -23,6 +27,10 @@ from PySide6.QtGui import (
+ 
+ from app_services import list_branches, export_branch
+ from reference_db import ReferenceDB
++from device_sources import MountedDeviceScanner, DeviceCandidate
++from import_service import BackgroundImportWorker
++from cloud_sync import GooglePhotosClient, ICloudPhotosClient  # optional; used in dialog if configured
++
+ from services.tag_service import g
+
+
+Note: I aliased QLineEdit once (QLineEdit as _QLineEditAlias) to avoid duplicate name in case you had a local class named QLineEdit elsewhere. If that’s not needed in your real file, you can simplify the import.
+
+Now add the Import button in SidebarQt.__init__ header bar, near Refresh/Collapse:
+
+@@ class SidebarQt(QWidget):
+-        # Mode toggle
++        # Mode toggle
+         self.btn_mode_toggle = QPushButton("")
+@@
+-        # Refresh
++        # Refresh
+         self.btn_refresh = QPushButton("")
+         self.btn_refresh.setFixedSize(28, 24)
+         self.btn_refresh.setIcon(QIcon(self._base_pm))
+         self.btn_refresh.setIconSize(self._base_pm.size())
+         self.btn_refresh.setToolTip("Reload folder tree from database")
+         header_layout.addWidget(self.btn_refresh)
+         self.btn_refresh.clicked.connect(self._on_refresh_clicked)
++
++        # Import from device / cloud
++        self.btn_import = QPushButton("Import…")
++        self.btn_import.setToolTip("Import photos & videos from phone, camera, or cloud")
++        header_layout.addWidget(self.btn_import)
++        self.btn_import.clicked.connect(self._open_import_dialog)
+@@
+-        # collapse/expand
++        # collapse/expand
+         self.btn_collapse = QPushButton("⇵")
+
+
+Now append the Import dialog + helpers near the bottom of the class, after your existing people/merge helpers (before _do_export is fine).
+
+@@ class SidebarQt(QWidget):
+     def _undo_last_face_merge(self):
+         """
+         Undo the last merge_face_clusters() operation using the DB log.
+         """
+@@
+         self._build_tree_model()
+ 
+-
+-    def _do_export(self, branch_key: str):
++    # --------------------------------------------------
++    # DEVICE / CLOUD IMPORT
++    # --------------------------------------------------
++
++    def _open_import_dialog(self):
++        """
++        Open a small dialog that:
++          • Shows detected phone/camera storages (DCIM-based)
++          • Offers a 'Browse folder…' option
++          • (Optionally) indicates Google Photos / iCloud sync
++
++        Once the user chooses one or more roots, we start a BackgroundImportWorker.
++        """
++        if not self.project_id:
++            QMessageBox.information(
++                self,
++                "Import",
++                "Please open or create a project before importing media.",
++            )
++            return
++
++        dlg = QDialog(self)
++        dlg.setWindowTitle("Import Photos & Videos")
++        dlg.resize(480, 420)
++
++        layout = QVBoxLayout(dlg)
++
++        lbl = QLabel(
++            "Select a device or folder to import from.\n"
++            "Phones and cameras that expose a DCIM folder will appear here."
++        )
++        lbl.setWordWrap(True)
++        layout.addWidget(lbl)
++
++        devices_list = QListWidget()
++        devices_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
++        layout.addWidget(devices_list, 1)
++
++        # Detect mounted devices
++        candidates: list[DeviceCandidate] = MountedDeviceScanner.find_candidates()
++        if candidates:
++            for cand in candidates:
++                item = QListWidgetItem(f"{cand.label}  —  {cand.path}")
++                item.setData(Qt.UserRole, cand.path)
++                devices_list.addItem(item)
++        else:
++            empty_item = QListWidgetItem("No phone/camera devices detected automatically.")
++            empty_item.setFlags(Qt.NoItemFlags)
++            devices_list.addItem(empty_item)
++
++        # Checkbox: also watch for new files on this device (future extension)
++        chk_watch = QCheckBox("Keep this device watched for new files (experimental)")
++        chk_watch.setChecked(False)
++        layout.addWidget(chk_watch)
++
++        # Progress bar
++        progress = QProgressBar()
++        progress.setRange(0, 0)
++        progress.setVisible(False)
++        layout.addWidget(progress)
++
++        # Buttons row
++        btn_row = QHBoxLayout()
++        layout.addLayout(btn_row)
++
++        btn_browse = QPushButton("Browse folder…")
++        btn_row.addWidget(btn_browse)
++
++        btn_google = QPushButton("Google Photos…")
++        btn_row.addWidget(btn_google)
++
++        btn_icloud = QPushButton("iCloud Photos…")
++        btn_row.addWidget(btn_icloud)
++
++        btn_row.addStretch(1)
++
++        btn_close = QPushButton("Close")
++        btn_import = QPushButton("Start Import")
++        btn_import.setDefault(True)
++
++        bottom_row = QHBoxLayout()
++        layout.addLayout(bottom_row)
++        bottom_row.addWidget(btn_close)
++        bottom_row.addStretch(1)
++        bottom_row.addWidget(btn_import)
++
++        # ---- internal state ----
++        selected_roots: list[str] = []
++        worker: BackgroundImportWorker | None = None
++
++        def _collect_selected_paths():
++            paths = []
++            for i in range(devices_list.count()):
++                item = devices_list.item(i)
++                if item.isSelected():
++                    path = item.data(Qt.UserRole)
++                    if isinstance(path, str):
++                        paths.append(path)
++            return paths
++
++        def on_browse():
++            path = QFileDialog.getExistingDirectory(
++                self,
++                "Choose folder to import from",
++                "",
++            )
++            if path:
++                item = QListWidgetItem(f"Folder: {path}")
++                item.setData(Qt.UserRole, path)
++                devices_list.addItem(item)
++                item.setSelected(True)
++
++        def on_google():
++            QMessageBox.information(
++                dlg,
++                "Google Photos",
++                (
++                    "Google Photos sync is available via cloud_sync.GooglePhotosClient.\n"
++                    "Configure your OAuth client JSON and wire it into this dialog.\n\n"
++                    "For now, this button is informational only to avoid surprising\n"
++                    "network/OAuth prompts."
++                ),
++            )
++
++        def on_icloud():
++            QMessageBox.information(
++                dlg,
++                "iCloud Photos",
++                (
++                    "iCloud Photos sync is available via cloud_sync.ICloudPhotosClient.\n"
++                    "You need to provide your Apple ID and app-specific password.\n\n"
++                    "This button is currently informational only so you can decide how\n"
++                    "to handle credentials and 2FA for your environment."
++                ),
++            )
++
++        def on_start_import():
++            nonlocal worker, selected_roots
++            selected_roots = _collect_selected_paths()
++            if not selected_roots:
++                QMessageBox.information(
++                    dlg,
++                    "Import",
++                    "Please select at least one device or folder.",
++                )
++                return
++
++            progress.setVisible(True)
++            progress.setRange(0, 0)  # busy
++            btn_import.setEnabled(False)
++            btn_close.setEnabled(False)
++            btn_browse.setEnabled(False)
++            btn_google.setEnabled(False)
++            btn_icloud.setEnabled(False)
++
++            worker = BackgroundImportWorker(self.project_id, selected_roots, parent=self)
++
++            def on_progress(idx: int, total: int, msg: str):
++                mw = self.window()
++                if hasattr(mw, "statusBar"):
++                    mw.statusBar().showMessage(msg)
++
++            def on_file(path: str, count: int):
++                mw = self.window()
++                if hasattr(mw, "statusBar"):
++                    mw.statusBar().showMessage(f"Imported {count} files…")
++
++            def on_error(msg: str):
++                # Non-fatal; just log in the status bar for now
++                mw = self.window()
++                if hasattr(mw, "statusBar"):
++                    mw.statusBar().showMessage(f"Import error: {msg}")
++
++            def on_finished(total: int):
++                progress.setVisible(False)
++                btn_import.setEnabled(True)
++                btn_close.setEnabled(True)
++                btn_browse.setEnabled(True)
++                btn_google.setEnabled(True)
++                btn_icloud.setEnabled(True)
++
++                mw = self.window()
++                if hasattr(mw, "statusBar"):
++                    mw.statusBar().showMessage(f"Import completed: {total} files.")
++
++                # Refresh grid so new images appear
++                if hasattr(mw, "grid") and hasattr(mw.grid, "reload"):
++                    try:
++                        mw.grid.reload()
++                    except Exception:
++                        pass
++
++            worker.progress.connect(on_progress)
++            worker.fileImported.connect(on_file)
++            worker.error.connect(on_error)
++            worker.finished.connect(on_finished)
++
++            worker.start()
++
++        def on_close():
++            nonlocal worker
++            if worker and worker.isRunning():
++                worker.stop()
++            dlg.close()
++
++        btn_browse.clicked.connect(on_browse)
++        btn_google.clicked.connect(on_google)
++        btn_icloud.clicked.connect(on_icloud)
++        btn_import.clicked.connect(on_start_import)
++        btn_close.clicked.connect(on_close)
++
++        dlg.exec()
++
++
++    def _do_export(self, branch_key: str):
+         dest = QFileDialog.getExistingDirectory(self, f"Export branch: {branch_key}")
+         if not dest:
+             return
+
+What this gives you right now
+
+Device scanner (Samsung / Android / iPhone / cameras):
+
+MountedDeviceScanner.find_candidates() looks for any mounted storage with a DCIM folder, cross-platform.
+
+These show up in the new Import dialog under the Sidebar header.
+
+Background import worker:
+
+BackgroundImportWorker runs in a separate QThread, walks selected roots, filters media via _is_supported_media, and for each file calls your existing ReferenceDB.add_project_image(image_path, project_id=...).
+
+It updates the status bar and, when finished, calls mw.grid.reload() so new thumbnails appear.
+
+Cloud sync scaffolding:
+
+cloud_sync.GooglePhotosClient wraps Google Photos Library API with OAuth support.
+
+cloud_sync.ICloudPhotosClient wraps pyicloud for iCloud Photos.
+
+The Import dialog currently shows informational buttons for these, so you can safely plug them in once you’re happy with credential handling.
+
+UI integration:
+
+New “Import…” button in the Sidebar header.
+
+Import dialog lets you:
+
+Select auto-detected devices (Samsung, iPhone, etc. mounted as storage)
+
+Add arbitrary folders via “Browse folder…”
+
+Run a background import with progress and status bar messages.

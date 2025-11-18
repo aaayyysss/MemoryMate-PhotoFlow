@@ -3456,12 +3456,90 @@ class SidebarQt(QWidget):
                         QMessageBox.critical(self, "Create Failed", str(e))
             return
 
+        # Mobile device context menu
+        if mode == "device_folder" and isinstance(value, str):
+            device_folder_path = value
+
+            act_import = menu.addAction("📥 Import from this folder…")
+            act_browse = menu.addAction("👁️ Browse (view only)")
+            act_refresh = menu.addAction("🔄 Refresh device")
+
+            chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+            if chosen is act_import:
+                self._import_from_device_folder(device_folder_path)
+            elif chosen is act_browse:
+                # Browse without importing (existing behavior)
+                index = self.tree.currentIndex()
+                if index.isValid():
+                    self._on_item_clicked(index)
+            elif chosen is act_refresh:
+                self.reload()
+            return
+
+        if mode == "device" and isinstance(value, str):
+            device_root_path = value
+
+            act_scan = menu.addAction("📱 Scan device for photos…")
+            act_refresh = menu.addAction("🔄 Refresh device list")
+
+            chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
+            if chosen is act_scan:
+                # Show import dialog for entire device
+                self._import_from_device_folder(device_root_path)
+            elif chosen is act_refresh:
+                self.reload()
+            return
+
         act_export = menu.addAction("📁 Export Photos to Folder…")
         chosen = menu.exec(self.tree.viewport().mapToGlobal(pos))
         if chosen is act_export:
             self._do_export(item.data(Qt.UserRole + 1))
 
 
+
+    # --------------------------------------------------
+    # MOBILE DEVICE IMPORT
+    # --------------------------------------------------
+
+    def _import_from_device_folder(self, device_folder_path: str):
+        """
+        Show import dialog for device folder.
+
+        Args:
+            device_folder_path: Path to device folder
+        """
+        try:
+            from ui.device_import_dialog import DeviceImportDialog
+
+            # Show import dialog
+            dialog = DeviceImportDialog(
+                self.db,
+                self.project_id,
+                device_folder_path,
+                parent=self
+            )
+
+            # If import successful, reload sidebar
+            if dialog.exec():
+                print(f"[Sidebar] Import completed, reloading...")
+                self.reload()
+
+                # Notify main window to refresh grid
+                mw = self.window()
+                if hasattr(mw, 'grid') and hasattr(mw.grid, 'reload'):
+                    mw.grid.reload()
+
+                mw.statusBar().showMessage("✓ Import completed successfully")
+
+        except Exception as e:
+            print(f"[Sidebar] Import dialog error: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Import Error",
+                f"Failed to show import dialog:\n{e}"
+            )
 
     # --------------------------------------------------
     # PEOPLE / FACE CLUSTER MERGE HELPERS

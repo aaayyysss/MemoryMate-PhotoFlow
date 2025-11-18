@@ -2743,15 +2743,93 @@ class SidebarQt(QWidget):
                     self.model.appendRow([devices_root, devices_count_item])
 
                     if mobile_devices:
-                        # Devices found - show them
+                        # Devices found - show them with history
                         total_device_photos = 0
 
                         for device in mobile_devices:
-                            # Create device item
-                            device_item = QStandardItem(device.label)
+                            # Get device history from database
+                            device_history = None
+                            last_import_info = ""
+                            status_icon = ""
+
+                            if device.device_id:
+                                try:
+                                    # Get device info from database
+                                    device_history = self.db.get_device(device.device_id)
+
+                                    if device_history:
+                                        # Format last import info
+                                        last_import = device_history.get('last_seen')
+                                        total_imports = device_history.get('total_imports', 0)
+                                        photos_imported = device_history.get('total_photos_imported', 0)
+                                        videos_imported = device_history.get('total_videos_imported', 0)
+
+                                        # Calculate days since last import
+                                        if last_import:
+                                            from datetime import datetime
+                                            try:
+                                                last_seen_dt = datetime.fromisoformat(last_import)
+                                                days_ago = (datetime.now() - last_seen_dt).days
+
+                                                if days_ago == 0:
+                                                    time_str = "today"
+                                                elif days_ago == 1:
+                                                    time_str = "yesterday"
+                                                elif days_ago < 7:
+                                                    time_str = f"{days_ago} days ago"
+                                                elif days_ago < 30:
+                                                    weeks = days_ago // 7
+                                                    time_str = f"{weeks} week{'s' if weeks > 1 else ''} ago"
+                                                else:
+                                                    months = days_ago // 30
+                                                    time_str = f"{months} month{'s' if months > 1 else ''} ago"
+
+                                                # Build info string
+                                                if total_imports > 0:
+                                                    last_import_info = f"Last seen: {time_str}"
+                                                    if photos_imported > 0 or videos_imported > 0:
+                                                        last_import_info += f" • {photos_imported} photos"
+                                                        if videos_imported > 0:
+                                                            last_import_info += f", {videos_imported} videos"
+                                                    # Status icon based on recency
+                                                    if days_ago < 7:
+                                                        status_icon = "🟢"  # Recently used
+                                                    elif days_ago < 30:
+                                                        status_icon = "🟡"  # Used this month
+                                                    else:
+                                                        status_icon = "⚪"  # Older
+                                                else:
+                                                    last_import_info = "Never imported from this device"
+                                                    status_icon = "⚪"
+                                            except Exception as e:
+                                                print(f"[Sidebar] Error parsing date: {e}")
+
+                                except Exception as e:
+                                    print(f"[Sidebar] Error getting device history: {e}")
+
+                            # Create device item with status icon
+                            device_label = f"{status_icon} {device.label}" if status_icon else device.label
+                            device_item = QStandardItem(device_label)
                             device_item.setEditable(False)
                             device_item.setData("device", Qt.UserRole)
                             device_item.setData(device.root_path, Qt.UserRole + 1)
+                            device_item.setData(device.device_id, Qt.UserRole + 2)
+
+                            # Set tooltip with device history
+                            if last_import_info:
+                                tooltip = f"{device.label}\n{last_import_info}"
+                                if device.device_id:
+                                    tooltip += f"\nDevice ID: {device.device_id}"
+                                device_item.setToolTip(tooltip)
+                            else:
+                                # Basic tooltip without history
+                                tooltip = f"{device.label}"
+                                if device.device_id:
+                                    tooltip += f"\nDevice ID: {device.device_id}"
+                                    tooltip += "\nNo import history yet"
+                                else:
+                                    tooltip += "\nDevice ID not available"
+                                device_item.setToolTip(tooltip)
 
                             # Count total photos across all folders on this device
                             device_photo_count = sum(folder.photo_count for folder in device.folders)

@@ -3725,6 +3725,7 @@ class SidebarQt(QWidget):
         caused by calling _build_tree_model() after renaming.
 
         CRITICAL FIX: Also updates PeopleListView in tabs to sync both views.
+        SAFETY: Checks widget validity to prevent crashes from deleted Qt objects.
 
         Args:
             branch_key: The branch_key of the person (e.g., "face_000")
@@ -3752,28 +3753,59 @@ class SidebarQt(QWidget):
                         # Found it! Update the display name
                         print(f"[Sidebar] Updating person name in tree: {branch_key} → {new_label}")
                         child_item.setText(new_label)
-                        self.tree.update()
+
+                        # CRITICAL FIX: Force visual refresh of tree view
+                        # tree.update() doesn't always repaint, use viewport().update()
+                        try:
+                            self.tree.viewport().update()
+                            # Also trigger a model data change signal
+                            index = self.model.indexFromItem(child_item)
+                            if index.isValid():
+                                self.model.dataChanged.emit(index, index)
+                        except (RuntimeError, AttributeError):
+                            pass
                         break
             else:
                 print(f"[Sidebar] Could not find People root to update {branch_key}")
 
             # CRITICAL FIX: Also update TABS VIEW (PeopleListView) for cross-view sync
+            # SAFETY: Check widget validity before accessing to prevent crash
             if hasattr(self, 'tabs_controller') and self.tabs_controller:
-                if hasattr(self.tabs_controller, 'people_list_view'):
-                    people_view = self.tabs_controller.people_list_view
-                    if people_view:
-                        # Find and update the row in PeopleListView
-                        for row_idx in range(people_view.table.rowCount()):
-                            item = people_view.table.item(row_idx, 1)  # Name column
-                            if item:
-                                stored_key = item.data(Qt.UserRole + 1)
-                                if stored_key == branch_key:
-                                    print(f"[Sidebar] Updating person name in tabs view: {branch_key} → {new_label}")
-                                    item.setText(new_label)
-                                    people_view.table.update()
-                                    break
+                try:
+                    # Check if tabs_controller is still valid (not deleted)
+                    if not self.tabs_controller.isVisible():
+                        # Tabs view is hidden, skip update (widget may be deleted)
+                        print(f"[Sidebar] Tabs view hidden, skipping tabs update")
+                        return
 
-            print(f"[Sidebar] Successfully updated person name in both views")
+                    if hasattr(self.tabs_controller, 'people_list_view'):
+                        people_view = self.tabs_controller.people_list_view
+
+                        # CRITICAL: Check if widget is still valid before accessing
+                        # Qt C++ object might be deleted even if Python ref exists
+                        if people_view and not getattr(people_view, '_is_being_deleted', False):
+                            try:
+                                # Test widget validity by accessing a property
+                                _ = people_view.table.rowCount()
+
+                                # Widget is valid, proceed with update
+                                for row_idx in range(people_view.table.rowCount()):
+                                    item = people_view.table.item(row_idx, 1)  # Name column
+                                    if item:
+                                        stored_key = item.data(Qt.UserRole + 1)
+                                        if stored_key == branch_key:
+                                            print(f"[Sidebar] Updating person name in tabs view: {branch_key} → {new_label}")
+                                            item.setText(new_label)
+                                            people_view.table.viewport().update()
+                                            break
+                            except (RuntimeError, AttributeError) as widget_err:
+                                # Widget was deleted or C++ object is gone
+                                print(f"[Sidebar] Tabs widget deleted, skipping update: {widget_err}")
+                except (RuntimeError, AttributeError) as ctrl_err:
+                    # tabs_controller itself was deleted
+                    print(f"[Sidebar] Tabs controller deleted, skipping update: {ctrl_err}")
+
+            print(f"[Sidebar] Successfully updated person name in visible views")
 
         except Exception as e:
             print(f"[Sidebar] Failed to update person name in tree: {e}")

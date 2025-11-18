@@ -308,7 +308,12 @@ CREATE TABLE IF NOT EXISTS mobile_devices (
     total_imports INTEGER DEFAULT 0,      -- Total number of import sessions
     total_photos_imported INTEGER DEFAULT 0,  -- Cumulative photo count
     total_videos_imported INTEGER DEFAULT 0,  -- Cumulative video count
-    notes TEXT                            -- User notes about device
+    notes TEXT,                           -- User notes about device
+    -- Phase 4: Auto-import preferences
+    auto_import BOOLEAN DEFAULT 0,        -- Enable auto-import for this device
+    auto_import_folder TEXT DEFAULT NULL, -- Which folder to auto-import from (e.g., "Camera")
+    last_auto_import TIMESTAMP DEFAULT NULL,  -- Last time auto-import ran
+    auto_import_enabled_date TIMESTAMP DEFAULT NULL  -- When auto-import was enabled
 );
 
 -- Import sessions (tracks each import operation)
@@ -432,6 +437,7 @@ CREATE INDEX IF NOT EXISTS idx_photo_folders_project_parent ON photo_folders(pro
 -- Mobile device tracking indexes (v5.0.0: Device import tracking)
 CREATE INDEX IF NOT EXISTS idx_mobile_devices_type ON mobile_devices(device_type);
 CREATE INDEX IF NOT EXISTS idx_mobile_devices_last_seen ON mobile_devices(last_seen);
+CREATE INDEX IF NOT EXISTS idx_mobile_devices_auto_import ON mobile_devices(auto_import) WHERE auto_import = 1;
 
 CREATE INDEX IF NOT EXISTS idx_import_sessions_device ON import_sessions(device_id);
 CREATE INDEX IF NOT EXISTS idx_import_sessions_project ON import_sessions(project_id);
@@ -557,6 +563,7 @@ def get_expected_indexes() -> list[str]:
         # Mobile device tracking indexes (v5.0.0)
         "idx_mobile_devices_type",
         "idx_mobile_devices_last_seen",
+        "idx_mobile_devices_auto_import",
         "idx_import_sessions_device",
         "idx_import_sessions_project",
         "idx_import_sessions_date",

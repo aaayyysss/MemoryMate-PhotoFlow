@@ -305,6 +305,111 @@ class DeviceImportService:
         self.current_session_id = None
         print(f"[DeviceImport] Completed session {session_id}: {photos_imported} imported, {duplicates_skipped} skipped")
 
+    # ============================================================================
+    # PHASE 4: QUICK IMPORT (AUTO-IMPORT WORKFLOWS)
+    # ============================================================================
+
+    def quick_import_new_files(
+        self,
+        device_folder_path: str,
+        root_path: str,
+        progress_callback: Optional[Callable[[int, int, str], None]] = None,
+        skip_cross_device_duplicates: bool = True
+    ) -> dict:
+        """
+        Quick import: Import only new files with smart defaults (Phase 4).
+
+        This is the main method for auto-import workflows. It uses all Phase 2 and Phase 3
+        features to provide a smart, one-click import experience.
+
+        Smart defaults:
+        - Incremental scan (new files only)
+        - Skip cross-device duplicates (optional)
+        - Import to root folder
+        - Create import session automatically
+        - Update device last_auto_import timestamp
+
+        Args:
+            device_folder_path: Device folder to scan
+            root_path: Device root path
+            progress_callback: Optional callback(current, total, filename)
+            skip_cross_device_duplicates: Skip duplicates from other devices (default: True)
+
+        Returns:
+            Stats dict with imported/skipped/failed counts
+        """
+        if not self.device_id:
+            raise ValueError("device_id required for quick import")
+
+        print(f"[DeviceImport] Starting quick import from {device_folder_path}")
+
+        # Start session with type="quick"
+        session_id = self.start_import_session(import_type="quick")
+
+        try:
+            # Scan for new files only (Phase 2 incremental)
+            new_files = self.scan_incremental(device_folder_path, root_path)
+
+            print(f"[DeviceImport] Found {len(new_files)} new files")
+
+            # Filter out cross-device duplicates if requested (Phase 3)
+            files_to_import = new_files
+            if skip_cross_device_duplicates:
+                files_to_import = [
+                    f for f in new_files
+                    if not f.is_cross_device_duplicate
+                ]
+                dup_count = len(new_files) - len(files_to_import)
+                if dup_count > 0:
+                    print(f"[DeviceImport] Skipping {dup_count} cross-device duplicates")
+
+            if not files_to_import:
+                print("[DeviceImport] No new files to import")
+                stats = {
+                    'imported': 0,
+                    'skipped': len(new_files),
+                    'failed': 0,
+                    'bytes_imported': 0,
+                    'errors': []
+                }
+                self.complete_import_session(session_id, stats)
+                return stats
+
+            # Import files
+            stats = self.import_files(
+                files_to_import,
+                destination_folder_id=None,  # Import to root
+                progress_callback=progress_callback
+            )
+
+            # Update stats with skipped duplicates
+            stats['skipped'] += (len(new_files) - len(files_to_import))
+
+            # Complete session
+            self.complete_import_session(session_id, stats)
+
+            # Update device last_auto_import timestamp
+            self.db.update_device_last_auto_import(self.device_id)
+
+            print(f"[DeviceImport] Quick import complete: {stats['imported']} imported, "
+                  f"{stats['skipped']} skipped, {stats['failed']} failed")
+
+            return stats
+
+        except Exception as e:
+            print(f"[DeviceImport] Quick import failed: {e}")
+            import traceback
+            traceback.print_exc()
+
+            # Mark session as failed
+            self.complete_import_session(session_id, {
+                'imported': 0,
+                'skipped': 0,
+                'failed': 1,
+                'errors': [str(e)]
+            })
+            raise
+
     def _extract_device_folder(self, device_path: str, root_path: str) -> str:
         """
         Extract device folder name from path (Camera/Screenshots/WhatsApp/etc).

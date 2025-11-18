@@ -1,32 +1,31 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-07> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-08
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-08> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-18 02:17:15,547 [INFO] ================================================================================
-2025-11-18 02:17:15,547 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-18 02:17:15,547 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-08\app_log.txt
-2025-11-18 02:17:15,548 [INFO] ================================================================================
-2025-11-18 02:17:15,587 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-18 02:17:15,588 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-08\\thumbnails_cache.db', 'last_updated': '2025-11-18 02:17'}
-✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-08\locales\en.json
+2025-11-18 02:35:03,279 [INFO] ================================================================================
+2025-11-18 02:35:03,280 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-18 02:35:03,281 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\app_log.txt
+2025-11-18 02:35:03,281 [INFO] ================================================================================
+2025-11-18 02:35:03,323 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-18 02:35:03,323 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-09\\thumbnails_cache.db', 'last_updated': '2025-11-18 02:35'}
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\locales\en.json
 🌍 Language switched to: en
 [MainWindow] Language loaded from settings: en
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-18 02:17:15,868 [INFO] SearchService initialized
-[02:17:16.324] [Tabs] __init__ started
-[02:17:16.325] [Tabs] _build_tabs → building tab widgets
-[02:17:16.325] [Tabs] _on_tab_changed(idx=0)
-[02:17:16.325] [Tabs] _start_timeout idx=0 type=branches
-[02:17:16.325] [Tabs] _populate_tab(branches, idx=0, force=False)
-[02:17:16.325] [Tabs]   populated=False, loading=False
-[02:17:16.325] [Tabs]   Starting load for branches
-[02:17:16.325] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[02:17:16.327] [Tabs] _clear_tab idx=0
-[02:17:16.328] [Tabs] _on_tab_changed → tab_type=branches
-[02:17:16.329] [Tabs] _build_tabs → added 6 tabs
-[02:17:16.329] [Tabs] __init__ completed
+2025-11-18 02:35:03,600 [INFO] SearchService initialized
+[02:35:04.025] [Tabs] __init__ started
+[02:35:04.026] [Tabs] _build_tabs → building tab widgets
+[02:35:04.026] [Tabs] _on_tab_changed(idx=0)
+[02:35:04.026] [Tabs] _start_timeout idx=0 type=branches
+[02:35:04.026] [Tabs] _populate_tab(branches, idx=0, force=False)
+[02:35:04.026] [Tabs]   populated=False, loading=False
+[02:35:04.026] [Tabs]   Starting load for branches
+[02:35:04.026] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:35:04.026] [Tabs] _clear_tab idx=0
+[02:35:04.028] [Tabs] _on_tab_changed → tab_type=branches
+[02:35:04.029] [Tabs] _build_tabs → added 6 tabs
+[02:35:04.029] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -36,7 +35,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[02:17:16.358] [Tabs] hide_tabs() called - canceling pending workers
+[02:35:04.058] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -49,69 +48,72 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [Sidebar] Loading videos for project_id=None
 [Sidebar] Found 0 videos in project None
 [SidebarQt] _build_tree_model() completed
-2025-11-18 02:17:16,376 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-18 02:17:16,376 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-18 02:17:16,376 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-18 02:35:04,074 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-18 02:35:04,074 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-18 02:35:04,074 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
 💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
    Location: C:\Users\ASUS\.insightface\models\buffalo_l
-[02:17:19.139] [Tabs] _finish_branches (stale gen=1) — ignoring
-[02:17:19.139] [Tabs] _on_tab_changed(idx=0)
-[02:17:19.140] [Tabs] _start_timeout idx=0 type=branches
-[02:17:19.140] [Tabs] _populate_tab(branches, idx=0, force=False)
-[02:17:19.140] [Tabs]   populated=False, loading=False
-[02:17:19.140] [Tabs]   Starting load for branches
-[02:17:19.141] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[02:17:19.141] [Tabs] _clear_tab idx=0
-[02:17:19.141] [Tabs] _on_tab_changed → tab_type=branches
-[02:17:19.154] [Tabs] _clear_tab idx=0
+[02:35:06.629] [Tabs] _finish_branches (stale gen=1) — ignoring
+[02:35:06.629] [Tabs] _on_tab_changed(idx=0)
+[02:35:06.629] [Tabs] _start_timeout idx=0 type=branches
+[02:35:06.629] [Tabs] _populate_tab(branches, idx=0, force=False)
+[02:35:06.630] [Tabs]   populated=False, loading=False
+[02:35:06.630] [Tabs]   Starting load for branches
+[02:35:06.630] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:35:06.630] [Tabs] _clear_tab idx=0
+[02:35:06.632] [Tabs] _on_tab_changed → tab_type=branches
+[02:35:06.647] [Tabs] _clear_tab idx=0
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[02:17:29.239] [Tabs] refresh_all(force=True) called
-[02:17:29.239] [Tabs] refresh_all: key=branches, idx=0, force=True
-[02:17:29.239] [Tabs] _populate_tab(branches, idx=0, force=True)
-[02:17:29.239] [Tabs]   populated=True, loading=False
-[02:17:29.239] [Tabs]   Force refresh: removing branches from populated set
-[02:17:29.239] [Tabs]   Starting load for branches
-[02:17:29.239] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[02:17:29.240] [Tabs] _clear_tab idx=0
-[02:17:29.241] [Tabs] refresh_all: key=folders, idx=1, force=True
-[02:17:29.241] [Tabs] _populate_tab(folders, idx=1, force=True)
-[02:17:29.241] [Tabs]   populated=False, loading=False
-[02:17:29.241] [Tabs]   Starting load for folders
-[02:17:29.241] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[02:17:29.241] [Tabs] _clear_tab idx=1
-[02:17:29.242] [Tabs] refresh_all: key=dates, idx=2, force=True
-[02:17:29.243] [Tabs] _populate_tab(dates, idx=2, force=True)
-[02:17:29.243] [Tabs]   populated=False, loading=False
-[02:17:29.243] [Tabs]   Starting load for dates
-[02:17:29.243] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[02:17:29.243] [Tabs] _clear_tab idx=2
-[02:17:29.244] [Tabs] _load_folders → got 0 rows for project_id=1
-[02:17:29.244] [Tabs] refresh_all: key=tags, idx=3, force=True
-[02:17:29.244] [Tabs] _populate_tab(tags, idx=3, force=True)
-[02:17:29.244] [Tabs]   populated=False, loading=False
-[02:17:29.244] [Tabs]   Starting load for tags
-[02:17:29.245] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[02:17:29.245] [Tabs] _clear_tab idx=3
-[02:17:29.245] [Tabs] refresh_all: key=quick, idx=5, force=True
-[02:17:29.246] [Tabs] _populate_tab(quick, idx=5, force=True)
-[02:17:29.246] [Tabs]   populated=False, loading=False
-[02:17:29.246] [Tabs]   Starting load for quick
-[02:17:29.246] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[02:17:29.246] [Tabs] _clear_tab idx=5
-[02:17:29.249] [Tabs] refresh_all(force=True) completed
+[02:35:13.304] [Tabs] refresh_all(force=True) called
+[02:35:13.304] [Tabs] refresh_all: key=branches, idx=0, force=True
+[02:35:13.305] [Tabs] _populate_tab(branches, idx=0, force=True)
+[02:35:13.305] [Tabs]   populated=True, loading=False
+[02:35:13.305] [Tabs]   Force refresh: removing branches from populated set
+[02:35:13.305] [Tabs]   Starting load for branches
+[02:35:13.305] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:35:13.305] [Tabs] _clear_tab idx=0
+[02:35:13.306] [Tabs] refresh_all: key=folders, idx=1, force=True
+[02:35:13.306] [Tabs] _populate_tab(folders, idx=1, force=True)
+[02:35:13.306] [Tabs]   populated=False, loading=False
+[02:35:13.306] [Tabs]   Starting load for folders
+[02:35:13.306] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[02:35:13.307] [Tabs] _clear_tab idx=1
+[02:35:13.308] [Tabs] refresh_all: key=dates, idx=2, force=True
+[02:35:13.308] [Tabs] _populate_tab(dates, idx=2, force=True)
+[02:35:13.308] [Tabs]   populated=False, loading=False
+[02:35:13.308] [Tabs]   Starting load for dates
+[02:35:13.308] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[02:35:13.308] [Tabs] _clear_tab idx=2
+[02:35:13.309] [Tabs] refresh_all: key=tags, idx=3, force=True
+[02:35:13.309] [Tabs] _populate_tab(tags, idx=3, force=True)
+[02:35:13.309] [Tabs]   populated=False, loading=False
+[02:35:13.310] [Tabs]   Starting load for tags
+[02:35:13.310] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[02:35:13.310] [Tabs] _clear_tab idx=3
+[02:35:13.311] [Tabs] refresh_all: key=quick, idx=5, force=True
+[02:35:13.311] [Tabs] _populate_tab(quick, idx=5, force=True)
+[02:35:13.311] [Tabs]   populated=False, loading=False
+[02:35:13.311] [Tabs]   Starting load for quick
+[02:35:13.311] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[02:35:13.311] [Tabs] _clear_tab idx=5
+[02:35:13.315] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
+[02:35:13.315] [Tabs] _load_folders → got 0 rows for project_id=1
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
-[02:17:29.250] [Tabs] _load_dates → got hierarchy data for project_id=1
 [Sidebar] Processing pending events before model clear
-[02:17:29.251] [Tabs] _load_tags → got 0 rows for project_id=1
-[02:17:29.251] [Tabs] _clear_tab idx=0
-[02:17:29.251] [Tabs] _load_quick → got 6 rows
+[02:35:13.317] [Tabs] _load_tags → got 0 rows for project_id=1
+[02:35:13.317] [Tabs] _clear_tab idx=1
+[02:35:13.319] [Tabs] _load_quick → got 6 rows
+[02:35:13.319] [Tabs] _load_dates → got hierarchy data for project_id=1
+[02:35:13.326] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[02:35:13.326] [Tabs] _clear_tab idx=3
+[02:35:13.327] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -120,11 +122,8 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[02:17:29.274] [Tabs] _clear_tab idx=1
-[02:17:29.279] [Tabs] _clear_tab idx=2
-[02:17:29.283] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[02:17:29.283] [Tabs] _clear_tab idx=3
-[02:17:29.283] [Tabs] _clear_tab idx=5
+[02:35:13.342] [Tabs] _clear_tab idx=5
+[02:35:13.343] [Tabs] _clear_tab idx=2
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -150,195 +149,195 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [ScanController] ScanWorker imported successfully
 [ScanController] QThread created
 [ScanController] ScanWorker instance created with project_id=1
-2025-11-18 02:17:40,119 [INFO] DBWriter timer started in worker thread
 [ScanController] Worker moved to thread
+2025-11-18 02:35:23,727 [INFO] DBWriter timer started in worker thread
 [ScanController] Signals connected
 [ScanController] Starting scan thread...
 [ScanController] thread.start() called
 [ScanWorkerAdapter] run() method called!
 [ScanWorkerAdapter] folder=C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs, incremental=True
-2025-11-18 02:17:40,121 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
+2025-11-18 02:35:23,729 [INFO] ScanWorkerAdapter starting scan of C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs
 [ScanWorkerAdapter] Starting scan...
-2025-11-18 02:17:40,122 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs (incremental=True)
-2025-11-18 02:17:40,127 [INFO] Discovered 21 candidate image files and 0 video files
-2025-11-18 02:17:40,127 [INFO] Loading existing metadata for incremental scan...
-2025-11-18 02:17:40,129 [INFO] ✓ Loaded 0 existing file records
+2025-11-18 02:35:23,731 [INFO] Starting scan: C:/Users/ASUS/OneDrive/Documents/Python/Test-Photos/photos/refs (incremental=True)
+2025-11-18 02:35:23,735 [INFO] Discovered 21 candidate image files and 0 video files
+2025-11-18 02:35:23,736 [INFO] Loading existing metadata for incremental scan...
+2025-11-18 02:35:23,737 [INFO] ✓ Loaded 0 existing file records
 [SCAN] Starting file 1/21: EWKJ3802.JPG
-2025-11-18 02:17:40,131 [INFO] [Scan] File 1/21: EWKJ3802.JPG
+[ScanController] QThread STARTED!
+2025-11-18 02:35:23,739 [INFO] [Scan] File 1/21: EWKJ3802.JPG
 [SCAN] _process_file started for: EWKJ3802.JPG
 [SCAN] Getting file stats...
-[ScanController] QThread STARTED!
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,133 [INFO] 📷 Processing: EWKJ3802.JPG (101.0 KB)
+2025-11-18 02:35:23,744 [INFO] 📷 Processing: EWKJ3802.JPG (101.0 KB)
 [SCAN] Processing: EWKJ3802.JPG
 [SCAN] ✓ Metadata extracted: EWKJ3802.JPG
 [SCAN] Starting file 2/21: IHOC0868.JPG
-2025-11-18 02:17:40,170 [INFO] [Scan] File 2/21: IHOC0868.JPG
+2025-11-18 02:35:23,780 [INFO] [Scan] File 2/21: IHOC0868.JPG
 [SCAN] _process_file started for: IHOC0868.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,171 [INFO] 📷 Processing: IHOC0868.JPG (57.3 KB)
+2025-11-18 02:35:23,781 [INFO] 📷 Processing: IHOC0868.JPG (57.3 KB)
 [SCAN] Processing: IHOC0868.JPG
 [SCAN] ✓ Metadata extracted: IHOC0868.JPG
 [SCAN] Starting file 3/21: IMG_1550.DNG
-2025-11-18 02:17:40,186 [INFO] [Scan] File 3/21: IMG_1550.DNG
+2025-11-18 02:35:23,795 [INFO] [Scan] File 3/21: IMG_1550.DNG
 [SCAN] _process_file started for: IMG_1550.DNG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,187 [INFO] 📷 Processing: IMG_1550.DNG (17800.9 KB)
+2025-11-18 02:35:23,797 [INFO] 📷 Processing: IMG_1550.DNG (17800.9 KB)
 [SCAN] Processing: IMG_1550.DNG
 [SCAN] ✓ Metadata extracted: IMG_1550.DNG
 [SCAN] Starting file 4/21: IMG_3307.JPG
-2025-11-18 02:17:40,283 [INFO] [Scan] File 4/21: IMG_3307.JPG
+2025-11-18 02:35:23,884 [INFO] [Scan] File 4/21: IMG_3307.JPG
 [SCAN] _process_file started for: IMG_3307.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,284 [INFO] 📷 Processing: IMG_3307.JPG (4122.2 KB)
+2025-11-18 02:35:23,887 [INFO] 📷 Processing: IMG_3307.JPG (4122.2 KB)
 [SCAN] Processing: IMG_3307.JPG
 [SCAN] ✓ Metadata extracted: IMG_3307.JPG
 [SCAN] Starting file 5/21: IMG_9570.JPG
-2025-11-18 02:17:40,301 [INFO] [Scan] File 5/21: IMG_9570.JPG
+2025-11-18 02:35:23,902 [INFO] [Scan] File 5/21: IMG_9570.JPG
 [SCAN] _process_file started for: IMG_9570.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,303 [INFO] 📷 Processing: IMG_9570.JPG (1879.8 KB)
+2025-11-18 02:35:23,904 [INFO] 📷 Processing: IMG_9570.JPG (1879.8 KB)
 [SCAN] Processing: IMG_9570.JPG
 [SCAN] ✓ Metadata extracted: IMG_9570.JPG
 [SCAN] Starting file 6/21: IMG_E3122.JPG
-2025-11-18 02:17:40,318 [INFO] [Scan] File 6/21: IMG_E3122.JPG
+2025-11-18 02:35:23,918 [INFO] [Scan] File 6/21: IMG_E3122.JPG
 [SCAN] _process_file started for: IMG_E3122.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,319 [INFO] 📷 Processing: IMG_E3122.JPG (3374.7 KB)
+2025-11-18 02:35:23,919 [INFO] 📷 Processing: IMG_E3122.JPG (3374.7 KB)
 [SCAN] Processing: IMG_E3122.JPG
 [SCAN] ✓ Metadata extracted: IMG_E3122.JPG
 [SCAN] Starting file 7/21: IMG_E7413.JPG
-2025-11-18 02:17:40,333 [INFO] [Scan] File 7/21: IMG_E7413.JPG
+2025-11-18 02:35:23,934 [INFO] [Scan] File 7/21: IMG_E7413.JPG
 [SCAN] _process_file started for: IMG_E7413.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,335 [INFO] 📷 Processing: IMG_E7413.JPG (1715.4 KB)
+2025-11-18 02:35:23,935 [INFO] 📷 Processing: IMG_E7413.JPG (1715.4 KB)
 [SCAN] Processing: IMG_E7413.JPG
 [SCAN] ✓ Metadata extracted: IMG_E7413.JPG
 [SCAN] Starting file 8/21: IMG_E9569.JPG
-2025-11-18 02:17:40,350 [INFO] [Scan] File 8/21: IMG_E9569.JPG
+2025-11-18 02:35:23,951 [INFO] [Scan] File 8/21: IMG_E9569.JPG
 [SCAN] _process_file started for: IMG_E9569.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,352 [INFO] 📷 Processing: IMG_E9569.JPG (1925.4 KB)
+2025-11-18 02:35:23,952 [INFO] 📷 Processing: IMG_E9569.JPG (1925.4 KB)
 [SCAN] Processing: IMG_E9569.JPG
 [SCAN] ✓ Metadata extracted: IMG_E9569.JPG
 [SCAN] Starting file 9/21: IMG_E9574.JPG
-2025-11-18 02:17:40,368 [INFO] [Scan] File 9/21: IMG_E9574.JPG
+2025-11-18 02:35:23,968 [INFO] [Scan] File 9/21: IMG_E9574.JPG
 [SCAN] _process_file started for: IMG_E9574.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,368 [INFO] 📷 Processing: IMG_E9574.JPG (2077.4 KB)
+2025-11-18 02:35:23,969 [INFO] 📷 Processing: IMG_E9574.JPG (2077.4 KB)
 [SCAN] Processing: IMG_E9574.JPG
 [SCAN] ✓ Metadata extracted: IMG_E9574.JPG
 [SCAN] Starting file 10/21: 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-18 02:17:40,383 [INFO] [Scan] File 10/21: 244008930_565686944637059_4279754871252118785_n.jpg
+2025-11-18 02:35:23,986 [INFO] [Scan] File 10/21: 244008930_565686944637059_4279754871252118785_n.jpg
 [SCAN] _process_file started for: 244008930_565686944637059_4279754871252118785_n.jpg
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,383 [INFO] 📷 Processing: 244008930_565686944637059_4279754871252118785_n.jpg (163.1 KB)
+2025-11-18 02:35:23,988 [INFO] 📷 Processing: 244008930_565686944637059_4279754871252118785_n.jpg (163.1 KB)
 [SCAN] Processing: 244008930_565686944637059_4279754871252118785_n.jpg
 [SCAN] ✓ Metadata extracted: 244008930_565686944637059_4279754871252118785_n.jpg
 [SCAN] Starting file 11/21: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-18 02:17:40,400 [INFO] [Scan] File 11/21: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
+2025-11-18 02:35:24,009 [INFO] [Scan] File 11/21: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
 [SCAN] _process_file started for: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,401 [INFO] 📷 Processing: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif (448.6 KB)
+2025-11-18 02:35:24,010 [INFO] 📷 Processing: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif (448.6 KB)
 [SCAN] Processing: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
 [SCAN] ✓ Metadata extracted: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
 [SCAN] Starting file 12/21: GPIC6664.JPG
-2025-11-18 02:17:40,415 [INFO] [Scan] File 12/21: GPIC6664.JPG
+2025-11-18 02:35:24,024 [INFO] [Scan] File 12/21: GPIC6664.JPG
 [SCAN] _process_file started for: GPIC6664.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,416 [INFO] 📷 Processing: GPIC6664.JPG (234.7 KB)
+2025-11-18 02:35:24,025 [INFO] 📷 Processing: GPIC6664.JPG (234.7 KB)
 [SCAN] Processing: GPIC6664.JPG
 [SCAN] ✓ Metadata extracted: GPIC6664.JPG
 [SCAN] Starting file 13/21: IMG_8920.PNG
-2025-11-18 02:17:40,426 [INFO] [Scan] File 13/21: IMG_8920.PNG
+2025-11-18 02:35:24,038 [INFO] [Scan] File 13/21: IMG_8920.PNG
 [SCAN] _process_file started for: IMG_8920.PNG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,427 [INFO] 📷 Processing: IMG_8920.PNG (3606.7 KB)
+2025-11-18 02:35:24,039 [INFO] 📷 Processing: IMG_8920.PNG (3606.7 KB)
 [SCAN] Processing: IMG_8920.PNG
 [SCAN] ✓ Metadata extracted: IMG_8920.PNG
 [SCAN] Starting file 14/21: JKHC8378.JPG
-2025-11-18 02:17:40,440 [INFO] [Scan] File 14/21: JKHC8378.JPG
+2025-11-18 02:35:24,052 [INFO] [Scan] File 14/21: JKHC8378.JPG
 [SCAN] _process_file started for: JKHC8378.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,440 [INFO] 📷 Processing: JKHC8378.JPG (241.8 KB)
+2025-11-18 02:35:24,053 [INFO] 📷 Processing: JKHC8378.JPG (241.8 KB)
 [SCAN] Processing: JKHC8378.JPG
 [SCAN] ✓ Metadata extracted: JKHC8378.JPG
 [SCAN] Starting file 15/21: NTXK2933.JPG
-2025-11-18 02:17:40,453 [INFO] [Scan] File 15/21: NTXK2933.JPG
+2025-11-18 02:35:24,068 [INFO] [Scan] File 15/21: NTXK2933.JPG
 [SCAN] _process_file started for: NTXK2933.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,454 [INFO] 📷 Processing: NTXK2933.JPG (235.8 KB)
+2025-11-18 02:35:24,069 [INFO] 📷 Processing: NTXK2933.JPG (235.8 KB)
 [SCAN] Processing: NTXK2933.JPG
 [SCAN] ✓ Metadata extracted: NTXK2933.JPG
 [SCAN] Starting file 16/21: IMG_8152.JPEG
-2025-11-18 02:17:40,466 [INFO] [Scan] File 16/21: IMG_8152.JPEG
+2025-11-18 02:35:24,081 [INFO] [Scan] File 16/21: IMG_8152.JPEG
 [SCAN] _process_file started for: IMG_8152.JPEG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,467 [INFO] 📷 Processing: IMG_8152.JPEG (466.1 KB)
+2025-11-18 02:35:24,083 [INFO] 📷 Processing: IMG_8152.JPEG (466.1 KB)
 [SCAN] Processing: IMG_8152.JPEG
 [SCAN] ✓ Metadata extracted: IMG_8152.JPEG
 [SCAN] Starting file 17/21: IMG_8158.JPEG
-2025-11-18 02:17:40,479 [INFO] [Scan] File 17/21: IMG_8158.JPEG
+2025-11-18 02:35:24,097 [INFO] [Scan] File 17/21: IMG_8158.JPEG
 [SCAN] _process_file started for: IMG_8158.JPEG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,480 [INFO] 📷 Processing: IMG_8158.JPEG (563.9 KB)
+2025-11-18 02:35:24,098 [INFO] 📷 Processing: IMG_8158.JPEG (563.9 KB)
 [SCAN] Processing: IMG_8158.JPEG
 [SCAN] ✓ Metadata extracted: IMG_8158.JPEG
 [SCAN] Starting file 18/21: IMG_1779.JPEG
-2025-11-18 02:17:40,491 [INFO] [Scan] File 18/21: IMG_1779.JPEG
+2025-11-18 02:35:24,111 [INFO] [Scan] File 18/21: IMG_1779.JPEG
 [SCAN] _process_file started for: IMG_1779.JPEG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,492 [INFO] 📷 Processing: IMG_1779.JPEG (2384.7 KB)
+2025-11-18 02:35:24,112 [INFO] 📷 Processing: IMG_1779.JPEG (2384.7 KB)
 [SCAN] Processing: IMG_1779.JPEG
 [SCAN] ✓ Metadata extracted: IMG_1779.JPEG
 [SCAN] Starting file 19/21: IMG_E3091.JPG
-2025-11-18 02:17:40,505 [INFO] [Scan] File 19/21: IMG_E3091.JPG
+2025-11-18 02:35:24,127 [INFO] [Scan] File 19/21: IMG_E3091.JPG
 [SCAN] _process_file started for: IMG_E3091.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,506 [INFO] 📷 Processing: IMG_E3091.JPG (4800.5 KB)
+2025-11-18 02:35:24,128 [INFO] 📷 Processing: IMG_E3091.JPG (4800.5 KB)
 [SCAN] Processing: IMG_E3091.JPG
 [SCAN] ✓ Metadata extracted: IMG_E3091.JPG
 [SCAN] Starting file 20/21: IMG_E3092.JPG
-2025-11-18 02:17:40,519 [INFO] [Scan] File 20/21: IMG_E3092.JPG
+2025-11-18 02:35:24,141 [INFO] [Scan] File 20/21: IMG_E3092.JPG
 [SCAN] _process_file started for: IMG_E3092.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,520 [INFO] 📷 Processing: IMG_E3092.JPG (4652.5 KB)
+2025-11-18 02:35:24,142 [INFO] 📷 Processing: IMG_E3092.JPG (4652.5 KB)
 [SCAN] Processing: IMG_E3092.JPG
 [SCAN] ✓ Metadata extracted: IMG_E3092.JPG
 [SCAN] Starting file 21/21: IMG_E3093.JPG
-2025-11-18 02:17:40,533 [INFO] [Scan] File 21/21: IMG_E3093.JPG
+2025-11-18 02:35:24,156 [INFO] [Scan] File 21/21: IMG_E3093.JPG
 [SCAN] _process_file started for: IMG_E3093.JPG
 [SCAN] Getting file stats...
 [SCAN] File stats retrieved successfully
-2025-11-18 02:17:40,535 [INFO] 📷 Processing: IMG_E3093.JPG (4602.6 KB)
+2025-11-18 02:35:24,157 [INFO] 📷 Processing: IMG_E3093.JPG (4602.6 KB)
 [SCAN] Processing: IMG_E3093.JPG
 [SCAN] ✓ Metadata extracted: IMG_E3093.JPG
-2025-11-18 02:17:40,553 [INFO] Bulk upserted 21 photos for project 1
-2025-11-18 02:17:40,560 [INFO] Scan complete: 21 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
-2025-11-18 02:17:40,561 [INFO] Scan completed: 21 photos, 0 videos, 5 folders in 0.4s
+2025-11-18 02:35:24,178 [INFO] Bulk upserted 21 photos for project 1
+2025-11-18 02:35:24,185 [INFO] Scan complete: 21 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.5s
+2025-11-18 02:35:24,186 [INFO] Scan completed: 21 photos, 0 videos, 5 folders in 0.5s
 [ScanController] scan finished: 5 folders, 21 photos, 0 videos
 [ScanController] cleanup after scan
-2025-11-18 02:17:42,710 [INFO] Building date branches...
-2025-11-18 02:17:42,710 [INFO] Building date branches for project_id=1
+2025-11-18 02:35:25,436 [INFO] Building date branches...
+2025-11-18 02:35:25,437 [INFO] Building date branches for project_id=1
 [build_date_branches] Using project_id=1
 [build_date_branches] Populating 'all' branch with 21 photos for project 1
 [build_date_branches] Inserted 21/21 photos into 'all' branch
@@ -366,17 +365,17 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [build_date_branches] Date 2025-03-13: inserted 2/2 into project_images (new)
 [build_date_branches] Total entries processed: 13
 [build_date_branches] project_images table has 34 rows for project 1
-2025-11-18 02:17:42,727 [INFO] Created 13 photo date branch entries for project 1
-2025-11-18 02:17:42,727 [INFO] Building video date branches for project_id=1
+2025-11-18 02:35:25,462 [INFO] Created 13 photo date branch entries for project 1
+2025-11-18 02:35:25,462 [INFO] Building video date branches for project_id=1
 [build_video_date_branches] Using project_id=1
 [build_video_date_branches] Found 0 videos with dates for project 1
 [build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-18 02:17:42,729 [INFO] Created 0 video date branch entries for project 1
-2025-11-18 02:17:42,732 [INFO] Backfilling created_date fields for photos...
-2025-11-18 02:17:42,740 [INFO] Backfilled 8 photo rows with created_date
-2025-11-18 02:17:42,740 [INFO] Backfilling created_date fields for videos...
+2025-11-18 02:35:25,465 [INFO] Created 0 video date branch entries for project 1
+2025-11-18 02:35:25,467 [INFO] Backfilling created_date fields for photos...
+2025-11-18 02:35:25,476 [INFO] Backfilled 8 photo rows with created_date
+2025-11-18 02:35:25,476 [INFO] Backfilling created_date fields for videos...
 [FaceConfig] Loaded from C:\Users\ASUS\.memorymate\face_detection_config.json
-2025-11-18 02:17:42,744 [INFO] Reloading sidebar after date branches built...
+2025-11-18 02:35:25,481 [INFO] Reloading sidebar after date branches built...
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
@@ -407,13 +406,104 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-
 [GRID] Loading viewport range: 0-20 of 21
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-20 of 21
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09> python main_qt.py
+[Startup] pillow_heif available — HEIC/HEIF support enabled.
+🔇 Decoder warnings suppressed per settings.
+🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
+2025-11-18 02:35:33,801 [INFO] ================================================================================
+2025-11-18 02:35:33,801 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-18 02:35:33,803 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\app_log.txt
+2025-11-18 02:35:33,803 [INFO] ================================================================================
+2025-11-18 02:35:33,841 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-18 02:35:33,842 [INFO] Qt message handler installed to suppress TIFF warnings
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_30.01.01-Photo-App\\MemoryMate-PhotoFlow-main-09\\thumbnails_cache.db', 'last_updated': '2025-11-18 02:35'}
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\locales\en.json
+🌍 Language switched to: en
+[MainWindow] Language loaded from settings: en
+🔇 Qt/Pillow decoder warnings silenced (per user settings).
+2025-11-18 02:35:34,100 [INFO] SearchService initialized
+[02:35:34.509] [Tabs] __init__ started
+[02:35:34.510] [Tabs] _build_tabs → building tab widgets
+[02:35:34.510] [Tabs] _on_tab_changed(idx=0)
+[02:35:34.510] [Tabs] _start_timeout idx=0 type=branches
+[02:35:34.510] [Tabs] _populate_tab(branches, idx=0, force=False)
+[02:35:34.510] [Tabs]   populated=False, loading=False
+[02:35:34.511] [Tabs]   Starting load for branches
+[02:35:34.511] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:35:34.511] [Tabs] _clear_tab idx=0
+[02:35:34.512] [Tabs] _on_tab_changed → tab_type=branches
+[02:35:34.513] [Tabs] _build_tabs → added 6 tabs
+[02:35:34.513] [Tabs] __init__ completed
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 21}]
+[Sidebar] Loaded 6 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 5 years, 8 months, 15 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=2] running for 1 targets...
+[SidebarQt] switch_display_mode(list) - canceling old workers
+[SidebarQt] Hiding tabs controller
+[02:35:34.542] [Tabs] hide_tabs() called - canceling pending workers
+[SidebarQt] Canceled tab workers via hide_tabs()
+[SidebarQt] Clearing tree view selection before rebuild
+[Sidebar][counts worker gen=2] finished scanning targets, scheduling UI update
+[SidebarQt] Showing tree view
+[SidebarQt] Calling _build_tree_model()
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 21}]
+[Sidebar] Loaded 6 folder counts in batch (performance optimization)
+[Sidebar] Loaded date counts in batch: 5 years, 8 months, 15 days
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[SidebarQt] _build_tree_model() completed
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+2025-11-18 02:35:34,576 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-18 02:35:34,576 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-18 02:35:34,576 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Startup] Database schema initialized successfully
+✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
+✅ InsightFace detected with buffalo_l models
+   Location: C:\Users\ASUS\.insightface\models\buffalo_l
+[02:35:36.973] [Tabs] _on_tab_changed(idx=0)
+[02:35:36.973] [Tabs] _start_timeout idx=0 type=branches
+[02:35:36.973] [Tabs] _populate_tab(branches, idx=0, force=False)
+[02:35:36.973] [Tabs]   populated=False, loading=False
+[02:35:36.973] [Tabs]   Starting load for branches
+[02:35:36.973] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:35:36.973] [Tabs] _clear_tab idx=0
+[02:35:36.975] [Tabs] _on_tab_changed → tab_type=branches
+[02:35:36.976] [Tabs] _finish_branches (stale gen=1) — ignoring
+[02:35:36.990] [Tabs] _clear_tab idx=0
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 21 photos
+[GRID] Loaded 21 thumbnails.
+[GRID] Reloaded 21 thumbnails in branch-mode (base=21)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
+[GRID] Queued 21 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-20 of 21
 [MainWindow] Launching automatic face grouping pipeline for project 1
-2025-11-18 02:17:47,701 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-18 02:17:47,703 [INFO] 💻 Using CPU for face detection (CUDA not available)
-2025-11-18 02:17:47,704 [INFO] 🏠 Using user home models: C:\Users\ASUS/.insightface\models\buffalo_l
-2025-11-18 02:17:47,708 [INFO] 💾 Saved InsightFace model path to settings: C:\Users\ASUS/.insightface\models\buffalo_l
-2025-11-18 02:17:47,709 [INFO] ✓ Initializing InsightFace with buffalo_l directory: C:\Users\ASUS/.insightface\models\buffalo_l
-2025-11-18 02:17:47,711 [INFO] ✓ Using ctx_id approach (older InsightFace, proof of concept compatible)
+2025-11-18 02:35:42,995 [INFO] [FaceDetectionWorker] Starting face detection for project 1
+2025-11-18 02:35:42,998 [INFO] 💻 Using CPU for face detection (CUDA not available)
+2025-11-18 02:35:43,000 [INFO] 🏠 Using user home models: C:\Users\ASUS/.insightface\models\buffalo_l
+2025-11-18 02:35:43,003 [INFO] 💾 Saved InsightFace model path to settings: C:\Users\ASUS/.insightface\models\buffalo_l
+2025-11-18 02:35:43,003 [INFO] ✓ Initializing InsightFace with buffalo_l directory: C:\Users\ASUS/.insightface\models\buffalo_l
+2025-11-18 02:35:43,005 [INFO] ✓ Using ctx_id approach (older InsightFace, proof of concept compatible)
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 find model: C:\Users\ASUS/.insightface\models\buffalo_l\models\buffalo_l\1k3d68.onnx landmark_3d_68 ['None', 3, 192, 192] 0.0 1.0
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
@@ -424,100 +514,100 @@ Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvide
 find model: C:\Users\ASUS/.insightface\models\buffalo_l\models\buffalo_l\genderage.onnx genderage ['None', 3, 96, 96] 0.0 1.0
 Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
 find model: C:\Users\ASUS/.insightface\models\buffalo_l\models\buffalo_l\w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
-2025-11-18 02:17:49,628 [INFO] ✓ Using CPU acceleration (ctx_id=-1)
+2025-11-18 02:35:44,783 [INFO] ✓ Using CPU acceleration (ctx_id=-1)
 set det-size: (640, 640)
-2025-11-18 02:17:50,962 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
-2025-11-18 02:17:50,963 [INFO] [FaceDetection] Initialized InsightFace with model=hog
-2025-11-18 02:17:50,964 [INFO] [FaceDetectionWorker] Processing 21 photos
+2025-11-18 02:35:46,061 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
+2025-11-18 02:35:46,062 [INFO] [FaceDetection] Initialized InsightFace with model=hog
+2025-11-18 02:35:46,064 [INFO] [FaceDetectionWorker] Processing 21 photos
 [FaceDetection] [1/21] Detecting faces: ewkj3802.jpg
-2025-11-18 02:17:52,048 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
-2025-11-18 02:17:52,161 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
+2025-11-18 02:35:46,996 [INFO] [FaceDetection] Found 5 faces in ewkj3802.jpg
+2025-11-18 02:35:47,122 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ewkj3802.jpg: 5 faces
 [FaceDetection] [2/21] Detecting faces: ihoc0868.jpg
-2025-11-18 02:17:53,143 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
-2025-11-18 02:17:53,221 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
+2025-11-18 02:35:48,099 [INFO] [FaceDetection] Found 5 faces in ihoc0868.jpg
+2025-11-18 02:35:48,173 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/ihoc0868.jpg: 5 faces
 [FaceDetection] [3/21] Detecting faces: img_1550.dng
-2025-11-18 02:17:53,636 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
-2025-11-18 02:17:53,751 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
+2025-11-18 02:35:48,582 [INFO] [FaceDetection] Found 1 faces in img_1550.dng
+2025-11-18 02:35:48,694 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_1550.dng: 1 faces
 [FaceDetection] [4/21] Detecting faces: img_3307.jpg
-2025-11-18 02:17:54,505 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
-2025-11-18 02:17:54,781 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
+2025-11-18 02:35:49,506 [INFO] [FaceDetection] Found 3 faces in img_3307.jpg
+2025-11-18 02:35:49,801 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_3307.jpg: 3 faces
 [FaceDetection] [5/21] Detecting faces: img_9570.jpg
-2025-11-18 02:17:55,298 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
-2025-11-18 02:17:55,419 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
+2025-11-18 02:35:50,336 [INFO] [FaceDetection] Found 2 faces in img_9570.jpg
+2025-11-18 02:35:50,451 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_9570.jpg: 2 faces
 [FaceDetection] [6/21] Detecting faces: img_e3122.jpg
-2025-11-18 02:17:55,855 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
-2025-11-18 02:17:55,953 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
+2025-11-18 02:35:50,904 [INFO] [FaceDetection] Found 1 faces in img_e3122.jpg
+2025-11-18 02:35:50,993 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e3122.jpg: 1 faces
 [FaceDetection] [7/21] Detecting faces: img_e7413.jpg
-2025-11-18 02:17:56,270 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
-2025-11-18 02:17:56,336 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
+2025-11-18 02:35:51,356 [INFO] [FaceDetection] Found 1 faces in img_e7413.jpg
+2025-11-18 02:35:51,418 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e7413.jpg: 1 faces
 [FaceDetection] [8/21] Detecting faces: img_e9569.jpg
-2025-11-18 02:17:56,704 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
-2025-11-18 02:17:56,781 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
+2025-11-18 02:35:51,792 [INFO] [FaceDetection] Found 1 faces in img_e9569.jpg
+2025-11-18 02:35:51,874 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9569.jpg: 1 faces
 [FaceDetection] [9/21] Detecting faces: img_e9574.jpg
-2025-11-18 02:17:57,184 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
-2025-11-18 02:17:57,272 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
+2025-11-18 02:35:52,239 [INFO] [FaceDetection] Found 1 faces in img_e9574.jpg
+2025-11-18 02:35:52,323 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/1/img_e9574.jpg: 1 faces
 [FaceDetection] [10/21] Detecting faces: 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-18 02:17:57,560 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
-2025-11-18 02:17:57,600 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
+2025-11-18 02:35:52,634 [INFO] [FaceDetection] Found 1 faces in 244008930_565686944637059_4279754871252118785_n.jpg
+2025-11-18 02:35:52,669 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/244008930_565686944637059_4279754871252118785_n.jpg: 1 faces
 [FaceDetection] [11/21] Detecting faces: 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-18 02:17:57,921 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
-2025-11-18 02:17:57,976 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
+2025-11-18 02:35:53,000 [INFO] [FaceDetection] Found 1 faces in 7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif
+2025-11-18 02:35:53,059 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/7f5e15df-e9c6-4914-90fb-c5cf06fd51f5.jfif: 1 faces
 [FaceDetection] [12/21] Detecting faces: gpic6664.jpg
-2025-11-18 02:17:58,273 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
-2025-11-18 02:17:58,321 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
+2025-11-18 02:35:53,373 [INFO] [FaceDetection] Found 1 faces in gpic6664.jpg
+2025-11-18 02:35:53,421 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/gpic6664.jpg: 1 faces
 [FaceDetection] [13/21] Detecting faces: img_8920.png
-2025-11-18 02:17:58,875 [INFO] [FaceDetection] Found 2 faces in img_8920.png
-2025-11-18 02:17:58,995 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
+2025-11-18 02:35:53,931 [INFO] [FaceDetection] Found 2 faces in img_8920.png
+2025-11-18 02:35:54,056 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/img_8920.png: 2 faces
 [FaceDetection] [14/21] Detecting faces: jkhc8378.jpg
-2025-11-18 02:17:59,320 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
-2025-11-18 02:17:59,365 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
+2025-11-18 02:35:54,373 [INFO] [FaceDetection] Found 1 faces in jkhc8378.jpg
+2025-11-18 02:35:54,424 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/jkhc8378.jpg: 1 faces
 [FaceDetection] [15/21] Detecting faces: ntxk2933.jpg
-2025-11-18 02:17:59,704 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
-2025-11-18 02:17:59,757 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
+2025-11-18 02:35:54,754 [INFO] [FaceDetection] Found 1 faces in ntxk2933.jpg
+2025-11-18 02:35:54,809 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/2/ntxk2933.jpg: 1 faces
 [FaceDetection] [16/21] Detecting faces: img_8152.jpeg
-2025-11-18 02:18:00,089 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
-2025-11-18 02:18:00,130 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
+2025-11-18 02:35:55,126 [INFO] [FaceDetection] Found 1 faces in img_8152.jpeg
+2025-11-18 02:35:55,170 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8152.jpeg: 1 faces
 [FaceDetection] [17/21] Detecting faces: img_8158.jpeg
-2025-11-18 02:18:00,426 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
-2025-11-18 02:18:00,465 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
+2025-11-18 02:35:55,484 [INFO] [FaceDetection] Found 1 faces in img_8158.jpeg
+2025-11-18 02:35:55,526 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/3/img_8158.jpeg: 1 faces
 [FaceDetection] [18/21] Detecting faces: img_1779.jpeg
-2025-11-18 02:18:00,965 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
-2025-11-18 02:18:01,091 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
+2025-11-18 02:35:55,916 [INFO] [FaceDetection] Found 1 faces in img_1779.jpeg
+2025-11-18 02:35:56,029 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/4/img_1779.jpeg: 1 faces
 [FaceDetection] [19/21] Detecting faces: img_e3091.jpg
-2025-11-18 02:18:01,565 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
-2025-11-18 02:18:01,671 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
+2025-11-18 02:35:56,473 [INFO] [FaceDetection] Found 1 faces in img_e3091.jpg
+2025-11-18 02:35:56,588 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3091.jpg: 1 faces
 [FaceDetection] [20/21] Detecting faces: img_e3092.jpg
-2025-11-18 02:18:02,139 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
-2025-11-18 02:18:02,256 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
+2025-11-18 02:35:57,024 [INFO] [FaceDetection] Found 1 faces in img_e3092.jpg
+2025-11-18 02:35:57,150 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3092.jpg: 1 faces
 [FaceDetection] [21/21] Detecting faces: img_e3093.jpg
-2025-11-18 02:18:02,689 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
-2025-11-18 02:18:02,795 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
-2025-11-18 02:18:02,796 [INFO] [FaceDetectionWorker] Complete in 15.1s: 21 processed, 33 faces detected, 0 failed
+2025-11-18 02:35:57,575 [INFO] [FaceDetection] Found 1 faces in img_e3093.jpg
+2025-11-18 02:35:57,706 [INFO] [FaceDetectionWorker] ✓ c:/users/asus/onedrive/documents/python/test-photos/photos/refs/5/img_e3093.jpg: 1 faces
+2025-11-18 02:35:57,707 [INFO] [FaceDetectionWorker] Complete in 14.7s: 21 processed, 33 faces detected, 0 failed
 [FaceDetection] Complete: 21 photos, 33 faces detected
-2025-11-18 02:18:02,797 [INFO] [FaceClusterWorker] Starting face clustering for project 1
+2025-11-18 02:35:57,708 [INFO] [FaceClusterWorker] Starting face clustering for project 1
 [FaceCluster] Loading face embeddings...
-2025-11-18 02:18:02,799 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
+2025-11-18 02:35:57,710 [INFO] [FaceClusterWorker] Loaded 33 face embeddings
 [FaceCluster] Clustering 33 faces...
-2025-11-18 02:18:02,803 [INFO] [FaceClusterWorker] Found 7 clusters
-2025-11-18 02:18:02,803 [INFO] [FaceClusterWorker] Found 9 unclustered faces (will create 'Unidentified' branch)
+2025-11-18 02:35:57,716 [INFO] [FaceClusterWorker] Found 7 clusters
+2025-11-18 02:35:57,716 [INFO] [FaceClusterWorker] Found 9 unclustered faces (will create 'Unidentified' branch)
 [FaceCluster] Found 7 person groups...
-2025-11-18 02:18:02,806 [INFO] [FaceClusterWorker] Cluster 0 → 2 faces
+2025-11-18 02:35:57,719 [INFO] [FaceClusterWorker] Cluster 0 → 2 faces
 [FaceCluster] Saving cluster 1/7: Person 1 (2 faces)
-2025-11-18 02:18:02,808 [INFO] [FaceClusterWorker] Cluster 1 → 3 faces
+2025-11-18 02:35:57,721 [INFO] [FaceClusterWorker] Cluster 1 → 3 faces
 [FaceCluster] Saving cluster 2/7: Person 2 (3 faces)
-2025-11-18 02:18:02,809 [INFO] [FaceClusterWorker] Cluster 2 → 7 faces
+2025-11-18 02:35:57,722 [INFO] [FaceClusterWorker] Cluster 2 → 7 faces
 [FaceCluster] Saving cluster 3/7: Person 3 (7 faces)
-2025-11-18 02:18:02,810 [INFO] [FaceClusterWorker] Cluster 3 → 2 faces
+2025-11-18 02:35:57,723 [INFO] [FaceClusterWorker] Cluster 3 → 2 faces
 [FaceCluster] Saving cluster 4/7: Person 4 (2 faces)
-2025-11-18 02:18:02,811 [INFO] [FaceClusterWorker] Cluster 4 → 5 faces
+2025-11-18 02:35:57,724 [INFO] [FaceClusterWorker] Cluster 4 → 5 faces
 [FaceCluster] Saving cluster 5/7: Person 5 (5 faces)
-2025-11-18 02:18:02,813 [INFO] [FaceClusterWorker] Cluster 5 → 2 faces
+2025-11-18 02:35:57,725 [INFO] [FaceClusterWorker] Cluster 5 → 2 faces
 [FaceCluster] Saving cluster 6/7: Person 6 (2 faces)
-2025-11-18 02:18:02,813 [INFO] [FaceClusterWorker] Cluster 6 → 3 faces
+2025-11-18 02:35:57,727 [INFO] [FaceClusterWorker] Cluster 6 → 3 faces
 [FaceCluster] Saving cluster 7/7: Person 7 (3 faces)
 [FaceCluster] Processing 9 unidentified faces...
-2025-11-18 02:18:02,814 [INFO] [FaceClusterWorker] Created 'Unidentified' branch with 9 faces from 6 photos
-2025-11-18 02:18:02,820 [INFO] [FaceClusterWorker] Complete in 0.0s: 7 person clusters + 9 unidentified faces
+2025-11-18 02:35:57,729 [INFO] [FaceClusterWorker] Created 'Unidentified' branch with 9 faces from 6 photos
+2025-11-18 02:35:57,735 [INFO] [FaceClusterWorker] Complete in 0.0s: 7 person clusters + 9 unidentified faces
 [FaceCluster] Clustering complete: 8 branches created
 [FaceCluster] Complete: 7 person groups created
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
@@ -535,38 +625,12 @@ set det-size: (640, 640)
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=8] running for 1 targets...
-[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+[Sidebar][counts worker gen=6] running for 1 targets...
+[Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 21 photos
 [GRID] Loaded 21 thumbnails.
 [GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[GRID] Queued 6 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 2 photos
-[GRID] Loaded 2 thumbnails.
-[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-1 of 2
-[GRID] Queued 2 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-1 of 2
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 2 photos
-[GRID] Loaded 2 thumbnails.
-[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
 [get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 5 photos
 [GRID] Loaded 5 thumbnails.
@@ -576,11 +640,24 @@ set det-size: (640, 640)
 [GRID] Queued 5 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-4 of 5
-[merge_face_clusters] project_id=1, target='face_000', sources=['face_004']
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 5 photos
+[GRID] Loaded 5 thumbnails.
+[GRID] Reloaded 5 thumbnails in branch-mode (base=5)
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 2 photos
+[GRID] Loaded 2 thumbnails.
+[GRID] Reloaded 2 thumbnails in branch-mode (base=2)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[GRID] Queued 2 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-1 of 2
+[merge_face_clusters] project_id=1, target='face_004', sources=['face_000']
 [merge_face_clusters] Found 2 branches. Row type: <class 'sqlite3.Row'>
 [merge_face_clusters] Found 2 face_branch_reps rows
-[merge_face_clusters] Updated count for target 'face_000' (rowcount=1)
-[merge_face_clusters] SUCCESS: {'moved_faces': 5, 'moved_images': 5, 'deleted_reps': 1, 'sources': ['face_004'], 'target': 'face_000'}
+[merge_face_clusters] Updated count for target 'face_004' (rowcount=1)
+[merge_face_clusters] SUCCESS: {'moved_faces': 2, 'moved_images': 2, 'deleted_reps': 1, 'sources': ['face_000'], 'target': 'face_004'}
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
 [Sidebar] Pending events processed
@@ -594,16 +671,16 @@ set det-size: (640, 640)
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=10] running for 1 targets...
-[Sidebar][counts worker gen=10] finished scanning targets, scheduling UI update
-[Sidebar][counts worker gen=11] running for 1 targets...
-[Sidebar][counts worker gen=11] finished scanning targets, scheduling UI update
+[Sidebar][counts worker gen=8] running for 1 targets...
+[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+[Sidebar][counts worker gen=9] running for 1 targets...
+[Sidebar][counts worker gen=9] finished scanning targets, scheduling UI update
+[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_001', 'face_002']
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='face_004'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='face_000'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
@@ -612,25 +689,11 @@ set det-size: (640, 640)
 [GRID] Queued 7 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-6 of 7
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[GRID] Queued 7 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[Sidebar] Successfully updated person name in both views
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
@@ -639,11 +702,51 @@ set det-size: (640, 640)
 [GRID] Queued 7 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-6 of 7
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[Sidebar] Tabs view hidden, skipping tabs update
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[GRID] Queued 3 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[GRID] Queued 7 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-6 of 7
+[get_images_by_branch] project_id=1, branch_key='face_004'
+[get_images_by_branch] Found 7 photos
+[GRID] Loaded 7 thumbnails.
+[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[GRID] Queued 3 new thumbnail workers
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-2 of 3
+[get_images_by_branch] project_id=1, branch_key='face_001'
+[get_images_by_branch] Found 3 photos
+[GRID] Loaded 3 thumbnails.
+[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
@@ -653,54 +756,50 @@ set det-size: (640, 640)
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-6 of 7
 [SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=12)
+[SidebarQt] Canceled list workers (new gen=10)
 [SidebarQt] Hiding tree view
 [SidebarQt] Showing tabs controller
 [SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[02:18:58.423] [Tabs] refresh_all(force=True) called
-[02:18:58.423] [Tabs] refresh_all: key=branches, idx=0, force=True
-[02:18:58.423] [Tabs] _populate_tab(branches, idx=0, force=True)
-[02:18:58.423] [Tabs]   populated=True, loading=False
-[02:18:58.424] [Tabs]   Force refresh: removing branches from populated set
-[02:18:58.424] [Tabs]   Starting load for branches
-[02:18:58.424] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[02:18:58.424] [Tabs] _clear_tab idx=0
-[02:18:58.426] [Tabs] refresh_all: key=folders, idx=1, force=True
-[02:18:58.426] [Tabs] _populate_tab(folders, idx=1, force=True)
-[02:18:58.426] [Tabs]   populated=True, loading=False
-[02:18:58.426] [Tabs]   Force refresh: removing folders from populated set
-[02:18:58.426] [Tabs]   Starting load for folders
-[02:18:58.426] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[02:18:58.426] [Tabs] _clear_tab idx=1
-[02:18:58.427] [Tabs] refresh_all: key=dates, idx=2, force=True
-[02:18:58.427] [Tabs] _populate_tab(dates, idx=2, force=True)
-[02:18:58.427] [Tabs]   populated=True, loading=False
-[02:18:58.427] [Tabs]   Force refresh: removing dates from populated set
-[02:18:58.429] [Tabs]   Starting load for dates
-[02:18:58.429] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[02:18:58.429] [Tabs] _clear_tab idx=2
-[02:18:58.429] [Tabs] _load_folders → got 6 rows for project_id=1
-[02:18:58.430] [Tabs] refresh_all: key=tags, idx=3, force=True
-[02:18:58.430] [Tabs] _populate_tab(tags, idx=3, force=True)
-[02:18:58.430] [Tabs]   populated=True, loading=False
-[02:18:58.430] [Tabs]   Force refresh: removing tags from populated set
-[02:18:58.430] [Tabs]   Starting load for tags
-[02:18:58.431] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[02:18:58.431] [Tabs] _clear_tab idx=3
-[02:18:58.431] [Tabs] _load_dates → got hierarchy data for project_id=1
-[02:18:58.432] [Tabs] refresh_all: key=quick, idx=5, force=True
-[02:18:58.432] [Tabs] _populate_tab(quick, idx=5, force=True)
-[02:18:58.432] [Tabs]   populated=True, loading=False
-[02:18:58.432] [Tabs]   Force refresh: removing quick from populated set
-[02:18:58.432] [Tabs]   Starting load for quick
-[02:18:58.432] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[02:18:58.433] [Tabs] _clear_tab idx=5
-[02:18:58.433] [Tabs] _load_tags → got 0 rows for project_id=1
-[02:18:58.434] [Tabs] refresh_all(force=True) completed
+[02:36:54.036] [Tabs] refresh_all(force=True) called
+[02:36:54.036] [Tabs] refresh_all: key=branches, idx=0, force=True
+[02:36:54.036] [Tabs] _populate_tab(branches, idx=0, force=True)
+[02:36:54.036] [Tabs]   populated=True, loading=False
+[02:36:54.036] [Tabs]   Force refresh: removing branches from populated set
+[02:36:54.036] [Tabs]   Starting load for branches
+[02:36:54.038] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:36:54.038] [Tabs] _clear_tab idx=0
+[02:36:54.039] [Tabs] refresh_all: key=folders, idx=1, force=True
+[02:36:54.039] [Tabs] _populate_tab(folders, idx=1, force=True)
+[02:36:54.039] [Tabs]   populated=False, loading=False
+[02:36:54.039] [Tabs]   Starting load for folders
+[02:36:54.039] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[02:36:54.040] [Tabs] _clear_tab idx=1
+[02:36:54.041] [Tabs] refresh_all: key=dates, idx=2, force=True
+[02:36:54.041] [Tabs] _populate_tab(dates, idx=2, force=True)
+[02:36:54.041] [Tabs]   populated=False, loading=False
+[02:36:54.041] [Tabs]   Starting load for dates
+[02:36:54.041] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[02:36:54.041] [Tabs] _clear_tab idx=2
+[02:36:54.042] [Tabs] _load_folders → got 6 rows for project_id=1
+[02:36:54.043] [Tabs] refresh_all: key=tags, idx=3, force=True
+[02:36:54.043] [Tabs] _populate_tab(tags, idx=3, force=True)
+[02:36:54.043] [Tabs]   populated=False, loading=False
+[02:36:54.043] [Tabs]   Starting load for tags
+[02:36:54.043] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[02:36:54.043] [Tabs] _clear_tab idx=3
+[02:36:54.044] [Tabs] refresh_all: key=quick, idx=5, force=True
+[02:36:54.044] [Tabs] _populate_tab(quick, idx=5, force=True)
+[02:36:54.044] [Tabs]   populated=False, loading=False
+[02:36:54.046] [Tabs]   Starting load for quick
+[02:36:54.046] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[02:36:54.046] [Tabs] _clear_tab idx=5
+[02:36:54.048] [Tabs] _load_dates → got hierarchy data for project_id=1
+[02:36:54.048] [Tabs] refresh_all(force=True) completed
 [SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[02:18:58.435] [Tabs] _load_quick → got 6 rows
-[02:18:58.438] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[02:36:54.049] [Tabs] _load_tags → got 0 rows for project_id=1
+[02:36:54.050] [Tabs] _load_quick → got 6 rows
+[02:36:54.053] [Tabs] _clear_tab idx=0
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
@@ -708,11 +807,11 @@ set det-size: (640, 640)
 [get_images_by_branch] Found 21 photos
 [GRID] Loaded 21 thumbnails.
 [GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[02:18:58.464] [Tabs] _clear_tab idx=1
-[02:18:58.476] [Tabs] _clear_tab idx=2
-[02:18:58.501] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
-[02:18:58.501] [Tabs] _clear_tab idx=3
-[02:18:58.509] [Tabs] _clear_tab idx=5
+[02:36:54.079] [Tabs] _clear_tab idx=1
+[02:36:54.092] [Tabs] _clear_tab idx=2
+[02:36:54.123] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[02:36:54.123] [Tabs] _clear_tab idx=3
+[02:36:54.123] [Tabs] _clear_tab idx=5
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-20 of 21
 [GRID] Queued 21 new thumbnail workers
@@ -720,7 +819,7 @@ set det-size: (640, 640)
 [GRID] Loading viewport range: 0-20 of 21
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[02:19:00.285] [Tabs] hide_tabs() called - canceling pending workers
+[02:36:54.779] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Processing pending events after hide_tabs()
 [SidebarQt] Finished processing events
@@ -740,57 +839,57 @@ set det-size: (640, 640)
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=14] running for 1 targets...
+[Sidebar][counts worker gen=12] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=14] finished scanning targets, scheduling UI update
+[Sidebar][counts worker gen=12] finished scanning targets, scheduling UI update
 [SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=15)
+[SidebarQt] Canceled list workers (new gen=13)
 [SidebarQt] Hiding tree view
 [SidebarQt] Showing tabs controller
 [SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[02:19:05.444] [Tabs] refresh_all(force=True) called
-[02:19:05.444] [Tabs] refresh_all: key=branches, idx=0, force=True
-[02:19:05.444] [Tabs] _populate_tab(branches, idx=0, force=True)
-[02:19:05.444] [Tabs]   populated=True, loading=False
-[02:19:05.444] [Tabs]   Force refresh: removing branches from populated set
-[02:19:05.446] [Tabs]   Starting load for branches
-[02:19:05.446] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[02:19:05.446] [Tabs] _clear_tab idx=0
-[02:19:05.447] [Tabs] refresh_all: key=folders, idx=1, force=True
-[02:19:05.447] [Tabs] _populate_tab(folders, idx=1, force=True)
-[02:19:05.448] [Tabs]   populated=True, loading=False
-[02:19:05.448] [Tabs]   Force refresh: removing folders from populated set
-[02:19:05.448] [Tabs]   Starting load for folders
-[02:19:05.448] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[02:19:05.448] [Tabs] _clear_tab idx=1
-[02:19:05.449] [Tabs] refresh_all: key=dates, idx=2, force=True
-[02:19:05.449] [Tabs] _populate_tab(dates, idx=2, force=True)
-[02:19:05.449] [Tabs]   populated=True, loading=False
-[02:19:05.449] [Tabs]   Force refresh: removing dates from populated set
-[02:19:05.449] [Tabs]   Starting load for dates
-[02:19:05.449] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[02:19:05.450] [Tabs] _clear_tab idx=2
-[02:19:05.450] [Tabs] _load_folders → got 6 rows for project_id=1
-[02:19:05.451] [Tabs] refresh_all: key=tags, idx=3, force=True
-[02:19:05.451] [Tabs] _populate_tab(tags, idx=3, force=True)
-[02:19:05.451] [Tabs]   populated=True, loading=False
-[02:19:05.451] [Tabs]   Force refresh: removing tags from populated set
-[02:19:05.451] [Tabs]   Starting load for tags
-[02:19:05.451] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[02:19:05.452] [Tabs] _clear_tab idx=3
-[02:19:05.453] [Tabs] _load_dates → got hierarchy data for project_id=1
-[02:19:05.453] [Tabs] refresh_all: key=quick, idx=5, force=True
-[02:19:05.453] [Tabs] _populate_tab(quick, idx=5, force=True)
-[02:19:05.453] [Tabs]   populated=True, loading=False
-[02:19:05.453] [Tabs]   Force refresh: removing quick from populated set
-[02:19:05.453] [Tabs]   Starting load for quick
-[02:19:05.453] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[02:19:05.453] [Tabs] _load_tags → got 0 rows for project_id=1
-[02:19:05.453] [Tabs] _clear_tab idx=5
-[02:19:05.456] [Tabs] refresh_all(force=True) completed
+[02:36:58.844] [Tabs] refresh_all(force=True) called
+[02:36:58.844] [Tabs] refresh_all: key=branches, idx=0, force=True
+[02:36:58.844] [Tabs] _populate_tab(branches, idx=0, force=True)
+[02:36:58.845] [Tabs]   populated=True, loading=False
+[02:36:58.845] [Tabs]   Force refresh: removing branches from populated set
+[02:36:58.845] [Tabs]   Starting load for branches
+[02:36:58.845] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[02:36:58.846] [Tabs] _clear_tab idx=0
+[02:36:58.847] [Tabs] refresh_all: key=folders, idx=1, force=True
+[02:36:58.847] [Tabs] _populate_tab(folders, idx=1, force=True)
+[02:36:58.847] [Tabs]   populated=True, loading=False
+[02:36:58.847] [Tabs]   Force refresh: removing folders from populated set
+[02:36:58.847] [Tabs]   Starting load for folders
+[02:36:58.848] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[02:36:58.848] [Tabs] _clear_tab idx=1
+[02:36:58.849] [Tabs] refresh_all: key=dates, idx=2, force=True
+[02:36:58.849] [Tabs] _populate_tab(dates, idx=2, force=True)
+[02:36:58.849] [Tabs]   populated=True, loading=False
+[02:36:58.849] [Tabs]   Force refresh: removing dates from populated set
+[02:36:58.849] [Tabs]   Starting load for dates
+[02:36:58.849] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[02:36:58.850] [Tabs] _clear_tab idx=2
+[02:36:58.850] [Tabs] _load_folders → got 6 rows for project_id=1
+[02:36:58.850] [Tabs] refresh_all: key=tags, idx=3, force=True
+[02:36:58.851] [Tabs] _populate_tab(tags, idx=3, force=True)
+[02:36:58.851] [Tabs]   populated=True, loading=False
+[02:36:58.851] [Tabs]   Force refresh: removing tags from populated set
+[02:36:58.851] [Tabs]   Starting load for tags
+[02:36:58.851] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[02:36:58.851] [Tabs] _clear_tab idx=3
+[02:36:58.852] [Tabs] refresh_all: key=quick, idx=5, force=True
+[02:36:58.852] [Tabs] _populate_tab(quick, idx=5, force=True)
+[02:36:58.853] [Tabs]   populated=True, loading=False
+[02:36:58.853] [Tabs]   Force refresh: removing quick from populated set
+[02:36:58.853] [Tabs] _load_dates → got hierarchy data for project_id=1
+[02:36:58.853] [Tabs]   Starting load for quick
+[02:36:58.854] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[02:36:58.854] [Tabs] _clear_tab idx=5
+[02:36:58.854] [Tabs] _load_tags → got 0 rows for project_id=1
+[02:36:58.856] [Tabs] refresh_all(force=True) completed
 [SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[02:19:05.457] [Tabs] _load_quick → got 6 rows
-[02:19:05.459] [Tabs] _clear_tab idx=0
+[02:36:58.857] [Tabs] _load_quick → got 6 rows
+[02:36:58.858] [Tabs] _clear_tab idx=0
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 21 photos
 [GRID] Loaded 21 thumbnails.
@@ -799,34 +898,33 @@ set det-size: (640, 640)
 [get_images_by_branch] Found 21 photos
 [GRID] Loaded 21 thumbnails.
 [GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[02:19:05.488] [Tabs] _clear_tab idx=1
-[02:19:05.501] [Tabs] _clear_tab idx=2
-[02:19:05.526] [Tabs] _finish_tags called: idx=3, gen=5, rows_count=0
-[02:19:05.526] [Tabs] _clear_tab idx=3
-[02:19:05.533] [Tabs] _clear_tab idx=5
+[02:36:58.887] [Tabs] _clear_tab idx=1
+[02:36:58.899] [Tabs] _clear_tab idx=2
+[02:36:58.924] [Tabs] _finish_tags called: idx=3, gen=4, rows_count=0
+[02:36:58.924] [Tabs] _clear_tab idx=3
+[02:36:58.931] [Tabs] _clear_tab idx=5
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-20 of 21
 [GRID] Queued 21 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-20 of 21
+[02:37:02.736] [Tabs] _on_tab_changed(idx=1)
+[02:37:02.737] [Tabs] _start_timeout idx=1 type=folders
+[02:37:02.738] [Tabs] _populate_tab(folders, idx=1, force=False)
+[02:37:02.738] [Tabs]   populated=True, loading=False
+[02:37:02.738] [Tabs]   Skipping folders: already populated or loading
+[02:37:02.738] [Tabs] _on_tab_changed → tab_type=folders
+[02:37:04.857] [Tabs] _on_tab_changed(idx=0)
+[02:37:04.857] [Tabs] _start_timeout idx=0 type=branches
+[02:37:04.857] [Tabs] _populate_tab(branches, idx=0, force=False)
+[02:37:04.858] [Tabs]   populated=True, loading=False
+[02:37:04.858] [Tabs]   Skipping branches: already populated or loading
+[02:37:04.858] [Tabs] _on_tab_changed → tab_type=branches
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 21 photos
 [GRID] Loaded 21 thumbnails.
 [GRID] Reloaded 21 thumbnails in branch-mode (base=21)
-[get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[get_images_by_branch] project_id=1, branch_key='face_000'
+[get_images_by_branch] project_id=1, branch_key='face_004'
 [get_images_by_branch] Found 7 photos
 [GRID] Loaded 7 thumbnails.
 [GRID] Reloaded 7 thumbnails in branch-mode (base=7)
@@ -835,158 +933,19 @@ set det-size: (640, 640)
 [GRID] Queued 7 new thumbnail workers
 [GRID] Using scroll-based start position: 0 (scroll: 0/0)
 [GRID] Loading viewport range: 0-6 of 7
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_002'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[GRID] Queued 7 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[get_images_by_branch] project_id=1, branch_key='face_002'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[GRID] Queued 6 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[get_images_by_branch] project_id=1, branch_key='face_001'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[GRID] Queued 7 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-6 of 7
-[get_images_by_branch] project_id=1, branch_key='face_000'
-[get_images_by_branch] Found 7 photos
-[GRID] Loaded 7 thumbnails.
-[GRID] Reloaded 7 thumbnails in branch-mode (base=7)
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[GRID] Queued 3 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-2 of 3
-[get_images_by_branch] project_id=1, branch_key='face_006'
-[get_images_by_branch] Found 3 photos
-[GRID] Loaded 3 thumbnails.
-[GRID] Reloaded 3 thumbnails in branch-mode (base=3)
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[GRID] Queued 6 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-5 of 6
-[02:19:25.739] [Tabs] _on_tab_changed(idx=1)
-[02:19:25.739] [Tabs] _start_timeout idx=1 type=folders
-[02:19:25.740] [Tabs] _populate_tab(folders, idx=1, force=False)
-[02:19:25.740] [Tabs]   populated=True, loading=False
-[02:19:25.740] [Tabs]   Skipping folders: already populated or loading
-[02:19:25.740] [Tabs] _on_tab_changed → tab_type=folders
-[02:19:28.514] [Tabs] _on_tab_changed(idx=4)
-[02:19:28.514] [Tabs] _start_timeout idx=4 type=people
-[02:19:28.514] [Tabs] _populate_tab(people, idx=4, force=False)
-[02:19:28.514] [Tabs]   populated=False, loading=False
-[02:19:28.515] [Tabs]   Starting load for people
-[02:19:28.515] [Tabs] _show_loading idx=4 label='Loading People…'
-[02:19:28.515] [Tabs] _clear_tab idx=4
-[02:19:28.516] [Tabs] _on_tab_changed → tab_type=people
-[02:19:28.517] [Tabs] _load_people → got 7 clusters
-[02:19:28.520] [Tabs] _clear_tab idx=4
-[get_images_by_branch] project_id=1, branch_key='face_unidentified'
-[get_images_by_branch] Found 6 photos
-[GRID] Loaded 6 thumbnails.
-[GRID] Reloaded 6 thumbnails in branch-mode (base=6)
-[get_images_by_branch] project_id=1, branch_key='facecluster:face_000'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='facecluster:face_000'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='facecluster:face_002'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='facecluster:face_002'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[get_images_by_branch] project_id=1, branch_key='facecluster:face_unidentified'
-[get_images_by_branch] Found 0 photos
-[get_images_by_branch] Available branch_keys in DB: ['all', 'by_date:2022-01-15', 'by_date:2022-08-18', 'by_date:2023-10-19', 'by_date:2024-11-07', 'by_date:2024-11-16', 'by_date:2024-11-26', 'by_date:2025-03-13', 'face_000', 'face_001']
-[GRID] Loaded 0 thumbnails.
-[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[02:37:10.346] [Tabs] _on_tab_changed(idx=4)
+[02:37:10.346] [Tabs] _start_timeout idx=4 type=people
+[02:37:10.346] [Tabs] _populate_tab(people, idx=4, force=False)
+[02:37:10.346] [Tabs]   populated=False, loading=False
+[02:37:10.347] [Tabs]   Starting load for people
+[02:37:10.347] [Tabs] _show_loading idx=4 label='Loading People…'
+[02:37:10.347] [Tabs] _clear_tab idx=4
+[02:37:10.348] [Tabs] _on_tab_changed → tab_type=people
+[02:37:10.349] [Tabs] _load_people → got 7 clusters
+[02:37:10.352] [Tabs] _clear_tab idx=4
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[02:19:38.197] [Tabs] hide_tabs() called - canceling pending workers
+[02:37:15.554] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Processing pending events after hide_tabs()
 [SidebarQt] Finished processing events
@@ -1006,7 +965,7 @@ set det-size: (640, 640)
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=17] running for 1 targets...
+[Sidebar][counts worker gen=15] running for 1 targets...
 [SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=17] finished scanning targets, scheduling UI update
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-08>
+[Sidebar][counts worker gen=15] finished scanning targets, scheduling UI update
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_30.01.01-Photo-App\MemoryMate-PhotoFlow-main-09>

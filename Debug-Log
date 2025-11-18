@@ -1,33 +1,39 @@
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-03>cd C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04
-
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04>python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-18 16:33:26,239 [INFO] ================================================================================
-2025-11-18 16:33:26,253 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-18 16:33:26,264 [INFO] Log file: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\app_log.txt
-2025-11-18 16:33:26,269 [INFO] ================================================================================
-2025-11-18 16:33:26,306 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-18 16:33:26,306 [INFO] Qt message handler installed to suppress TIFF warnings
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\suleimaa\\Downloads\\Photo-Sorter\\09.31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-04\\thumbnails_cache.db', 'last_updated': '2025-11-18 16:33'}
-✅ Loaded en translations from C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\locales\en.json
+2025-11-18 21:57:56,175 [INFO] ================================================================================
+2025-11-18 21:57:56,175 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-18 21:57:56,176 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\app_log.txt
+2025-11-18 21:57:56,176 [INFO] ================================================================================
+2025-11-18 21:57:56,213 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-18 21:57:56,214 [INFO] Qt message handler installed to suppress TIFF warnings
+[Startup] Database schema initialized successfully
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-05\\thumbnails_cache.db', 'last_updated': '2025-11-18 21:57'}
+2025-11-18 21:57:56,448 [INFO] SearchService initialized
+[Startup] SearchService initialized
+2025-11-18 21:57:56,450 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-18 21:57:56,451 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-18 21:57:56,451 [INFO] Global ThumbnailService created with Phase 1B memory limits
+[Startup] ThumbnailService initialized
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-05\locales\en.json
 🌍 Language switched to: en
 [MainWindow] Language loaded from settings: en
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-18 16:33:26,524 [INFO] SearchService initialized
-[16:33:27.136] [Tabs] __init__ started
-[16:33:27.136] [Tabs] _build_tabs → building tab widgets
-[16:33:27.136] [Tabs] _on_tab_changed(idx=0)
-[16:33:27.136] [Tabs] _start_timeout idx=0 type=branches
-[16:33:27.136] [Tabs] _populate_tab(branches, idx=0, force=False)
-[16:33:27.136] [Tabs]   populated=False, loading=False
-[16:33:27.136] [Tabs]   Starting load for branches
-[16:33:27.136] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:33:27.136] [Tabs] _clear_tab idx=0
-[16:33:27.136] [Tabs] _on_tab_changed → tab_type=branches
-[16:33:27.136] [Tabs] _build_tabs → added 6 tabs
-[16:33:27.136] [Tabs] __init__ completed
+2025-11-18 21:57:56,474 [INFO] SearchService initialized
+[21:57:56.847] [Tabs] __init__ started
+[21:57:56.848] [Tabs] _build_tabs → building tab widgets
+[21:57:56.848] [Tabs] _on_tab_changed(idx=0)
+[21:57:56.848] [Tabs] _start_timeout idx=0 type=branches
+[21:57:56.848] [Tabs] _populate_tab(branches, idx=0, force=False)
+[21:57:56.848] [Tabs]   populated=False, loading=False
+[21:57:56.850] [Tabs]   Starting load for branches
+[21:57:56.850] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[21:57:56.850] [Tabs] _clear_tab idx=0
+[21:57:56.851] [Tabs] _on_tab_changed → tab_type=branches
+[21:57:56.852] [Tabs] _build_tabs → added 6 tabs
+[21:57:56.853] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -40,7 +46,7 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[16:33:28.609] [Tabs] hide_tabs() called - canceling pending workers
+[21:57:56.899] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -56,82 +62,79 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar] Found 0 mobile device(s)
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] _build_tree_model() completed
-2025-11-18 16:33:28,809 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-18 16:33:28,809 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-18 16:33:28,809 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] Database schema initialized successfully
+[21:57:57.023] [Tabs] _finish_branches (stale gen=1) — ignoring
+[21:57:57.024] [Tabs] _on_tab_changed(idx=0)
+[21:57:57.024] [Tabs] _start_timeout idx=0 type=branches
+[21:57:57.024] [Tabs] _populate_tab(branches, idx=0, force=False)
+[21:57:57.024] [Tabs]   populated=False, loading=False
+[21:57:57.024] [Tabs]   Starting load for branches
+[21:57:57.025] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[21:57:57.025] [Tabs] _clear_tab idx=0
+[21:57:57.026] [Tabs] _on_tab_changed → tab_type=branches
+[21:57:57.027] [Tabs] _clear_tab idx=0
 💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
-   Location: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l
-[16:33:32.235] [Tabs] _finish_branches (stale gen=1) — ignoring
-[16:33:32.235] [Tabs] _on_tab_changed(idx=0)
-[16:33:32.235] [Tabs] _start_timeout idx=0 type=branches
-[16:33:32.235] [Tabs] _populate_tab(branches, idx=0, force=False)
-[16:33:32.235] [Tabs]   populated=False, loading=False
-[16:33:32.235] [Tabs]   Starting load for branches
-[16:33:32.235] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:33:32.235] [Tabs] _clear_tab idx=0
-[16:33:32.235] [Tabs] _on_tab_changed → tab_type=branches
-[16:33:32.242] [Tabs] _clear_tab idx=0
+   Location: C:\Users\ASUS\.insightface\models\buffalo_l
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[16:33:48.629] [Tabs] refresh_all(force=True) called
-[16:33:48.629] [Tabs] refresh_all: key=branches, idx=0, force=True
-[16:33:48.629] [Tabs] _populate_tab(branches, idx=0, force=True)
-[16:33:48.638] [Tabs]   populated=True, loading=False
-[16:33:48.638] [Tabs]   Force refresh: removing branches from populated set
-[16:33:48.638] [Tabs]   Starting load for branches
-[16:33:48.638] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:33:48.638] [Tabs] _clear_tab idx=0
-[16:33:48.638] [Tabs] refresh_all: key=folders, idx=1, force=True
-[16:33:48.638] [Tabs] _populate_tab(folders, idx=1, force=True)
-[16:33:48.638] [Tabs]   populated=False, loading=False
-[16:33:48.638] [Tabs]   Starting load for folders
-[16:33:48.638] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[16:33:48.638] [Tabs] _clear_tab idx=1
-[16:33:48.638] [Tabs] refresh_all: key=dates, idx=2, force=True
-[16:33:48.638] [Tabs] _populate_tab(dates, idx=2, force=True)
-[16:33:48.638] [Tabs]   populated=False, loading=False
-[16:33:48.638] [Tabs]   Starting load for dates
-[16:33:48.638] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[16:33:48.638] [Tabs] _clear_tab idx=2
-[16:33:48.638] [Tabs] _load_folders → got 0 rows for project_id=1
-[16:33:48.638] [Tabs] refresh_all: key=tags, idx=3, force=True
-[16:33:48.638] [Tabs] _populate_tab(tags, idx=3, force=True)
-[16:33:48.638] [Tabs]   populated=False, loading=False
-[16:33:48.638] [Tabs]   Starting load for tags
-[16:33:48.638] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[16:33:48.643] [Tabs] _clear_tab idx=3
-[16:33:48.643] [Tabs] refresh_all: key=quick, idx=5, force=True
-[16:33:48.643] [Tabs] _populate_tab(quick, idx=5, force=True)
-[16:33:48.643] [Tabs]   populated=False, loading=False
-[16:33:48.643] [Tabs]   Starting load for quick
-[16:33:48.643] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[16:33:48.643] [Tabs] _clear_tab idx=5
-[16:33:48.645] [Tabs] _load_dates → got hierarchy data for project_id=1
-[16:33:48.645] [Tabs] _load_tags → got 0 rows for project_id=1
-[16:33:48.645] [Tabs] refresh_all(force=True) completed
+[21:58:20.004] [Tabs] refresh_all(force=True) called
+[21:58:20.004] [Tabs] refresh_all: key=branches, idx=0, force=True
+[21:58:20.004] [Tabs] _populate_tab(branches, idx=0, force=True)
+[21:58:20.004] [Tabs]   populated=True, loading=False
+[21:58:20.004] [Tabs]   Force refresh: removing branches from populated set
+[21:58:20.004] [Tabs]   Starting load for branches
+[21:58:20.005] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[21:58:20.005] [Tabs] _clear_tab idx=0
+[21:58:20.006] [Tabs] refresh_all: key=folders, idx=1, force=True
+[21:58:20.006] [Tabs] _populate_tab(folders, idx=1, force=True)
+[21:58:20.006] [Tabs]   populated=False, loading=False
+[21:58:20.006] [Tabs]   Starting load for folders
+[21:58:20.006] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[21:58:20.006] [Tabs] _clear_tab idx=1
+[21:58:20.007] [Tabs] refresh_all: key=dates, idx=2, force=True
+[21:58:20.007] [Tabs] _populate_tab(dates, idx=2, force=True)
+[21:58:20.008] [Tabs]   populated=False, loading=False
+[21:58:20.008] [Tabs]   Starting load for dates
+[21:58:20.008] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[21:58:20.008] [Tabs] _clear_tab idx=2
+[21:58:20.009] [Tabs] _load_folders → got 0 rows for project_id=1
+[21:58:20.009] [Tabs] refresh_all: key=tags, idx=3, force=True
+[21:58:20.009] [Tabs] _populate_tab(tags, idx=3, force=True)
+[21:58:20.010] [Tabs]   populated=False, loading=False
+[21:58:20.010] [Tabs]   Starting load for tags
+[21:58:20.010] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[21:58:20.010] [Tabs] _clear_tab idx=3
+[21:58:20.012] [Tabs] refresh_all: key=quick, idx=5, force=True
+[21:58:20.012] [Tabs] _populate_tab(quick, idx=5, force=True)
+[21:58:20.012] [Tabs]   populated=False, loading=False
+[21:58:20.013] [Tabs]   Starting load for quick
+[21:58:20.013] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[21:58:20.013] [Tabs] _clear_tab idx=5
+[21:58:20.014] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
+[21:58:20.014] [Tabs] _load_dates → got hierarchy data for project_id=1
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
-[16:33:48.645] [Tabs] _load_quick → got 6 rows
-[16:33:48.645] [Tabs] _clear_tab idx=0
+[21:58:20.015] [Tabs] _clear_tab idx=0
+[21:58:20.015] [Tabs] _load_tags → got 0 rows for project_id=1
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[21:58:20.024] [Tabs] _load_quick → got 6 rows
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 0 photos
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[16:33:48.658] [Tabs] _clear_tab idx=1
-[16:33:48.658] [Tabs] _clear_tab idx=2
-[16:33:48.661] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[16:33:48.661] [Tabs] _clear_tab idx=3
-[16:33:48.664] [Tabs] _clear_tab idx=5
+[21:58:20.035] [Tabs] _clear_tab idx=1
+[21:58:20.037] [Tabs] _clear_tab idx=2
+[21:58:20.042] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[21:58:20.042] [Tabs] _clear_tab idx=3
+[21:58:20.044] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -148,259 +151,13 @@ C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoF
 [Sidebar][counts worker gen=4] running for 1 targets...
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 0 photos
-[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
 [get_images_by_branch] Available branch_keys in DB: []
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
 [MainWindow] Switched to project ID: 1
 [Breadcrumb] Switched to project ID: 1
 [MainWindow] Refreshed project list: 1 projects
-[Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanController] ScanWorker imported successfully
-[ScanController] QThread created
-[ScanController] ScanWorker instance created with project_id=1
-[ScanController] Worker moved to thread
-[ScanController] Signals connected
-[ScanController] Starting scan thread...
-[ScanController] thread.start() called
-2025-11-18 16:33:57,398 [INFO] DBWriter timer started in worker thread
-[ScanWorkerAdapter] run() method called!
-[ScanController] QThread STARTED!
-[ScanWorkerAdapter] folder=C:/Users/suleimaa/Downloads/Photo-Sorter/Images, incremental=True
-2025-11-18 16:33:57,419 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanWorkerAdapter] Starting scan...
-2025-11-18 16:33:57,419 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
-2025-11-18 16:33:57,437 [INFO] Discovered 15 candidate image files and 0 video files
-2025-11-18 16:33:57,437 [INFO] Loading existing metadata for incremental scan...
-2025-11-18 16:33:57,443 [INFO] ✓ Loaded 0 existing file records
-[SCAN] Starting file 1/15: Alya1_2_2_2.jpeg
-2025-11-18 16:33:57,451 [INFO] [Scan] File 1/15: Alya1_2_2_2.jpeg
-[SCAN] _process_file started for: Alya1_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,453 [INFO] 📷 Processing: Alya1_2_2_2.jpeg (345.2 KB)
-[SCAN] Processing: Alya1_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya1_2_2_2.jpeg
-[SCAN] Starting file 2/15: Alya1_3_2.jpeg
-2025-11-18 16:33:57,522 [INFO] [Scan] File 2/15: Alya1_3_2.jpeg
-[SCAN] _process_file started for: Alya1_3_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,522 [INFO] 📷 Processing: Alya1_3_2.jpeg (345.2 KB)
-[SCAN] Processing: Alya1_3_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya1_3_2.jpeg
-[SCAN] Starting file 3/15: Alya2_2_2_2_2.jpeg
-2025-11-18 16:33:57,543 [INFO] [Scan] File 3/15: Alya2_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya2_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,543 [INFO] 📷 Processing: Alya2_2_2_2_2.jpeg (107.1 KB)
-[SCAN] Processing: Alya2_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya2_2_2_2_2.jpeg
-[SCAN] Starting file 4/15: Alya3_2_2_2_2.jpeg
-2025-11-18 16:33:57,561 [INFO] [Scan] File 4/15: Alya3_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya3_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,562 [INFO] 📷 Processing: Alya3_2_2_2_2.jpeg (97.2 KB)
-[SCAN] Processing: Alya3_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya3_2_2_2_2.jpeg
-[SCAN] Starting file 5/15: Alya_2_2.jpeg
-2025-11-18 16:33:57,573 [INFO] [Scan] File 5/15: Alya_2_2.jpeg
-[SCAN] _process_file started for: Alya_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,574 [INFO] 📷 Processing: Alya_2_2.jpeg (181.4 KB)
-[SCAN] Processing: Alya_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya_2_2.jpeg
-[SCAN] Starting file 6/15: Alya_2_2_2_2.jpeg
-2025-11-18 16:33:57,587 [INFO] [Scan] File 6/15: Alya_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,587 [INFO] 📷 Processing: Alya_2_2_2_2.jpeg (181.4 KB)
-[SCAN] Processing: Alya_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya_2_2_2_2.jpeg
-[SCAN] Starting file 7/15: Ammar-Ref(1)_2_2.png
-2025-11-18 16:33:57,605 [INFO] [Scan] File 7/15: Ammar-Ref(1)_2_2.png
-[SCAN] _process_file started for: Ammar-Ref(1)_2_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,609 [INFO] 📷 Processing: Ammar-Ref(1)_2_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref(1)_2_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref(1)_2_2.png
-[SCAN] Starting file 8/15: Ammar-Ref_2_2_2.png
-2025-11-18 16:33:57,625 [INFO] [Scan] File 8/15: Ammar-Ref_2_2_2.png
-[SCAN] _process_file started for: Ammar-Ref_2_2_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,625 [INFO] 📷 Processing: Ammar-Ref_2_2_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref_2_2_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref_2_2_2.png
-[SCAN] Starting file 9/15: Ammar-Ref_3_2.png
-2025-11-18 16:33:57,659 [INFO] [Scan] File 9/15: Ammar-Ref_3_2.png
-[SCAN] _process_file started for: Ammar-Ref_3_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,659 [INFO] 📷 Processing: Ammar-Ref_3_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref_3_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref_3_2.png
-[SCAN] Starting file 10/15: Ammar1_2_2_2.jpeg
-2025-11-18 16:33:57,697 [INFO] [Scan] File 10/15: Ammar1_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar1_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,697 [INFO] 📷 Processing: Ammar1_2_2_2.jpeg (4364.7 KB)
-[SCAN] Processing: Ammar1_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar1_2_2_2.jpeg
-[SCAN] Starting file 11/15: Ammar2_2_2_2.jpeg
-2025-11-18 16:33:57,731 [INFO] [Scan] File 11/15: Ammar2_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,731 [INFO] 📷 Processing: Ammar2_2_2_2.jpeg (2338.2 KB)
-[SCAN] Processing: Ammar2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar2_2_2_2.jpeg
-[SCAN] Starting file 12/15: Ammar3_2_2_2_2.jpeg
-2025-11-18 16:33:57,737 [INFO] [Scan] File 12/15: Ammar3_2_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar3_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,750 [INFO] 📷 Processing: Ammar3_2_2_2_2.jpeg (171.0 KB)
-[SCAN] Processing: Ammar3_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar3_2_2_2_2.jpeg
-[SCAN] Starting file 13/15: IMG_6850_2_2_2.jpeg
-2025-11-18 16:33:57,753 [INFO] [Scan] File 13/15: IMG_6850_2_2_2.jpeg
-[SCAN] _process_file started for: IMG_6850_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,753 [INFO] 📷 Processing: IMG_6850_2_2_2.jpeg (3027.8 KB)
-[SCAN] Processing: IMG_6850_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: IMG_6850_2_2_2.jpeg
-[SCAN] Starting file 14/15: IMG_6995_2_2_2.jpeg
-2025-11-18 16:33:57,769 [INFO] [Scan] File 14/15: IMG_6995_2_2_2.jpeg
-[SCAN] _process_file started for: IMG_6995_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,769 [INFO] 📷 Processing: IMG_6995_2_2_2.jpeg (4005.3 KB)
-[SCAN] Processing: IMG_6995_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: IMG_6995_2_2_2.jpeg
-[SCAN] Starting file 15/15: عليا_2_2_2.jpeg
-2025-11-18 16:33:57,786 [INFO] [Scan] File 15/15: عليا_2_2_2.jpeg
-[SCAN] _process_file started for: عليا_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-18 16:33:57,786 [INFO] 📷 Processing: عليا_2_2_2.jpeg (345.2 KB)
-[SCAN] Processing: عليا_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: عليا_2_2_2.jpeg
-2025-11-18 16:33:57,805 [INFO] Bulk upserted 15 photos for project 1
-2025-11-18 16:33:57,805 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.4s
-2025-11-18 16:33:57,805 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.4s
-[ScanController] scan finished: 1 folders, 15 photos, 0 videos
-[ScanController] cleanup after scan
-================================================================================
-UNHANDLED EXCEPTION CAUGHT:
-================================================================================
-Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 387, in _cleanup
-    progress.setWindowModality(Qt.WindowModal)
-                               ^^
-UnboundLocalError: cannot access local variable 'Qt' where it is not associated with a value
-================================================================================
-2025-11-18 16:34:00,377 [ERROR] Unhandled exception
-Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 387, in _cleanup
-    progress.setWindowModality(Qt.WindowModal)
-                               ^^
-UnboundLocalError: cannot access local variable 'Qt' where it is not associated with a value
-Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\main_window_qt.py", line 387, in _cleanup
-    progress.setWindowModality(Qt.WindowModal)
-                               ^^
-UnboundLocalError: cannot access local variable 'Qt' where it is not associated with a value
-[MainWindow] Launching automatic face grouping pipeline for project 1
-2025-11-18 16:34:32,432 [INFO] [FaceDetectionWorker] Starting face detection for project 1
-2025-11-18 16:34:32,436 [INFO] 💻 Using CPU for face detection (CUDA not available)
-2025-11-18 16:34:32,453 [INFO] 📁 Using local bundled models: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l
-2025-11-18 16:34:32,464 [INFO] 💾 Saved InsightFace model path to settings: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l
-2025-11-18 16:34:32,464 [INFO] ✓ Initializing InsightFace with buffalo_l directory: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l
-2025-11-18 16:34:32,469 [INFO] ✓ Using ctx_id approach (older InsightFace, proof of concept compatible)
-find model: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l\buffalo_l\scrfd_10g_bnkps.onnx detection
-input mean and std: 127.5 127.5
-find model: C:\Users\suleimaa\Downloads\Photo-Sorter\09.31.01.01-Photo-App\MemoryMate-PhotoFlow-main-04\models\buffalo_l\buffalo_l\w600k_r50.onnx recognition
-2025-11-18 16:34:33,224 [INFO] ✓ Using CPU acceleration (ctx_id=-1)
-set det-size: (640, 640)
-2025-11-18 16:34:33,746 [INFO] ✅ InsightFace (buffalo_l) loaded successfully with CPU acceleration
-2025-11-18 16:34:33,746 [INFO] [FaceDetection] Initialized InsightFace with model=hog
-2025-11-18 16:34:33,755 [INFO] [FaceDetectionWorker] Processing 15 photos
-[FaceDetection] [1/15] Detecting faces: alya1_2_2_2.jpeg
-2025-11-18 16:34:34,003 [INFO] [FaceDetection] Found 1 faces in alya1_2_2_2.jpeg
-2025-11-18 16:34:34,107 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg: 1 faces
-[FaceDetection] [2/15] Detecting faces: alya1_3_2.jpeg
-2025-11-18 16:34:34,324 [INFO] [FaceDetection] Found 1 faces in alya1_3_2.jpeg
-2025-11-18 16:34:34,430 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_3_2.jpeg: 1 faces
-[FaceDetection] [3/15] Detecting faces: alya2_2_2_2_2.jpeg
-2025-11-18 16:34:34,694 [INFO] [FaceDetection] Found 1 faces in alya2_2_2_2_2.jpeg
-2025-11-18 16:34:34,762 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg: 1 faces
-[FaceDetection] [4/15] Detecting faces: alya3_2_2_2_2.jpeg
-2025-11-18 16:34:35,099 [INFO] [FaceDetection] Found 3 faces in alya3_2_2_2_2.jpeg
-2025-11-18 16:34:35,191 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya3_2_2_2_2.jpeg: 3 faces
-[FaceDetection] [5/15] Detecting faces: alya_2_2.jpeg
-2025-11-18 16:34:35,386 [INFO] [FaceDetection] Found 1 faces in alya_2_2.jpeg
-2025-11-18 16:34:35,465 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya_2_2.jpeg: 1 faces
-[FaceDetection] [6/15] Detecting faces: alya_2_2_2_2.jpeg
-2025-11-18 16:34:35,653 [INFO] [FaceDetection] Found 1 faces in alya_2_2_2_2.jpeg
-2025-11-18 16:34:35,708 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/alya_2_2_2_2.jpeg: 1 faces
-[FaceDetection] [7/15] Detecting faces: ammar-ref(1)_2_2.png
-2025-11-18 16:34:35,897 [INFO] [FaceDetection] Found 1 faces in ammar-ref(1)_2_2.png
-2025-11-18 16:34:35,969 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref(1)_2_2.png: 1 faces
-[FaceDetection] [8/15] Detecting faces: ammar-ref_2_2_2.png
-2025-11-18 16:34:36,162 [INFO] [FaceDetection] Found 1 faces in ammar-ref_2_2_2.png
-2025-11-18 16:34:36,237 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref_2_2_2.png: 1 faces
-[FaceDetection] [9/15] Detecting faces: ammar-ref_3_2.png
-2025-11-18 16:34:36,442 [INFO] [FaceDetection] Found 1 faces in ammar-ref_3_2.png
-2025-11-18 16:34:36,519 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar-ref_3_2.png: 1 faces
-[FaceDetection] [10/15] Detecting faces: ammar1_2_2_2.jpeg
-2025-11-18 16:34:36,784 [INFO] [FaceDetection] Found 1 faces in ammar1_2_2_2.jpeg
-2025-11-18 16:34:36,920 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg: 1 faces
-[FaceDetection] [11/15] Detecting faces: ammar2_2_2_2.jpeg
-2025-11-18 16:34:37,261 [INFO] [FaceDetection] Found 1 faces in ammar2_2_2_2.jpeg
-2025-11-18 16:34:37,374 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg: 1 faces
-[FaceDetection] [12/15] Detecting faces: ammar3_2_2_2_2.jpeg
-2025-11-18 16:34:37,736 [INFO] [FaceDetection] Found 2 faces in ammar3_2_2_2_2.jpeg
-2025-11-18 16:34:37,862 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar3_2_2_2_2.jpeg: 2 faces
-[FaceDetection] [13/15] Detecting faces: img_6850_2_2_2.jpeg
-2025-11-18 16:34:38,376 [INFO] [FaceDetection] Found 3 faces in img_6850_2_2_2.jpeg
-2025-11-18 16:34:38,636 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg: 3 faces
-[FaceDetection] [14/15] Detecting faces: img_6995_2_2_2.jpeg
-2025-11-18 16:34:38,978 [INFO] [FaceDetection] Found 1 faces in img_6995_2_2_2.jpeg
-2025-11-18 16:34:39,106 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg: 1 faces
-[FaceDetection] [15/15] Detecting faces: عليا_2_2_2.jpeg
-2025-11-18 16:34:39,303 [INFO] [FaceDetection] Found 1 faces in عليا_2_2_2.jpeg
-2025-11-18 16:34:39,391 [INFO] [FaceDetectionWorker] ✓ c:/users/suleimaa/downloads/photo-sorter/images/output6/عليا_2_2_2.jpeg: 1 faces
-2025-11-18 16:34:39,391 [INFO] [FaceDetectionWorker] Complete in 7.0s: 15 processed, 20 faces detected, 0 failed
-[FaceDetection] Complete: 15 photos, 20 faces detected
-2025-11-18 16:34:39,391 [INFO] [FaceClusterWorker] Starting face clustering for project 1
-2025-11-18 16:34:39,391 [INFO] [FaceClusterWorker] Loaded 20 face embeddings
-[FaceCluster] Loading face embeddings...
-[FaceCluster] Clustering 20 faces...
-2025-11-18 16:34:39,391 [INFO] [FaceClusterWorker] Found 4 clusters
-2025-11-18 16:34:39,391 [INFO] [FaceClusterWorker] Found 8 unclustered faces (will create 'Unidentified' branch)
-[FaceCluster] Found 4 person groups...
-2025-11-18 16:34:39,403 [INFO] [FaceClusterWorker] Cluster 0 → 4 faces
-[FaceCluster] Saving cluster 1/4: Person 1 (4 faces)
-2025-11-18 16:34:39,403 [INFO] [FaceClusterWorker] Cluster 1 → 2 faces
-[FaceCluster] Saving cluster 2/4: Person 2 (2 faces)
-2025-11-18 16:34:39,406 [INFO] [FaceClusterWorker] Cluster 2 → 2 faces
-[FaceCluster] Saving cluster 3/4: Person 3 (2 faces)
-2025-11-18 16:34:39,407 [INFO] [FaceClusterWorker] Cluster 3 → 4 faces
-[FaceCluster] Saving cluster 4/4: Person 4 (4 faces)
-[FaceCluster] Processing 8 unidentified faces...
-2025-11-18 16:34:39,408 [INFO] [FaceClusterWorker] Created 'Unidentified' branch with 8 faces from 5 photos
-2025-11-18 16:34:39,408 [INFO] [FaceClusterWorker] Complete in 0.0s: 4 person clusters + 8 unidentified faces
-[FaceCluster] Clustering complete: 5 branches created
-[FaceCluster] Complete: 4 person groups created
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
@@ -410,9 +167,8 @@ set det-size: (640, 640)
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
 [SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 6 days
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
 [Sidebar] Loading videos for project_id=1
 [Sidebar] Found 0 videos in project 1
 [Sidebar] Scanning for mobile devices...
@@ -421,3 +177,136 @@ set det-size: (640, 640)
 [Sidebar] starting async count population for 1 branch targets
 [Sidebar][counts worker gen=6] running for 1 targets...
 [Sidebar][counts worker gen=6] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=8] running for 1 targets...
+[Sidebar][counts worker gen=8] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=10] running for 1 targets...
+[Sidebar][counts worker gen=10] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=12] running for 1 targets...
+[Sidebar][counts worker gen=12] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=14] running for 1 targets...
+[Sidebar][counts worker gen=14] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=16] running for 1 targets...
+[Sidebar][counts worker gen=16] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=18] running for 1 targets...
+[Sidebar][counts worker gen=18] finished scanning targets, scheduling UI update
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=1
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
+[Sidebar] Scanning for mobile devices...
+[Sidebar] Found 0 mobile device(s)
+[Sidebar] No mobile devices detected - added help message
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=20] running for 1 targets...
+[Sidebar][counts worker gen=20] finished scanning targets, scheduling UI update

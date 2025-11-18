@@ -31,12 +31,20 @@ class MobileDevice:
     """Represents a detected mobile device"""
     label: str                  # Human-readable label (e.g., "Samsung Galaxy S22")
     root_path: str              # Mount point or root path
-    device_type: str            # "android" or "ios"
+    device_type: str            # "android", "ios", "camera", "usb", "sd_card"
     folders: List[DeviceFolder] # DCIM folders and other media folders
+    device_id: Optional[str] = None      # Unique persistent device ID
+    serial_number: Optional[str] = None  # Physical serial number
+    volume_guid: Optional[str] = None    # Volume GUID (Windows)
 
 
 class DeviceScanner:
-    """Cross-platform mobile device scanner"""
+    """
+    Cross-platform mobile device scanner with persistent device tracking.
+
+    Detects mobile devices and optionally registers them in the database
+    for import history tracking.
+    """
 
     # Common DCIM folder patterns for Android
     ANDROID_PATTERNS = [
@@ -82,13 +90,23 @@ class DeviceScanner:
         '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'
     }
 
-    def __init__(self):
-        """Initialize device scanner"""
+    def __init__(self, db=None, register_devices: bool = True):
+        """
+        Initialize device scanner.
+
+        Args:
+            db: ReferenceDB instance for device registration (optional)
+            register_devices: Whether to register detected devices in database
+        """
         self.system = platform.system()
+        self.db = db
+        self.register_devices = register_devices
 
     def scan_devices(self) -> List[MobileDevice]:
         """
         Scan for mounted mobile devices across all platforms.
+
+        Automatically registers devices in database if db was provided.
 
         Returns:
             List of MobileDevice objects representing detected devices
@@ -227,11 +245,46 @@ class DeviceScanner:
             # No media folders found, skip this device
             return None
 
+        # Extract unique device ID (Phase 1: Device Tracking)
+        device_id = None
+        serial_number = None
+        volume_guid = None
+
+        try:
+            from services.device_id_extractor import get_device_id
+            device_identifier = get_device_id(root_path, device_type)
+
+            device_id = device_identifier.device_id
+            serial_number = device_identifier.serial_number
+            volume_guid = device_identifier.volume_guid
+
+            # Register device in database if db provided
+            if self.db and self.register_devices and device_id:
+                try:
+                    self.db.register_device(
+                        device_id=device_id,
+                        device_name=label,
+                        device_type=device_type,
+                        serial_number=serial_number,
+                        volume_guid=volume_guid,
+                        mount_point=root_path
+                    )
+                    print(f"[DeviceScanner] Registered device: {device_id} ({label})")
+                except Exception as e:
+                    print(f"[DeviceScanner] Failed to register device in DB: {e}")
+
+        except Exception as e:
+            # Device ID extraction failed - not critical, continue without ID
+            print(f"[DeviceScanner] Device ID extraction failed for {root_path}: {e}")
+
         return MobileDevice(
             label=label,
             root_path=root_path,
             device_type=device_type,
-            folders=folders
+            folders=folders,
+            device_id=device_id,
+            serial_number=serial_number,
+            volume_guid=volume_guid
         )
 
     def _detect_device_type(self, root_path: str) -> str:
@@ -466,12 +519,23 @@ class DeviceScanner:
 
 
 # Convenience function
-def scan_mobile_devices() -> List[MobileDevice]:
+def scan_mobile_devices(db=None, register_devices: bool = True) -> List[MobileDevice]:
     """
     Scan for all mounted mobile devices.
 
+    Args:
+        db: ReferenceDB instance for device registration (optional)
+        register_devices: Whether to register detected devices in database
+
     Returns:
-        List of MobileDevice objects
+        List of MobileDevice objects with device IDs
+
+    Example:
+        >>> from reference_db import ReferenceDB
+        >>> db = ReferenceDB()
+        >>> devices = scan_mobile_devices(db=db)
+        >>> for device in devices:
+        ...     print(f"{device.label}: {device.device_id}")
     """
-    scanner = DeviceScanner()
+    scanner = DeviceScanner(db=db, register_devices=register_devices)
     return scanner.scan_devices()

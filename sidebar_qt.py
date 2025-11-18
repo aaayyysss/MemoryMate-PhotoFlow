@@ -2726,9 +2726,9 @@ class SidebarQt(QWidget):
                 try:
                     from services.device_sources import scan_mobile_devices
 
-                    # Scan for mounted mobile devices
+                    # Scan for mounted mobile devices (with device registration)
                     print("[Sidebar] Scanning for mobile devices...")
-                    mobile_devices = scan_mobile_devices()
+                    mobile_devices = scan_mobile_devices(db=self.db, register_devices=True)
                     print(f"[Sidebar] Found {len(mobile_devices)} mobile device(s)")
 
                     # Update device count for auto-refresh tracking
@@ -3696,7 +3696,7 @@ class SidebarQt(QWidget):
         # Current device detection status
         try:
             from services.device_sources import scan_mobile_devices
-            devices = scan_mobile_devices()
+            devices = scan_mobile_devices(db=self.db, register_devices=True)
             if devices:
                 help_text += f"<p><b>✓ Currently detected:</b> {len(devices)} device(s)</p>"
                 for dev in devices:
@@ -4729,8 +4729,8 @@ class SidebarQt(QWidget):
         try:
             from services.device_sources import scan_mobile_devices
 
-            # Quick scan for devices
-            devices = scan_mobile_devices()
+            # Quick scan for devices (with device registration)
+            devices = scan_mobile_devices(db=self.db, register_devices=True)
             current_count = len(devices)
 
             # Check if device count changed

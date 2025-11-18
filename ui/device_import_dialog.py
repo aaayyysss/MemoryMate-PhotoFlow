@@ -1,13 +1,20 @@
 """
 Device Import Dialog - Photos-app-style import interface
 
-Shows device media files with thumbnails, allows selection,
-and imports chosen files to project.
+Phase 2: Incremental Sync Support
+- Shows new files vs already imported
+- "Import New Only" filter mode
+- Import session tracking
+- Shows statistics (X new / Y total)
 
 Usage:
-    dialog = DeviceImportDialog(db, project_id, device_folder_path, parent)
+    dialog = DeviceImportDialog(
+        db, project_id, device_folder_path, parent,
+        device_id="android:ABC123",  # For Phase 2 tracking
+        root_path="/media/user/device"
+    )
     if dialog.exec():
-        # Files imported successfully
+        # Files imported successfully with session tracking
 """
 
 from PySide6.QtWidgets import (
@@ -173,23 +180,29 @@ class MediaThumbnailWidget(QFrame):
 
 
 class DeviceImportDialog(QDialog):
-    """Photos-app-style import dialog"""
+    """Photos-app-style import dialog with Phase 2 incremental sync"""
 
     def __init__(
         self,
         db,
         project_id: int,
         device_folder_path: str,
-        parent=None
+        parent=None,
+        device_id: Optional[str] = None,      # Phase 2: Device tracking
+        root_path: Optional[str] = None       # Phase 2: For folder extraction
     ):
         super().__init__(parent)
         self.db = db
         self.project_id = project_id
         self.device_folder_path = device_folder_path
+        self.device_id = device_id
+        self.root_path = root_path or device_folder_path
 
-        self.import_service = DeviceImportService(db, project_id)
+        self.import_service = DeviceImportService(db, project_id, device_id=device_id)
         self.media_files: List[DeviceMediaFile] = []
         self.thumbnail_widgets: List[MediaThumbnailWidget] = []
+        self.show_new_only = True  # Phase 2: Default to showing only new files
+        self.current_session_id = None  # Phase 2: Track current import session
 
         self.setWindowTitle(f"Import from Device")
         self.setMinimumSize(800, 600)
@@ -211,10 +224,33 @@ class DeviceImportDialog(QDialog):
 
         layout.addLayout(header_layout)
 
-        # Status label
+        # Status label with statistics (Phase 2)
         self.status_label = QLabel("Scanning device...")
         self.status_label.setStyleSheet("color: #666; font-size: 12px;")
         layout.addWidget(self.status_label)
+
+        # Filter controls (Phase 2: Import New Only)
+        if self.device_id:
+            filter_layout = QHBoxLayout()
+
+            self.new_only_checkbox = QCheckBox("Show New Files Only")
+            self.new_only_checkbox.setChecked(self.show_new_only)
+            self.new_only_checkbox.setToolTip("Show only files that haven't been imported yet")
+            self.new_only_checkbox.toggled.connect(self._on_filter_toggled)
+
+            self.stats_label = QLabel("")
+            self.stats_label.setStyleSheet("color: #0078d4; font-weight: bold; font-size: 12px;")
+
+            filter_layout.addWidget(self.new_only_checkbox)
+            filter_layout.addSpacing(20)
+            filter_layout.addWidget(self.stats_label)
+            filter_layout.addStretch()
+
+            layout.addLayout(filter_layout)
+        else:
+            # No device tracking - hide filter controls
+            self.new_only_checkbox = None
+            self.stats_label = None
 
         # Thumbnail grid (scrollable)
         scroll_area = QScrollArea()
@@ -285,13 +321,49 @@ class DeviceImportDialog(QDialog):
         layout.addLayout(button_layout)
 
     def _scan_device(self):
-        """Scan device folder for media files"""
+        """Scan device folder for media files (Phase 2: with incremental support)"""
         try:
             self.status_label.setText("Scanning device...")
-            self.media_files = self.import_service.scan_device_folder(self.device_folder_path)
+
+            # Phase 2: Use incremental scan if device_id available
+            if self.device_id and self.show_new_only:
+                # Incremental scan - only new files
+                all_files = self.import_service.scan_with_tracking(
+                    self.device_folder_path,
+                    self.root_path
+                )
+                self.media_files = [f for f in all_files if f.import_status == "new"]
+                total_count = len(all_files)
+                new_count = len(self.media_files)
+
+                # Update stats label
+                if self.stats_label:
+                    self.stats_label.setText(f"📊 {new_count} new / {total_count} total files")
+
+            elif self.device_id:
+                # Show all files with tracking
+                self.media_files = self.import_service.scan_with_tracking(
+                    self.device_folder_path,
+                    self.root_path
+                )
+                new_count = sum(1 for f in self.media_files if f.import_status == "new")
+                total_count = len(self.media_files)
+
+                # Update stats label
+                if self.stats_label:
+                    self.stats_label.setText(f"📊 {new_count} new / {total_count} total files")
+
+            else:
+                # No device tracking - basic scan
+                self.media_files = self.import_service.scan_device_folder(self.device_folder_path)
+                new_count = sum(1 for f in self.media_files if not f.already_imported)
+                total_count = len(self.media_files)
 
             if not self.media_files:
-                self.status_label.setText("No media files found on device.")
+                if self.show_new_only and self.device_id:
+                    self.status_label.setText("✅ All files from this device have been imported!")
+                else:
+                    self.status_label.setText("No media files found on device.")
                 self.import_btn.setEnabled(False)
                 return
 
@@ -341,6 +413,22 @@ class DeviceImportDialog(QDialog):
         for widget in self.thumbnail_widgets:
             widget.checkbox.setChecked(False)
 
+    def _on_filter_toggled(self, checked: bool):
+        """Handle 'Show New Files Only' filter toggle (Phase 2)"""
+        self.show_new_only = checked
+
+        # Clear current thumbnails
+        for widget in self.thumbnail_widgets:
+            widget.deleteLater()
+        self.thumbnail_widgets.clear()
+
+        # Clear grid layout
+        for i in reversed(range(self.grid_layout.count())):
+            self.grid_layout.itemAt(i).widget().setParent(None)
+
+        # Re-scan with new filter
+        self._scan_device()
+
     def _update_import_button(self):
         """Update import button text with count"""
         selected_count = sum(1 for w in self.thumbnail_widgets if w.is_selected())
@@ -353,7 +441,7 @@ class DeviceImportDialog(QDialog):
             self.import_btn.setEnabled(False)
 
     def _start_import(self):
-        """Start importing selected files"""
+        """Start importing selected files (Phase 2: with session tracking)"""
         # Get selected files
         selected_files = [
             w.media_file for w in self.thumbnail_widgets if w.is_selected()
@@ -375,6 +463,14 @@ class DeviceImportDialog(QDialog):
 
         if reply != QMessageBox.Yes:
             return
+
+        # Phase 2: Start import session tracking
+        if self.device_id:
+            session_id = self.import_service.start_import_session(import_type="manual")
+            self.current_session_id = session_id
+            print(f"[ImportDialog] Started import session {session_id}")
+        else:
+            self.current_session_id = None
 
         # Disable UI during import
         self.import_btn.setEnabled(False)
@@ -409,9 +505,22 @@ class DeviceImportDialog(QDialog):
         self.progress_label.setText(f"Importing {filename}... ({current}/{total})")
 
     def _on_import_finished(self, stats: dict):
-        """Handle import completion"""
+        """Handle import completion (Phase 2: with session completion)"""
         self.progress_bar.hide()
         self.progress_label.hide()
+
+        # Phase 2: Complete import session tracking
+        if self.device_id and self.current_session_id:
+            try:
+                self.import_service.complete_import_session(
+                    self.current_session_id,
+                    stats
+                )
+                print(f"[ImportDialog] Completed import session {self.current_session_id}")
+                print(f"[ImportDialog] Session stats: {stats['imported']} imported, "
+                      f"{stats['skipped']} skipped, {stats.get('bytes_imported', 0)} bytes")
+            except Exception as e:
+                print(f"[ImportDialog] Failed to complete import session: {e}")
 
         # Show results
         message = (

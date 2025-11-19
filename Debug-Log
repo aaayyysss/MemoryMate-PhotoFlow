@@ -2,49 +2,49 @@
 
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[17:05:01.416] [Tabs] refresh_all(force=True) called
-[17:05:01.416] [Tabs] refresh_all: key=branches, idx=0, force=True
-[17:05:01.416] [Tabs] _populate_tab(branches, idx=0, force=True)
-[17:05:01.416] [Tabs]   populated=True, loading=False
-[17:05:01.416] [Tabs]   Force refresh: removing branches from populated set
-[17:05:01.416] [Tabs]   Starting load for branches
-[17:05:01.416] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[17:05:01.416] [Tabs] _clear_tab idx=0
-[17:05:01.425] [Tabs] refresh_all: key=folders, idx=1, force=True
-[17:05:01.425] [Tabs] _populate_tab(folders, idx=1, force=True)
-[17:05:01.425] [Tabs]   populated=False, loading=False
-[17:05:01.425] [Tabs]   Starting load for folders
-[17:05:01.425] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[17:05:01.425] [Tabs] _clear_tab idx=1
-[17:05:01.425] [Tabs] refresh_all: key=dates, idx=2, force=True
-[17:05:01.425] [Tabs] _populate_tab(dates, idx=2, force=True)
-[17:05:01.425] [Tabs]   populated=False, loading=False
-[17:05:01.425] [Tabs]   Starting load for dates
-[17:05:01.425] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[17:05:01.425] [Tabs] _clear_tab idx=2
-[17:05:01.425] [Tabs] _load_folders → got 0 rows for project_id=1
-[17:05:01.425] [Tabs] refresh_all: key=tags, idx=3, force=True
-[17:05:01.425] [Tabs] _populate_tab(tags, idx=3, force=True)
-[17:05:01.425] [Tabs]   populated=False, loading=False
-[17:05:01.425] [Tabs]   Starting load for tags
-[17:05:01.425] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[17:05:01.425] [Tabs] _clear_tab idx=3
-[17:05:01.435] [Tabs] refresh_all: key=quick, idx=5, force=True
-[17:05:01.435] [Tabs] _populate_tab(quick, idx=5, force=True)
-[17:05:01.435] [Tabs]   populated=False, loading=False
-[17:05:01.435] [Tabs]   Starting load for quick
-[17:05:01.435] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[17:05:01.435] [Tabs] _clear_tab idx=5
-[17:05:01.435] [Tabs] _load_dates → got hierarchy data for project_id=1
-[17:05:01.439] [Tabs] _load_tags → got 0 rows for project_id=1
-[17:05:01.439] [Tabs] refresh_all(force=True) completed
+[17:25:58.711] [Tabs] refresh_all(force=True) called
+[17:25:58.711] [Tabs] refresh_all: key=branches, idx=0, force=True
+[17:25:58.711] [Tabs] _populate_tab(branches, idx=0, force=True)
+[17:25:58.711] [Tabs]   populated=True, loading=False
+[17:25:58.711] [Tabs]   Force refresh: removing branches from populated set
+[17:25:58.711] [Tabs]   Starting load for branches
+[17:25:58.711] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:25:58.711] [Tabs] _clear_tab idx=0
+[17:25:58.711] [Tabs] refresh_all: key=folders, idx=1, force=True
+[17:25:58.711] [Tabs] _populate_tab(folders, idx=1, force=True)
+[17:25:58.711] [Tabs]   populated=False, loading=False
+[17:25:58.711] [Tabs]   Starting load for folders
+[17:25:58.711] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[17:25:58.711] [Tabs] _clear_tab idx=1
+[17:25:58.720] [Tabs] refresh_all: key=dates, idx=2, force=True
+[17:25:58.720] [Tabs] _populate_tab(dates, idx=2, force=True)
+[17:25:58.720] [Tabs]   populated=False, loading=False
+[17:25:58.720] [Tabs]   Starting load for dates
+[17:25:58.720] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[17:25:58.720] [Tabs] _load_folders → got 0 rows for project_id=1
+[17:25:58.720] [Tabs] _clear_tab idx=2
+[17:25:58.722] [Tabs] refresh_all: key=tags, idx=3, force=True
+[17:25:58.722] [Tabs] _populate_tab(tags, idx=3, force=True)
+[17:25:58.722] [Tabs]   populated=False, loading=False
+[17:25:58.722] [Tabs]   Starting load for tags
+[17:25:58.722] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[17:25:58.722] [Tabs] _clear_tab idx=3
+[17:25:58.722] [Tabs] refresh_all: key=quick, idx=5, force=True
+[17:25:58.722] [Tabs] _populate_tab(quick, idx=5, force=True)
+[17:25:58.722] [Tabs] _load_dates → got hierarchy data for project_id=1
+[17:25:58.722] [Tabs]   populated=False, loading=False
+[17:25:58.722] [Tabs]   Starting load for quick
+[17:25:58.722] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[17:25:58.722] [Tabs] _clear_tab idx=5
+[17:25:58.726] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
-[17:05:01.439] [Tabs] _load_quick → got 6 rows
 [Sidebar] Processing pending events before model clear
-[17:05:01.441] [Tabs] _clear_tab idx=0
+[17:25:58.726] [Tabs] _load_tags → got 0 rows for project_id=1
+[17:25:58.726] [Tabs] _load_quick → got 6 rows
+[17:25:58.726] [Tabs] _clear_tab idx=0
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
@@ -53,11 +53,11 @@
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[17:05:01.456] [Tabs] _clear_tab idx=1
-[17:05:01.465] [Tabs] _clear_tab idx=2
-[17:05:01.470] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[17:05:01.470] [Tabs] _clear_tab idx=3
-[17:05:01.471] [Tabs] _clear_tab idx=5
+[17:25:58.738] [Tabs] _clear_tab idx=1
+[17:25:58.742] [Tabs] _clear_tab idx=2
+[17:25:58.751] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[17:25:58.751] [Tabs] _clear_tab idx=3
+[17:25:58.751] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -69,7 +69,7 @@
 [Sidebar] Found 0 videos in project 1
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x0000029542D2FD10>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x00000208E1038210>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -112,7 +112,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
+[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -124,7 +124,7 @@
 [Sidebar] ===== Scan complete: 1 mobile device(s) found =====
 [Sidebar]   Device 1: A54 von Ammar - Interner Speicher
 [Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:83b8c638
+[Sidebar]     - Device ID: windows_mtp:a2ec6ba5
 [Sidebar]     - Device type: android
 [Sidebar]     - Folders: 2
 [Sidebar]       • Camera (10 files)
@@ -187,7 +187,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
+[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -209,7 +209,7 @@
 [MTPAdapter] Enumerated 10 files...
 [MTPAdapter] ✓ Enumerated 15 media files
 [MTPImportWorker] Found 15 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-12\Device_Imports\A54 von Ammar\Camera\2025-11-19
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\Device_Imports\A54 von Ammar\Camera\2025-11-19
 [MTPAdapter] Duplicate detection: 15 new, 0 duplicates
 [MTPAdapter] Successfully accessed source folder for import
 [MTPAdapter] Importing 1/15: 20241002_231251.jpg
@@ -259,6 +259,17 @@
 [MTPAdapter] ✓ Added to database: 20240824_215938.jpg (id=29, branches=['all', 'device_folder:Camera [A54 von Ammar]'])
 [MTPAdapter] ✓ Import complete: 15/15 files (skipped 0 duplicates)
 [MTPImportWorker] ✓ Import complete: 15 files
+[Sidebar] Import successful: 15 files
+[GRID] Loaded 15 thumbnails in tag-mode.
+[Sidebar] ✓ Import complete, grid loaded with 15 files
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
+[Sidebar] Extracted device name: A54 von Ammar
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -303,7 +314,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
+[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -316,30 +327,6 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Sidebar] Import successful: 15 files
-[GRID] Loaded 15 thumbnails in tag-mode.
-[Sidebar] ✓ Import complete, grid loaded with 15 files
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 15 photos
-[GRID] Loaded 15 thumbnails.
-[GRID] Reloaded 15 thumbnails in branch-mode (base=15)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[GRID] Queued 15 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-14 of 15
-[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[Sidebar] Extracted device name: A54 von Ammar
 [MTPImportWorker] Starting import from A54 von Ammar → Screenshots
 [MTPAdapter] Enumerating MTP folder: Screenshots on A54 von Ammar
 [MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
@@ -347,7 +334,7 @@
 [MTPAdapter] Enumerated 10 files...
 [MTPAdapter] ✓ Enumerated 12 media files
 [MTPImportWorker] Found 12 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-12\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
 [MTPAdapter] Duplicate detection: 12 new, 0 duplicates
 [MTPAdapter] Successfully accessed source folder for import
 [MTPAdapter] Importing 1/12: Screenshot_20241009_204415.jpg
@@ -384,165 +371,22 @@
 [MTPAdapter] ✓ Copied Screenshot_20240703_192505_WhatsApp.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20240703_192505_WhatsApp.jpg (id=51, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 12/12: 20240601_120058_IMG_4776.PNG
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 1
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
 [MTPAdapter] ✓ Copied 20240601_120058_IMG_4776.PNG
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
 [MTPAdapter] ✓ Added to database: 20240601_120058_IMG_4776.PNG (id=53, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] ✓ Import complete: 12/12 files (skipped 0 duplicates)
 [MTPImportWorker] ✓ Import complete: 12 files
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] Current device count: 1
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
 [Sidebar] Import successful: 12 files
 [GRID] Loaded 12 thumbnails in tag-mode.
 [Sidebar] ✓ Import complete, grid loaded with 12 files
-[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Extracted device name: A54 von Ammar
-[MTPImportWorker] Starting import from A54 von Ammar → Camera
-[MTPAdapter] Enumerating MTP folder: Camera on A54 von Ammar
-[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPAdapter] Successfully accessed folder
-[MTPAdapter] Enumerated 10 files...
-[MTPAdapter] ✓ Enumerated 15 media files
-[MTPImportWorker] Found 15 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-12\Device_Imports\A54 von Ammar\Camera\2025-11-19
-[MTPAdapter] ⊗ Skipping duplicate: 20241002_231251.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240821_150613.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20241231_150206.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20241019_115354.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20250618_174739.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240823_002940.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240702_183644.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20251030_170334.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240611_233557.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20251110_125241.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240712_130946.mp4
-[MTPAdapter] ⊗ Skipping duplicate: 20240611_233533.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240712_130801.mp4
-[MTPAdapter] ⊗ Skipping duplicate: 20240611_233326.jpg
-[MTPAdapter] ⊗ Skipping duplicate: 20240824_215938.jpg
-[MTPAdapter] Duplicate detection: 0 new, 15 duplicates
-[MTPAdapter] All files already imported. Nothing to do.
-[MTPImportWorker] ⊗ All 15 files already imported
-[Sidebar] Import cancelled by user
-[SidebarQt] switch_display_mode(tabs) - canceling old workers
-[SidebarQt] Canceled list workers (new gen=5)
-[SidebarQt] Hiding tree view
-[SidebarQt] Showing tabs controller
-[SidebarQt] Calling tabs_controller.refresh_all(force=True) after mode switch
-[17:06:39.637] [Tabs] refresh_all(force=True) called
-[17:06:39.637] [Tabs] refresh_all: key=branches, idx=0, force=True
-[17:06:39.637] [Tabs] _populate_tab(branches, idx=0, force=True)
-[17:06:39.637] [Tabs]   populated=True, loading=False
-[17:06:39.637] [Tabs]   Force refresh: removing branches from populated set
-[17:06:39.637] [Tabs]   Starting load for branches
-[17:06:39.637] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[17:06:39.637] [Tabs] _clear_tab idx=0
-[17:06:39.640] [Tabs] refresh_all: key=folders, idx=1, force=True
-[17:06:39.640] [Tabs] _populate_tab(folders, idx=1, force=True)
-[17:06:39.640] [Tabs]   populated=True, loading=False
-[17:06:39.640] [Tabs]   Force refresh: removing folders from populated set
-[17:06:39.640] [Tabs]   Starting load for folders
-[17:06:39.640] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[17:06:39.640] [Tabs] _clear_tab idx=1
-[17:06:39.640] [Tabs] refresh_all: key=dates, idx=2, force=True
-[17:06:39.640] [Tabs] _populate_tab(dates, idx=2, force=True)
-[17:06:39.640] [Tabs]   populated=True, loading=False
-[17:06:39.640] [Tabs]   Force refresh: removing dates from populated set
-[17:06:39.640] [Tabs]   Starting load for dates
-[17:06:39.640] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[17:06:39.640] [Tabs] _clear_tab idx=2
-[17:06:39.640] [Tabs] _load_folders → got 0 rows for project_id=1
-[17:06:39.640] [Tabs] refresh_all: key=tags, idx=3, force=True
-[17:06:39.640] [Tabs] _populate_tab(tags, idx=3, force=True)
-[17:06:39.640] [Tabs]   populated=True, loading=False
-[17:06:39.640] [Tabs]   Force refresh: removing tags from populated set
-[17:06:39.640] [Tabs]   Starting load for tags
-[17:06:39.640] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[17:06:39.640] [Tabs] _clear_tab idx=3
-[17:06:39.653] [Tabs] refresh_all: key=quick, idx=5, force=True
-[17:06:39.653] [Tabs] _populate_tab(quick, idx=5, force=True)
-[17:06:39.653] [Tabs]   populated=True, loading=False
-[17:06:39.653] [Tabs]   Force refresh: removing quick from populated set
-[17:06:39.653] [Tabs]   Starting load for quick
-[17:06:39.653] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[17:06:39.653] [Tabs] _load_dates → got hierarchy data for project_id=1
-[17:06:39.653] [Tabs] _clear_tab idx=5
-[17:06:39.653] [Tabs] _load_tags → got 0 rows for project_id=1
-[17:06:39.656] [Tabs] refresh_all(force=True) completed
-[SidebarQt] tabs_controller.refresh_all() completed after mode switch
-[17:06:39.656] [Tabs] _load_quick → got 6 rows
-[17:06:39.656] [Tabs] _clear_tab idx=0
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 27 photos
-[GRID] Loaded 27 thumbnails.
-[GRID] Reloaded 27 thumbnails in branch-mode (base=27)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 27 photos
-[GRID] Loaded 27 thumbnails.
-[GRID] Reloaded 27 thumbnails in branch-mode (base=27)
-[17:06:39.673] [Tabs] _clear_tab idx=1
-[17:06:39.685] [Tabs] _clear_tab idx=2
-[17:06:39.685] [Tabs] _finish_tags called: idx=3, gen=3, rows_count=0
-[17:06:39.685] [Tabs] _clear_tab idx=3
-[17:06:39.691] [Tabs] _clear_tab idx=5
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-26 of 27
-[GRID] Queued 27 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-26 of 27
+[Sidebar] Deep scan clicked for device
+[Sidebar] Starting deep scan for: A54 von Ammar - Interner Speicher
+[Sidebar]   Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar]   Device type: android
+[Sidebar] Deep scan failed: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\sidebar_qt.py", line 2041, in _on_item_clicked
+    raise Exception(f"Cannot find device storage at: {root_path}")
+Exception: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -587,568 +431,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] Current device count: 1
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[17:06:42.420] [Tabs] _on_tab_changed(idx=1)
-[17:06:42.420] [Tabs] _start_timeout idx=1 type=folders
-[17:06:42.420] [Tabs] _populate_tab(folders, idx=1, force=False)
-[17:06:42.420] [Tabs]   populated=True, loading=False
-[17:06:42.420] [Tabs]   Skipping folders: already populated or loading
-[17:06:42.420] [Tabs] _on_tab_changed → tab_type=folders
-[17:06:44.006] [Tabs] _on_tab_changed(idx=2)
-[17:06:44.006] [Tabs] _start_timeout idx=2 type=dates
-[17:06:44.006] [Tabs] _populate_tab(dates, idx=2, force=False)
-[17:06:44.006] [Tabs]   populated=True, loading=False
-[17:06:44.006] [Tabs]   Skipping dates: already populated or loading
-[17:06:44.006] [Tabs] _on_tab_changed → tab_type=dates
-[17:06:45.234] [Tabs] _on_tab_changed(idx=0)
-[17:06:45.234] [Tabs] _start_timeout idx=0 type=branches
-[17:06:45.234] [Tabs] _populate_tab(branches, idx=0, force=False)
-[17:06:45.234] [Tabs]   populated=True, loading=False
-[17:06:45.234] [Tabs]   Skipping branches: already populated or loading
-[17:06:45.234] [Tabs] _on_tab_changed → tab_type=branches
-[SidebarQt] switch_display_mode(list) - canceling old workers
-[SidebarQt] Hiding tabs controller
-[17:06:46.631] [Tabs] hide_tabs() called - canceling pending workers
-[SidebarQt] Canceled tab workers via hide_tabs()
-[SidebarQt] Processing pending events after hide_tabs()
-[SidebarQt] Finished processing events
-[SidebarQt] Clearing tree view selection before rebuild
-[SidebarQt] Showing tree view
-[SidebarQt] Calling _build_tree_model()
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
-[Sidebar] Loaded 0 folder counts in batch (performance optimization)
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x0000029542D2FD10>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] ===== Scan complete: 1 mobile device(s) found =====
-[Sidebar]   Device 1: A54 von Ammar - Interner Speicher
-[Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:83b8c638
-[Sidebar]     - Device type: android
-[Sidebar]     - Folders: 2
-[Sidebar]       • Camera (10 files)
-[Sidebar]       • Screenshots (10 files)
-[Sidebar] ===== End device scan =====
-
-[Sidebar] Added Mobile Devices section with 1 devices, 20 total photos
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=7] running for 1 targets...
-[SidebarQt] _build_tree_model() completed
-[Sidebar][counts worker gen=7] finished scanning targets, scheduling UI update
-[Schema] Database schema initialized successfully
-[ScanController] Creating ScanWorker for folder: C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanController] ScanWorker imported successfully
-[ScanController] QThread created
-[ScanController] ScanWorker instance created with project_id=1
-[ScanController] Worker moved to thread
-[ScanController] Signals connected
-[ScanController] Starting scan thread...
-[ScanController] thread.start() called
-2025-11-19 17:07:05,335 [INFO] DBWriter timer started in worker thread
-[ScanWorkerAdapter] run() method called!
-[ScanWorkerAdapter] folder=C:/Users/suleimaa/Downloads/Photo-Sorter/Images, incremental=True
-2025-11-19 17:07:05,337 [INFO] ScanWorkerAdapter starting scan of C:/Users/suleimaa/Downloads/Photo-Sorter/Images
-[ScanWorkerAdapter] Starting scan...
-2025-11-19 17:07:05,337 [INFO] Starting scan: C:/Users/suleimaa/Downloads/Photo-Sorter/Images (incremental=True)
-2025-11-19 17:07:05,340 [INFO] Discovered 15 candidate image files and 0 video files
-[ScanController] QThread STARTED!
-2025-11-19 17:07:05,353 [INFO] Loading existing metadata for incremental scan...
-2025-11-19 17:07:05,464 [INFO] ✓ Loaded 0 existing file records
-[SCAN] Starting file 1/15: Alya1_2_2_2.jpeg
-2025-11-19 17:07:05,469 [INFO] [Scan] File 1/15: Alya1_2_2_2.jpeg
-[SCAN] _process_file started for: Alya1_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,473 [INFO] 📷 Processing: Alya1_2_2_2.jpeg (345.2 KB)
-[SCAN] Processing: Alya1_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya1_2_2_2.jpeg
-[SCAN] Starting file 2/15: Alya1_3_2.jpeg
-2025-11-19 17:07:05,689 [INFO] [Scan] File 2/15: Alya1_3_2.jpeg
-[SCAN] _process_file started for: Alya1_3_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,719 [INFO] 📷 Processing: Alya1_3_2.jpeg (345.2 KB)
-[SCAN] Processing: Alya1_3_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya1_3_2.jpeg
-[SCAN] Starting file 3/15: Alya2_2_2_2_2.jpeg
-2025-11-19 17:07:05,737 [INFO] [Scan] File 3/15: Alya2_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya2_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,737 [INFO] 📷 Processing: Alya2_2_2_2_2.jpeg (107.1 KB)
-[SCAN] Processing: Alya2_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya2_2_2_2_2.jpeg
-[SCAN] Starting file 4/15: Alya3_2_2_2_2.jpeg
-2025-11-19 17:07:05,751 [INFO] [Scan] File 4/15: Alya3_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya3_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,752 [INFO] 📷 Processing: Alya3_2_2_2_2.jpeg (97.2 KB)
-[SCAN] Processing: Alya3_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya3_2_2_2_2.jpeg
-[SCAN] Starting file 5/15: Alya_2_2.jpeg
-2025-11-19 17:07:05,763 [INFO] [Scan] File 5/15: Alya_2_2.jpeg
-[SCAN] _process_file started for: Alya_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,763 [INFO] 📷 Processing: Alya_2_2.jpeg (181.4 KB)
-[SCAN] Processing: Alya_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya_2_2.jpeg
-[SCAN] Starting file 6/15: Alya_2_2_2_2.jpeg
-2025-11-19 17:07:05,776 [INFO] [Scan] File 6/15: Alya_2_2_2_2.jpeg
-[SCAN] _process_file started for: Alya_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,778 [INFO] 📷 Processing: Alya_2_2_2_2.jpeg (181.4 KB)
-[SCAN] Processing: Alya_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Alya_2_2_2_2.jpeg
-[SCAN] Starting file 7/15: Ammar-Ref(1)_2_2.png
-2025-11-19 17:07:05,789 [INFO] [Scan] File 7/15: Ammar-Ref(1)_2_2.png
-[SCAN] _process_file started for: Ammar-Ref(1)_2_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,791 [INFO] 📷 Processing: Ammar-Ref(1)_2_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref(1)_2_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref(1)_2_2.png
-[SCAN] Starting file 8/15: Ammar-Ref_2_2_2.png
-2025-11-19 17:07:05,815 [INFO] [Scan] File 8/15: Ammar-Ref_2_2_2.png
-[SCAN] _process_file started for: Ammar-Ref_2_2_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,815 [INFO] 📷 Processing: Ammar-Ref_2_2_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref_2_2_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref_2_2_2.png
-[SCAN] Starting file 9/15: Ammar-Ref_3_2.png
-2025-11-19 17:07:05,840 [INFO] [Scan] File 9/15: Ammar-Ref_3_2.png
-[SCAN] _process_file started for: Ammar-Ref_3_2.png
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,843 [INFO] 📷 Processing: Ammar-Ref_3_2.png (800.9 KB)
-[SCAN] Processing: Ammar-Ref_3_2.png
-[SCAN] ✓ Metadata extracted: Ammar-Ref_3_2.png
-[SCAN] Starting file 10/15: Ammar1_2_2_2.jpeg
-2025-11-19 17:07:05,869 [INFO] [Scan] File 10/15: Ammar1_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar1_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,869 [INFO] 📷 Processing: Ammar1_2_2_2.jpeg (4364.7 KB)
-[SCAN] Processing: Ammar1_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar1_2_2_2.jpeg
-[SCAN] Starting file 11/15: Ammar2_2_2_2.jpeg
-2025-11-19 17:07:05,898 [INFO] [Scan] File 11/15: Ammar2_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,898 [INFO] 📷 Processing: Ammar2_2_2_2.jpeg (2338.2 KB)
-[SCAN] Processing: Ammar2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar2_2_2_2.jpeg
-[SCAN] Starting file 12/15: Ammar3_2_2_2_2.jpeg
-2025-11-19 17:07:05,912 [INFO] [Scan] File 12/15: Ammar3_2_2_2_2.jpeg
-[SCAN] _process_file started for: Ammar3_2_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,917 [INFO] 📷 Processing: Ammar3_2_2_2_2.jpeg (171.0 KB)
-[SCAN] Processing: Ammar3_2_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: Ammar3_2_2_2_2.jpeg
-[SCAN] Starting file 13/15: IMG_6850_2_2_2.jpeg
-2025-11-19 17:07:05,929 [INFO] [Scan] File 13/15: IMG_6850_2_2_2.jpeg
-[SCAN] _process_file started for: IMG_6850_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,929 [INFO] 📷 Processing: IMG_6850_2_2_2.jpeg (3027.8 KB)
-[SCAN] Processing: IMG_6850_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: IMG_6850_2_2_2.jpeg
-[SCAN] Starting file 14/15: IMG_6995_2_2_2.jpeg
-2025-11-19 17:07:05,942 [INFO] [Scan] File 14/15: IMG_6995_2_2_2.jpeg
-[SCAN] _process_file started for: IMG_6995_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,942 [INFO] 📷 Processing: IMG_6995_2_2_2.jpeg (4005.3 KB)
-[SCAN] Processing: IMG_6995_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: IMG_6995_2_2_2.jpeg
-[SCAN] Starting file 15/15: عليا_2_2_2.jpeg
-2025-11-19 17:07:05,949 [INFO] [Scan] File 15/15: عليا_2_2_2.jpeg
-[SCAN] _process_file started for: عليا_2_2_2.jpeg
-[SCAN] Getting file stats...
-[SCAN] File stats retrieved successfully
-2025-11-19 17:07:05,956 [INFO] 📷 Processing: عليا_2_2_2.jpeg (345.2 KB)
-[SCAN] Processing: عليا_2_2_2.jpeg
-[SCAN] ✓ Metadata extracted: عليا_2_2_2.jpeg
-2025-11-19 17:07:05,973 [INFO] Bulk upserted 15 photos for project 1
-2025-11-19 17:07:05,973 [INFO] Scan complete: 15 photos indexed, 0 videos indexed, 0 skipped, 0 failed in 0.6s
-2025-11-19 17:07:05,973 [INFO] Scan completed: 15 photos, 0 videos, 1 folders in 0.6s
-[ScanController] scan finished: 1 folders, 15 photos, 0 videos
-[ScanController] cleanup after scan
-2025-11-19 17:07:07,772 [INFO] Building date branches...
-2025-11-19 17:07:07,789 [INFO] Building date branches for project_id=1
-[build_date_branches] Using project_id=1
-[build_date_branches] Populating 'all' branch with 15 photos for project 1
-[build_date_branches] Inserted 15/15 photos into 'all' branch
-[build_date_branches] Found 6 unique dates for project 1
-[build_date_branches] Date 2024-08-11: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar1_2_2_2.jpeg
-[build_date_branches] Date 2024-08-11: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-18: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/ammar2_2_2_2.jpeg
-[build_date_branches] Date 2024-11-18: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2024-11-29: found 3 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya1_2_2_2.jpeg
-[build_date_branches] Date 2024-11-29: inserted 3/3 into project_images (new)
-[build_date_branches] Date 2024-12-02: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/alya2_2_2_2_2.jpeg
-[build_date_branches] Date 2024-12-02: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-07-30: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6850_2_2_2.jpeg
-[build_date_branches] Date 2025-07-30: inserted 1/1 into project_images (new)
-[build_date_branches] Date 2025-08-09: found 1 photos for project 1
-[build_date_branches] Sample path: c:/users/suleimaa/downloads/photo-sorter/images/output6/img_6995_2_2_2.jpeg
-[build_date_branches] Date 2025-08-09: inserted 1/1 into project_images (new)
-[build_date_branches] Total entries processed: 8
-[build_date_branches] project_images table has 77 rows for project 1
-2025-11-19 17:07:07,816 [INFO] Created 8 photo date branch entries for project 1
-2025-11-19 17:07:07,819 [INFO] Building video date branches for project_id=1
-[build_video_date_branches] Using project_id=1
-[build_video_date_branches] Found 0 videos with dates for project 1
-[build_video_date_branches] No videos with dates found, skipping branch creation
-2025-11-19 17:07:07,819 [INFO] Created 0 video date branch entries for project 1
-2025-11-19 17:07:07,822 [INFO] Backfilling created_date fields for photos...
-2025-11-19 17:07:07,828 [INFO] Backfilled 7 photo rows with created_date
-2025-11-19 17:07:07,829 [INFO] Backfilling created_date fields for videos...
-[FaceConfig] Loaded from C:\Users\suleimaa\.memorymate\face_detection_config.json
-2025-11-19 17:07:07,850 [INFO] Reloading sidebar after date branches built...
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=1
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 1 branches
-[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 15}]
-[Sidebar] Loaded 2 folder counts in batch (performance optimization)
-[Sidebar] Loaded date counts in batch: 2 years, 5 months, 9 days
-[Sidebar] Loading videos for project_id=1
-[Sidebar] Found 0 videos in project 1
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x0000029542D2FD10>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] ===== Scan complete: 1 mobile device(s) found =====
-[Sidebar]   Device 1: A54 von Ammar - Interner Speicher
-[Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:83b8c638
-[Sidebar]     - Device type: android
-[Sidebar]     - Folders: 2
-[Sidebar]       • Camera (10 files)
-[Sidebar]       • Screenshots (10 files)
-[Sidebar] ===== End device scan =====
-
-[Sidebar] Added Mobile Devices section with 1 devices, 20 total photos
-[Sidebar] starting async count population for 1 branch targets
-[Sidebar][counts worker gen=9] running for 1 targets...
-[get_images_by_branch] project_id=1, branch_key='all'
-[Sidebar][counts worker gen=9] finished scanning targets, scheduling UI update
-[get_images_by_branch] Found 42 photos
-[GRID] Loaded 42 thumbnails.
-[GRID] Reloaded 42 thumbnails in branch-mode (base=42)
-[GRID] Using scroll-based start position: 0 (scroll: 0/86)
-[GRID] Loading viewport range: 0-41 of 42
-[GRID] Queued 42 new thumbnail workers
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 1
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] Current device count: 1
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 42 photos
-[GRID] Loaded 42 thumbnails.
-[GRID] Reloaded 42 thumbnails in branch-mode (base=42)
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Queued 1 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Loaded 4 thumbnails.
-[GRID] Reloaded 4 thumbnails in date-mode (base=4)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-3 of 4
-[GRID] Queued 4 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-3 of 4
-[GRID] Loaded 4 thumbnails.
-[GRID] Reloaded 4 thumbnails in date-mode (base=4)
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Queued 1 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Queued 1 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-0 of 1
-[GRID] Loaded 1 thumbnails.
-[GRID] Reloaded 1 thumbnails in date-mode (base=1)
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in date-mode (base=8)
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Queued 8 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/0)
-[GRID] Loading viewport range: 0-7 of 8
-[GRID] Loaded 8 thumbnails.
-[GRID] Reloaded 8 thumbnails in date-mode (base=8)
-[get_images_by_branch] project_id=1, branch_key='all'
-[get_images_by_branch] Found 42 photos
-[GRID] Loaded 42 thumbnails.
-[GRID] Reloaded 42 thumbnails in branch-mode (base=42)
-[GRID] Using scroll-based start position: 0 (scroll: 0/86)
-[GRID] Loading viewport range: 0-41 of 42
-[GRID] Queued 42 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/86)
-[GRID] Loading viewport range: 0-41 of 42
-[GRID] Using scroll-based start position: 22 (scroll: 86/86)
-[GRID] Loading viewport range: 14-41 of 42
-[GRID] Queued 28 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/86)
-[GRID] Loading viewport range: 0-41 of 42
-[GRID] Queued 42 new thumbnail workers
-[GRID] Using scroll-based start position: 22 (scroll: 86/86)
-[GRID] Loading viewport range: 14-41 of 42
-[GRID] Queued 28 new thumbnail workers
-[GRID] Using scroll-based start position: 0 (scroll: 0/86)
-[GRID] Loading viewport range: 0-41 of 42
-[GRID] Queued 42 new thumbnail workers
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 1
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:83b8c638
+[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -1167,4 +450,4 @@
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
 
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-12>
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13>

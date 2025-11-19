@@ -1977,7 +1977,7 @@ class SidebarQt(QWidget):
                         device_name = "Unknown Device"
                         try:
                             # Get clicked item from tree
-                            current_index = self.tree_view.currentIndex()
+                            current_index = self.tree.currentIndex()
                             if current_index.isValid():
                                 # Get parent device item
                                 parent_index = current_index.parent()

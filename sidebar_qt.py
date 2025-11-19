@@ -2197,9 +2197,29 @@ class SidebarQt(QWidget):
                                     f"📱 Imported and showing {len(imported_paths)} item(s) from {folder_name} [{device_name}]"
                                 )
 
-                                # TODO: Update sidebar counts (All Photos, By Dates, Folders)
-                                # This will be implemented in next task
+                                # AUTO-REFRESH: Update sidebar sections to show newly imported files
+                                print(f"[Sidebar] Refreshing sidebar sections...")
+
+                                # Refresh Folders tab (force reload)
+                                if "folders" in self._tab_populated:
+                                    self._tab_populated.discard("folders")
+                                    print(f"[Sidebar]   ✓ Cleared Folders tab cache")
+
+                                # Refresh Dates tab (force reload)
+                                if "dates" in self._tab_populated:
+                                    self._tab_populated.discard("dates")
+                                    print(f"[Sidebar]   ✓ Cleared Dates tab cache")
+
+                                # If current tab is Folders or Dates, trigger reload
+                                current_tab_idx = self.tab_widget.currentIndex()
+                                if current_tab_idx >= 0:
+                                    tab_name = self.tab_widget.tabText(current_tab_idx)
+                                    if tab_name in ["Folders", "Dates"]:
+                                        print(f"[Sidebar]   Reloading {tab_name} tab...")
+                                        self._load_tab_if_selected(current_tab_idx)
+
                                 print(f"[Sidebar] ✓ Import complete, grid loaded with {len(imported_paths)} files")
+                                print(f"[Sidebar] ✓ Sidebar tabs will refresh when viewed")
                             else:
                                 print(f"[Sidebar] No files imported")
                                 mw.statusBar().showMessage("📱 No files were imported")

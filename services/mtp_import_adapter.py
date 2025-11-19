@@ -386,6 +386,16 @@ class MTPImportAdapter:
                         continue
 
                 print(f"[MTPAdapter] ✓ Import complete: {len(imported_paths)}/{len(new_files)} files (skipped {len(duplicate_files)} duplicates)")
+
+                # AUTO-ORGANIZATION: Organize imported files into Folders and Dates sections
+                if imported_paths:
+                    print(f"[MTPAdapter] Auto-organizing {len(imported_paths)} imported files...")
+                    self._organize_imported_files(
+                        imported_paths=imported_paths,
+                        device_name=device_name,
+                        folder_name=folder_name
+                    )
+
                 return imported_paths
 
             finally:
@@ -473,3 +483,227 @@ class MTPImportAdapter:
         for char in invalid_chars:
             name = name.replace(char, '_')
         return name.strip()
+
+    def _organize_imported_files(
+        self,
+        imported_paths: List[str],
+        device_name: str,
+        folder_name: str
+    ):
+        """
+        Organize imported files into Folders and Dates sections.
+
+        This method:
+        1. Parses EXIF dates from all files
+        2. Creates folder hierarchy (Device_Imports → Device → Folder → Date)
+        3. Adds files to photo_metadata with EXIF dates for date organization
+        4. Groups files by capture date
+
+        Args:
+            imported_paths: List of imported file paths
+            device_name: Device name (e.g., "A54 von Ammar")
+            folder_name: Folder name (e.g., "Camera", "Screenshots")
+        """
+        try:
+            from services.exif_parser import EXIFParser
+            from PIL import Image
+            import os
+
+            parser = EXIFParser()
+
+            # Group files by capture date
+            files_by_date = {}  # {date_str: [file_paths]}
+
+            print(f"[MTPAdapter]   Parsing EXIF dates...")
+
+            for file_path in imported_paths:
+                try:
+                    # Parse capture date
+                    capture_date = parser.get_capture_date(file_path)
+                    date_key = capture_date.strftime("%Y-%m-%d")
+
+                    if date_key not in files_by_date:
+                        files_by_date[date_key] = []
+                    files_by_date[date_key].append(file_path)
+
+                except Exception as e:
+                    print(f"[MTPAdapter]   ✗ Error parsing date for {Path(file_path).name}: {e}")
+                    # Fallback to "Unknown Date"
+                    if "unknown" not in files_by_date:
+                        files_by_date["unknown"] = []
+                    files_by_date["unknown"].append(file_path)
+
+            print(f"[MTPAdapter]   ✓ Parsed dates: {len(files_by_date)} unique dates found")
+
+            # Create folder hierarchy: Device_Imports → Device → Folder → Dates
+            print(f"[MTPAdapter]   Creating folder hierarchy...")
+            self._create_folder_hierarchy(device_name, folder_name, files_by_date)
+
+            # Add files to photo_metadata with EXIF dates
+            print(f"[MTPAdapter]   Adding files to photo_metadata...")
+            self._add_to_photo_metadata(files_by_date)
+
+            print(f"[MTPAdapter] ✓ Auto-organization complete:")
+            print(f"[MTPAdapter]   • Organized {len(imported_paths)} files into folder hierarchy")
+            print(f"[MTPAdapter]   • Grouped by {len(files_by_date)} unique dates")
+            print(f"[MTPAdapter]   • Files will now appear in Folders and Dates sections")
+
+        except Exception as e:
+            print(f"[MTPAdapter] ✗ Error during auto-organization: {e}")
+            import traceback
+            traceback.print_exc()
+            # Don't fail the import if organization fails
+            print(f"[MTPAdapter]   Files were imported successfully but auto-organization failed")
+
+    def _create_folder_hierarchy(
+        self,
+        device_name: str,
+        folder_name: str,
+        files_by_date: dict
+    ):
+        """
+        Create folder hierarchy in database.
+
+        Structure:
+        Device_Imports/
+          ├─ {Device Name}/
+          │   ├─ {Folder Name}/
+          │   │   ├─ {Date}/
+          │   │   │   └─ files...
+
+        Args:
+            device_name: Device name (e.g., "A54 von Ammar")
+            folder_name: Folder name (e.g., "Camera")
+            files_by_date: Dict of {date_str: [file_paths]}
+        """
+        try:
+            # 1. Get or create "Device_Imports" root folder
+            device_imports_path = str(Path.cwd() / "Device_Imports")
+            device_imports_id = self.db.ensure_folder(
+                path=device_imports_path,
+                name="Device_Imports",
+                parent_id=None,
+                project_id=self.project_id
+            )
+            print(f"[MTPAdapter]     ✓ Root folder: Device_Imports (id={device_imports_id})")
+
+            # 2. Get or create device folder (e.g., "A54 von Ammar")
+            device_folder_path = str(Path.cwd() / "Device_Imports" / device_name)
+            device_folder_id = self.db.ensure_folder(
+                path=device_folder_path,
+                name=device_name,
+                parent_id=device_imports_id,
+                project_id=self.project_id
+            )
+            print(f"[MTPAdapter]     ✓ Device folder: {device_name} (id={device_folder_id})")
+
+            # 3. Get or create source folder (e.g., "Camera")
+            source_folder_path = str(Path.cwd() / "Device_Imports" / device_name / folder_name)
+            source_folder_id = self.db.ensure_folder(
+                path=source_folder_path,
+                name=folder_name,
+                parent_id=device_folder_id,
+                project_id=self.project_id
+            )
+            print(f"[MTPAdapter]     ✓ Source folder: {folder_name} (id={source_folder_id})")
+
+            # 4. Create date subfolders and link files
+            for date_str, file_paths in files_by_date.items():
+                if date_str == "unknown":
+                    # Link unknown date files directly to source folder
+                    for file_path in file_paths:
+                        self.db.set_folder_for_image(
+                            path=file_path,
+                            folder_id=source_folder_id
+                        )
+                else:
+                    # Create date folder
+                    date_folder_path = str(Path.cwd() / "Device_Imports" / device_name / folder_name / date_str)
+                    date_folder_id = self.db.ensure_folder(
+                        path=date_folder_path,
+                        name=date_str,
+                        parent_id=source_folder_id,
+                        project_id=self.project_id
+                    )
+
+                    # Link files to date folder
+                    for file_path in file_paths:
+                        self.db.set_folder_for_image(
+                            path=file_path,
+                            folder_id=date_folder_id
+                        )
+
+                    print(f"[MTPAdapter]     ✓ Date folder: {date_str} ({len(file_paths)} files, id={date_folder_id})")
+
+        except Exception as e:
+            print(f"[MTPAdapter]   ✗ Error creating folder hierarchy: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _add_to_photo_metadata(self, files_by_date: dict):
+        """
+        Add files to photo_metadata table with EXIF dates.
+
+        This enables date-based organization in the "By Dates" section.
+
+        Args:
+            files_by_date: Dict of {date_str: [file_paths]}
+        """
+        try:
+            from services.exif_parser import EXIFParser
+            from PIL import Image
+            import os
+
+            parser = EXIFParser()
+
+            for date_str, file_paths in files_by_date.items():
+                for file_path in file_paths:
+                    try:
+                        file_path_obj = Path(file_path)
+
+                        # Get file stats
+                        stat = file_path_obj.stat()
+                        size_kb = stat.st_size / 1024
+                        modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+
+                        # Get image dimensions
+                        width, height = None, None
+                        if parser._is_image(file_path):
+                            try:
+                                with Image.open(file_path) as img:
+                                    width, height = img.size
+                            except:
+                                pass
+
+                        # Get EXIF date
+                        date_taken = None
+                        if date_str != "unknown":
+                            try:
+                                capture_date = parser.get_capture_date(file_path)
+                                date_taken = capture_date.strftime("%Y-%m-%d %H:%M:%S")
+                            except:
+                                pass
+
+                        # Add to photo_metadata (will auto-create created_date fields for date organization)
+                        self.db.upsert_photo_metadata(
+                            path=file_path,
+                            folder_id=None,  # Will be set by folder hierarchy
+                            size_kb=size_kb,
+                            modified=modified,
+                            width=width,
+                            height=height,
+                            date_taken=date_taken,
+                            tags=None,
+                            project_id=self.project_id
+                        )
+
+                    except Exception as e:
+                        print(f"[MTPAdapter]     ✗ Error adding {Path(file_path).name} to photo_metadata: {e}")
+                        continue
+
+            print(f"[MTPAdapter]     ✓ Added {sum(len(files) for files in files_by_date.values())} files to photo_metadata")
+
+        except Exception as e:
+            print(f"[MTPAdapter]   ✗ Error adding to photo_metadata: {e}")
+            import traceback
+            traceback.print_exc()

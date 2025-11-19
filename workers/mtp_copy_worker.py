@@ -89,10 +89,77 @@ class MTPCopyWorker(QThread):
                 print(f"[MTPCopyWorker] Temp cache directory: {temp_dir}")
 
                 # Get folder to copy from
-                folder = shell.Namespace(self.folder_path)
-                if not folder:
-                    self.error.emit(f"Cannot access folder: {self.folder_path}")
-                    return
+                # MTP paths may be too deep to access directly via shell.Namespace()
+                # Need to navigate step by step through the path hierarchy
+                print(f"[MTPCopyWorker] Parsing device path: {self.folder_path}")
+
+                # Split path into components
+                # Format: ::{GUID}\device_path\SID-{xxx}\DCIM\Camera
+                if "\\" in self.folder_path:
+                    parts = self.folder_path.split("\\")
+
+                    # Start with the base device path (everything up to and including SID)
+                    base_path = None
+                    remaining_parts = []
+
+                    for i, part in enumerate(parts):
+                        if part.startswith("SID-"):
+                            # Found the storage ID - this is our base
+                            base_path = "\\".join(parts[:i+1])
+                            remaining_parts = parts[i+1:]
+                            break
+
+                    if not base_path:
+                        # Fallback: try the whole path
+                        base_path = self.folder_path
+                        remaining_parts = []
+
+                    print(f"[MTPCopyWorker] Base path: {base_path}")
+                    print(f"[MTPCopyWorker] Remaining parts: {remaining_parts}")
+
+                    # Get the base storage location
+                    folder = shell.Namespace(base_path)
+
+                    if not folder:
+                        self.error.emit(f"Cannot access device storage: {base_path}")
+                        return
+
+                    # Navigate through remaining parts (DCIM, Camera, etc.)
+                    for part in remaining_parts:
+                        if not part or part.startswith("::"):
+                            continue
+
+                        print(f"[MTPCopyWorker] Navigating to subfolder: {part}")
+                        found = False
+
+                        try:
+                            items = folder.Items()
+                            for item in items:
+                                if item.IsFolder and item.Name == part:
+                                    # Navigate to this subfolder
+                                    folder = item.GetFolder
+                                    found = True
+                                    print(f"[MTPCopyWorker] ✓ Found subfolder: {part}")
+                                    break
+
+                            if not found:
+                                self.error.emit(f"Subfolder not found: {part}")
+                                return
+
+                        except Exception as e:
+                            print(f"[MTPCopyWorker] Error navigating to {part}: {e}")
+                            import traceback
+                            traceback.print_exc()
+                            self.error.emit(f"Cannot navigate to folder: {part} - {e}")
+                            return
+
+                    print(f"[MTPCopyWorker] ✓ Successfully navigated to target folder")
+                else:
+                    # Simple path, try direct access
+                    folder = shell.Namespace(self.folder_path)
+                    if not folder:
+                        self.error.emit(f"Cannot access folder: {self.folder_path}")
+                        return
 
                 # Copy files
                 media_paths = []

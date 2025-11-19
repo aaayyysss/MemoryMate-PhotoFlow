@@ -2023,8 +2023,14 @@ class SidebarQt(QWidget):
                                 mw.statusBar().showMessage(f"📱 No media files found in {folder_name}")
                                 print(f"[Sidebar] No media files found to display")
 
-                            # Clean up worker
+                            # Clean up worker properly - wait for thread to finish
+                            if worker.isRunning():
+                                worker.wait(1000)  # Wait up to 1 second
                             worker.deleteLater()
+
+                            # Remove from worker list
+                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
+                                mw._mtp_workers.remove(worker)
 
                         # Handle errors
                         def on_error(error_msg):
@@ -2036,7 +2042,15 @@ class SidebarQt(QWidget):
                             progress.close()
                             print(f"[Sidebar] Worker error: {error_msg}")
                             mw.statusBar().showMessage(f"⚠️ Error copying files: {error_msg}")
+
+                            # Clean up worker properly - wait for thread to finish
+                            if worker.isRunning():
+                                worker.wait(1000)  # Wait up to 1 second
                             worker.deleteLater()
+
+                            # Remove from worker list
+                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
+                                mw._mtp_workers.remove(worker)
 
                         # Handle cancellation
                         def on_cancel():
@@ -2045,7 +2059,12 @@ class SidebarQt(QWidget):
                             worker.wait(3000)  # Wait up to 3 seconds
                             if worker.isRunning():
                                 worker.terminate()
+                            worker.deleteLater()
                             mw.statusBar().showMessage("📱 Copy operation cancelled")
+
+                            # Remove from worker list
+                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
+                                mw._mtp_workers.remove(worker)
 
                         # Connect signals
                         worker.progress.connect(on_progress)

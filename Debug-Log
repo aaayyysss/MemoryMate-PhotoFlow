@@ -1,47 +1,39 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09> python -c "import win32com.client; print('pywin32 OK')"
-pywin32 OK
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09>
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-08> pip install pywin32
-Requirement already satisfied: pywin32 in c:\users\asus\appdata\local\programs\python\python310\lib\site-packages (311)
-
-[notice] A new release of pip is available: 25.2 -> 25.3
-[notice] To update, run: python.exe -m pip install --upgrade pip
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-08> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09> python main_qt.py
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-10
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-10> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-19 00:41:44,332 [INFO] ================================================================================
-2025-11-19 00:41:44,333 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-19 00:41:44,333 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\app_log.txt
-2025-11-19 00:41:44,334 [INFO] ================================================================================
-2025-11-19 00:41:44,370 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-19 00:41:44,370 [INFO] Qt message handler installed to suppress TIFF warnings
+2025-11-19 00:57:11,888 [INFO] ================================================================================
+2025-11-19 00:57:11,889 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-19 00:57:11,889 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\app_log.txt
+2025-11-19 00:57:11,889 [INFO] ================================================================================
+2025-11-19 00:57:11,927 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-19 00:57:11,927 [INFO] Qt message handler installed to suppress TIFF warnings
 [Startup] Database schema initialized successfully
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-09\\thumbnails_cache.db', 'last_updated': '2025-11-19 00:41'}
-2025-11-19 00:41:44,592 [INFO] SearchService initialized
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-10\\thumbnails_cache.db', 'last_updated': '2025-11-19 00:57'}
+2025-11-19 00:57:12,161 [INFO] SearchService initialized
 [Startup] SearchService initialized
-2025-11-19 00:41:44,593 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-19 00:41:44,594 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-19 00:41:44,596 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-19 00:57:12,162 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-19 00:57:12,163 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-19 00:57:12,163 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] ThumbnailService initialized
-✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\locales\en.json
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\locales\en.json
 🌍 Language switched to: en
 [MainWindow] Language loaded from settings: en
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-19 00:41:44,616 [INFO] SearchService initialized
-[00:41:44.978] [Tabs] __init__ started
-[00:41:44.978] [Tabs] _build_tabs → building tab widgets
-[00:41:44.979] [Tabs] _on_tab_changed(idx=0)
-[00:41:44.979] [Tabs] _start_timeout idx=0 type=branches
-[00:41:44.979] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:41:44.979] [Tabs]   populated=False, loading=False
-[00:41:44.979] [Tabs]   Starting load for branches
-[00:41:44.979] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:41:44.979] [Tabs] _clear_tab idx=0
-[00:41:44.980] [Tabs] _on_tab_changed → tab_type=branches
-[00:41:44.981] [Tabs] _build_tabs → added 6 tabs
-[00:41:44.981] [Tabs] __init__ completed
+2025-11-19 00:57:12,186 [INFO] SearchService initialized
+[00:57:12.571] [Tabs] __init__ started
+[00:57:12.572] [Tabs] _build_tabs → building tab widgets
+[00:57:12.573] [Tabs] _on_tab_changed(idx=0)
+[00:57:12.573] [Tabs] _start_timeout idx=0 type=branches
+[00:57:12.573] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:57:12.573] [Tabs]   populated=False, loading=False
+[00:57:12.573] [Tabs]   Starting load for branches
+[00:57:12.573] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:57:12.573] [Tabs] _clear_tab idx=0
+[00:57:12.575] [Tabs] _on_tab_changed → tab_type=branches
+[00:57:12.575] [Tabs] _build_tabs → added 6 tabs
+[00:57:12.575] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -51,7 +43,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -77,12 +69,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           • Storage: Internal storage
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner]           • Storage: SD card
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
@@ -93,7 +89,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[00:41:45.215] [Tabs] hide_tabs() called - canceling pending workers
+[00:57:12.809] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -107,7 +103,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -133,12 +129,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           • Storage: Internal storage
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner]           • Storage: SD card
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
@@ -149,16 +149,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] _build_tree_model() completed
 [Startup] Database schema initialized successfully
-[00:41:45.478] [Tabs] _finish_branches (stale gen=1) — ignoring
-[00:41:45.478] [Tabs] _on_tab_changed(idx=0)
-[00:41:45.478] [Tabs] _start_timeout idx=0 type=branches
-[00:41:45.478] [Tabs] _populate_tab(branches, idx=0, force=False)
-[00:41:45.479] [Tabs]   populated=False, loading=False
-[00:41:45.479] [Tabs]   Starting load for branches
-[00:41:45.479] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[00:41:45.479] [Tabs] _clear_tab idx=0
-[00:41:45.481] [Tabs] _on_tab_changed → tab_type=branches
-[00:41:45.482] [Tabs] _clear_tab idx=0
+[00:57:13.033] [Tabs] _finish_branches (stale gen=1) — ignoring
+[00:57:13.034] [Tabs] _on_tab_changed(idx=0)
+[00:57:13.034] [Tabs] _start_timeout idx=0 type=branches
+[00:57:13.034] [Tabs] _populate_tab(branches, idx=0, force=False)
+[00:57:13.034] [Tabs]   populated=False, loading=False
+[00:57:13.034] [Tabs]   Starting load for branches
+[00:57:13.034] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[00:57:13.034] [Tabs] _clear_tab idx=0
+[00:57:13.035] [Tabs] _on_tab_changed → tab_type=branches
+[00:57:13.038] [Tabs] _clear_tab idx=0
 💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
@@ -176,60 +176,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       • Portable device found: Galaxy A23
-[DeviceScanner]         Storage locations: 2
-[DeviceScanner]           • Storage: Internal storage
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
-[DeviceScanner]             ✗ No DCIM found
-[DeviceScanner]           • Storage: SD card
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
-[DeviceScanner]             ✗ No DCIM found
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -298,7 +245,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -339,7 +286,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -365,12 +312,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           • Storage: Internal storage
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner]           • Storage: SD card
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
@@ -402,7 +353,21 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 4 items under 'This PC'
 [DeviceScanner]       • Portable device found: Galaxy A23
-[DeviceScanner]         Storage locations: 0
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
+[DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] Current device count: 0
@@ -422,7 +387,50 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E3FD036EC0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 0
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
+[Sidebar] No mobile devices detected - added help message
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=None
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001D16ECD6EC0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -448,12 +456,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           • Storage: Internal storage
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner]           • Storage: SD card
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
@@ -489,12 +501,60 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           • Storage: Internal storage
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{10001,,116708585472}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner]           • Storage: SD card
 [DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
 [DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 3] The system cannot find the path specified: '::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\?\\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\\SID-{20001,,15481176064}'
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]           Checking path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]           Detected Shell namespace path
+[DeviceScanner]           Checking Shell namespace path via COM...
+[DeviceScanner]           ✗ Cannot access Shell namespace
 [DeviceScanner]             ✗ No DCIM found
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 

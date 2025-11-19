@@ -268,52 +268,67 @@ class DeviceScanner:
                 print(f"[DeviceScanner]             ✗ Cannot access storage folder")
                 return None
 
-            # List folders in storage
-            items = storage_folder.Items()
-            print(f"[DeviceScanner]             Found {items.Count} items in storage")
+            # PERFORMANCE FIX: Don't enumerate all items (could be 1000+)
+            # Instead, try to navigate directly to known media folders
+            print(f"[DeviceScanner]             Attempting direct navigation to media folders...")
 
-            folder_names = []
-            for item in items:
-                if item.IsFolder:
-                    folder_names.append(item.Name)
+            has_dcim = False
+            dcim_item = None
 
-            print(f"[DeviceScanner]             Folders: {folder_names}")
+            # Try to access DCIM directly (much faster than enumerating all items)
+            try:
+                # Try ParseName to get DCIM folder directly
+                items = storage_folder.Items()
 
-            # Check for DCIM folder
-            has_dcim = "DCIM" in folder_names
-            print(f"[DeviceScanner]             Has DCIM folder: {has_dcim}")
+                # Limit search to first 100 items max (timeout protection)
+                max_check = 100
+                checked = 0
 
-            # Check subdirectories for DCIM (Internal shared storage, etc.)
-            has_dcim_in_subdir = False
-            dcim_subdir_name = None
-
-            if not has_dcim:
-                print(f"[DeviceScanner]             Checking subdirectories for DCIM...")
                 for item in items:
+                    checked += 1
                     if item.IsFolder:
-                        subdir_name = item.Name
-                        subdir_name_lower = subdir_name.lower()
+                        folder_name = item.Name
 
-                        # Check if this looks like a storage subdirectory
-                        if any(name in subdir_name_lower for name in [
+                        # Found DCIM at root level
+                        if folder_name == "DCIM":
+                            has_dcim = True
+                            dcim_item = item
+                            print(f"[DeviceScanner]             ✓ Found DCIM folder at root")
+                            break
+
+                        # Check common storage subdirectories (Internal shared storage, etc.)
+                        # Only check folders that are likely to contain DCIM
+                        folder_name_lower = folder_name.lower()
+                        if any(name in folder_name_lower for name in [
                             "internal", "storage", "phone", "card", "sdcard", "shared"
                         ]):
-                            print(f"[DeviceScanner]               Checking: {subdir_name}")
+                            print(f"[DeviceScanner]               Quick-checking: {folder_name}")
                             try:
-                                # Access subdirectory
                                 subfolder = item.GetFolder
                                 if subfolder:
+                                    # Try to find DCIM in this subfolder (don't enumerate all)
                                     subitems = subfolder.Items()
-                                    subfolders = [si.Name for si in subitems if si.IsFolder]
-                                    if "DCIM" in subfolders:
-                                        has_dcim_in_subdir = True
-                                        dcim_subdir_name = subdir_name
-                                        print(f"[DeviceScanner]               ✓ Found DCIM in: {subdir_name}/DCIM")
-                                        break
+                                    for subitem in subitems:
+                                        if subitem.IsFolder and subitem.Name == "DCIM":
+                                            has_dcim = True
+                                            dcim_item = subitem
+                                            print(f"[DeviceScanner]               ✓ Found DCIM in: {folder_name}/DCIM")
+                                            break
+                                if has_dcim:
+                                    break
                             except Exception as e:
-                                print(f"[DeviceScanner]               ERROR: {e}")
+                                # Skip this subfolder if we can't access it
+                                continue
 
-            if not has_dcim and not has_dcim_in_subdir:
+                    # Timeout protection: Stop after checking max_check items
+                    if checked >= max_check:
+                        print(f"[DeviceScanner]             Stopped after checking {checked} items (timeout protection)")
+                        break
+
+            except Exception as e:
+                print(f"[DeviceScanner]             ERROR during DCIM search: {e}")
+
+            if not has_dcim:
                 print(f"[DeviceScanner]             REJECTED: No DCIM found")
                 return None
 
@@ -378,6 +393,9 @@ class DeviceScanner:
         """
         Scan portable storage for media folders using FolderItem COM object.
 
+        PERFORMANCE: Only scans critical media folders (DCIM/Pictures),
+        not the entire device tree. Full scan happens when user opens folder.
+
         Args:
             shell: Shell.Application COM object
             storage_item: FolderItem COM object for storage location
@@ -389,37 +407,60 @@ class DeviceScanner:
         folders = []
 
         try:
-            # Use appropriate patterns based on device type
-            if device_type == "camera":
-                patterns = self.CAMERA_PATTERNS
-            elif device_type == "ios":
-                patterns = self.IOS_PATTERNS
-            else:  # android
-                patterns = self.ANDROID_PATTERNS
+            # CRITICAL FIX: Only scan essential media folders during detection
+            # Full pattern scanning is too slow over MTP (100+ patterns × 100+ files = freeze)
+            # Professional apps (Lightroom, Photos) only check DCIM and Pictures initially
 
-            print(f"[DeviceScanner]               Using {len(patterns)} patterns for {device_type}")
+            if device_type == "ios":
+                # iOS: Only check DCIM and its immediate subfolders
+                essential_patterns = ["DCIM", "DCIM/100APPLE", "DCIM/101APPLE"]
+            elif device_type == "camera":
+                # Cameras: Check DCIM only
+                essential_patterns = ["DCIM", "DCIM/100CANON", "DCIM/100NIKON"]
+            else:  # android
+                # Android: Only DCIM/Camera and Pictures folders
+                # Skip all the alternate paths (WhatsApp, Screenshots, etc.) for initial scan
+                essential_patterns = [
+                    "DCIM/Camera",
+                    "DCIM",
+                    "Pictures",
+                    "Internal shared storage/DCIM/Camera",  # Samsung structure
+                    "Internal shared storage/DCIM"
+                ]
+
+            print(f"[DeviceScanner]               Quick scan: checking {len(essential_patterns)} essential folders only")
 
             # Get storage folder
             storage_folder = storage_item.GetFolder
             if not storage_folder:
                 return folders
 
-            # For each pattern, try to navigate to it
-            for pattern in patterns:
+            # For each essential pattern, try to navigate to it
+            for pattern in essential_patterns:
                 try:
                     # Navigate through pattern parts
                     parts = pattern.split('/')
                     current_folder = storage_folder
 
-                    # Navigate to the pattern location
+                    # Navigate to the pattern location with timeout
                     for part in parts:
                         items = current_folder.Items()
                         found = False
 
+                        # Limit item check to prevent hanging
+                        checked = 0
+                        max_items_to_check = 50  # Don't iterate through more than 50 items
+
                         for item in items:
+                            checked += 1
                             if item.IsFolder and item.Name == part:
                                 current_folder = item.GetFolder
                                 found = True
+                                break
+
+                            # Timeout protection
+                            if checked >= max_items_to_check:
+                                print(f"[DeviceScanner]                 Stopped searching for '{part}' after {checked} items")
                                 break
 
                         if not found:
@@ -433,10 +474,10 @@ class DeviceScanner:
                         media_count = 0
                         has_media = False
 
-                        # Quick scan: Only check first 20 items to see if folder has media
-                        # Full count will happen when user actually opens the folder
+                        # Quick scan: Only check first 10 items to see if folder has media
+                        # Reduced from 20 for better performance
                         checked = 0
-                        max_quick_check = 20
+                        max_quick_check = 10
 
                         for item in items:
                             if not item.IsFolder:

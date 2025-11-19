@@ -73,6 +73,7 @@ class MTPImportWorker(QThread):
 
             # Step 2: Import files
             imported_paths = self.mtp_adapter.import_selected_files(
+                self.mtp_path,
                 media_files,
                 self.device_name,
                 self.folder_name,

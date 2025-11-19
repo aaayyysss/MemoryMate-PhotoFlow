@@ -1,0 +1,166 @@
+app DOES detect the Samsung device, BUT the log clearly shows that the freeze happens during scanning of the phone’s storage:
+
+KeyboardInterrupt  ← user force-stopped because app froze
+...
+Found 765 items in storage
+Folders: ['.1756...', '.1763...', '.17400...', ...]   ← THOUSANDS of auto-generated folders
+
+
+This is normal for MTP devices (Android & iPhone).
+Windows exposes each folder using COM/WMI virtualized layers → extremely slow, especially when:
+
+a device has thousands of small hidden system folders
+
+MTP path enumeration is single-threaded
+
+COM operations block the GUI thread
+
+your current scanner walks ALL folders recursively (!!)
+
+This exactly matches the freeze.
+
+✅ Why the App Freezes
+
+Mobile devices mounted over MTP (Media Transfer Protocol) behave differently from normal drives.
+
+MTP limitations:
+Limitation	Effect
+Cannot memory-map files	Very slow metadata reading
+Cannot list folders fast	COM enumeration blocks UI
+Operations are synchronous	The UI thread hangs
+Folder count often >10,000	Scanning takes minutes
+DCIM folder is buried deeply	The app tries exploring EVERYTHING
+
+Other apps (Windows Photos, Google Photos, Lightroom, iCloud Photos) avoid this.
+
+✅ How Professional Photo Apps Handle Mobile Devices
+
+Apps like Lightroom, Windows Photos, Google Photos, iCloud, Samsung SmartSwitch DO NOT scan the entire device.
+
+They use:
+
+1️⃣ “DCIM-only strategy” (industry standard)
+
+They ONLY scan:
+
+/DCIM/*
+/Pictures/*  (sometimes)
+
+
+And ignore every other folder.
+
+2️⃣ Asynchronous MTP scanning
+
+They NEVER enumerate the device on the UI thread.
+
+3️⃣ Background worker with timeouts
+
+If the device hangs, the scanner stops.
+
+4️⃣ Short-path scanning
+
+They never descend deeper than 2–3 subfolder levels.
+
+5️⃣ Pre-filtered MTP items
+
+Using the special Windows “Pictures” category instead of COM enumeration.
+
+🚀 Recommended FIX for Your App
+
+You MUST rewrite the device scanner to:
+
+✅ 1. LIMIT SCANNING TO DCIM + Pictures
+
+Instead of scanning 765 top-level folders (!!), restrict:
+
+✔ Scan only these:
+/DCIM
+/DCIM/*
+/Pictures
+
+✔ Ignore everything else
+
+(e.g., .1762357090079_109_3185565208401983827 ← auto-generated junk)
+
+✅ 2. Move scanning to a BACKGROUND THREAD
+
+Key rule:
+
+Never use COM inside the Qt GUI thread.
+Always inside a QThread or Python thread.
+
+✅ 3. Add a “SCANNING…” dialog with a cancel button
+
+Users need feedback.
+
+✅ 4. Add timeouts
+
+If any COM call takes >1.5 seconds → abort that storage.
+
+✅ 5. Cache device structure
+
+Scan once → save media_index.json → next app start loads instantly.
+
+📌 Why Windows Explorer Shows the Phone but Your App Doesn't
+
+Windows Explorer uses Windows Portable Device API (WPD), which is optimized and asynchronous.
+
+Your code uses:
+
+COM ShellFolder enumeration
+
+Deep recursive scanning
+
+This is much slower.
+
+⚡ Proposed Architecture for “Mobile Device Import”
+
+Here is what your app should do:
+
+1️⃣ Fast Device Detection
+
+✔ Use COM only to detect device names
+✔ Stop immediately once the device is found
+
+2️⃣ Quick Check for DCIM Support
+
+Instead of scanning all folders:
+
+storage.GetFolder("DCIM")
+
+
+If exists → good
+If fails → skip storage
+
+3️⃣ Only enumerate photos/videos
+
+Inside:
+
+/DCIM/*/*.jpg
+/DCIM/*/*.mp4
+
+🧠 Final Answer To Your Question
+
+“How do other photo apps handle mobile device connection and photos/videos correctly?”
+
+They follow these principles:
+
+✔ They don’t scan the entire device
+
+Only DCIM + a few known media folders.
+
+✔ They use background workers to prevent UI freeze.
+✔ They perform asynchronous MTP calls via Windows WPD API, not COM ShellFolder.
+✔ They build an indexed cache of media for fast reloads.
+✔ They show a progress dialog with cancel button.
+✅ What You Should Implement Next
+
+If you want, I can generate the full implementation patch, including:
+
+✔ New FastMTPScanner class
+✔ DCIM-only scanning
+✔ Background scanning with QThread
+✔ Cancelable progress dialog
+✔ Device media cache
+✔ Error handling for slow/hanging MTP storage
+✔ UI integration into your SidebarQt mobile device tree

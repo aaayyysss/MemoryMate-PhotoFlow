@@ -265,15 +265,38 @@ class MTPCopyWorker(QThread):
                                             print(f"[MTPCopyWorker] Copying {files_copied}/{files_total}: {item.Name}")
 
                                             # Copy with flags: 4 = no progress UI, 16 = yes to all
-                                            dest_folder.CopyHere(item.Path, 4 | 16)
+                                            # Use item object directly for MTP compatibility (not item.Path)
+                                            dest_folder.CopyHere(item, 4 | 16)
 
-                                            # Verify copy succeeded
+                                            # Wait for copy to complete (CopyHere is asynchronous!)
+                                            # Poll for file existence with timeout
                                             expected_path = os.path.join(temp_dir, item.Name)
-                                            if os.path.exists(expected_path):
-                                                media_paths.append(expected_path)
-                                                print(f"[MTPCopyWorker] ✓ Copied successfully: {item.Name}")
+                                            max_wait_seconds = 30  # Max 30 seconds per file
+                                            poll_interval = 0.1    # Check every 100ms
+                                            waited = 0
+
+                                            while waited < max_wait_seconds:
+                                                if os.path.exists(expected_path):
+                                                    # File appeared - copy successful!
+                                                    media_paths.append(expected_path)
+                                                    print(f"[MTPCopyWorker] ✓ Copied successfully: {item.Name} ({waited:.1f}s)")
+                                                    break
+
+                                                import time
+                                                time.sleep(poll_interval)
+                                                waited += poll_interval
+
+                                                # Check for cancellation while waiting
+                                                if self._cancelled:
+                                                    print(f"[MTPCopyWorker] Cancelled while waiting for {item.Name}")
+                                                    return
                                             else:
-                                                print(f"[MTPCopyWorker] ✗ Copy failed (not found): {item.Name}")
+                                                # Timeout - file never appeared
+                                                print(f"[MTPCopyWorker] ✗ Copy timeout after {max_wait_seconds}s: {item.Name}")
+                                                # Try to get more info about the failure
+                                                if os.path.exists(temp_dir):
+                                                    existing_files = os.listdir(temp_dir)
+                                                    print(f"[MTPCopyWorker]   Temp dir has {len(existing_files)} files")
 
                                     except Exception as e:
                                         print(f"[MTPCopyWorker] ✗ Copy failed for {item.Name}: {e}")

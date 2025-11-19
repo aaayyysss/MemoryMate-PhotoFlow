@@ -2,62 +2,62 @@
 
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[17:25:58.711] [Tabs] refresh_all(force=True) called
-[17:25:58.711] [Tabs] refresh_all: key=branches, idx=0, force=True
-[17:25:58.711] [Tabs] _populate_tab(branches, idx=0, force=True)
-[17:25:58.711] [Tabs]   populated=True, loading=False
-[17:25:58.711] [Tabs]   Force refresh: removing branches from populated set
-[17:25:58.711] [Tabs]   Starting load for branches
-[17:25:58.711] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[17:25:58.711] [Tabs] _clear_tab idx=0
-[17:25:58.711] [Tabs] refresh_all: key=folders, idx=1, force=True
-[17:25:58.711] [Tabs] _populate_tab(folders, idx=1, force=True)
-[17:25:58.711] [Tabs]   populated=False, loading=False
-[17:25:58.711] [Tabs]   Starting load for folders
-[17:25:58.711] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[17:25:58.711] [Tabs] _clear_tab idx=1
-[17:25:58.720] [Tabs] refresh_all: key=dates, idx=2, force=True
-[17:25:58.720] [Tabs] _populate_tab(dates, idx=2, force=True)
-[17:25:58.720] [Tabs]   populated=False, loading=False
-[17:25:58.720] [Tabs]   Starting load for dates
-[17:25:58.720] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[17:25:58.720] [Tabs] _load_folders → got 0 rows for project_id=1
-[17:25:58.720] [Tabs] _clear_tab idx=2
-[17:25:58.722] [Tabs] refresh_all: key=tags, idx=3, force=True
-[17:25:58.722] [Tabs] _populate_tab(tags, idx=3, force=True)
-[17:25:58.722] [Tabs]   populated=False, loading=False
-[17:25:58.722] [Tabs]   Starting load for tags
-[17:25:58.722] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[17:25:58.722] [Tabs] _clear_tab idx=3
-[17:25:58.722] [Tabs] refresh_all: key=quick, idx=5, force=True
-[17:25:58.722] [Tabs] _populate_tab(quick, idx=5, force=True)
-[17:25:58.722] [Tabs] _load_dates → got hierarchy data for project_id=1
-[17:25:58.722] [Tabs]   populated=False, loading=False
-[17:25:58.722] [Tabs]   Starting load for quick
-[17:25:58.722] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[17:25:58.722] [Tabs] _clear_tab idx=5
-[17:25:58.726] [Tabs] refresh_all(force=True) completed
+[17:47:35.064] [Tabs] refresh_all(force=True) called
+[17:47:35.064] [Tabs] refresh_all: key=branches, idx=0, force=True
+[17:47:35.064] [Tabs] _populate_tab(branches, idx=0, force=True)
+[17:47:35.064] [Tabs]   populated=True, loading=False
+[17:47:35.064] [Tabs]   Force refresh: removing branches from populated set
+[17:47:35.064] [Tabs]   Starting load for branches
+[17:47:35.064] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[17:47:35.064] [Tabs] _clear_tab idx=0
+[17:47:35.064] [Tabs] refresh_all: key=folders, idx=1, force=True
+[17:47:35.064] [Tabs] _populate_tab(folders, idx=1, force=True)
+[17:47:35.064] [Tabs]   populated=False, loading=False
+[17:47:35.064] [Tabs]   Starting load for folders
+[17:47:35.064] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[17:47:35.064] [Tabs] _clear_tab idx=1
+[17:47:35.073] [Tabs] refresh_all: key=dates, idx=2, force=True
+[17:47:35.073] [Tabs] _populate_tab(dates, idx=2, force=True)
+[17:47:35.073] [Tabs]   populated=False, loading=False
+[17:47:35.074] [Tabs]   Starting load for dates
+[17:47:35.074] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[17:47:35.074] [Tabs] _clear_tab idx=2
+[17:47:35.074] [Tabs] _load_folders → got 0 rows for project_id=1
+[17:47:35.074] [Tabs] refresh_all: key=tags, idx=3, force=True
+[17:47:35.074] [Tabs] _populate_tab(tags, idx=3, force=True)
+[17:47:35.074] [Tabs]   populated=False, loading=False
+[17:47:35.074] [Tabs]   Starting load for tags
+[17:47:35.074] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[17:47:35.074] [Tabs] _clear_tab idx=3
+[17:47:35.074] [Tabs] refresh_all: key=quick, idx=5, force=True
+[17:47:35.074] [Tabs] _populate_tab(quick, idx=5, force=True)
+[17:47:35.074] [Tabs]   populated=False, loading=False
+[17:47:35.074] [Tabs]   Starting load for quick
+[17:47:35.074] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[17:47:35.074] [Tabs] _clear_tab idx=5
+[17:47:35.074] [Tabs] _load_dates → got hierarchy data for project_id=1
+[17:47:35.074] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
-[17:25:58.726] [Tabs] _load_tags → got 0 rows for project_id=1
-[17:25:58.726] [Tabs] _load_quick → got 6 rows
-[17:25:58.726] [Tabs] _clear_tab idx=0
+[17:47:35.074] [Tabs] _clear_tab idx=0
+[17:47:35.080] [Tabs] _load_tags → got 0 rows for project_id=1
 [TAG FILTER] Cleared by navigation.
 [GRID] Loaded 0 thumbnails.
+[17:47:35.083] [Tabs] _load_quick → got 6 rows
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 0 photos
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[17:25:58.738] [Tabs] _clear_tab idx=1
-[17:25:58.742] [Tabs] _clear_tab idx=2
-[17:25:58.751] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[17:25:58.751] [Tabs] _clear_tab idx=3
-[17:25:58.751] [Tabs] _clear_tab idx=5
+[17:47:35.089] [Tabs] _clear_tab idx=1
+[17:47:35.089] [Tabs] _clear_tab idx=2
+[17:47:35.093] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[17:47:35.093] [Tabs] _clear_tab idx=3
+[17:47:35.093] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -69,7 +69,7 @@
 [Sidebar] Found 0 videos in project 1
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x00000208E1038210>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001958CD18410>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -112,7 +112,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -124,7 +124,7 @@
 [Sidebar] ===== Scan complete: 1 mobile device(s) found =====
 [Sidebar]   Device 1: A54 von Ammar - Interner Speicher
 [Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:a2ec6ba5
+[Sidebar]     - Device ID: windows_mtp:b334c82e
 [Sidebar]     - Device type: android
 [Sidebar]     - Folders: 2
 [Sidebar]       • Camera (10 files)
@@ -187,7 +187,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -209,7 +209,7 @@
 [MTPAdapter] Enumerated 10 files...
 [MTPAdapter] ✓ Enumerated 15 media files
 [MTPImportWorker] Found 15 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\Device_Imports\A54 von Ammar\Camera\2025-11-19
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\Camera\2025-11-19
 [MTPAdapter] Duplicate detection: 15 new, 0 duplicates
 [MTPAdapter] Successfully accessed source folder for import
 [MTPAdapter] Importing 1/15: 20241002_231251.jpg
@@ -270,63 +270,6 @@
 [GRID] Loading viewport range: 0-14 of 15
 [Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
 [Sidebar] Extracted device name: A54 von Ammar
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 1
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive H: exists, checking...
-[DeviceScanner]           Checking path: H:\
-[DeviceScanner]           Directories found: []
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive H:
-[DeviceScanner]     Drive P: exists, checking...
-[DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive P:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
-[DeviceScanner]       • Portable device found: A54 von Ammar
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Interner Speicher
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[DeviceScanner]             Checking storage via COM: Interner Speicher
-[DeviceScanner]             Attempting direct navigation to media folders...
-[DeviceScanner]               Quick-checking: iPhoneData
-[DeviceScanner]             ✓ Found DCIM folder at root
-[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
-[DeviceScanner]             Device type: android
-[DeviceScanner]             Scanning for media folders...
-[DeviceScanner]               Quick scan: checking 28 essential folders only
-[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
-[DeviceScanner]             ✓ Registered in database
-[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
-[DeviceScanner]             ✓ Device detected!
-[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
-[DeviceScanner] ===== Scan complete: 1 device(s) found =====
-
-[Sidebar] Current device count: 1
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
 [MTPImportWorker] Starting import from A54 von Ammar → Screenshots
 [MTPAdapter] Enumerating MTP folder: Screenshots on A54 von Ammar
 [MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
@@ -334,7 +277,7 @@
 [MTPAdapter] Enumerated 10 files...
 [MTPAdapter] ✓ Enumerated 12 media files
 [MTPImportWorker] Found 12 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
 [MTPAdapter] Duplicate detection: 12 new, 0 duplicates
 [MTPAdapter] Successfully accessed source folder for import
 [MTPAdapter] Importing 1/12: Screenshot_20241009_204415.jpg
@@ -356,18 +299,60 @@
 [MTPAdapter] ✓ Copied Screenshot_20240701_121349_WhatsApp.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20240701_121349_WhatsApp.jpg (id=41, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 7/12: Screenshot_20241007_093624_Samsung Internet.jpg
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
 [MTPAdapter] ✓ Copied Screenshot_20241007_093624_Samsung Internet.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20241007_093624_Samsung Internet.jpg (id=43, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 8/12: Screenshot_20241003_164106_WhatsApp.jpg
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [MTPAdapter] ✓ Copied Screenshot_20241003_164106_WhatsApp.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20241003_164106_WhatsApp.jpg (id=45, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 9/12: Screenshot_20240817_074013_Clock.jpg
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
 [MTPAdapter] ✓ Copied Screenshot_20240817_074013_Clock.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20240817_074013_Clock.jpg (id=47, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 10/12: Screenshot_20240808_021749_One UI Home.jpg
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
 [MTPAdapter] ✓ Copied Screenshot_20240808_021749_One UI Home.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20240808_021749_One UI Home.jpg (id=49, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 11/12: Screenshot_20240703_192505_WhatsApp.jpg
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [MTPAdapter] ✓ Copied Screenshot_20240703_192505_WhatsApp.jpg
 [MTPAdapter] ✓ Added to database: Screenshot_20240703_192505_WhatsApp.jpg (id=51, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] Importing 12/12: 20240601_120058_IMG_4776.PNG
@@ -375,6 +360,21 @@
 [MTPAdapter] ✓ Added to database: 20240601_120058_IMG_4776.PNG (id=53, branches=['all', 'device_folder:Screenshots [A54 von Ammar]'])
 [MTPAdapter] ✓ Import complete: 12/12 files (skipped 0 duplicates)
 [MTPImportWorker] ✓ Import complete: 12 files
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
 [Sidebar] Import successful: 12 files
 [GRID] Loaded 12 thumbnails in tag-mode.
 [Sidebar] ✓ Import complete, grid loaded with 12 files
@@ -382,11 +382,115 @@
 [Sidebar] Starting deep scan for: A54 von Ammar - Interner Speicher
 [Sidebar]   Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
 [Sidebar]   Device type: android
-[Sidebar] Deep scan failed: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-Traceback (most recent call last):
-  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13\sidebar_qt.py", line 2041, in _on_item_clicked
-    raise Exception(f"Cannot find device storage at: {root_path}")
-Exception: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] Finding device storage for deep scan...
+[DeviceScanner] Finding storage item for path:
+[DeviceScanner]   Target: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]   Checking device: A54 von Ammar
+[DeviceScanner]     Storage: Interner Speicher
+[DeviceScanner]       Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]     ✓ FOUND: Exact path match!
+[Sidebar] ✓ Found storage item: A54 von Ammar
+[DeepScanWorker] Starting deep scan (max_depth=8)
+[DeviceScanner] ===== Starting DEEP SCAN (Option C) =====
+[DeviceScanner]   Max depth: 8
+[DeviceScanner]   Skipping folders: Music, .android_secure, Android/obb, Audiobooks, Android/data...
+[DeviceScanner]   Starting scan from device root...
+[DeviceScanner]       ⊘ Skipping: Pictures/.thumbnails (excluded)
+[DeviceScanner]     ⊘ Skipping: Audiobooks (excluded)
+[DeviceScanner]     ⊘ Skipping: Alarms (excluded)
+[DeviceScanner]       ⊘ Skipping: Android/data (excluded)
+[DeviceScanner]       ⊘ Skipping: Android/.Trash (excluded)
+[DeviceScanner]               ✓ FOUND: Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video (12+ files)
+[DeviceScanner]                 • Found: Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Private (8+ files)
+[DeviceScanner]                 • Found: Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Video/Sent (1+ files)
+[DeviceScanner]               ✓ FOUND: Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images (20+ files)
+[DeviceScanner]                 • Found: Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/Sent (14+ files)
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]             ⊘ Skipping: Android/media/com.whatsapp/WhatsApp/.trash (excluded)
+[DeviceScanner]       ⊘ Skipping: Android/obb (excluded)
+[DeviceScanner]     ⊘ Skipping: Music (excluded)
+[DeviceScanner]     ⊘ Skipping: Podcasts (excluded)
+[DeviceScanner]       ⊘ Skipping: Movies/.thumbnails (excluded)
+[DeviceScanner]       ✓ FOUND: iPhoneData/Pictures (5+ files)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]         ✓ FOUND: iPhoneData/Pictures/WhatsApp (20+ files)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[DeviceScanner]       ⊘ Skipping: iPhoneData/Music (excluded)
+[DeviceScanner]       • Found: iPhoneData/Movies (5+ files)
+[DeviceScanner]       ✓ FOUND: DCIM/Screenshots (12+ files)
+[DeviceScanner]       ✓ FOUND: DCIM/Camera (15+ files)
+[DeviceScanner]     ⊘ Skipping: Notifications (excluded)
+[DeviceScanner]     ⊘ Skipping: Ringtones (excluded)
+[DeviceScanner] ===== DEEP SCAN COMPLETE =====
+[DeviceScanner]   Folders scanned: 86
+[DeviceScanner]   Media folders found: 10
+[DeepScanWorker] Deep scan complete: 10 folders found
+[Sidebar] Adding 10 new folders to sidebar...
+[Sidebar]   Added: Android → media → com.whatsapp → WhatsApp → Media → WhatsApp Video (depth: 6) (12 files)
+[Sidebar]   Added: Android → media → com.whatsapp → WhatsApp → Media → WhatsApp Video → Private (depth: 7) (8 files)
+[Sidebar]   Added: Android → media → com.whatsapp → WhatsApp → Media → WhatsApp Video → Sent (depth: 7) (1 files)
+[Sidebar]   Added: Android → media → com.whatsapp → WhatsApp → Media → WhatsApp Images (depth: 6) (20 files)
+[Sidebar]   Added: Android → media → com.whatsapp → WhatsApp → Media → WhatsApp Images → Sent (depth: 7) (14 files)
+[Sidebar]   Added: iPhoneData → Pictures (depth: 2) (5 files)
+[Sidebar]   Added: iPhoneData → Pictures → WhatsApp (depth: 3) (20 files)
+[Sidebar]   Added: iPhoneData → Movies (depth: 2) (5 files)
+[Sidebar]   Added: DCIM → Screenshots (depth: 2) (12 files)
+[Sidebar]   Added: DCIM → Camera (depth: 2) (15 files)
+[Sidebar] ✓ Deep scan complete: 10 folders added
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -431,7 +535,1001 @@ Exception: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a2ec6ba5
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\Android\media\com.whatsapp\WhatsApp\Media\WhatsApp Video
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → WhatsApp Video
+[MTPAdapter] Enumerating MTP folder: WhatsApp Video on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\Android\media\com.whatsapp\WhatsApp\Media\WhatsApp Video
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] Enumerated 10 files...
+[MTPAdapter] ✓ Enumerated 12 media files
+[MTPImportWorker] Found 12 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\WhatsApp Video\2025-11-19
+[MTPAdapter] Duplicate detection: 12 new, 0 duplicates
+[MTPAdapter] Successfully accessed source folder for import
+[MTPAdapter] Importing 1/12: VID-20250521-WA0000.mp4
+[MTPAdapter] ✓ Copied VID-20250521-WA0000.mp4
+[MTPAdapter] ✓ Added to database: VID-20250521-WA0000.mp4 (id=55, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 2/12: VID-20241218-WA0004.mp4
+[MTPAdapter] ✓ Copied VID-20241218-WA0004.mp4
+[MTPAdapter] ✓ Added to database: VID-20241218-WA0004.mp4 (id=57, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 3/12: VID-20250430-WA0001.mp4
+[MTPAdapter] ✓ Copied VID-20250430-WA0001.mp4
+[MTPAdapter] ✓ Added to database: VID-20250430-WA0001.mp4 (id=59, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 4/12: VID-20240822-WA0000.mp4
+[MTPAdapter] ✓ Copied VID-20240822-WA0000.mp4
+[MTPAdapter] ✓ Added to database: VID-20240822-WA0000.mp4 (id=61, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 5/12: VID-20241121-WA0002.mp4
+[MTPAdapter] ✓ Copied VID-20241121-WA0002.mp4
+[MTPAdapter] ✓ Added to database: VID-20241121-WA0002.mp4 (id=63, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 6/12: VID-20241008-WA0001.mp4
+[MTPAdapter] ✓ Copied VID-20241008-WA0001.mp4
+[MTPAdapter] ✓ Added to database: VID-20241008-WA0001.mp4 (id=65, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 7/12: VID-20241218-WA0003.mp4
+[MTPAdapter] ✓ Copied VID-20241218-WA0003.mp4
+[MTPAdapter] ✓ Added to database: VID-20241218-WA0003.mp4 (id=67, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 8/12: VID-20240825-WA0000.mp4
+[MTPAdapter] ✓ Copied VID-20240825-WA0000.mp4
+[MTPAdapter] ✓ Added to database: VID-20240825-WA0000.mp4 (id=69, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 9/12: VID-20241218-WA0000.mp4
+[MTPAdapter] ✓ Copied VID-20241218-WA0000.mp4
+[MTPAdapter] ✓ Added to database: VID-20241218-WA0000.mp4 (id=71, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 10/12: VID-20241121-WA0001.mp4
+[MTPAdapter] ✓ Copied VID-20241121-WA0001.mp4
+[MTPAdapter] ✓ Added to database: VID-20241121-WA0001.mp4 (id=73, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 11/12: VID-20250901-WA0000.mp4
+[MTPAdapter] ✓ Copied VID-20250901-WA0000.mp4
+[MTPAdapter] ✓ Added to database: VID-20250901-WA0000.mp4 (id=75, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] Importing 12/12: VID-20240703-WA0005.mp4
+[MTPAdapter] ✓ Copied VID-20240703-WA0005.mp4
+[MTPAdapter] ✓ Added to database: VID-20240703-WA0005.mp4 (id=77, branches=['all', 'device_folder:WhatsApp Video [A54 von Ammar]'])
+[MTPAdapter] ✓ Import complete: 12/12 files (skipped 0 duplicates)
+[MTPImportWorker] ✓ Import complete: 12 files
+[Sidebar] Import successful: 12 files
+[GRID] Loaded 12 thumbnails in tag-mode.
+[Sidebar] ✓ Import complete, grid loaded with 12 files
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000195E3C566C0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=12
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250521-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0004.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250430-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240822-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0002.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241008-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0003.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240825-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250901-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240703-wa0005.mp4']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20250521-wa0000.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20250521-wa0000.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20250521-wa0000.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20250521-wa0000.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20250521-wa0000.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20250521-wa0000.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20250521-wa0000.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: mp42isom
+  Duration: 00:06:50.10, start: 0.000000, bitrate: 969 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 480x608, 906 kb/s, 30 fps, 30 tbr, 600 tbn (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 60 kb/s (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 6:50
+[LightboxDialog] Video playback state: Playing
+[h264 @ 00000195E341A980] Failed setup for format d3d11: hwaccel initialisation returned error.
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000195E49D8940>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=12
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250521-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0004.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250430-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240822-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0002.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241008-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0003.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240825-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250901-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240703-wa0005.mp4']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241218-wa0004.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241218-wa0004.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241218-wa0004.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241218-wa0004.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241218-wa0004.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241218-wa0004.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241218-wa0004.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: mp42isom
+  Duration: 00:01:12.33, start: 0.000000, bitrate: 1514 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 480x848, 1448 kb/s, 30 fps, 30 tbr, 600 tbn (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 62 kb/s (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 1:12
+[LightboxDialog] Video playback state: Playing
+[h264 @ 00000195E341A980] Failed setup for format d3d11: hwaccel initialisation returned error.
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000019581BE4E40>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=12
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250521-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0004.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250430-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240822-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0002.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241008-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0003.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240825-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241218-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20241121-wa0001.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20250901-wa0000.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp video\\2025-11-19\\vid-20240703-wa0005.mp4']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241121-wa0001.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241121-wa0001.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241121-wa0001.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241121-wa0001.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp video\2025-11-19\vid-20241121-wa0001.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241121-wa0001.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/whatsapp video/2025-11-19/vid-20241121-wa0001.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: mp42isom
+  Duration: 00:00:06.87, start: 0.000000, bitrate: 1398 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 480x704, 1399 kb/s, 43.64 fps, 60 tbr, 600 tbn (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 2 kb/s (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 0:06
+[LightboxDialog] Video playback state: Playing
+[h264 @ 00000195E341AD40] Failed setup for format d3d11: hwaccel initialisation returned error.
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\iPhoneData\Pictures\WhatsApp
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → WhatsApp
+[MTPAdapter] Enumerating MTP folder: WhatsApp on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\iPhoneData\Pictures\WhatsApp
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] Enumerated 10 files...
+[MTPAdapter] Enumerated 20 files...
+[MTPAdapter] Enumerated 30 files...
+[MTPAdapter] Enumerated 40 files...
+[MTPAdapter] Enumerated 50 files...
+[MTPAdapter] Enumerated 60 files...
+[MTPAdapter] Enumerated 70 files...
+[MTPAdapter] Enumerated 80 files...
+[MTPAdapter] Enumerated 90 files...
+[MTPAdapter] Enumerated 100 files...
+[MTPAdapter] Enumerated 110 files...
+[MTPAdapter] ✓ Enumerated 117 media files
+[MTPImportWorker] Found 117 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\WhatsApp\2025-11-19
+[MTPAdapter] Duplicate detection: 117 new, 0 duplicates
+[MTPAdapter] Successfully accessed source folder for import
+[MTPAdapter] Importing 1/117: 20240517_153645_29dd888e-7b27-4241-9bc5-7cc71cccb72f.JPG
+[MTPAdapter] ✓ Copied 20240517_153645_29dd888e-7b27-4241-9bc5-7cc71cccb72f.JPG
+[MTPAdapter] ✓ Added to database: 20240517_153645_29dd888e-7b27-4241-9bc5-7cc71cccb72f.JPG (id=79, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 2/117: 20240518_230700_9c4d0970-a24f-4bfc-a678-e47be1ea51ce.JPG
+[MTPAdapter] ✓ Copied 20240518_230700_9c4d0970-a24f-4bfc-a678-e47be1ea51ce.JPG
+[MTPAdapter] ✓ Added to database: 20240518_230700_9c4d0970-a24f-4bfc-a678-e47be1ea51ce.JPG (id=81, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 3/117: 20240521_201821_56738825-130d-48cf-b185-1d9e2f1dad49.JPG
+[MTPAdapter] ✓ Copied 20240521_201821_56738825-130d-48cf-b185-1d9e2f1dad49.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201821_56738825-130d-48cf-b185-1d9e2f1dad49.JPG (id=83, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 4/117: 20240522_133300_fa66cbe7-6da8-4958-82b5-5320324a3a43.JPG
+[MTPAdapter] ✓ Copied 20240522_133300_fa66cbe7-6da8-4958-82b5-5320324a3a43.JPG
+[MTPAdapter] ✓ Added to database: 20240522_133300_fa66cbe7-6da8-4958-82b5-5320324a3a43.JPG (id=85, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 5/117: 20240601_115306_4899f38b-4d0e-4f8f-91b3-0965a282a0f4.JPG
+[MTPAdapter] ✓ Copied 20240601_115306_4899f38b-4d0e-4f8f-91b3-0965a282a0f4.JPG
+[MTPAdapter] ✓ Added to database: 20240601_115306_4899f38b-4d0e-4f8f-91b3-0965a282a0f4.JPG (id=87, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 6/117: 20240515_204721_d133ed3e-a400-4967-8ac7-e85cea2a84a8.JPG
+[MTPAdapter] ✓ Copied 20240515_204721_d133ed3e-a400-4967-8ac7-e85cea2a84a8.JPG
+[MTPAdapter] ✓ Added to database: 20240515_204721_d133ed3e-a400-4967-8ac7-e85cea2a84a8.JPG (id=89, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 7/117: 20240515_113153_ba12ca60-b7e4-408c-9579-82b23f1dee75.JPG
+[MTPAdapter] ✓ Copied 20240515_113153_ba12ca60-b7e4-408c-9579-82b23f1dee75.JPG
+[MTPAdapter] ✓ Added to database: 20240515_113153_ba12ca60-b7e4-408c-9579-82b23f1dee75.JPG (id=91, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 8/117: 20240522_092801_9a34eb09-582a-431c-8de9-5df1b9336f40.JPG
+[MTPAdapter] ✓ Copied 20240522_092801_9a34eb09-582a-431c-8de9-5df1b9336f40.JPG
+[MTPAdapter] ✓ Added to database: 20240522_092801_9a34eb09-582a-431c-8de9-5df1b9336f40.JPG (id=93, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 9/117: 20240515_122151_ff9f732b-740b-446c-b2e3-16554035d702.JPG
+[MTPAdapter] ✓ Copied 20240515_122151_ff9f732b-740b-446c-b2e3-16554035d702.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122151_ff9f732b-740b-446c-b2e3-16554035d702.JPG (id=95, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 10/117: 20240524_120915_81ba2ce4-e57f-43f8-b0a1-c171a9bdc823.JPG
+[MTPAdapter] ✓ Copied 20240524_120915_81ba2ce4-e57f-43f8-b0a1-c171a9bdc823.JPG
+[MTPAdapter] ✓ Added to database: 20240524_120915_81ba2ce4-e57f-43f8-b0a1-c171a9bdc823.JPG (id=97, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 11/117: 20240525_182830_0f4356a4-d64c-4bb3-b252-469341d02c88.JPG
+[MTPAdapter] ✓ Copied 20240525_182830_0f4356a4-d64c-4bb3-b252-469341d02c88.JPG
+[MTPAdapter] ✓ Added to database: 20240525_182830_0f4356a4-d64c-4bb3-b252-469341d02c88.JPG (id=99, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 12/117: 20240530_140125_a64a839d-49d9-4299-a14c-ec91d4fcc698.JPG
+[MTPAdapter] ✓ Copied 20240530_140125_a64a839d-49d9-4299-a14c-ec91d4fcc698.JPG
+[MTPAdapter] ✓ Added to database: 20240530_140125_a64a839d-49d9-4299-a14c-ec91d4fcc698.JPG (id=101, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 13/117: 20240520_144247_8775ad25-1cda-45dc-bb34-1879e7ed274e.JPG
+[MTPAdapter] ✓ Copied 20240520_144247_8775ad25-1cda-45dc-bb34-1879e7ed274e.JPG
+[MTPAdapter] ✓ Added to database: 20240520_144247_8775ad25-1cda-45dc-bb34-1879e7ed274e.JPG (id=103, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 14/117: 20240601_122151_7bb32de2-8e21-4f6c-956e-20ca83eeac0a.JPG
+[MTPAdapter] ✓ Copied 20240601_122151_7bb32de2-8e21-4f6c-956e-20ca83eeac0a.JPG
+[MTPAdapter] ✓ Added to database: 20240601_122151_7bb32de2-8e21-4f6c-956e-20ca83eeac0a.JPG (id=105, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 15/117: 20190303_215054_8eca5880-c9ac-4173-ae41-1fd61a3be066.JPG
+[MTPAdapter] ✓ Copied 20190303_215054_8eca5880-c9ac-4173-ae41-1fd61a3be066.JPG
+[MTPAdapter] ✓ Added to database: 20190303_215054_8eca5880-c9ac-4173-ae41-1fd61a3be066.JPG (id=107, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 16/117: 20240522_122551_66207767-06d0-4466-9a21-eabdee84d056.JPG
+[MTPAdapter] ✓ Copied 20240522_122551_66207767-06d0-4466-9a21-eabdee84d056.JPG
+[MTPAdapter] ✓ Added to database: 20240522_122551_66207767-06d0-4466-9a21-eabdee84d056.JPG (id=109, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 17/117: 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1.JPG
+[MTPAdapter] ✓ Copied 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1.JPG
+[MTPAdapter] ✓ Added to database: 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1.JPG (id=111, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 18/117: 20240602_133005_b80627d7-6ff8-4a77-93b2-94599f9f69fc.JPG
+[MTPAdapter] ✓ Copied 20240602_133005_b80627d7-6ff8-4a77-93b2-94599f9f69fc.JPG
+[MTPAdapter] ✓ Added to database: 20240602_133005_b80627d7-6ff8-4a77-93b2-94599f9f69fc.JPG (id=113, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 19/117: 20240525_183332_f203b2f5-769f-42f0-9a49-17b5b6f1a754.JPG
+[MTPAdapter] ✓ Copied 20240525_183332_f203b2f5-769f-42f0-9a49-17b5b6f1a754.JPG
+[MTPAdapter] ✓ Added to database: 20240525_183332_f203b2f5-769f-42f0-9a49-17b5b6f1a754.JPG (id=115, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 20/117: 20240517_144910_96398b53-3ea9-4959-bd39-76481cf8a631.JPG
+[MTPAdapter] ✓ Copied 20240517_144910_96398b53-3ea9-4959-bd39-76481cf8a631.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144910_96398b53-3ea9-4959-bd39-76481cf8a631.JPG (id=117, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 21/117: 20240523_234011_e6b387f3-aecc-44a7-8b69-61c7a1df8eda.JPG
+
+[Sidebar] ===== Auto-refresh device check =====[MTPAdapter] ✓ Copied 20240523_234011_e6b387f3-aecc-44a7-8b69-61c7a1df8eda.JPG
+
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[MTPAdapter] ✓ Added to database: 20240523_234011_e6b387f3-aecc-44a7-8b69-61c7a1df8eda.JPG (id=119, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 22/117: 20240529_214915_d3026e26-f645-4769-81ea-9849e116b773.JPG
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[MTPAdapter] ✓ Copied 20240529_214915_d3026e26-f645-4769-81ea-9849e116b773.JPG
+[MTPAdapter] ✓ Added to database: 20240529_214915_d3026e26-f645-4769-81ea-9849e116b773.JPG (id=121, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 23/117: 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.JPG
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[MTPAdapter] ✓ Copied 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.JPG
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[MTPAdapter] ✓ Added to database: 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.JPG (id=123, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 24/117: 20240517_083248_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[MTPAdapter] ✓ Copied 20240517_083248_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG
+[MTPAdapter] ✓ Added to database: 20240517_083248_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG (id=125, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 25/117: 20240601_122625_9db535cb-b315-495e-97cd-e85762d01e0c.JPG
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[MTPAdapter] ✓ Copied 20240601_122625_9db535cb-b315-495e-97cd-e85762d01e0c.JPG
+[MTPAdapter] ✓ Added to database: 20240601_122625_9db535cb-b315-495e-97cd-e85762d01e0c.JPG (id=127, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 26/117: 20240601_214540_7dc98c17-bc01-4778-9db0-f797a503a199.JPG
+[MTPAdapter] ✓ Copied 20240601_214540_7dc98c17-bc01-4778-9db0-f797a503a199.JPG
+[MTPAdapter] ✓ Added to database: 20240601_214540_7dc98c17-bc01-4778-9db0-f797a503a199.JPG (id=129, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 27/117: 20240518_230933_9fa14ea5-eb45-4956-a8fc-bf0d05d84500.JPG
+[MTPAdapter] ✓ Copied 20240518_230933_9fa14ea5-eb45-4956-a8fc-bf0d05d84500.JPG
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[MTPAdapter] ✓ Added to database: 20240518_230933_9fa14ea5-eb45-4956-a8fc-bf0d05d84500.JPG (id=131, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 28/117: 20240515_122149_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG
+[MTPAdapter] ✓ Copied 20240515_122149_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122149_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG (id=133, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 29/117: 20240531_222003_6560104c-21cb-4824-a529-f5d426e9514d.JPG
+[MTPAdapter] ✓ Copied 20240531_222003_6560104c-21cb-4824-a529-f5d426e9514d.JPG
+[MTPAdapter] ✓ Added to database: 20240531_222003_6560104c-21cb-4824-a529-f5d426e9514d.JPG (id=135, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 30/117: 20240601_214451_1a97e7c1-7258-4694-ab76-a5b12237c23e.JPG
+[MTPAdapter] ✓ Copied 20240601_214451_1a97e7c1-7258-4694-ab76-a5b12237c23e.JPG
+[MTPAdapter] ✓ Added to database: 20240601_214451_1a97e7c1-7258-4694-ab76-a5b12237c23e.JPG (id=137, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 31/117: 20240531_102115_fb791b3d-c5d6-4323-996e-a01970098943.JPG
+[MTPAdapter] ✓ Copied 20240531_102115_fb791b3d-c5d6-4323-996e-a01970098943.JPG
+[MTPAdapter] ✓ Added to database: 20240531_102115_fb791b3d-c5d6-4323-996e-a01970098943.JPG (id=139, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 32/117: 20240515_122156_411e3f1f-fe6c-40c0-a7fc-f71789a3b2f5.JPG
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[MTPAdapter] ✓ Copied 20240515_122156_411e3f1f-fe6c-40c0-a7fc-f71789a3b2f5.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122156_411e3f1f-fe6c-40c0-a7fc-f71789a3b2f5.JPG (id=141, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 33/117: 20240517_144911_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG
+[MTPAdapter] ✓ Copied 20240517_144911_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144911_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG (id=143, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 34/117: 20240517_191456_8d72f768-ec68-46f4-83aa-c986b4721151.JPG
+[MTPAdapter] ✓ Copied 20240517_191456_8d72f768-ec68-46f4-83aa-c986b4721151.JPG
+[MTPAdapter] ✓ Added to database: 20240517_191456_8d72f768-ec68-46f4-83aa-c986b4721151.JPG (id=145, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 35/117: 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166(1).JPG
+[MTPAdapter] ✓ Copied 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166(1).JPG
+[MTPAdapter] ✓ Added to database: 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166(1).JPG (id=147, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 36/117: 20240520_231243_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG
+[MTPAdapter] ✓ Copied 20240520_231243_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG
+[MTPAdapter] ✓ Added to database: 20240520_231243_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG (id=149, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 37/117: 20240603_143552_1209d759-892f-4380-9f5f-9de4f4cc051b.JPG
+[MTPAdapter] ✓ Copied 20240603_143552_1209d759-892f-4380-9f5f-9de4f4cc051b.JPG
+[MTPAdapter] ✓ Added to database: 20240603_143552_1209d759-892f-4380-9f5f-9de4f4cc051b.JPG (id=151, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 38/117: 20240605_155231_82e27420-bf16-4b43-85f8-21e8081a2408.JPG
+[MTPAdapter] ✓ Copied 20240605_155231_82e27420-bf16-4b43-85f8-21e8081a2408.JPG
+[MTPAdapter] ✓ Added to database: 20240605_155231_82e27420-bf16-4b43-85f8-21e8081a2408.JPG (id=153, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 39/117: 20240517_150103_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG
+[MTPAdapter] ✓ Copied 20240517_150103_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150103_479ecc0e-2196-4d18-8430-8b03bd5bdb13.JPG (id=155, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 40/117: 20230911_145328_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG
+[MTPAdapter] ✓ Copied 20230911_145328_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG
+[MTPAdapter] ✓ Added to database: 20230911_145328_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.JPG (id=157, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 41/117: 20240516_185659_bc87fcff-bd49-4c76-95b5-f8e937571a15.JPG
+[MTPAdapter] ✓ Copied 20240516_185659_bc87fcff-bd49-4c76-95b5-f8e937571a15.JPG
+[MTPAdapter] ✓ Added to database: 20240516_185659_bc87fcff-bd49-4c76-95b5-f8e937571a15.JPG (id=159, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 42/117: 20240516_154556_e16df9a6-e312-483d-9279-e7480662e4aa.JPG
+[MTPAdapter] ✓ Copied 20240516_154556_e16df9a6-e312-483d-9279-e7480662e4aa.JPG
+[MTPAdapter] ✓ Added to database: 20240516_154556_e16df9a6-e312-483d-9279-e7480662e4aa.JPG (id=161, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 43/117: 20240525_183055_a6e1b897-56c4-4e3d-8695-62929361190c.JPG
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[MTPAdapter] ✓ Copied 20240525_183055_a6e1b897-56c4-4e3d-8695-62929361190c.JPG
+[MTPAdapter] ✓ Added to database: 20240525_183055_a6e1b897-56c4-4e3d-8695-62929361190c.JPG (id=163, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 44/117: 20240529_165821_904cfa9a-c453-4acd-a7e3-50fd7d29b243.JPG
+[MTPAdapter] ✓ Copied 20240529_165821_904cfa9a-c453-4acd-a7e3-50fd7d29b243.JPG
+[MTPAdapter] ✓ Added to database: 20240529_165821_904cfa9a-c453-4acd-a7e3-50fd7d29b243.JPG (id=165, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 45/117: 20240517_150103_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG
+[MTPAdapter] ✓ Copied 20240517_150103_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150103_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG (id=167, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 46/117: 20240520_104452_f7881fde-3419-40eb-98c6-bf40e00356b3.JPG
+[MTPAdapter] ✓ Copied 20240520_104452_f7881fde-3419-40eb-98c6-bf40e00356b3.JPG
+[MTPAdapter] ✓ Added to database: 20240520_104452_f7881fde-3419-40eb-98c6-bf40e00356b3.JPG (id=169, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 47/117: 20240522_133259_32e11cf8-786b-4fcf-9a3f-76e381415716.JPG
+[MTPAdapter] ✓ Copied 20240522_133259_32e11cf8-786b-4fcf-9a3f-76e381415716.JPG
+[MTPAdapter] ✓ Added to database: 20240522_133259_32e11cf8-786b-4fcf-9a3f-76e381415716.JPG (id=171, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 48/117: 20240531_164228_65825975-6e5d-4d5e-97c8-ae32ed3704ba.JPG
+[MTPAdapter] ✓ Copied 20240531_164228_65825975-6e5d-4d5e-97c8-ae32ed3704ba.JPG
+[MTPAdapter] ✓ Added to database: 20240531_164228_65825975-6e5d-4d5e-97c8-ae32ed3704ba.JPG (id=173, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 49/117: 20240515_122152_3697bd93-3823-4eda-a396-ec3a8fbd504f.JPG
+[MTPAdapter] ✓ Copied 20240515_122152_3697bd93-3823-4eda-a396-ec3a8fbd504f.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122152_3697bd93-3823-4eda-a396-ec3a8fbd504f.JPG (id=175, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 50/117: 20240521_201818_112136d9-f224-4a38-a2d4-58f2274cb19c.JPG
+[MTPAdapter] ✓ Copied 20240521_201818_112136d9-f224-4a38-a2d4-58f2274cb19c.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201818_112136d9-f224-4a38-a2d4-58f2274cb19c.JPG (id=177, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 51/117: 20240531_221835_9ef89638-45d4-499d-863b-9352b30c794a.JPG
+[MTPAdapter] ✓ Copied 20240531_221835_9ef89638-45d4-499d-863b-9352b30c794a.JPG
+[MTPAdapter] ✓ Added to database: 20240531_221835_9ef89638-45d4-499d-863b-9352b30c794a.JPG (id=179, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 52/117: 20240515_201649_6d045b09-ff26-42d7-8f71-42d68bcb50af.JPG
+[MTPAdapter] ✓ Copied 20240515_201649_6d045b09-ff26-42d7-8f71-42d68bcb50af.JPG
+[MTPAdapter] ✓ Added to database: 20240515_201649_6d045b09-ff26-42d7-8f71-42d68bcb50af.JPG (id=181, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 53/117: 20240521_201819_c44d2496-470c-40be-b53f-9e3829d829ec.JPG
+[MTPAdapter] ✓ Copied 20240521_201819_c44d2496-470c-40be-b53f-9e3829d829ec.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201819_c44d2496-470c-40be-b53f-9e3829d829ec.JPG (id=183, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 54/117: 20240515_203437_02b4ea95-1bae-4d8c-ab13-4a7f3fc626ca.JPG
+[MTPAdapter] ✓ Copied 20240515_203437_02b4ea95-1bae-4d8c-ab13-4a7f3fc626ca.JPG
+[MTPAdapter] ✓ Added to database: 20240515_203437_02b4ea95-1bae-4d8c-ab13-4a7f3fc626ca.JPG (id=185, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 55/117: 20180319_223155_9990ae91-e07d-40ba-9c85-c26ded2b0d4b.JPG
+[MTPAdapter] ✓ Copied 20180319_223155_9990ae91-e07d-40ba-9c85-c26ded2b0d4b.JPG
+[MTPAdapter] ✓ Added to database: 20180319_223155_9990ae91-e07d-40ba-9c85-c26ded2b0d4b.JPG (id=187, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 56/117: 20240517_150103_96398b53-3ea9-4959-bd39-76481cf8a631.JPG
+[MTPAdapter] ✓ Copied 20240517_150103_96398b53-3ea9-4959-bd39-76481cf8a631.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150103_96398b53-3ea9-4959-bd39-76481cf8a631.JPG (id=189, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 57/117: 20240528_031704_0dda4e45-dccc-4ad9-a12e-5f085396184c.JPG
+[MTPAdapter] ✓ Copied 20240528_031704_0dda4e45-dccc-4ad9-a12e-5f085396184c.JPG
+[MTPAdapter] ✓ Added to database: 20240528_031704_0dda4e45-dccc-4ad9-a12e-5f085396184c.JPG (id=191, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 58/117: 20240521_131027_8348a9e2-0a6e-4c21-b478-2149d87a3856.JPG
+[MTPAdapter] ✓ Copied 20240521_131027_8348a9e2-0a6e-4c21-b478-2149d87a3856.JPG
+[MTPAdapter] ✓ Added to database: 20240521_131027_8348a9e2-0a6e-4c21-b478-2149d87a3856.JPG (id=193, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 59/117: 20240531_071602_05ca7200-e7ec-4826-9d18-391ebb97b963.JPG
+[MTPAdapter] ✓ Copied 20240531_071602_05ca7200-e7ec-4826-9d18-391ebb97b963.JPG
+[MTPAdapter] ✓ Added to database: 20240531_071602_05ca7200-e7ec-4826-9d18-391ebb97b963.JPG (id=195, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 60/117: 20240515_122155_288c4058-cee4-44fa-b572-45782239298a.JPG
+[MTPAdapter] ✓ Copied 20240515_122155_288c4058-cee4-44fa-b572-45782239298a.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122155_288c4058-cee4-44fa-b572-45782239298a.JPG (id=197, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 61/117: 20240602_150545_f506e60a-a8fc-4841-800c-efc2ce8bf86d.JPG
+[MTPAdapter] ✓ Copied 20240602_150545_f506e60a-a8fc-4841-800c-efc2ce8bf86d.JPG
+[MTPAdapter] ✓ Added to database: 20240602_150545_f506e60a-a8fc-4841-800c-efc2ce8bf86d.JPG (id=199, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 62/117: 20240417_094534_ff9f732b-740b-446c-b2e3-16554035d702.JPG
+[MTPAdapter] ✓ Copied 20240417_094534_ff9f732b-740b-446c-b2e3-16554035d702.JPG
+[MTPAdapter] ✓ Added to database: 20240417_094534_ff9f732b-740b-446c-b2e3-16554035d702.JPG (id=201, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 63/117: 20240517_144911_fee7aedb-8267-46f3-b814-18e68f681394.JPG
+[MTPAdapter] ✓ Copied 20240517_144911_fee7aedb-8267-46f3-b814-18e68f681394.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144911_fee7aedb-8267-46f3-b814-18e68f681394.JPG (id=203, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 64/117: 20240521_161859_c316c8fe-f729-4a9f-a126-8b6592011e4c.JPG
+[MTPAdapter] ✓ Copied 20240521_161859_c316c8fe-f729-4a9f-a126-8b6592011e4c.JPG
+[MTPAdapter] ✓ Added to database: 20240521_161859_c316c8fe-f729-4a9f-a126-8b6592011e4c.JPG (id=205, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 65/117: 20240522_112258_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG
+[MTPAdapter] ✓ Copied 20240522_112258_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG
+[MTPAdapter] ✓ Added to database: 20240522_112258_6179e3f3-7e23-4af0-ab4d-af33c221a4de.JPG (id=207, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 66/117: 20240529_165930_d337e9de-b595-42d8-9aff-578c8d0436ba.JPG
+[MTPAdapter] ✓ Copied 20240529_165930_d337e9de-b595-42d8-9aff-578c8d0436ba.JPG
+[MTPAdapter] ✓ Added to database: 20240529_165930_d337e9de-b595-42d8-9aff-578c8d0436ba.JPG (id=209, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 67/117: 20180830_094801_85bf6efc-8864-48aa-9d4b-e33769a1c045.JPG
+[MTPAdapter] ✓ Copied 20180830_094801_85bf6efc-8864-48aa-9d4b-e33769a1c045.JPG
+[MTPAdapter] ✓ Added to database: 20180830_094801_85bf6efc-8864-48aa-9d4b-e33769a1c045.JPG (id=211, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 68/117: 20240601_114935_fd32f46d-97d4-4fe6-ad0c-ce03135f7f45.JPG
+[MTPAdapter] ✓ Copied 20240601_114935_fd32f46d-97d4-4fe6-ad0c-ce03135f7f45.JPG
+[MTPAdapter] ✓ Added to database: 20240601_114935_fd32f46d-97d4-4fe6-ad0c-ce03135f7f45.JPG (id=213, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 69/117: 20240522_133300_39598380-a973-49cc-a653-3f0e244e92f8.JPG
+[MTPAdapter] ✓ Copied 20240522_133300_39598380-a973-49cc-a653-3f0e244e92f8.JPG
+[MTPAdapter] ✓ Added to database: 20240522_133300_39598380-a973-49cc-a653-3f0e244e92f8.JPG (id=215, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 70/117: 20240531_070816_ce3e1f98-e4c8-44ab-b145-2eb4f412660c.JPG
+[MTPAdapter] ✓ Copied 20240531_070816_ce3e1f98-e4c8-44ab-b145-2eb4f412660c.JPG
+[MTPAdapter] ✓ Added to database: 20240531_070816_ce3e1f98-e4c8-44ab-b145-2eb4f412660c.JPG (id=217, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 71/117: 20240529_154423_840413df-d7b5-47ab-8fc6-854fd697a75b.JPG
+[MTPAdapter] ✓ Copied 20240529_154423_840413df-d7b5-47ab-8fc6-854fd697a75b.JPG
+[MTPAdapter] ✓ Added to database: 20240529_154423_840413df-d7b5-47ab-8fc6-854fd697a75b.JPG (id=219, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 72/117: 20240515_122155_41888aed-5001-4561-95b1-949a4fb6d802.JPG
+[MTPAdapter] ✓ Copied 20240515_122155_41888aed-5001-4561-95b1-949a4fb6d802.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122155_41888aed-5001-4561-95b1-949a4fb6d802.JPG (id=221, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 73/117: 20240517_144910_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG
+[MTPAdapter] ✓ Copied 20240517_144910_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144910_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.JPG (id=223, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 74/117: 20240522_164927_0f07759f-4110-4191-b448-10554679bd30.JPG
+[MTPAdapter] ✓ Copied 20240522_164927_0f07759f-4110-4191-b448-10554679bd30.JPG
+[MTPAdapter] ✓ Added to database: 20240522_164927_0f07759f-4110-4191-b448-10554679bd30.JPG (id=225, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 75/117: 20240517_144912_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG
+[MTPAdapter] ✓ Copied 20240517_144912_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144912_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG (id=227, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 76/117: 20240525_183236_be76e834-8022-447d-8b85-c8565230baea.JPG
+[MTPAdapter] ✓ Copied 20240525_183236_be76e834-8022-447d-8b85-c8565230baea.JPG
+[MTPAdapter] ✓ Added to database: 20240525_183236_be76e834-8022-447d-8b85-c8565230baea.JPG (id=229, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 77/117: 20240602_150226_bc26d2a7-b986-4ebf-8165-cec3cd0dc3db.JPG
+[MTPAdapter] ✓ Copied 20240602_150226_bc26d2a7-b986-4ebf-8165-cec3cd0dc3db.JPG
+[MTPAdapter] ✓ Added to database: 20240602_150226_bc26d2a7-b986-4ebf-8165-cec3cd0dc3db.JPG (id=231, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 78/117: 20240517_150104_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG
+[MTPAdapter] ✓ Copied 20240517_150104_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150104_16686be6-4ef8-48c4-8231-c08184e4b4a8.JPG (id=233, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 79/117: 20240517_150104_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG
+[MTPAdapter] ✓ Copied 20240517_150104_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150104_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG (id=235, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 80/117: 20240520_144256_0e0969f4-e01a-4ad6-9e1d-75e6bc4e185b.JPG
+[MTPAdapter] ✓ Copied 20240520_144256_0e0969f4-e01a-4ad6-9e1d-75e6bc4e185b.JPG
+[MTPAdapter] ✓ Added to database: 20240520_144256_0e0969f4-e01a-4ad6-9e1d-75e6bc4e185b.JPG (id=237, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 81/117: 20240529_045128_78f15d03-8ae0-471f-9e5a-f5091d5908fb.JPG
+[MTPAdapter] ✓ Copied 20240529_045128_78f15d03-8ae0-471f-9e5a-f5091d5908fb.JPG
+[MTPAdapter] ✓ Added to database: 20240529_045128_78f15d03-8ae0-471f-9e5a-f5091d5908fb.JPG (id=239, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 82/117: 20240522_133259_777d2825-86f2-4052-9318-013f43021a89.JPG
+[MTPAdapter] ✓ Copied 20240522_133259_777d2825-86f2-4052-9318-013f43021a89.JPG
+[MTPAdapter] ✓ Added to database: 20240522_133259_777d2825-86f2-4052-9318-013f43021a89.JPG (id=241, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 83/117: 20240517_191344_b65315d5-fde0-4974-ab03-e3636852f475.JPG
+[MTPAdapter] ✓ Copied 20240517_191344_b65315d5-fde0-4974-ab03-e3636852f475.JPG
+[MTPAdapter] ✓ Added to database: 20240517_191344_b65315d5-fde0-4974-ab03-e3636852f475.JPG (id=243, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 84/117: 20240521_161821_ac15a9f4-7a16-40ad-a5fa-879c92ea4c1f.JPG
+[MTPAdapter] ✓ Copied 20240521_161821_ac15a9f4-7a16-40ad-a5fa-879c92ea4c1f.JPG
+[MTPAdapter] ✓ Added to database: 20240521_161821_ac15a9f4-7a16-40ad-a5fa-879c92ea4c1f.JPG (id=245, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 85/117: 20240417_094533_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG
+[MTPAdapter] ✓ Copied 20240417_094533_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG
+[MTPAdapter] ✓ Added to database: 20240417_094533_609f8a70-ebb1-4b8b-8549-86989002c6e1.JPG (id=247, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 86/117: 20240516_154852_e6228521-e820-41dd-9cc8-fa80415ad20a.JPG
+[MTPAdapter] ✓ Copied 20240516_154852_e6228521-e820-41dd-9cc8-fa80415ad20a.JPG
+[MTPAdapter] ✓ Added to database: 20240516_154852_e6228521-e820-41dd-9cc8-fa80415ad20a.JPG (id=249, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 87/117: 20240602_004433_bb51684a-3a84-4293-9fb5-674bf7754f25.JPG
+[MTPAdapter] ✓ Copied 20240602_004433_bb51684a-3a84-4293-9fb5-674bf7754f25.JPG
+[MTPAdapter] ✓ Added to database: 20240602_004433_bb51684a-3a84-4293-9fb5-674bf7754f25.JPG (id=251, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 88/117: 20240521_201824_33322adc-4828-447a-b1c3-52b414a64c2e.JPG
+[MTPAdapter] ✓ Copied 20240521_201824_33322adc-4828-447a-b1c3-52b414a64c2e.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201824_33322adc-4828-447a-b1c3-52b414a64c2e.JPG (id=253, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 89/117: 20240522_091759_25d377c3-2fc8-46fa-830a-c804bb896999.JPG
+[MTPAdapter] ✓ Copied 20240522_091759_25d377c3-2fc8-46fa-830a-c804bb896999.JPG
+[MTPAdapter] ✓ Added to database: 20240522_091759_25d377c3-2fc8-46fa-830a-c804bb896999.JPG (id=255, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 90/117: 20240528_152517_618fd646-2681-47f2-8758-cd1fbb7a5dc2.JPG
+[MTPAdapter] ✓ Copied 20240528_152517_618fd646-2681-47f2-8758-cd1fbb7a5dc2.JPG
+[MTPAdapter] ✓ Added to database: 20240528_152517_618fd646-2681-47f2-8758-cd1fbb7a5dc2.JPG (id=257, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 91/117: 20240517_073311_ddc004c8-6202-4dc6-82a4-b5ac6e057320.JPG
+[MTPAdapter] ✓ Copied 20240517_073311_ddc004c8-6202-4dc6-82a4-b5ac6e057320.JPG
+[MTPAdapter] ✓ Added to database: 20240517_073311_ddc004c8-6202-4dc6-82a4-b5ac6e057320.JPG (id=259, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 92/117: 20240517_191147_8f8c7a09-8616-474a-b032-11a684bd4f33.JPG
+[MTPAdapter] ✓ Copied 20240517_191147_8f8c7a09-8616-474a-b032-11a684bd4f33.JPG
+[MTPAdapter] ✓ Added to database: 20240517_191147_8f8c7a09-8616-474a-b032-11a684bd4f33.JPG (id=261, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 93/117: 20240517_150104_fee7aedb-8267-46f3-b814-18e68f681394.JPG
+[MTPAdapter] ✓ Copied 20240517_150104_fee7aedb-8267-46f3-b814-18e68f681394.JPG
+[MTPAdapter] ✓ Added to database: 20240517_150104_fee7aedb-8267-46f3-b814-18e68f681394.JPG (id=263, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 94/117: 20240517_191153_69f521af-874b-4ce2-8eda-d9091736ecca.JPG
+[MTPAdapter] ✓ Copied 20240517_191153_69f521af-874b-4ce2-8eda-d9091736ecca.JPG
+[MTPAdapter] ✓ Added to database: 20240517_191153_69f521af-874b-4ce2-8eda-d9091736ecca.JPG (id=265, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 95/117: 20240521_160450_79037afd-2013-4a53-8b80-eb95872a095e.JPG
+[MTPAdapter] ✓ Copied 20240521_160450_79037afd-2013-4a53-8b80-eb95872a095e.JPG
+[MTPAdapter] ✓ Added to database: 20240521_160450_79037afd-2013-4a53-8b80-eb95872a095e.JPG (id=267, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 96/117: 20240521_201152_f453fc8f-c940-412a-a4d3-0c10b0e8aad7.JPG
+[MTPAdapter] ✓ Copied 20240521_201152_f453fc8f-c940-412a-a4d3-0c10b0e8aad7.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201152_f453fc8f-c940-412a-a4d3-0c10b0e8aad7.JPG (id=269, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 97/117: 20240517_191435_e962731e-4188-4f48-8491-f1c1d1e03ca8.JPG
+[MTPAdapter] ✓ Copied 20240517_191435_e962731e-4188-4f48-8491-f1c1d1e03ca8.JPG
+[MTPAdapter] ✓ Added to database: 20240517_191435_e962731e-4188-4f48-8491-f1c1d1e03ca8.JPG (id=271, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 98/117: 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166.JPG
+[MTPAdapter] ✓ Copied 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166.JPG
+[MTPAdapter] ✓ Added to database: 20240521_200632_dd6a331f-e76a-446e-b90d-083223531166.JPG (id=273, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 99/117: 20240524_115417_766eae1a-2aef-4f8f-b65a-bf4cc2a71723.JPG
+[MTPAdapter] ✓ Copied 20240524_115417_766eae1a-2aef-4f8f-b65a-bf4cc2a71723.JPG
+[MTPAdapter] ✓ Added to database: 20240524_115417_766eae1a-2aef-4f8f-b65a-bf4cc2a71723.JPG (id=275, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 100/117: 20170411_195642_IMG_2702.JPG
+[MTPAdapter] ✓ Copied 20170411_195642_IMG_2702.JPG
+[MTPAdapter] ✓ Added to database: 20170411_195642_IMG_2702.JPG (id=277, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 101/117: 20240515_122157_9c7af065-4345-4279-a55b-0908b876deb7.JPG
+[MTPAdapter] ✓ Copied 20240515_122157_9c7af065-4345-4279-a55b-0908b876deb7.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122157_9c7af065-4345-4279-a55b-0908b876deb7.JPG (id=279, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 102/117: 20240517_144909_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG
+[MTPAdapter] ✓ Copied 20240517_144909_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG
+[MTPAdapter] ✓ Added to database: 20240517_144909_a57ae629-a01f-42d7-832d-e42c148dcd94.JPG (id=281, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 103/117: 20240601_045451_ba973fd6-c4db-4f2f-bc77-faf611bc015a.JPG
+[MTPAdapter] ✓ Copied 20240601_045451_ba973fd6-c4db-4f2f-bc77-faf611bc015a.JPG
+[MTPAdapter] ✓ Added to database: 20240601_045451_ba973fd6-c4db-4f2f-bc77-faf611bc015a.JPG (id=283, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 104/117: 20240521_201822_be770a7d-6264-44b7-98b7-75cf87066922.JPG
+[MTPAdapter] ✓ Copied 20240521_201822_be770a7d-6264-44b7-98b7-75cf87066922.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201822_be770a7d-6264-44b7-98b7-75cf87066922.JPG (id=285, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 105/117: 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1(1).JPG
+[MTPAdapter] ✓ Copied 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1(1).JPG
+[MTPAdapter] ✓ Added to database: 20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1(1).JPG (id=287, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 106/117: 20240522_164926_27876a84-35d0-454e-924f-8319b3d738d1.JPG
+[MTPAdapter] ✓ Copied 20240522_164926_27876a84-35d0-454e-924f-8319b3d738d1.JPG
+[MTPAdapter] ✓ Added to database: 20240522_164926_27876a84-35d0-454e-924f-8319b3d738d1.JPG (id=289, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 107/117: 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20(1).JPG
+[MTPAdapter] ✓ Copied 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20(1).JPG
+[MTPAdapter] ✓ Added to database: 20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20(1).JPG (id=291, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 108/117: 20240515_122157_3bbec26b-b2a6-467a-8ca6-59ca165c2e43.JPG
+[MTPAdapter] ✓ Copied 20240515_122157_3bbec26b-b2a6-467a-8ca6-59ca165c2e43.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122157_3bbec26b-b2a6-467a-8ca6-59ca165c2e43.JPG (id=293, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 109/117: 20240527_093052_1e6b8ee4-16e0-467e-8725-08fd665f81ab.JPG
+[MTPAdapter] ✓ Copied 20240527_093052_1e6b8ee4-16e0-467e-8725-08fd665f81ab.JPG
+[MTPAdapter] ✓ Added to database: 20240527_093052_1e6b8ee4-16e0-467e-8725-08fd665f81ab.JPG (id=295, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 110/117: 20240517_153742_f57b4b9a-d7f1-40be-b7c9-5b6b955fabbb.JPG
+[MTPAdapter] ✓ Copied 20240517_153742_f57b4b9a-d7f1-40be-b7c9-5b6b955fabbb.JPG
+[MTPAdapter] ✓ Added to database: 20240517_153742_f57b4b9a-d7f1-40be-b7c9-5b6b955fabbb.JPG (id=297, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 111/117: 20240521_201823_389ebadb-32c4-4afe-a03b-51315905edec.JPG
+[MTPAdapter] ✓ Copied 20240521_201823_389ebadb-32c4-4afe-a03b-51315905edec.JPG
+[MTPAdapter] ✓ Added to database: 20240521_201823_389ebadb-32c4-4afe-a03b-51315905edec.JPG (id=299, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 112/117: 20240528_031705_cacac2e4-b194-4ee0-85a5-5ab1a04c2612.JPG
+[MTPAdapter] ✓ Copied 20240528_031705_cacac2e4-b194-4ee0-85a5-5ab1a04c2612.JPG
+[MTPAdapter] ✓ Added to database: 20240528_031705_cacac2e4-b194-4ee0-85a5-5ab1a04c2612.JPG (id=301, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 113/117: 20240520_053859_1aa2867a-a19d-4fb5-b514-cd1567fbc6ac.JPG
+[MTPAdapter] ✓ Copied 20240520_053859_1aa2867a-a19d-4fb5-b514-cd1567fbc6ac.JPG
+[MTPAdapter] ✓ Added to database: 20240520_053859_1aa2867a-a19d-4fb5-b514-cd1567fbc6ac.JPG (id=303, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 114/117: 20240529_161429_75a2e57c-a2c0-4007-a73e-f192b4a4d9cb.JPG
+[MTPAdapter] ✓ Copied 20240529_161429_75a2e57c-a2c0-4007-a73e-f192b4a4d9cb.JPG
+[MTPAdapter] ✓ Added to database: 20240529_161429_75a2e57c-a2c0-4007-a73e-f192b4a4d9cb.JPG (id=305, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 115/117: 20240515_122153_051b413e-32c2-486a-92d5-4855cdf5e47b.JPG
+[MTPAdapter] ✓ Copied 20240515_122153_051b413e-32c2-486a-92d5-4855cdf5e47b.JPG
+[MTPAdapter] ✓ Added to database: 20240515_122153_051b413e-32c2-486a-92d5-4855cdf5e47b.JPG (id=307, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 116/117: 20240527_153925_5963efa9-cbc4-4da8-b8ee-1db1d7dfa5a4.JPG
+[MTPAdapter] ✓ Copied 20240527_153925_5963efa9-cbc4-4da8-b8ee-1db1d7dfa5a4.JPG
+[MTPAdapter] ✓ Added to database: 20240527_153925_5963efa9-cbc4-4da8-b8ee-1db1d7dfa5a4.JPG (id=309, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] Importing 117/117: 20240517_000738_8a52809c-5113-4af1-8d1e-b5557dbb1192.JPG
+[MTPAdapter] ✓ Copied 20240517_000738_8a52809c-5113-4af1-8d1e-b5557dbb1192.JPG
+[MTPAdapter] ✓ Added to database: 20240517_000738_8a52809c-5113-4af1-8d1e-b5557dbb1192.JPG (id=311, branches=['all', 'device_folder:WhatsApp [A54 von Ammar]'])
+[MTPAdapter] ✓ Import complete: 117/117 files (skipped 0 duplicates)
+[MTPImportWorker] ✓ Import complete: 117 files
+[Sidebar] Import successful: 117 files
+[GRID] Loaded 117 thumbnails in tag-mode.
+[Sidebar] ✓ Import complete, grid loaded with 117 files
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000195B568FF80>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=117
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_153645_29dd888e-7b27-4241-9bc5-7cc71cccb72f.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240518_230700_9c4d0970-a24f-4bfc-a678-e47be1ea51ce.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201821_56738825-130d-48cf-b185-1d9e2f1dad49.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_133300_fa66cbe7-6da8-4958-82b5-5320324a3a43.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_115306_4899f38b-4d0e-4f8f-91b3-0965a282a0f4.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_204721_d133ed3e-a400-4967-8ac7-e85cea2a84a8.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_113153_ba12ca60-b7e4-408c-9579-82b23f1dee75.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_092801_9a34eb09-582a-431c-8de9-5df1b9336f40.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122151_ff9f732b-740b-446c-b2e3-16554035d702.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240524_120915_81ba2ce4-e57f-43f8-b0a1-c171a9bdc823.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240525_182830_0f4356a4-d64c-4bb3-b252-469341d02c88.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240530_140125_a64a839d-49d9-4299-a14c-ec91d4fcc698.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240520_144247_8775ad25-1cda-45dc-bb34-1879e7ed274e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_122151_7bb32de2-8e21-4f6c-956e-20ca83eeac0a.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20190303_215054_8eca5880-c9ac-4173-ae41-1fd61a3be066.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_122551_66207767-06d0-4466-9a21-eabdee84d056.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_133005_b80627d7-6ff8-4a77-93b2-94599f9f69fc.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240525_183332_f203b2f5-769f-42f0-9a49-17b5b6f1a754.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144910_96398b53-3ea9-4959-bd39-76481cf8a631.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240523_234011_e6b387f3-aecc-44a7-8b69-61c7a1df8eda.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_214915_d3026e26-f645-4769-81ea-9849e116b773.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_083248_6179e3f3-7e23-4af0-ab4d-af33c221a4de.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_122625_9db535cb-b315-495e-97cd-e85762d01e0c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_214540_7dc98c17-bc01-4778-9db0-f797a503a199.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240518_230933_9fa14ea5-eb45-4956-a8fc-bf0d05d84500.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122149_609f8a70-ebb1-4b8b-8549-86989002c6e1.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_222003_6560104c-21cb-4824-a529-f5d426e9514d.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_214451_1a97e7c1-7258-4694-ab76-a5b12237c23e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_102115_fb791b3d-c5d6-4323-996e-a01970098943.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122156_411e3f1f-fe6c-40c0-a7fc-f71789a3b2f5.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144911_479ecc0e-2196-4d18-8430-8b03bd5bdb13.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_191456_8d72f768-ec68-46f4-83aa-c986b4721151.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_200632_dd6a331f-e76a-446e-b90d-083223531166(1).jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240520_231243_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240603_143552_1209d759-892f-4380-9f5f-9de4f4cc051b.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240605_155231_82e27420-bf16-4b43-85f8-21e8081a2408.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150103_479ecc0e-2196-4d18-8430-8b03bd5bdb13.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20230911_145328_3ad4cbdc-30ac-4342-a424-a0fae1cd579e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240516_185659_bc87fcff-bd49-4c76-95b5-f8e937571a15.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240516_154556_e16df9a6-e312-483d-9279-e7480662e4aa.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240525_183055_a6e1b897-56c4-4e3d-8695-62929361190c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_165821_904cfa9a-c453-4acd-a7e3-50fd7d29b243.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150103_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240520_104452_f7881fde-3419-40eb-98c6-bf40e00356b3.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_133259_32e11cf8-786b-4fcf-9a3f-76e381415716.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_164228_65825975-6e5d-4d5e-97c8-ae32ed3704ba.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122152_3697bd93-3823-4eda-a396-ec3a8fbd504f.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201818_112136d9-f224-4a38-a2d4-58f2274cb19c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_221835_9ef89638-45d4-499d-863b-9352b30c794a.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_201649_6d045b09-ff26-42d7-8f71-42d68bcb50af.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201819_c44d2496-470c-40be-b53f-9e3829d829ec.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_203437_02b4ea95-1bae-4d8c-ab13-4a7f3fc626ca.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20180319_223155_9990ae91-e07d-40ba-9c85-c26ded2b0d4b.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150103_96398b53-3ea9-4959-bd39-76481cf8a631.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240528_031704_0dda4e45-dccc-4ad9-a12e-5f085396184c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_131027_8348a9e2-0a6e-4c21-b478-2149d87a3856.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_071602_05ca7200-e7ec-4826-9d18-391ebb97b963.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122155_288c4058-cee4-44fa-b572-45782239298a.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_150545_f506e60a-a8fc-4841-800c-efc2ce8bf86d.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240417_094534_ff9f732b-740b-446c-b2e3-16554035d702.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144911_fee7aedb-8267-46f3-b814-18e68f681394.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_161859_c316c8fe-f729-4a9f-a126-8b6592011e4c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_112258_6179e3f3-7e23-4af0-ab4d-af33c221a4de.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_165930_d337e9de-b595-42d8-9aff-578c8d0436ba.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20180830_094801_85bf6efc-8864-48aa-9d4b-e33769a1c045.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_114935_fd32f46d-97d4-4fe6-ad0c-ce03135f7f45.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_133300_39598380-a973-49cc-a653-3f0e244e92f8.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240531_070816_ce3e1f98-e4c8-44ab-b145-2eb4f412660c.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_154423_840413df-d7b5-47ab-8fc6-854fd697a75b.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122155_41888aed-5001-4561-95b1-949a4fb6d802.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144910_2e1ca21c-9f16-43ff-8ea1-e166d2ad8aa4.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_164927_0f07759f-4110-4191-b448-10554679bd30.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144912_16686be6-4ef8-48c4-8231-c08184e4b4a8.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240525_183236_be76e834-8022-447d-8b85-c8565230baea.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_150226_bc26d2a7-b986-4ebf-8165-cec3cd0dc3db.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150104_16686be6-4ef8-48c4-8231-c08184e4b4a8.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150104_a57ae629-a01f-42d7-832d-e42c148dcd94.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240520_144256_0e0969f4-e01a-4ad6-9e1d-75e6bc4e185b.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_045128_78f15d03-8ae0-471f-9e5a-f5091d5908fb.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_133259_777d2825-86f2-4052-9318-013f43021a89.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_191344_b65315d5-fde0-4974-ab03-e3636852f475.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_161821_ac15a9f4-7a16-40ad-a5fa-879c92ea4c1f.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240417_094533_609f8a70-ebb1-4b8b-8549-86989002c6e1.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240516_154852_e6228521-e820-41dd-9cc8-fa80415ad20a.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_004433_bb51684a-3a84-4293-9fb5-674bf7754f25.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201824_33322adc-4828-447a-b1c3-52b414a64c2e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_091759_25d377c3-2fc8-46fa-830a-c804bb896999.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240528_152517_618fd646-2681-47f2-8758-cd1fbb7a5dc2.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_073311_ddc004c8-6202-4dc6-82a4-b5ac6e057320.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_191147_8f8c7a09-8616-474a-b032-11a684bd4f33.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_150104_fee7aedb-8267-46f3-b814-18e68f681394.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_191153_69f521af-874b-4ce2-8eda-d9091736ecca.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_160450_79037afd-2013-4a53-8b80-eb95872a095e.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201152_f453fc8f-c940-412a-a4d3-0c10b0e8aad7.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_191435_e962731e-4188-4f48-8491-f1c1d1e03ca8.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_200632_dd6a331f-e76a-446e-b90d-083223531166.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240524_115417_766eae1a-2aef-4f8f-b65a-bf4cc2a71723.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20170411_195642_img_2702.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122157_9c7af065-4345-4279-a55b-0908b876deb7.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_144909_a57ae629-a01f-42d7-832d-e42c148dcd94.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240601_045451_ba973fd6-c4db-4f2f-bc77-faf611bc015a.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201822_be770a7d-6264-44b7-98b7-75cf87066922.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_200901_7bee30f1-f03b-43ef-8103-a60c891bf7d1(1).jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240522_164926_27876a84-35d0-454e-924f-8319b3d738d1.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20(1).jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122157_3bbec26b-b2a6-467a-8ca6-59ca165c2e43.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240527_093052_1e6b8ee4-16e0-467e-8725-08fd665f81ab.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_153742_f57b4b9a-d7f1-40be-b7c9-5b6b955fabbb.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240521_201823_389ebadb-32c4-4afe-a03b-51315905edec.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240528_031705_cacac2e4-b194-4ee0-85a5-5ab1a04c2612.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240520_053859_1aa2867a-a19d-4fb5-b514-cd1567fbc6ac.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240529_161429_75a2e57c-a2c0-4007-a73e-f192b4a4d9cb.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240515_122153_051b413e-32c2-486a-92d5-4855cdf5e47b.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240527_153925_5963efa9-cbc4-4da8-b8ee-1db1d7dfa5a4.jpg', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\whatsapp\\2025-11-19\\20240517_000738_8a52809c-5113-4af1-8d1e-b5557dbb1192.jpg']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.jpg
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.jpg
+[UnifiedPreview] Media type: photo
+[LightboxDialog] Video player signals connected successfully
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (1200, 1600)
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240602_134343_879dd7a3-7cc3-44e2-91b0-d56667c11f20.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (1200, 1600)
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240517_083248_6179e3f3-7e23-4af0-ab4d-af33c221a4de.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (945, 2048)
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\whatsapp\2025-11-19\20240601_122625_9db535cb-b315-495e-97cd-e85762d01e0c.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (739, 1600)
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[GRID] Using scroll-based start position: 0 (scroll: 89/1750)
+[GRID] Near bottom, loading all remaining 4 items
+[GRID] Loading viewport range: 0-116 of 117
+[GRID] Using scroll-based start position: 97 (scroll: 1750/1750)
+[GRID] Loading viewport range: 89-116 of 117
+[GRID] Using scroll-based start position: 0 (scroll: 0/1750)
+[GRID] Near bottom, loading all remaining 4 items
+[GRID] Loading viewport range: 0-116 of 117
+[GRID] Using scroll-based start position: 97 (scroll: 1750/1750)
+[GRID] Loading viewport range: 89-116 of 117
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → Screenshots
+[MTPAdapter] Enumerating MTP folder: Screenshots on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] Enumerated 10 files...
+[MTPAdapter] ✓ Enumerated 12 media files
+[MTPImportWorker] Found 12 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20241009_204415.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20241007_093655_Gallery.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240703_192501_WhatsApp.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240710_185302_WhatsApp.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20241205_203218_Bookingcom.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240701_121349_WhatsApp.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20241007_093624_Samsung Internet.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20241003_164106_WhatsApp.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240817_074013_Clock.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240808_021749_One UI Home.jpg
+[MTPAdapter] ⊗ Skipping duplicate: Screenshot_20240703_192505_WhatsApp.jpg
+[MTPAdapter] ⊗ Skipping duplicate: 20240601_120058_IMG_4776.PNG
+[MTPAdapter] Duplicate detection: 0 new, 12 duplicates
+[MTPAdapter] All files already imported. Nothing to do.
+[MTPImportWorker] ⊗ All 12 files already imported
+[Sidebar] Import cancelled by user
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\iPhoneData\Movies
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → Movies
+[MTPAdapter] Enumerating MTP folder: Movies on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\iPhoneData\Movies
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] ✓ Enumerated 5 media files
+[MTPImportWorker] Found 5 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14\Device_Imports\A54 von Ammar\Movies\2025-11-19
+[MTPAdapter] Duplicate detection: 5 new, 0 duplicates
+[MTPAdapter] Successfully accessed source folder for import
+[MTPAdapter] Importing 1/5: 20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.MP4
+[MTPAdapter] ✓ Copied 20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.MP4
+[MTPAdapter] ✓ Added to database: 20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.MP4 (id=313, branches=['all', 'device_folder:Movies [A54 von Ammar]'])
+[MTPAdapter] Importing 2/5: 20240531_070817_218617fc-1999-4ee9-9da9-eefc6cc32e6a.MP4
+[MTPAdapter] ✓ Copied 20240531_070817_218617fc-1999-4ee9-9da9-eefc6cc32e6a.MP4
+[MTPAdapter] ✓ Added to database: 20240531_070817_218617fc-1999-4ee9-9da9-eefc6cc32e6a.MP4 (id=315, branches=['all', 'device_folder:Movies [A54 von Ammar]'])
+[MTPAdapter] Importing 3/5: 20240516_073640_1906826a-0eaa-497e-a5d2-eec7bee2c590.MP4
+[MTPAdapter] ✓ Copied 20240516_073640_1906826a-0eaa-497e-a5d2-eec7bee2c590.MP4
+[MTPAdapter] ✓ Added to database: 20240516_073640_1906826a-0eaa-497e-a5d2-eec7bee2c590.MP4 (id=317, branches=['all', 'device_folder:Movies [A54 von Ammar]'])
+[MTPAdapter] Importing 4/5: 20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.MP4
+[MTPAdapter] ✓ Copied 20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.MP4
+[MTPAdapter] ✓ Added to database: 20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.MP4 (id=319, branches=['all', 'device_folder:Movies [A54 von Ammar]'])
+[MTPAdapter] Importing 5/5: 20240516_073640_c8c2a2cc-5c05-4e5a-bb29-9ef4ca12673d.MP4
+[MTPAdapter] ✓ Copied 20240516_073640_c8c2a2cc-5c05-4e5a-bb29-9ef4ca12673d.MP4
+[MTPAdapter] ✓ Added to database: 20240516_073640_c8c2a2cc-5c05-4e5a-bb29-9ef4ca12673d.MP4 (id=321, branches=['all', 'device_folder:Movies [A54 von Ammar]'])
+[MTPAdapter] ✓ Import complete: 5/5 files (skipped 0 duplicates)
+[MTPImportWorker] ✓ Import complete: 5 files
+[Sidebar] Import successful: 5 files
+[GRID] Loaded 5 thumbnails in tag-mode.
+[Sidebar] ✓ Import complete, grid loaded with 5 files
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-4 of 5
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000195E4A46640>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=5
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240531_070817_218617fc-1999-4ee9-9da9-eefc6cc32e6a.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_1906826a-0eaa-497e-a5d2-eec7bee2c590.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_c8c2a2cc-5c05-4e5a-bb29-9ef4ca12673d.mp4']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4':
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: mp42isom
+  Duration: 00:00:14.84, start: 0.000000, bitrate: 814 kb/s
+[LightboxDialog] Video playback started
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/bt470bg/smpte170m, progressive), 368x656, 768 kb/s, SAR 1:1 DAR 23:41, 30 fps, 30 tbr, 90k tbn (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 48 kb/s (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 0:14
+[LightboxDialog] Video playback state: Playing
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x0000019581BEC2C0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x1958b205c10) at 0x00000195B5627640>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=5
+[open_lightbox] paths=['c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240521_045000_71f2c84d-d47d-4bf3-bc44-b37057e7d916.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240531_070817_218617fc-1999-4ee9-9da9-eefc6cc32e6a.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_1906826a-0eaa-497e-a5d2-eec7bee2c590.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4', 'c:\\users\\suleimaa\\downloads\\photo-sorter\\09.33.01.01-photo-app\\memorymate-photoflow-main-14\\device_imports\\a54 von ammar\\movies\\2025-11-19\\20240516_073640_c8c2a2cc-5c05-4e5a-bb29-9ef4ca12673d.mp4']
+[open_lightbox] path=c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\downloads\photo-sorter\09.33.01.01-photo-app\memorymate-photoflow-main-14\device_imports\a54 von ammar\movies\2025-11-19\20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: mp42isom
+  Duration: [LightboxDialog] Switched to video widget (index 1)
+00:00:52.33, start: 0.000000, bitrate: 243 kb/s
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/downloads/photo-sorter/09.33.01.01-photo-app/memorymate-photoflow-main-14/device_imports/a54 von ammar/movies/2025-11-19/20240516_073640_34f497ce-4e53-48e9-aad9-407b4128a520.mp4
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 576x768 [SAR 1:1 DAR 3:4], 207 kb/s, 29.96 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video playback started
+  Stream #0:1[0x2](und): Audio: aac (HE-AAC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 32 kb/s (default)
+      Metadata:
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 0:52
+[LightboxDialog] Video playback state: Playing
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:b334c82e
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -450,4 +1548,4 @@ Exception: Cannot find device storage at: ::{20D04FE0-3AEA-1069-A2D8-08002B30309
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
 
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-13>
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-14>

@@ -1965,12 +1965,13 @@ class SidebarQt(QWidget):
 
             try:
                 if is_shell_path:
-                    # Windows MTP device - use Shell COM API
-                    print(f"[Sidebar] Loading MTP device folder via COM: {value}")
+                    # Windows MTP device - use Shell COM API with async worker
+                    print(f"[Sidebar] Loading MTP device folder via COM (async): {value}")
                     try:
                         import win32com.client
-                        import tempfile
-                        import os as os_module
+                        from PyQt5.QtWidgets import QProgressDialog
+                        from PyQt5.QtCore import Qt
+                        from workers.mtp_copy_worker import MTPCopyWorker
 
                         shell = win32com.client.Dispatch("Shell.Application")
                         folder = shell.Namespace(value)
@@ -1979,65 +1980,88 @@ class SidebarQt(QWidget):
                             mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
                             return
 
-                        # Recursively scan folder for media files via COM
-                        def scan_com_folder(com_folder, depth=0, max_depth=3):
-                            if depth > max_depth:
-                                return
+                        # Extract folder name for display
+                        folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
 
-                            try:
-                                items = com_folder.Items()
-                                for item in items:
-                                    if item.IsFolder:
-                                        # Recurse into subdirectories
-                                        if not item.Name.startswith('.'):
-                                            try:
-                                                subfolder = shell.Namespace(item.Path)
-                                                if subfolder:
-                                                    scan_com_folder(subfolder, depth + 1, max_depth)
-                                            except:
-                                                pass
-                                    else:
-                                        # Check if it's a media file
-                                        name_lower = item.Name.lower()
-                                        if any(name_lower.endswith(ext) for ext in media_extensions):
-                                            # Copy file from MTP device to temp location
-                                            # (Grid can't display Shell namespace paths directly)
-                                            try:
-                                                # Create temp directory for device media cache
-                                                temp_dir = os_module.path.join(tempfile.gettempdir(), "memorymate_device_cache")
-                                                os_module.makedirs(temp_dir, exist_ok=True)
+                        # Create progress dialog
+                        progress = QProgressDialog(
+                            f"Copying photos from {folder_name}...",
+                            "Cancel",
+                            0, 100,
+                            mw
+                        )
+                        progress.setWindowModality(Qt.WindowModal)
+                        progress.setMinimumDuration(0)
+                        progress.setAutoClose(True)
+                        progress.setAutoReset(True)
 
-                                                # Generate temp file path
-                                                temp_file = os_module.path.join(temp_dir, item.Name)
+                        # Create and configure worker
+                        worker = MTPCopyWorker(shell, value, max_files=100, max_depth=2)
 
-                                                # Copy file using Shell API
-                                                com_folder.CopyHere(item.Name, 4)  # Flag 4 = no UI
+                        # Handle progress updates
+                        def on_progress(current, total, filename):
+                            if total > 0:
+                                percent = int((current / total) * 100)
+                                progress.setValue(percent)
+                                progress.setLabelText(f"Copying {current}/{total}: {filename}")
 
-                                                # Alternative: Try to get file data directly
-                                                # For now, store the Shell path and handle it later
-                                                # Store as temp marker that needs to be copied
-                                                media_paths.append(f"mtp://{item.Path}")
+                        # Handle completion
+                        def on_finished(copied_paths):
+                            progress.close()
 
-                                            except Exception as e:
-                                                print(f"[Sidebar] Warning: Could not cache {item.Name}: {e}")
-                            except Exception as e:
-                                print(f"[Sidebar] Error scanning COM folder at depth {depth}: {e}")
+                            if copied_paths:
+                                print(f"[Sidebar] Worker finished: {len(copied_paths)} files copied")
+                                print(f"[Sidebar] Loading {len(copied_paths)} files into grid...")
 
-                        scan_com_folder(folder)
+                                # Load files into grid
+                                mw.grid.model.clear()
+                                mw.grid.load_custom_paths(copied_paths, content_type="mixed")
 
-                        # For MTP devices, we need to show a message that files need to be imported
-                        if media_paths:
-                            folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
-                            mw.statusBar().showMessage(
-                                f"📱 Found {len(media_paths)} item(s) in {folder_name}. Use 'Import from Device' to copy photos."
-                            )
-                            print(f"[Sidebar] Found {len(media_paths)} media files in MTP device folder")
+                                mw.statusBar().showMessage(
+                                    f"📱 Showing {len(copied_paths)} item(s) from {folder_name}"
+                                )
+                                print(f"[Sidebar] ✓ Grid loaded with {len(copied_paths)} media files from MTP device")
+                            else:
+                                mw.statusBar().showMessage(f"📱 No media files found in {folder_name}")
+                                print(f"[Sidebar] No media files found to display")
 
-                            # TODO: Actually implement MTP file preview
-                            # For now, show a helpful message
-                            print(f"[Sidebar] Note: Direct MTP preview not yet implemented. Users should use Import feature.")
-                        else:
-                            mw.statusBar().showMessage(f"📱 No media files found in device folder")
+                            # Clean up worker
+                            worker.deleteLater()
+
+                        # Handle errors
+                        def on_error(error_msg):
+                            progress.close()
+                            print(f"[Sidebar] Worker error: {error_msg}")
+                            mw.statusBar().showMessage(f"⚠️ Error copying files: {error_msg}")
+                            worker.deleteLater()
+
+                        # Handle cancellation
+                        def on_cancel():
+                            print(f"[Sidebar] User cancelled copy operation")
+                            worker.cancel()
+                            worker.wait(3000)  # Wait up to 3 seconds
+                            if worker.isRunning():
+                                worker.terminate()
+                            mw.statusBar().showMessage("📱 Copy operation cancelled")
+
+                        # Connect signals
+                        worker.progress.connect(on_progress)
+                        worker.finished.connect(on_finished)
+                        worker.error.connect(on_error)
+                        progress.canceled.connect(on_cancel)
+
+                        # Store worker reference to prevent garbage collection
+                        if not hasattr(mw, '_mtp_workers'):
+                            mw._mtp_workers = []
+                        mw._mtp_workers.append(worker)
+
+                        # Start worker
+                        print(f"[Sidebar] Starting async MTP copy worker...")
+                        worker.start()
+
+                        # Show initial progress
+                        progress.setValue(0)
+                        mw.statusBar().showMessage(f"📱 Loading photos from {folder_name}...")
 
                     except ImportError:
                         print(f"[Sidebar] win32com not available for MTP device access")

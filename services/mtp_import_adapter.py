@@ -260,12 +260,10 @@ class MTPImportAdapter:
         import_date_str = import_date.strftime("%Y-%m-%d")
 
         # Prepare destination directory
-        # Structure: MemoryMate_Library/Imported_Devices/{Device}/{Folder}/{Date}/
-        project_path = self.db.get_project_path(self.project_id)
-        if not project_path:
-            raise Exception("Cannot determine project path")
-
-        dest_base = Path(project_path) / "Imported_Devices"
+        # Structure: Device_Imports/{Device}/{Folder}/{Date}/
+        # Use current working directory as base (aligns with existing scan repository pattern)
+        cwd = Path.cwd()
+        dest_base = cwd / "Device_Imports"
         device_safe = self._sanitize_filename(device_name)
         folder_safe = self._sanitize_filename(folder_name)
 

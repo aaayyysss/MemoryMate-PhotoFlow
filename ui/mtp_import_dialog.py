@@ -34,9 +34,9 @@ from datetime import datetime
 class MTPImportWorker(QThread):
     """Worker thread for importing files from MTP device"""
 
-    progress = Signal(int, int, str)  # current, total, filename
-    finished = Signal(list)            # imported paths
-    error = Signal(str)                # error message
+    progress = Signal(str, int, int, str)  # stage, current, total, detail_message
+    finished = Signal(list)                 # imported paths
+    error = Signal(str)                     # error message
 
     def __init__(self, mtp_adapter, mtp_path, device_name, folder_name):
         super().__init__()
@@ -54,7 +54,7 @@ class MTPImportWorker(QThread):
             print(f"[MTPImportWorker] Starting import from {self.device_name} → {self.folder_name}")
 
             # Step 1: Enumerate files
-            self.progress.emit(0, 100, "Scanning device...")
+            self.progress.emit("Scanning", 0, 100, "Scanning device...")
             media_files = self.mtp_adapter.enumerate_mtp_folder(
                 self.mtp_path,
                 self.device_name,
@@ -71,13 +71,20 @@ class MTPImportWorker(QThread):
 
             print(f"[MTPImportWorker] Found {len(media_files)} files to import")
 
-            # Step 2: Import files
+            # Step 2: Import files with progress callback
+            def progress_callback(stage: str, current: int, total: int, message: str):
+                """Called by adapter to report progress"""
+                if self._cancelled:
+                    return
+                self.progress.emit(stage, current, total, message)
+
             imported_paths = self.mtp_adapter.import_selected_files(
                 self.mtp_path,
                 media_files,
                 self.device_name,
                 self.folder_name,
-                import_date=datetime.now()
+                import_date=datetime.now(),
+                progress_callback=progress_callback
             )
 
             if self._cancelled:
@@ -263,12 +270,22 @@ class MTPImportDialog(QDialog):
 
         self.worker.start()
 
-    def _on_progress(self, current: int, total: int, message: str):
-        """Handle progress update"""
+    def _on_progress(self, stage: str, current: int, total: int, detail: str):
+        """Handle progress update with stage information"""
         if total > 0:
             percent = int((current / total) * 100)
             self.progress_bar.setValue(percent)
-        self.progress_label.setText(message)
+
+            # Build comprehensive progress message
+            progress_text = f"{stage}: {current}/{total} ({percent}%)"
+            if detail:
+                progress_text += f" - {detail}"
+
+            self.progress_label.setText(progress_text)
+        else:
+            # Indeterminate progress
+            self.progress_bar.setMaximum(0)  # Show busy indicator
+            self.progress_label.setText(f"{stage}... {detail}")
 
     def _on_finished(self, imported_paths: List[str]):
         """Handle import completion with duplicate detection feedback"""

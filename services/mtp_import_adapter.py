@@ -239,7 +239,8 @@ class MTPImportAdapter:
         selected_files: List[DeviceMediaFile],
         device_name: str,
         folder_name: str,
-        import_date: Optional[datetime] = None
+        import_date: Optional[datetime] = None,
+        progress_callback=None
     ) -> List[str]:
         """
         Import selected files from MTP device to library with duplicate detection.
@@ -253,6 +254,7 @@ class MTPImportAdapter:
             device_name: Device name for organization
             folder_name: Folder name for organization
             import_date: Import date (defaults to now)
+            progress_callback: Optional callback(stage, current, total, detail) for progress updates
 
         Returns:
             List of imported file paths in library
@@ -346,6 +348,10 @@ class MTPImportAdapter:
                 for idx, media_file in enumerate(new_files, 1):
                     print(f"[MTPAdapter] Importing {idx}/{len(new_files)}: {media_file.filename}")
 
+                    # Report progress
+                    if progress_callback:
+                        progress_callback("Copying", idx, len(new_files), media_file.filename)
+
                     try:
                         # Find source item by filename
                         source_item = source_items_dict.get(media_file.filename)
@@ -393,7 +399,8 @@ class MTPImportAdapter:
                     self._organize_imported_files(
                         imported_paths=imported_paths,
                         device_name=device_name,
-                        folder_name=folder_name
+                        folder_name=folder_name,
+                        progress_callback=progress_callback
                     )
 
                 return imported_paths
@@ -488,7 +495,8 @@ class MTPImportAdapter:
         self,
         imported_paths: List[str],
         device_name: str,
-        folder_name: str
+        folder_name: str,
+        progress_callback=None
     ):
         """
         Organize imported files into Folders and Dates sections.
@@ -503,6 +511,7 @@ class MTPImportAdapter:
             imported_paths: List of imported file paths
             device_name: Device name (e.g., "A54 von Ammar")
             folder_name: Folder name (e.g., "Camera", "Screenshots")
+            progress_callback: Optional callback(stage, current, total, detail) for progress updates
         """
         try:
             from services.exif_parser import EXIFParser
@@ -515,8 +524,10 @@ class MTPImportAdapter:
             files_by_date = {}  # {date_str: [file_paths]}
 
             print(f"[MTPAdapter]   Parsing EXIF dates...")
+            if progress_callback:
+                progress_callback("Organizing", 0, 100, "Parsing dates from photos...")
 
-            for file_path in imported_paths:
+            for idx, file_path in enumerate(imported_paths, 1):
                 try:
                     # Parse capture date
                     capture_date = parser.get_capture_date(file_path)
@@ -537,17 +548,23 @@ class MTPImportAdapter:
 
             # Create folder hierarchy: Device_Imports → Device → Folder → Dates
             print(f"[MTPAdapter]   Creating folder hierarchy...")
+            if progress_callback:
+                progress_callback("Organizing", 0, 100, "Creating folders...")
             file_folder_map = self._create_folder_hierarchy(device_name, folder_name, files_by_date)
 
             # Add files to photo_metadata with EXIF dates
             print(f"[MTPAdapter]   Adding files to photo_metadata...")
+            if progress_callback:
+                progress_callback("Organizing", 0, 100, "Adding photos to database...")
             self._add_to_photo_metadata(files_by_date, file_folder_map)
 
             # Register videos in videos table
             video_files = [p for p in imported_paths if parser._is_video(p)]
             if video_files:
                 print(f"[MTPAdapter]   Registering {len(video_files)} videos...")
-                self._register_videos(video_files, files_by_date, file_folder_map)
+                if progress_callback:
+                    progress_callback("Organizing", 0, len(video_files), "Registering videos...")
+                self._register_videos(video_files, files_by_date, file_folder_map, progress_callback)
 
             print(f"[MTPAdapter] ✓ Auto-organization complete:")
             print(f"[MTPAdapter]   • Organized {len(imported_paths)} files into folder hierarchy")
@@ -741,7 +758,7 @@ class MTPImportAdapter:
             import traceback
             traceback.print_exc()
 
-    def _register_videos(self, video_paths: List[str], files_by_date: dict, file_folder_map: dict):
+    def _register_videos(self, video_paths: List[str], files_by_date: dict, file_folder_map: dict, progress_callback=None):
         """
         Register video files in videos table for Videos section.
 
@@ -749,6 +766,7 @@ class MTPImportAdapter:
             video_paths: List of video file paths
             files_by_date: Dict mapping dates to file paths (for getting dates)
             file_folder_map: Dict mapping {file_path: folder_id}
+            progress_callback: Optional callback(stage, current, total, detail) for progress updates
         """
         try:
             from services.video_service import VideoService
@@ -759,10 +777,14 @@ class MTPImportAdapter:
 
             registered_count = 0
 
-            for video_path in video_paths:
+            for idx, video_path in enumerate(video_paths, 1):
                 try:
                     file_path_obj = Path(video_path)
                     file_name = file_path_obj.name
+
+                    # Report progress
+                    if progress_callback:
+                        progress_callback("Registering Videos", idx, len(video_paths), file_name)
 
                     # Get folder_id from mapping (required - videos table has NOT NULL constraint)
                     folder_id = file_folder_map.get(video_path)

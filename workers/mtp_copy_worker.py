@@ -55,149 +55,161 @@ class MTPCopyWorker(QThread):
         try:
             print(f"[MTPCopyWorker] Starting background copy from: {self.folder_path}")
 
-            # Import win32com in worker thread (COM objects must be created in the thread they're used)
+            # Import COM libraries in worker thread
             import win32com.client
+            import pythoncom
 
-            # Create Shell.Application in THIS thread (not main UI thread)
-            # COM objects are apartment-threaded and cannot be shared across threads
-            print(f"[MTPCopyWorker] Creating Shell.Application in worker thread...")
-            shell = win32com.client.Dispatch("Shell.Application")
+            # CRITICAL: Initialize COM in this thread with apartment model
+            # COM objects must be initialized in the thread where they're used
+            print(f"[MTPCopyWorker] Initializing COM in worker thread...")
+            pythoncom.CoInitialize()
 
-            # Create temp directory
-            temp_dir = os.path.join(tempfile.gettempdir(), "memorymate_device_cache")
-            os.makedirs(temp_dir, exist_ok=True)
-
-            # Clear old temp files
             try:
-                for old_file in os.listdir(temp_dir):
-                    if self._cancelled:
-                        return
-                    try:
-                        os.remove(os.path.join(temp_dir, old_file))
-                    except:
-                        pass
-            except:
-                pass
+                # Create Shell.Application in THIS thread (not main UI thread)
+                # COM objects are apartment-threaded and cannot be shared across threads
+                print(f"[MTPCopyWorker] Creating Shell.Application in worker thread...")
+                shell = win32com.client.Dispatch("Shell.Application")
 
-            print(f"[MTPCopyWorker] Temp cache directory: {temp_dir}")
+                # Create temp directory
+                temp_dir = os.path.join(tempfile.gettempdir(), "memorymate_device_cache")
+                os.makedirs(temp_dir, exist_ok=True)
 
-            # Get folder to copy from
-            folder = shell.Namespace(self.folder_path)
-            if not folder:
-                self.error.emit(f"Cannot access folder: {self.folder_path}")
-                return
-
-            # Copy files
-            media_paths = []
-            files_copied = 0
-            files_total = 0
-
-            # First pass: count files
-            def count_media_files(com_folder, depth=0):
-                nonlocal files_total
-                if depth > self.max_depth or self._cancelled:
-                    return
-
+                # Clear old temp files
                 try:
-                    items = com_folder.Items()
-                    for item in items:
+                    for old_file in os.listdir(temp_dir):
                         if self._cancelled:
                             return
-
-                        if files_total >= self.max_files:
-                            return
-
-                        if item.IsFolder and depth < self.max_depth:
-                            if not item.Name.startswith('.'):
-                                try:
-                                    subfolder = shell.Namespace(item.Path)
-                                    if subfolder:
-                                        count_media_files(subfolder, depth + 1)
-                                except:
-                                    pass
-                        else:
-                            name_lower = item.Name.lower()
-                            if any(name_lower.endswith(ext) for ext in self.media_extensions):
-                                files_total += 1
+                        try:
+                            os.remove(os.path.join(temp_dir, old_file))
+                        except:
+                            pass
                 except:
                     pass
 
-            count_media_files(folder)
+                print(f"[MTPCopyWorker] Temp cache directory: {temp_dir}")
 
-            if self._cancelled:
-                return
-
-            print(f"[MTPCopyWorker] Found {files_total} media files to copy")
-
-            # Second pass: copy files
-            def copy_media_files(com_folder, depth=0):
-                nonlocal files_copied, media_paths
-
-                if depth > self.max_depth or self._cancelled:
+                # Get folder to copy from
+                folder = shell.Namespace(self.folder_path)
+                if not folder:
+                    self.error.emit(f"Cannot access folder: {self.folder_path}")
                     return
 
-                if files_copied >= self.max_files:
+                # Copy files
+                media_paths = []
+                files_copied = 0
+                files_total = 0
+
+                # First pass: count files
+                def count_media_files(com_folder, depth=0):
+                    nonlocal files_total
+                    if depth > self.max_depth or self._cancelled:
+                        return
+
+                    try:
+                        items = com_folder.Items()
+                        for item in items:
+                            if self._cancelled:
+                                return
+
+                            if files_total >= self.max_files:
+                                return
+
+                            if item.IsFolder and depth < self.max_depth:
+                                if not item.Name.startswith('.'):
+                                    try:
+                                        subfolder = shell.Namespace(item.Path)
+                                        if subfolder:
+                                            count_media_files(subfolder, depth + 1)
+                                    except:
+                                        pass
+                            else:
+                                name_lower = item.Name.lower()
+                                if any(name_lower.endswith(ext) for ext in self.media_extensions):
+                                    files_total += 1
+                    except:
+                        pass
+
+                count_media_files(folder)
+
+                if self._cancelled:
                     return
 
-                try:
-                    items = com_folder.Items()
-                    for item in items:
-                        if self._cancelled:
-                            print(f"[MTPCopyWorker] Cancelled by user")
-                            return
+                print(f"[MTPCopyWorker] Found {files_total} media files to copy")
 
-                        if files_copied >= self.max_files:
-                            return
+                # Second pass: copy files
+                def copy_media_files(com_folder, depth=0):
+                    nonlocal files_copied, media_paths
 
-                        if item.IsFolder and depth < self.max_depth:
-                            if not item.Name.startswith('.'):
-                                try:
-                                    subfolder = shell.Namespace(item.Path)
-                                    if subfolder:
-                                        copy_media_files(subfolder, depth + 1)
-                                except:
-                                    pass
-                        else:
-                            name_lower = item.Name.lower()
-                            if any(name_lower.endswith(ext) for ext in self.media_extensions):
-                                try:
-                                    # Emit progress
-                                    files_copied += 1
-                                    self.progress.emit(files_copied, files_total, item.Name)
+                    if depth > self.max_depth or self._cancelled:
+                        return
 
-                                    # Copy file
-                                    dest_folder = shell.Namespace(temp_dir)
-                                    if dest_folder:
-                                        print(f"[MTPCopyWorker] Copying {files_copied}/{files_total}: {item.Name}")
+                    if files_copied >= self.max_files:
+                        return
 
-                                        # Copy with flags: 4 = no progress UI, 16 = yes to all
-                                        dest_folder.CopyHere(item.Path, 4 | 16)
+                    try:
+                        items = com_folder.Items()
+                        for item in items:
+                            if self._cancelled:
+                                print(f"[MTPCopyWorker] Cancelled by user")
+                                return
 
-                                        # Verify copy succeeded
-                                        expected_path = os.path.join(temp_dir, item.Name)
-                                        if os.path.exists(expected_path):
-                                            media_paths.append(expected_path)
-                                            print(f"[MTPCopyWorker] ✓ Copied successfully: {item.Name}")
-                                        else:
-                                            print(f"[MTPCopyWorker] ✗ Copy failed (not found): {item.Name}")
+                            if files_copied >= self.max_files:
+                                return
 
-                                except Exception as e:
-                                    print(f"[MTPCopyWorker] ✗ Copy failed for {item.Name}: {e}")
+                            if item.IsFolder and depth < self.max_depth:
+                                if not item.Name.startswith('.'):
+                                    try:
+                                        subfolder = shell.Namespace(item.Path)
+                                        if subfolder:
+                                            copy_media_files(subfolder, depth + 1)
+                                    except:
+                                        pass
+                            else:
+                                name_lower = item.Name.lower()
+                                if any(name_lower.endswith(ext) for ext in self.media_extensions):
+                                    try:
+                                        # Emit progress
+                                        files_copied += 1
+                                        self.progress.emit(files_copied, files_total, item.Name)
 
-                except Exception as e:
-                    print(f"[MTPCopyWorker] Error at depth {depth}: {e}")
+                                        # Copy file
+                                        dest_folder = shell.Namespace(temp_dir)
+                                        if dest_folder:
+                                            print(f"[MTPCopyWorker] Copying {files_copied}/{files_total}: {item.Name}")
 
-            # Execute copy
-            copy_media_files(folder)
+                                            # Copy with flags: 4 = no progress UI, 16 = yes to all
+                                            dest_folder.CopyHere(item.Path, 4 | 16)
 
-            if self._cancelled:
-                print(f"[MTPCopyWorker] Operation cancelled, copied {files_copied}/{files_total} files")
-                return
+                                            # Verify copy succeeded
+                                            expected_path = os.path.join(temp_dir, item.Name)
+                                            if os.path.exists(expected_path):
+                                                media_paths.append(expected_path)
+                                                print(f"[MTPCopyWorker] ✓ Copied successfully: {item.Name}")
+                                            else:
+                                                print(f"[MTPCopyWorker] ✗ Copy failed (not found): {item.Name}")
 
-            print(f"[MTPCopyWorker] Copy complete: {len(media_paths)} files copied successfully")
+                                    except Exception as e:
+                                        print(f"[MTPCopyWorker] ✗ Copy failed for {item.Name}: {e}")
 
-            # Emit results
-            self.finished.emit(media_paths)
+                    except Exception as e:
+                        print(f"[MTPCopyWorker] Error at depth {depth}: {e}")
+
+                # Execute copy
+                copy_media_files(folder)
+
+                if self._cancelled:
+                    print(f"[MTPCopyWorker] Operation cancelled, copied {files_copied}/{files_total} files")
+                    return
+
+                print(f"[MTPCopyWorker] Copy complete: {len(media_paths)} files copied successfully")
+
+                # Emit results
+                self.finished.emit(media_paths)
+
+            finally:
+                # CRITICAL: Uninitialize COM when done
+                print(f"[MTPCopyWorker] Uninitializing COM in worker thread...")
+                pythoncom.CoUninitialize()
 
         except Exception as e:
             import traceback

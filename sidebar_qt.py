@@ -1969,8 +1969,8 @@ class SidebarQt(QWidget):
                     print(f"[Sidebar] Loading MTP device folder via COM (async): {value}")
                     try:
                         import win32com.client
-                        from PyQt5.QtWidgets import QProgressDialog
-                        from PyQt5.QtCore import Qt
+                        from PySide6.QtWidgets import QProgressDialog
+                        # Qt is already imported at module level (line 12)
                         from workers.mtp_copy_worker import MTPCopyWorker
 
                         shell = win32com.client.Dispatch("Shell.Application")

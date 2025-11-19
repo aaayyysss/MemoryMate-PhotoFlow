@@ -201,6 +201,16 @@ class DeviceScanner:
                 print(f"[DeviceScanner]     Found {items.Count} items under 'This PC'")
 
                 for item in items:
+                    # DEBUG: Log all items to diagnose detection issues
+                    try:
+                        item_name = item.Name
+                        is_folder = item.IsFolder
+                        is_filesystem = item.IsFileSystem
+                        print(f"[DeviceScanner]       → Item: '{item_name}' | IsFolder={is_folder} | IsFileSystem={is_filesystem}")
+                    except Exception as e:
+                        print(f"[DeviceScanner]       → Item inspection error: {e}")
+                        continue
+
                     # Check if it's a portable device
                     # Portable devices have IsFileSystem=False and IsFolder=True
                     if item.IsFolder and not item.IsFileSystem:

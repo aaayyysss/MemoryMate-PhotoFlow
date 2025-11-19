@@ -1,39 +1,40 @@
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-14> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-15
-PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-15> python main_qt.py
+[ThumbCacheDB] Closing cache gracefully...
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-15> cd C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-16
+PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-16> python main_qt.py
 [Startup] pillow_heif available — HEIC/HEIF support enabled.
 🔇 Decoder warnings suppressed per settings.
 🔇 Decoder warnings suppressed (Qt, Pillow, ICC).
-2025-11-19 03:25:56,252 [INFO] ================================================================================
-2025-11-19 03:25:56,252 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
-2025-11-19 03:25:56,252 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-15\app_log.txt
-2025-11-19 03:25:56,253 [INFO] ================================================================================
-2025-11-19 03:25:56,287 [INFO] Installed Qt message handler to suppress TIFF warnings
-2025-11-19 03:25:56,287 [INFO] Qt message handler installed to suppress TIFF warnings
+2025-11-19 03:42:14,168 [INFO] ================================================================================
+2025-11-19 03:42:14,169 [INFO] MemoryMate-PhotoFlow logging initialized (level=INFO)
+2025-11-19 03:42:14,169 [INFO] Log file: C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-16\app_log.txt
+2025-11-19 03:42:14,170 [INFO] ================================================================================
+2025-11-19 03:42:14,209 [INFO] Installed Qt message handler to suppress TIFF warnings
+2025-11-19 03:42:14,209 [INFO] Qt message handler installed to suppress TIFF warnings
 [Startup] Database schema initialized successfully
-[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-15\\thumbnails_cache.db', 'last_updated': '2025-11-19 03:25'}
-2025-11-19 03:25:56,506 [INFO] SearchService initialized
+[Cache] {'entries': 0, 'size_mb': 0.0, 'path': 'C:\\Users\\ASUS\\OneDrive\\Documents\\Python\\Zip\\09_31.01.01-Photo-App\\MemoryMate-PhotoFlow-main-16\\thumbnails_cache.db', 'last_updated': '2025-11-19 03:42'}
+2025-11-19 03:42:14,444 [INFO] SearchService initialized
 [Startup] SearchService initialized
-2025-11-19 03:25:56,508 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
-2025-11-19 03:25:56,509 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
-2025-11-19 03:25:56,509 [INFO] Global ThumbnailService created with Phase 1B memory limits
+2025-11-19 03:42:14,446 [INFO] LRUCache initialized with capacity=200, max_memory=100.0MB
+2025-11-19 03:42:14,446 [INFO] ThumbnailService initialized (L1 capacity=200, max_memory=100.0MB, timeout=5.0s)
+2025-11-19 03:42:14,447 [INFO] Global ThumbnailService created with Phase 1B memory limits
 [Startup] ThumbnailService initialized
-✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-15\locales\en.json
+✅ Loaded en translations from C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-PhotoFlow-main-16\locales\en.json
 🌍 Language switched to: en
 [MainWindow] Language loaded from settings: en
 🔇 Qt/Pillow decoder warnings silenced (per user settings).
-2025-11-19 03:25:56,530 [INFO] SearchService initialized
-[03:25:56.950] [Tabs] __init__ started
-[03:25:56.952] [Tabs] _build_tabs → building tab widgets
-[03:25:56.952] [Tabs] _on_tab_changed(idx=0)
-[03:25:56.953] [Tabs] _start_timeout idx=0 type=branches
-[03:25:56.953] [Tabs] _populate_tab(branches, idx=0, force=False)
-[03:25:56.953] [Tabs]   populated=False, loading=False
-[03:25:56.953] [Tabs]   Starting load for branches
-[03:25:56.953] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[03:25:56.953] [Tabs] _clear_tab idx=0
-[03:25:56.955] [Tabs] _on_tab_changed → tab_type=branches
-[03:25:56.955] [Tabs] _build_tabs → added 6 tabs
-[03:25:56.955] [Tabs] __init__ completed
+2025-11-19 03:42:14,466 [INFO] SearchService initialized
+[03:42:14.868] [Tabs] __init__ started
+[03:42:14.870] [Tabs] _build_tabs → building tab widgets
+[03:42:14.870] [Tabs] _on_tab_changed(idx=0)
+[03:42:14.870] [Tabs] _start_timeout idx=0 type=branches
+[03:42:14.870] [Tabs] _populate_tab(branches, idx=0, force=False)
+[03:42:14.870] [Tabs]   populated=False, loading=False
+[03:42:14.870] [Tabs]   Starting load for branches
+[03:42:14.870] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[03:42:14.871] [Tabs] _clear_tab idx=0
+[03:42:14.871] [Tabs] _on_tab_changed → tab_type=branches
+[03:42:14.872] [Tabs] _build_tabs → added 6 tabs
+[03:42:14.872] [Tabs] __init__ completed
 [SidebarQt] _build_tree_model() called with project_id=None
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -43,7 +44,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CC2A6DEAA0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -58,12 +59,34 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 3 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] ===== Scan complete: 0 mobile device(s) found =====
@@ -73,7 +96,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] switch_display_mode(list) - canceling old workers
 [SidebarQt] Hiding tabs controller
-[03:25:57.138] [Tabs] hide_tabs() called - canceling pending workers
+[03:42:15.758] [Tabs] hide_tabs() called - canceling pending workers
 [SidebarQt] Canceled tab workers via hide_tabs()
 [SidebarQt] Clearing tree view selection before rebuild
 [SidebarQt] Showing tree view
@@ -87,7 +110,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CC2A6DEAA0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -102,12 +125,34 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 3 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] ===== Scan complete: 0 mobile device(s) found =====
@@ -117,16 +162,16 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] No mobile devices detected - added help message
 [SidebarQt] _build_tree_model() completed
 [Startup] Database schema initialized successfully
-[03:25:57.370] [Tabs] _finish_branches (stale gen=1) — ignoring
-[03:25:57.370] [Tabs] _on_tab_changed(idx=0)
-[03:25:57.370] [Tabs] _start_timeout idx=0 type=branches
-[03:25:57.370] [Tabs] _populate_tab(branches, idx=0, force=False)
-[03:25:57.370] [Tabs]   populated=False, loading=False
-[03:25:57.370] [Tabs]   Starting load for branches
-[03:25:57.370] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[03:25:57.371] [Tabs] _clear_tab idx=0
-[03:25:57.372] [Tabs] _on_tab_changed → tab_type=branches
-[03:25:57.373] [Tabs] _clear_tab idx=0
+[03:42:15.988] [Tabs] _finish_branches (stale gen=1) — ignoring
+[03:42:15.988] [Tabs] _on_tab_changed(idx=0)
+[03:42:15.988] [Tabs] _start_timeout idx=0 type=branches
+[03:42:15.989] [Tabs] _populate_tab(branches, idx=0, force=False)
+[03:42:15.990] [Tabs]   populated=False, loading=False
+[03:42:15.990] [Tabs]   Starting load for branches
+[03:42:15.990] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[03:42:15.990] [Tabs] _clear_tab idx=0
+[03:42:15.991] [Tabs] _on_tab_changed → tab_type=branches
+[03:42:15.992] [Tabs] _clear_tab idx=0
 💾 Saved FFprobe path to settings: C:\ffmpeg\bin\ffprobe.exe
 ✅ FFmpeg and FFprobe detected (custom path: C:\ffmpeg\bin)
 ✅ InsightFace detected with buffalo_l models
@@ -147,191 +192,34 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] Current device count: 0
@@ -354,334 +242,51 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 3 items under 'This PC'
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
-
-[SidebarQt] reload() called, display_mode=list, tabs_visible=False
-[SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
-[Sidebar] Processing pending events before model clear
-[Sidebar] Pending events processed
-[Sidebar] Detaching old model from tree view
-[Sidebar] Creating fresh model (avoiding Qt segfault)
-[Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
-
-[Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
-[Sidebar] Register devices: True
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       • Portable device found: Apple iPhone
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Internal Storage
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_05ac&pid_12a8&mi_00#6&1325ad6e&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,Internal Storage,512000000000}
-[DeviceScanner]             Checking storage via COM: Internal Storage
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
 [DeviceScanner]             Attempting direct navigation to media folders...
 [DeviceScanner]             Stopped after checking 100 items (timeout protection)
 [DeviceScanner]             REJECTED: No DCIM found
 [DeviceScanner]             ✗ No DCIM found
-[DeviceScanner] ===== Scan complete: 0 device(s) found =====
-
-[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
-[Sidebar]   ✗ No devices found
-[Sidebar] ===== End device scan =====
-
-[Sidebar] No mobile devices detected - added help message
-
-[Sidebar] ===== Auto-refresh device check =====
-[Sidebar] Previous device count: 0
-
-[DeviceScanner] ===== Starting device scan =====
-[DeviceScanner] Platform: Windows
-[DeviceScanner] Database registration: enabled
-[DeviceScanner] Scanning Windows drives...
-[DeviceScanner]   Checking drive letters D:-Z:...
-[DeviceScanner]     Drive D: exists, checking...
-[DeviceScanner]           Checking path: D:\
-[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]             Checking subdirectory: IPhone
-[DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
-[DeviceScanner]       ✗ No device on drive D:
-[DeviceScanner]   Checking portable devices (MTP/PTP)...
-[DeviceScanner]     Attempting Shell COM enumeration...
-[DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       • Portable device found: Apple iPhone
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Internal Storage
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_05ac&pid_12a8&mi_00#6&1325ad6e&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,Internal Storage,512000000000}
-[DeviceScanner]             Checking storage via COM: Internal Storage
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
 [DeviceScanner]             Attempting direct navigation to media folders...
 [DeviceScanner]             Stopped after checking 100 items (timeout protection)
 [DeviceScanner]             REJECTED: No DCIM found
 [DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] Current device count: 0
@@ -701,7 +306,7 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [Sidebar] Found 0 videos in project None
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002103891AAA0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CC2A6DEAA0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -716,21 +321,51 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       • Portable device found: Apple iPhone
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Internal Storage
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_05ac&pid_12a8&mi_00#6&1325ad6e&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,Internal Storage,512000000000}
-[DeviceScanner]             Checking storage via COM: Internal Storage
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
 [DeviceScanner]             Attempting direct navigation to media folders...
 [DeviceScanner]             Stopped after checking 100 items (timeout protection)
 [DeviceScanner]             REJECTED: No DCIM found
 [DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             Stopped after checking 100 items (timeout protection)
+[DeviceScanner]             REJECTED: No DCIM found
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] ===== Scan complete: 0 mobile device(s) found =====
@@ -754,24 +389,603 @@ PS C:\Users\ASUS\OneDrive\Documents\Python\Zip\09_31.01.01-Photo-App\MemoryMate-
 [DeviceScanner]           No alternate structure found
 [DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
 [DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
 [DeviceScanner]             Checking subdirectory: My Phone
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
 [DeviceScanner]       ✗ No device on drive D:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
 [DeviceScanner]     Found 4 items under 'This PC'
-[DeviceScanner]       • Portable device found: Apple iPhone
-[DeviceScanner]         Storage locations: 1
-[DeviceScanner]           • Storage: Internal Storage
-[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_05ac&pid_12a8&mi_00#6&1325ad6e&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,Internal Storage,512000000000}
-[DeviceScanner]             Checking storage via COM: Internal Storage
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
 [DeviceScanner]             Attempting direct navigation to media folders...
 [DeviceScanner]             Stopped after checking 100 items (timeout protection)
 [DeviceScanner]             REJECTED: No DCIM found
 [DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             Stopped after checking 100 items (timeout protection)
+[DeviceScanner]             REJECTED: No DCIM found
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
 [DeviceScanner] ===== Scan complete: 0 device(s) found =====
 
 [Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             Stopped after checking 100 items (timeout protection)
+[DeviceScanner]             REJECTED: No DCIM found
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&ms_comp_mtp&samsung_android#6&32bd0cc5&3&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             Stopped after checking 100 items (timeout protection)
+[DeviceScanner]             REJECTED: No DCIM found
+[DeviceScanner]             ✗ No DCIM found
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 0
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 3 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] Current device count: 0
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=None
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CC2A6DEAA0>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 3 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 0 device(s) found =====
+
+[Sidebar] ===== Scan complete: 0 mobile device(s) found =====
+[Sidebar]   ✗ No devices found
+[Sidebar] ===== End device scan =====
+
+[Sidebar] No mobile devices detected - added help message
+[SidebarQt] reload() called, display_mode=list, tabs_visible=False
+[SidebarQt] Calling _build_tree_model() instead of tabs refresh
+[SidebarQt] _build_tree_model() called with project_id=None
+[Sidebar] Processing pending events before model clear
+[Sidebar] Pending events processed
+[Sidebar] Detaching old model from tree view
+[Sidebar] Creating fresh model (avoiding Qt segfault)
+[Sidebar] Attaching fresh model to tree view
+[SidebarQt] list_branches() returned 0 branches
+[Sidebar] Loading videos for project_id=None
+[Sidebar] Found 0 videos in project None
+
+[Sidebar] ===== Initiating mobile device scan from sidebar =====
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CC2A6DEAA0>
+[Sidebar] Register devices: True
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - Internal storage
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:97299b5b
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - Internal storage (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - SD card
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 1 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:85925805
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - SD card (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 2 device(s) found =====
+
+[Sidebar] ===== Scan complete: 2 mobile device(s) found =====
+[Sidebar]   Device 1: Galaxy A23 - Internal storage
+[Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[Sidebar]     - Device ID: windows_mtp:97299b5b
+[Sidebar]     - Device type: android
+[Sidebar]     - Folders: 2
+[Sidebar]       • Camera (10 files)
+[Sidebar]       • Pictures (10 files)
+[Sidebar]   Device 2: Galaxy A23 - SD card
+[Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[Sidebar]     - Device ID: windows_mtp:85925805
+[Sidebar]     - Device type: android
+[Sidebar]     - Folders: 1
+[Sidebar]       • Pictures (10 files)
+[Sidebar] ===== End device scan =====
+
+[Sidebar] Added Mobile Devices section with 2 devices, 30 total photos
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}\DCIM\Camera
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}\DCIM\Camera
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 2
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - Internal storage
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:97299b5b
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - Internal storage (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - SD card
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 1 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:85925805
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - SD card (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 2 device(s) found =====
+
+[Sidebar] Current device count: 2
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}\Pictures
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}\Pictures
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}\Pictures
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}\Pictures
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}\Pictures
+[Sidebar] Loading MTP device folder via COM: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}\Pictures
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 2
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - Internal storage
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:97299b5b
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - Internal storage (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - SD card
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 1 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:85925805
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - SD card (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 2 device(s) found =====
+
+[Sidebar] Current device count: 2
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 2
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive D: exists, checking...
+[DeviceScanner]           Checking path: D:\
+[DeviceScanner]           Directories found: ['$RECYCLE.BIN', 'Architect Books', 'Architecture', 'Arshiif', 'B2 Prüfung', 'CORONA', 'CORONA 1', 'CORONA 2024', 'En', 'From Ammar', 'IPhone', 'MirrorTo transfer', 'MirrorTo video', 'My Phone', 'My Work', 'New folder (2)', 'Python', 'Recovery', 'REVIT', 'Revit Advance', 'REVIT NEW', 'Samer Matar V-Ray', 'SnapPea', 'System Volume Information', 'To write', 'training 2020', 'Workshop- Corona', 'المشروع الألماني', 'انكليزي', 'تصويؤي', 'تلغرام', 'روايات', 'صور للإرسال', 'طيران مدني', 'عزفي', 'فيديو', 'كورس الفرنسي- هيئة التخطيط والتعاون الدولي', 'للطباعة', 'ملفاتي']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]             Checking subdirectory: IPhone
+[DeviceScanner]               Checking nested: IPhone/202202__
+[DeviceScanner]               Checking nested: IPhone/242CLOUD
+[DeviceScanner]               Checking nested: IPhone/Family
+[DeviceScanner]               Checking nested: IPhone/French Video
+[DeviceScanner]               Checking nested: IPhone/To draw
+[DeviceScanner]               Checking nested: IPhone/To learn Deutsch
+[DeviceScanner]               Checking nested: IPhone/خواطر
+[DeviceScanner]               Checking nested: IPhone/عن الموت
+[DeviceScanner]               Checking nested: IPhone/منزل عمار وسوزي
+[DeviceScanner]             Checking subdirectory: My Phone
+[DeviceScanner]               Checking nested: My Phone/Android
+[DeviceScanner]               Checking nested: My Phone/DCM
+[DeviceScanner]               Checking nested: My Phone/Document Scanner
+[DeviceScanner]               Checking nested: My Phone/Final
+[DeviceScanner]               ✓ Found DCIM in: My Phone/Final/DCIM
+[DeviceScanner]           Has DCIM in subdirectory: True
+[DeviceScanner]           Device type: android
+[DeviceScanner]           Device label: 🤖 Mobile Device
+[DeviceScanner]           Scanning for media folders...
+[DeviceScanner]           Found 0 media folder(s)
+[DeviceScanner]           REJECTED: No media folders with photos/videos
+[DeviceScanner]       ✗ No device on drive D:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'Manage my phone' | IsFolder=False | IsFileSystem=False
+[DeviceScanner]       → Item: 'Galaxy A23' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: Galaxy A23
+[DeviceScanner]         Storage locations: 2
+[DeviceScanner]           • Storage: Internal storage
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,116708585472}
+[DeviceScanner]             Checking storage via COM: Internal storage
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - Internal storage
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:97299b5b
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - Internal storage (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]           • Storage: SD card
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#r58tc05hr4p#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{20001,,15481176064}
+[DeviceScanner]             Checking storage via COM: SD card
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: Galaxy A23 - SD card
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Pictures: found 10+ media files (quick scan)
+[DeviceScanner]             Found 1 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:85925805
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: Galaxy A23 - SD card (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: 'Local Disk (C:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: 'DATA (D:)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 2 device(s) found =====
+
+[Sidebar] Current device count: 2
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 

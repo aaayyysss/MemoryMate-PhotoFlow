@@ -2200,33 +2200,39 @@ class SidebarQt(QWidget):
                                 # AUTO-REFRESH: Update sidebar sections to show newly imported files
                                 print(f"[Sidebar] Refreshing sidebar sections...")
 
-                                # Refresh Folders tab (force reload)
-                                if "folders" in self._tab_populated:
-                                    self._tab_populated.discard("folders")
-                                    print(f"[Sidebar]   ✓ Cleared Folders tab cache")
+                                # Refresh tree view (list mode)
+                                print(f"[Sidebar]   Rebuilding tree view...")
+                                self._build_tree_model()
 
-                                # Refresh Dates tab (force reload)
-                                if "dates" in self._tab_populated:
-                                    self._tab_populated.discard("dates")
-                                    print(f"[Sidebar]   ✓ Cleared Dates tab cache")
+                                # Refresh tabs (tabs mode)
+                                if hasattr(self, 'tabs_controller') and hasattr(self.tabs_controller, '_tab_populated'):
+                                    # Refresh Folders tab (force reload)
+                                    if "folders" in self.tabs_controller._tab_populated:
+                                        self.tabs_controller._tab_populated.discard("folders")
+                                        print(f"[Sidebar]   ✓ Cleared Folders tab cache")
 
-                                # Refresh Branches tab (force reload - counts may change)
-                                if "branches" in self._tab_populated:
-                                    self._tab_populated.discard("branches")
-                                    print(f"[Sidebar]   ✓ Cleared Branches tab cache")
+                                    # Refresh Dates tab (force reload)
+                                    if "dates" in self.tabs_controller._tab_populated:
+                                        self.tabs_controller._tab_populated.discard("dates")
+                                        print(f"[Sidebar]   ✓ Cleared Dates tab cache")
 
-                                # Refresh Tags tab (force reload - new tags may be added)
-                                if "tags" in self._tab_populated:
-                                    self._tab_populated.discard("tags")
-                                    print(f"[Sidebar]   ✓ Cleared Tags tab cache")
+                                    # Refresh Branches tab (force reload - counts may change)
+                                    if "branches" in self.tabs_controller._tab_populated:
+                                        self.tabs_controller._tab_populated.discard("branches")
+                                        print(f"[Sidebar]   ✓ Cleared Branches tab cache")
 
-                                # If current tab is Folders, Dates, Branches, or Tags, trigger reload
-                                current_tab_idx = self.tab_widget.currentIndex()
-                                if current_tab_idx >= 0:
-                                    tab_name = self.tab_widget.tabText(current_tab_idx)
-                                    if tab_name in ["Folders", "Dates", "Branches", "Tags"]:
-                                        print(f"[Sidebar]   Reloading {tab_name} tab...")
-                                        self._load_tab_if_selected(current_tab_idx)
+                                    # Refresh Tags tab (force reload - new tags may be added)
+                                    if "tags" in self.tabs_controller._tab_populated:
+                                        self.tabs_controller._tab_populated.discard("tags")
+                                        print(f"[Sidebar]   ✓ Cleared Tags tab cache")
+
+                                    # If current tab is Folders, Dates, Branches, or Tags, trigger reload
+                                    current_tab_idx = self.tabs_controller.tab_widget.currentIndex()
+                                    if current_tab_idx >= 0:
+                                        tab_name = self.tabs_controller.tab_widget.tabText(current_tab_idx)
+                                        if tab_name in ["Folders", "Dates", "Branches", "Tags"]:
+                                            print(f"[Sidebar]   Reloading {tab_name} tab...")
+                                            self.tabs_controller._load_tab_if_selected(current_tab_idx)
 
                                 print(f"[Sidebar] ✓ Import complete, grid loaded with {len(imported_paths)} files")
                                 print(f"[Sidebar] ✓ Sidebar tabs will refresh when viewed")

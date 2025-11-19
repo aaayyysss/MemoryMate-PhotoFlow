@@ -36,6 +36,7 @@ class MobileDevice:
     device_id: Optional[str] = None      # Unique persistent device ID
     serial_number: Optional[str] = None  # Physical serial number
     volume_guid: Optional[str] = None    # Volume GUID (Windows)
+    is_mtp: bool = False                 # True if accessed via MTP/PTP (Windows portable device)
 
 
 class DeviceScanner:

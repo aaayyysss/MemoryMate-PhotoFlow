@@ -392,22 +392,26 @@ class MTPImportAdapter:
         try:
             # Create branch_key for device folder organization
             # Format: "device_folder:Camera [A54 von Ammar]"
-            branch_key = f"device_folder:{folder_name} [{device_name}]"
+            device_branch_key = f"device_folder:{folder_name} [{device_name}]"
 
-            # Add to project_images table (existing schema)
-            self.db.execute("""
-                INSERT INTO project_images (
-                    project_id, branch_key, image_path, label
-                ) VALUES (?, ?, ?, ?)
-            """, (
-                self.project_id,
-                branch_key,
-                str(file_path),
-                None  # No label for device imports
-            ))
+            # Add to project_images table using ReferenceDB method
+            # Add to "all" branch first (so it appears in All Photos)
+            image_id = self.db.add_project_image(
+                project_id=self.project_id,
+                image_path=str(file_path),
+                branch_key="all",
+                label=None
+            )
 
-            self.db.commit()
-            print(f"[MTPAdapter] ✓ Added to database: {file_path.name} (branch: {branch_key})")
+            # Also add to device-specific branch
+            self.db.add_project_image(
+                project_id=self.project_id,
+                image_path=str(file_path),
+                branch_key=device_branch_key,
+                label=None
+            )
+
+            print(f"[MTPAdapter] ✓ Added to database: {file_path.name} (id={image_id}, branches=['all', '{device_branch_key}'])")
 
         except Exception as e:
             print(f"[MTPAdapter] ✗ Error adding to database: {e}")

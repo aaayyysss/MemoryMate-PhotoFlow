@@ -1,0 +1,17 @@
+# MemoryMate-PhotoFlow Requirements
+
+# Core UI Framework
+PySide6>=6.5.0
+
+# Image Processing
+Pillow>=10.0.0
+pillow-heif>=0.13.0    # HEIC/HEIF image support (for iPhone photos)
+
+# Database
+# SQLite is built-in to Python
+
+# Windows COM Support (for MTP device access)
+pywin32>=305           # Windows only
+
+# Video Processing (optional - graceful fallback if not installed)
+# ffmpeg-python>=0.2.0  # Uncomment if you want video metadata extraction

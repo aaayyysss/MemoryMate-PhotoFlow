@@ -2210,11 +2210,21 @@ class SidebarQt(QWidget):
                                     self._tab_populated.discard("dates")
                                     print(f"[Sidebar]   ✓ Cleared Dates tab cache")
 
-                                # If current tab is Folders or Dates, trigger reload
+                                # Refresh Branches tab (force reload - counts may change)
+                                if "branches" in self._tab_populated:
+                                    self._tab_populated.discard("branches")
+                                    print(f"[Sidebar]   ✓ Cleared Branches tab cache")
+
+                                # Refresh Tags tab (force reload - new tags may be added)
+                                if "tags" in self._tab_populated:
+                                    self._tab_populated.discard("tags")
+                                    print(f"[Sidebar]   ✓ Cleared Tags tab cache")
+
+                                # If current tab is Folders, Dates, Branches, or Tags, trigger reload
                                 current_tab_idx = self.tab_widget.currentIndex()
                                 if current_tab_idx >= 0:
                                     tab_name = self.tab_widget.tabText(current_tab_idx)
-                                    if tab_name in ["Folders", "Dates"]:
+                                    if tab_name in ["Folders", "Dates", "Branches", "Tags"]:
                                         print(f"[Sidebar]   Reloading {tab_name} tab...")
                                         self._load_tab_if_selected(current_tab_idx)
 

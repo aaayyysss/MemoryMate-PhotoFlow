@@ -1,63 +1,64 @@
+
 ═══════════════════════════════════════════════════════════════════
 
 [MainWindow] Set grid.project_id = 1
 [SidebarQt] set_project(1) called
-[16:22:25.021] [Tabs] refresh_all(force=True) called
-[16:22:25.021] [Tabs] refresh_all: key=branches, idx=0, force=True
-[16:22:25.023] [Tabs] _populate_tab(branches, idx=0, force=True)
-[16:22:25.023] [Tabs]   populated=True, loading=False
-[16:22:25.023] [Tabs]   Force refresh: removing branches from populated set
-[16:22:25.023] [Tabs]   Starting load for branches
-[16:22:25.023] [Tabs] _show_loading idx=0 label='Loading Branches…'
-[16:22:25.023] [Tabs] _clear_tab idx=0
-[16:22:25.023] [Tabs] refresh_all: key=folders, idx=1, force=True
-[16:22:25.023] [Tabs] _populate_tab(folders, idx=1, force=True)
-[16:22:25.023] [Tabs]   populated=False, loading=False
-[16:22:25.023] [Tabs]   Starting load for folders
-[16:22:25.023] [Tabs] _show_loading idx=1 label='Loading Folders…'
-[16:22:25.023] [Tabs] _clear_tab idx=1
-[16:22:25.023] [Tabs] refresh_all: key=dates, idx=2, force=True
-[16:22:25.023] [Tabs] _populate_tab(dates, idx=2, force=True)
-[16:22:25.023] [Tabs]   populated=False, loading=False
-[16:22:25.023] [Tabs]   Starting load for dates
-[16:22:25.023] [Tabs] _show_loading idx=2 label='Loading Dates…'
-[16:22:25.023] [Tabs] _load_folders → got 0 rows for project_id=1
-[16:22:25.023] [Tabs] _clear_tab idx=2
-[16:22:25.023] [Tabs] refresh_all: key=tags, idx=3, force=True
-[16:22:25.023] [Tabs] _populate_tab(tags, idx=3, force=True)
-[16:22:25.023] [Tabs]   populated=False, loading=False
-[16:22:25.023] [Tabs]   Starting load for tags
-[16:22:25.023] [Tabs] _show_loading idx=3 label='Loading Tags…'
-[16:22:25.023] [Tabs] _clear_tab idx=3
-[16:22:25.023] [Tabs] refresh_all: key=quick, idx=5, force=True
-[16:22:25.023] [Tabs] _populate_tab(quick, idx=5, force=True)
-[16:22:25.023] [Tabs] _load_dates → got hierarchy data for project_id=1
-[16:22:25.023] [Tabs]   populated=False, loading=False
-[16:22:25.023] [Tabs]   Starting load for quick
-[16:22:25.023] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
-[16:22:25.023] [Tabs] _clear_tab idx=5
-[16:22:25.031] [Tabs] _load_tags → got 0 rows for project_id=1
-[16:22:25.031] [Tabs] refresh_all(force=True) completed
+[16:33:12.213] [Tabs] refresh_all(force=True) called
+[16:33:12.213] [Tabs] refresh_all: key=branches, idx=0, force=True
+[16:33:12.213] [Tabs] _populate_tab(branches, idx=0, force=True)
+[16:33:12.213] [Tabs]   populated=True, loading=False
+[16:33:12.213] [Tabs]   Force refresh: removing branches from populated set
+[16:33:12.213] [Tabs]   Starting load for branches
+[16:33:12.213] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[16:33:12.213] [Tabs] _clear_tab idx=0
+[16:33:12.221] [Tabs] refresh_all: key=folders, idx=1, force=True
+[16:33:12.221] [Tabs] _populate_tab(folders, idx=1, force=True)
+[16:33:12.221] [Tabs]   populated=False, loading=False
+[16:33:12.221] [Tabs]   Starting load for folders
+[16:33:12.221] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[16:33:12.221] [Tabs] _clear_tab idx=1
+[16:33:12.221] [Tabs] refresh_all: key=dates, idx=2, force=True
+[16:33:12.221] [Tabs] _populate_tab(dates, idx=2, force=True)
+[16:33:12.221] [Tabs]   populated=False, loading=False
+[16:33:12.221] [Tabs]   Starting load for dates
+[16:33:12.221] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[16:33:12.221] [Tabs] _clear_tab idx=2
+[16:33:12.221] [Tabs] refresh_all: key=tags, idx=3, force=True
+[16:33:12.221] [Tabs] _populate_tab(tags, idx=3, force=True)
+[16:33:12.221] [Tabs] _load_folders → got 0 rows for project_id=1
+[16:33:12.221] [Tabs]   populated=False, loading=False
+[16:33:12.221] [Tabs]   Starting load for tags
+[16:33:12.221] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[16:33:12.221] [Tabs] _clear_tab idx=3
+[16:33:12.221] [Tabs] refresh_all: key=quick, idx=5, force=True
+[16:33:12.221] [Tabs] _populate_tab(quick, idx=5, force=True)
+[16:33:12.221] [Tabs]   populated=False, loading=False
+[16:33:12.221] [Tabs]   Starting load for quick
+[16:33:12.221] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[16:33:12.221] [Tabs] _clear_tab idx=5
+[16:33:12.221] [Tabs] refresh_all(force=True) completed
 [SidebarQt] Calling reload() after setting project_id
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
 [SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
-[16:22:25.031] [Tabs] _clear_tab idx=0
-[16:22:25.031] [Tabs] _load_quick → got 6 rows
+[16:33:12.221] [Tabs] _clear_tab idx=0
+[16:33:12.227] [Tabs] _load_dates → got hierarchy data for project_id=1
 [TAG FILTER] Cleared by navigation.
+[16:33:12.227] [Tabs] _load_tags → got 0 rows for project_id=1
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[16:33:12.231] [Tabs] _load_quick → got 6 rows
 [get_images_by_branch] project_id=1, branch_key='all'
 [get_images_by_branch] Found 0 photos
 [get_images_by_branch] Available branch_keys in DB: []
 [GRID] Loaded 0 thumbnails.
 [GRID] Reloaded 0 thumbnails in branch-mode (base=0)
-[16:22:25.041] [Tabs] _clear_tab idx=1
-[16:22:25.046] [Tabs] _clear_tab idx=2
-[16:22:25.046] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
-[16:22:25.046] [Tabs] _clear_tab idx=3
-[16:22:25.046] [Tabs] _clear_tab idx=5
+[16:33:12.241] [Tabs] _clear_tab idx=1
+[16:33:12.241] [Tabs] _clear_tab idx=2
+[16:33:12.241] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[16:33:12.241] [Tabs] _clear_tab idx=3
+[16:33:12.245] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
@@ -69,7 +70,7 @@
 [Sidebar] Found 0 videos in project 1
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001C749C8D2D0>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001E24B5AFCD0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -87,7 +88,11 @@
 [DeviceScanner]       ✗ No device on drive H:
 [DeviceScanner]     Drive P: exists, checking...
 [DeviceScanner]           Checking path: P:\
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 1726] Der Remoteprozeduraufruf ist fehlgeschlagen: 'P:\\ALT2'
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
 [DeviceScanner]       ✗ No device on drive P:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
@@ -108,7 +113,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:792db8d7
+[DeviceScanner]             Device ID: windows_mtp:c688afb0
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -120,7 +125,7 @@
 [Sidebar] ===== Scan complete: 1 mobile device(s) found =====
 [Sidebar]   Device 1: A54 von Ammar - Interner Speicher
 [Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:792db8d7
+[Sidebar]     - Device ID: windows_mtp:c688afb0
 [Sidebar]     - Device type: android
 [Sidebar]     - Folders: 2
 [Sidebar]       • Camera (10 files)
@@ -158,7 +163,11 @@
 [DeviceScanner]       ✗ No device on drive H:
 [DeviceScanner]     Drive P: exists, checking...
 [DeviceScanner]           Checking path: P:\
-[DeviceScanner]           ERROR: Cannot list directory: [WinError 1726] Der Remoteprozeduraufruf ist fehlgeschlagen: 'P:\\ALT2'
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
 [DeviceScanner]       ✗ No device on drive P:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
@@ -179,7 +188,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:792db8d7
+[DeviceScanner]             Device ID: windows_mtp:c688afb0
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -201,39 +210,130 @@
 [MTPAdapter] Enumerated 10 files...
 [MTPAdapter] ✓ Enumerated 15 media files
 [MTPImportWorker] Found 15 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\Device_Imports\A54 von Ammar\Camera\2025-11-19
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\Device_Imports\A54 von Ammar\Camera\2025-11-19
+[MTPAdapter] Successfully accessed source folder for import
 [MTPAdapter] Importing 1/15: 20241002_231251.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20241002_231251.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 2/15: 20240821_150613.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240821_150613.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 3/15: 20241231_150206.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20241231_150206.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 4/15: 20241019_115354.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20241019_115354.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 5/15: 20250618_174739.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20250618_174739.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 6/15: 20240823_002940.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240823_002940.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 7/15: 20240702_183644.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240702_183644.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 8/15: 20251030_170334.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20251030_170334.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 9/15: 20240611_233557.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240611_233557.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 10/15: 20251110_125241.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20251110_125241.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 11/15: 20240712_130946.mp4
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240712_130946.mp4
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 12/15: 20240611_233533.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240611_233533.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 13/15: 20240712_130801.mp4
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240712_130801.mp4
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 14/15: 20240611_233326.jpg
-[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Copied 20240611_233326.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
 [MTPAdapter] Importing 15/15: 20240824_215938.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] ✓ Import complete: 0/15 files
-[MTPImportWorker] ✓ Import complete: 0 files
+[MTPAdapter] ✓ Copied 20240824_215938.jpg
+[MTPAdapter] ✗ Error adding to database: 'ReferenceDB' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-10\services\mtp_import_adapter.py", line 398, in _add_to_database
+    self.db.execute("""
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceDB' object has no attribute 'execute'
+[MTPAdapter] ✓ Import complete: 15/15 files
+[MTPImportWorker] ✓ Import complete: 15 files
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -278,7 +378,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:792db8d7
+[DeviceScanner]             Device ID: windows_mtp:c688afb0
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -291,44 +391,15 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Sidebar] Import cancelled by user
-[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[Sidebar] Extracted device name: A54 von Ammar
-[MTPImportWorker] Starting import from A54 von Ammar → Screenshots
-[MTPAdapter] Enumerating MTP folder: Screenshots on A54 von Ammar
-[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[MTPAdapter] Successfully accessed folder
-[MTPAdapter] Enumerated 10 files...
-[MTPAdapter] ✓ Enumerated 12 media files
-[MTPImportWorker] Found 12 files to import
-[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
-[MTPAdapter] Importing 1/12: Screenshot_20241009_204415.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 2/12: Screenshot_20241007_093655_Gallery.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 3/12: Screenshot_20240703_192501_WhatsApp.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 4/12: Screenshot_20240710_185302_WhatsApp.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 5/12: Screenshot_20241205_203218_Bookingcom.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 6/12: Screenshot_20240701_121349_WhatsApp.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 7/12: Screenshot_20241007_093624_Samsung Internet.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 8/12: Screenshot_20241003_164106_WhatsApp.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 9/12: Screenshot_20240817_074013_Clock.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 10/12: Screenshot_20240808_021749_One UI Home.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 11/12: Screenshot_20240703_192505_WhatsApp.jpg
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] Importing 12/12: 20240601_120058_IMG_4776.PNG
-[MTPAdapter] ✗ Cannot access source folder
-[MTPAdapter] ✓ Import complete: 0/12 files
-[MTPImportWorker] ✓ Import complete: 0 files
-[Sidebar] Import cancelled by user
+[Sidebar] Import successful: 15 files
+[GRID] Loaded 15 thumbnails in tag-mode.
+[Sidebar] ✓ Import complete, grid loaded with 15 files
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
+[GRID] Using scroll-based start position: 0 (scroll: 0/0)
+[GRID] Loading viewport range: 0-14 of 15
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -348,11 +419,7 @@
 [DeviceScanner]       ✗ No device on drive H:
 [DeviceScanner]     Drive P: exists, checking...
 [DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]           ERROR: Cannot list directory: [WinError 1726] Der Remoteprozeduraufruf ist fehlgeschlagen: 'P:\\ALT2'
 [DeviceScanner]       ✗ No device on drive P:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
@@ -373,7 +440,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:792db8d7
+[DeviceScanner]             Device ID: windows_mtp:c688afb0
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -386,10 +453,23 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
 
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09>
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJEC

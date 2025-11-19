@@ -1965,12 +1965,13 @@ class SidebarQt(QWidget):
 
             try:
                 if is_shell_path:
-                    # Windows MTP device - use Shell COM API
-                    print(f"[Sidebar] Loading MTP device folder via COM: {value}")
+                    # Windows MTP device - use Shell COM API with async worker
+                    print(f"[Sidebar] Loading MTP device folder via COM (async): {value}")
                     try:
                         import win32com.client
-                        import tempfile
-                        import os as os_module
+                        from PyQt5.QtWidgets import QProgressDialog
+                        from PyQt5.QtCore import Qt
+                        from workers.mtp_copy_worker import MTPCopyWorker
 
                         shell = win32com.client.Dispatch("Shell.Application")
                         folder = shell.Namespace(value)
@@ -1979,118 +1980,88 @@ class SidebarQt(QWidget):
                             mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
                             return
 
-                        # Create temp directory for device media cache
-                        temp_dir = os_module.path.join(tempfile.gettempdir(), "memorymate_device_cache")
-                        os_module.makedirs(temp_dir, exist_ok=True)
+                        # Extract folder name for display
+                        folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
 
-                        # Clear old temp files (cleanup from previous sessions)
-                        try:
-                            for old_file in os_module.listdir(temp_dir):
-                                old_path = os_module.path.join(temp_dir, old_file)
-                                try:
-                                    os_module.remove(old_path)
-                                except:
-                                    pass
-                        except:
-                            pass
+                        # Create progress dialog
+                        progress = QProgressDialog(
+                            f"Copying photos from {folder_name}...",
+                            "Cancel",
+                            0, 100,
+                            mw
+                        )
+                        progress.setWindowModality(Qt.WindowModal)
+                        progress.setMinimumDuration(0)
+                        progress.setAutoClose(True)
+                        progress.setAutoReset(True)
 
-                        print(f"[Sidebar] Temp cache directory: {temp_dir}")
+                        # Create and configure worker
+                        worker = MTPCopyWorker(shell, value, max_files=100, max_depth=2)
 
-                        # Recursively scan folder and copy media files via COM
-                        files_copied = 0
-                        files_failed = 0
+                        # Handle progress updates
+                        def on_progress(current, total, filename):
+                            if total > 0:
+                                percent = int((current / total) * 100)
+                                progress.setValue(percent)
+                                progress.setLabelText(f"Copying {current}/{total}: {filename}")
 
-                        def scan_com_folder(com_folder, depth=0, max_depth=2):
-                            nonlocal files_copied, files_failed
-                            if depth > max_depth:
-                                return
+                        # Handle completion
+                        def on_finished(copied_paths):
+                            progress.close()
 
-                            try:
-                                items = com_folder.Items()
-                                item_count = 0
+                            if copied_paths:
+                                print(f"[Sidebar] Worker finished: {len(copied_paths)} files copied")
+                                print(f"[Sidebar] Loading {len(copied_paths)} files into grid...")
 
-                                for item in items:
-                                    item_count += 1
+                                # Load files into grid
+                                mw.grid.model.clear()
+                                mw.grid.load_custom_paths(copied_paths, content_type="mixed")
 
-                                    # Limit items per folder to prevent timeout
-                                    if item_count > 100:
-                                        print(f"[Sidebar] Stopping at 100 items (timeout protection)")
-                                        break
+                                mw.statusBar().showMessage(
+                                    f"📱 Showing {len(copied_paths)} item(s) from {folder_name}"
+                                )
+                                print(f"[Sidebar] ✓ Grid loaded with {len(copied_paths)} media files from MTP device")
+                            else:
+                                mw.statusBar().showMessage(f"📱 No media files found in {folder_name}")
+                                print(f"[Sidebar] No media files found to display")
 
-                                    if item.IsFolder:
-                                        # Recurse into subdirectories (limited depth)
-                                        if not item.Name.startswith('.') and depth < max_depth:
-                                            try:
-                                                subfolder = shell.Namespace(item.Path)
-                                                if subfolder:
-                                                    scan_com_folder(subfolder, depth + 1, max_depth)
-                                            except:
-                                                pass
-                                    else:
-                                        # Check if it's a media file
-                                        name_lower = item.Name.lower()
-                                        if any(name_lower.endswith(ext) for ext in media_extensions):
-                                            # Copy file from MTP device to temp location
-                                            try:
-                                                # Generate unique temp file path
-                                                base_name = item.Name
-                                                temp_file = os_module.path.join(temp_dir, base_name)
+                            # Clean up worker
+                            worker.deleteLater()
 
-                                                # Handle duplicate names
-                                                counter = 1
-                                                while os_module.path.exists(temp_file):
-                                                    name_parts = os_module.path.splitext(base_name)
-                                                    temp_file = os_module.path.join(temp_dir, f"{name_parts[0]}_{counter}{name_parts[1]}")
-                                                    counter += 1
+                        # Handle errors
+                        def on_error(error_msg):
+                            progress.close()
+                            print(f"[Sidebar] Worker error: {error_msg}")
+                            mw.statusBar().showMessage(f"⚠️ Error copying files: {error_msg}")
+                            worker.deleteLater()
 
-                                                print(f"[Sidebar]   Copying: {item.Name} → {temp_file}")
+                        # Handle cancellation
+                        def on_cancel():
+                            print(f"[Sidebar] User cancelled copy operation")
+                            worker.cancel()
+                            worker.wait(3000)  # Wait up to 3 seconds
+                            if worker.isRunning():
+                                worker.terminate()
+                            mw.statusBar().showMessage("📱 Copy operation cancelled")
 
-                                                # Use Shell FolderItem.GetFolder.CopyHere to copy file
-                                                # Create destination folder object
-                                                dest_folder = shell.Namespace(temp_dir)
-                                                if dest_folder:
-                                                    # Copy with flags: 4 = no progress UI, 16 = yes to all
-                                                    dest_folder.CopyHere(item.Path, 4 | 16)
+                        # Connect signals
+                        worker.progress.connect(on_progress)
+                        worker.finished.connect(on_finished)
+                        worker.error.connect(on_error)
+                        progress.canceled.connect(on_cancel)
 
-                                                    # Verify copy succeeded
-                                                    expected_path = os_module.path.join(temp_dir, item.Name)
-                                                    if os_module.path.exists(expected_path):
-                                                        media_paths.append(expected_path)
-                                                        files_copied += 1
-                                                        print(f"[Sidebar]   ✓ Copied successfully")
-                                                    else:
-                                                        print(f"[Sidebar]   ✗ Copy failed (file not found after copy)")
-                                                        files_failed += 1
-                                                else:
-                                                    print(f"[Sidebar]   ✗ Could not access temp folder")
-                                                    files_failed += 1
+                        # Store worker reference to prevent garbage collection
+                        if not hasattr(mw, '_mtp_workers'):
+                            mw._mtp_workers = []
+                        mw._mtp_workers.append(worker)
 
-                                            except Exception as e:
-                                                print(f"[Sidebar]   ✗ Copy failed for {item.Name}: {e}")
-                                                files_failed += 1
+                        # Start worker
+                        print(f"[Sidebar] Starting async MTP copy worker...")
+                        worker.start()
 
-                            except Exception as e:
-                                print(f"[Sidebar] Error scanning COM folder at depth {depth}: {e}")
-
-                        print(f"[Sidebar] Starting file enumeration and copy...")
-                        scan_com_folder(folder)
-                        print(f"[Sidebar] Copy complete: {files_copied} succeeded, {files_failed} failed")
-
-                        # Load copied files into grid
-                        if media_paths:
-                            folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
-
-                            print(f"[Sidebar] Loading {len(media_paths)} files into grid...")
-                            mw.grid.model.clear()
-                            mw.grid.load_custom_paths(media_paths, content_type="mixed")
-
-                            mw.statusBar().showMessage(
-                                f"📱 Showing {len(media_paths)} item(s) from {folder_name}"
-                            )
-                            print(f"[Sidebar] ✓ Grid loaded with {len(media_paths)} media files from MTP device")
-                        else:
-                            mw.statusBar().showMessage(f"📱 No media files found in device folder")
-                            print(f"[Sidebar] No media files found to display")
+                        # Show initial progress
+                        progress.setValue(0)
+                        mw.statusBar().showMessage(f"📱 Loading photos from {folder_name}...")
 
                     except ImportError:
                         print(f"[Sidebar] win32com not available for MTP device access")

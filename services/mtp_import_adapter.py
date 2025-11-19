@@ -543,10 +543,18 @@ class MTPImportAdapter:
             print(f"[MTPAdapter]   Adding files to photo_metadata...")
             self._add_to_photo_metadata(files_by_date)
 
+            # Register videos in videos table
+            video_files = [p for p in imported_paths if parser._is_video(p)]
+            if video_files:
+                print(f"[MTPAdapter]   Registering {len(video_files)} videos...")
+                self._register_videos(video_files, files_by_date)
+
             print(f"[MTPAdapter] ✓ Auto-organization complete:")
             print(f"[MTPAdapter]   • Organized {len(imported_paths)} files into folder hierarchy")
             print(f"[MTPAdapter]   • Grouped by {len(files_by_date)} unique dates")
-            print(f"[MTPAdapter]   • Files will now appear in Folders and Dates sections")
+            if video_files:
+                print(f"[MTPAdapter]   • Registered {len(video_files)} videos in Videos section")
+            print(f"[MTPAdapter]   • Files will now appear in Folders, Dates, and Videos sections")
 
         except Exception as e:
             print(f"[MTPAdapter] ✗ Error during auto-organization: {e}")
@@ -668,21 +676,27 @@ class MTPImportAdapter:
 
                         # Get image dimensions
                         width, height = None, None
+                        file_name = file_path_obj.name
                         if parser._is_image(file_path):
                             try:
                                 with Image.open(file_path) as img:
                                     width, height = img.size
-                            except:
-                                pass
+                                    print(f"[MTPAdapter]     ✓ Dimensions: {width}x{height} - {file_name}")
+                            except Exception as e:
+                                print(f"[MTPAdapter]     ⚠️ Cannot get dimensions for {file_name}: {e}")
 
                         # Get EXIF date
                         date_taken = None
                         if date_str != "unknown":
                             try:
                                 capture_date = parser.get_capture_date(file_path)
-                                date_taken = capture_date.strftime("%Y-%m-%d %H:%M:%S")
-                            except:
-                                pass
+                                if capture_date:
+                                    date_taken = capture_date.strftime("%Y-%m-%d %H:%M:%S")
+                                    print(f"[MTPAdapter]     ✓ Date: {date_taken} - {file_name}")
+                                else:
+                                    print(f"[MTPAdapter]     ⚠️ No date extracted for {file_name}")
+                            except Exception as e:
+                                print(f"[MTPAdapter]     ✗ Date extraction failed for {file_name}: {e}")
 
                         # Add to photo_metadata (will auto-create created_date fields for date organization)
                         self.db.upsert_photo_metadata(
@@ -705,5 +719,67 @@ class MTPImportAdapter:
 
         except Exception as e:
             print(f"[MTPAdapter]   ✗ Error adding to photo_metadata: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _register_videos(self, video_paths: List[str], files_by_date: dict):
+        """
+        Register video files in videos table for Videos section.
+
+        Args:
+            video_paths: List of video file paths
+            files_by_date: Dict mapping dates to file paths (for getting dates)
+        """
+        try:
+            from services.video_service import VideoService
+            from services.exif_parser import EXIFParser
+
+            video_service = VideoService()
+            parser = EXIFParser()
+
+            registered_count = 0
+
+            for video_path in video_paths:
+                try:
+                    file_path_obj = Path(video_path)
+                    file_name = file_path_obj.name
+
+                    # Get file stats
+                    stat = file_path_obj.stat()
+                    size_kb = stat.st_size / 1024
+                    modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+
+                    # Get video date
+                    capture_date = parser.get_capture_date(video_path)
+                    created_ts = int(capture_date.timestamp())
+                    created_date = capture_date.strftime("%Y-%m-%d")
+                    created_year = capture_date.year
+
+                    # Register video (index_video creates entry with 'pending' status)
+                    video_id = video_service.index_video(
+                        path=video_path,
+                        project_id=self.project_id,
+                        folder_id=None,  # Will be set by folder hierarchy
+                        size_kb=size_kb,
+                        modified=modified,
+                        created_ts=created_ts,
+                        created_date=created_date,
+                        created_year=created_year
+                    )
+
+                    if video_id:
+                        print(f"[MTPAdapter]     ✓ Registered video: {file_name} (id={video_id})")
+                        registered_count += 1
+                    else:
+                        print(f"[MTPAdapter]     ⚠️ Video already registered: {file_name}")
+
+                except Exception as e:
+                    print(f"[MTPAdapter]     ✗ Error registering video {Path(video_path).name}: {e}")
+                    continue
+
+            print(f"[MTPAdapter]     ✓ Registered {registered_count}/{len(video_paths)} videos")
+
+        except Exception as e:
+            print(f"[MTPAdapter]   ✗ Error registering videos: {e}")
             import traceback
             traceback.print_exc()

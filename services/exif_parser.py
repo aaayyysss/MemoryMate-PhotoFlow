@@ -15,8 +15,20 @@ class EXIFParser:
     """Parse EXIF metadata from photos and videos"""
 
     def __init__(self):
-        """Initialize EXIF parser"""
-        pass
+        """Initialize EXIF parser with HEIC support"""
+        self._heic_support_enabled = False
+
+        # Try to enable HEIC support
+        try:
+            from pillow_heif import register_heif_opener
+            register_heif_opener()
+            self._heic_support_enabled = True
+            print(f"[EXIFParser] ✓ HEIC/HEIF support enabled (pillow-heif)")
+        except ImportError:
+            print(f"[EXIFParser] ⚠️ pillow-heif not installed - HEIC files will use file dates")
+            print(f"[EXIFParser]    Install with: pip install pillow-heif")
+        except Exception as e:
+            print(f"[EXIFParser] ⚠️ Could not enable HEIC support: {e}")
 
     def get_capture_date(self, file_path: str) -> datetime:
         """
@@ -64,23 +76,34 @@ class EXIFParser:
 
     def _get_exif_date(self, file_path: str) -> Optional[datetime]:
         """
-        Extract EXIF date from image file.
+        Extract EXIF date from image file with detailed logging.
 
         Returns:
             datetime object if EXIF date found, None otherwise
         """
+        file_name = Path(file_path).name
+
         try:
             from PIL import Image
             from PIL.ExifTags import TAGS
 
-            print(f"[EXIFParser] Parsing EXIF from: {Path(file_path).name}")
+            print(f"[EXIFParser] Parsing EXIF from: {file_name}")
 
-            with Image.open(file_path) as img:
+            # Try to open image
+            try:
+                img = Image.open(file_path)
+                print(f"[EXIFParser]   ✓ Opened: {img.format} {img.size[0]}x{img.size[1]}")
+            except Exception as e:
+                print(f"[EXIFParser]   ✗ Cannot open image: {e}")
+                return None
+
+            try:
                 # Get EXIF data
                 exif_data = img._getexif()
 
                 if not exif_data:
-                    print(f"[EXIFParser]   No EXIF data found")
+                    print(f"[EXIFParser]   No EXIF data in file")
+                    img.close()
                     return None
 
                 # Look for date tags in priority order
@@ -104,6 +127,12 @@ class EXIFParser:
                             continue
 
                 print(f"[EXIFParser]   No valid date tags found in EXIF")
+                img.close()
+                return None
+
+            except Exception as e:
+                print(f"[EXIFParser]   ✗ Error getting EXIF: {e}")
+                img.close()
                 return None
 
         except ImportError:
@@ -111,6 +140,8 @@ class EXIFParser:
             return None
         except Exception as e:
             print(f"[EXIFParser]   ✗ Error parsing EXIF: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def _get_video_date(self, file_path: str) -> Optional[datetime]:

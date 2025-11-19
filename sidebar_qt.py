@@ -1965,135 +1965,89 @@ class SidebarQt(QWidget):
 
             try:
                 if is_shell_path:
-                    # Windows MTP device - use Shell COM API with async worker
-                    print(f"[Sidebar] Loading MTP device folder via COM (async): {value}")
+                    # Windows MTP device - show import dialog instead of direct copy
+                    print(f"[Sidebar] Opening MTP import dialog for: {value}")
                     try:
-                        from PySide6.QtWidgets import QProgressDialog
-                        # Qt is already imported at module level (line 12)
-                        from workers.mtp_copy_worker import MTPCopyWorker
+                        from ui.mtp_import_dialog import MTPImportDialog
 
-                        # Extract folder name for display
+                        # Extract folder name from path
                         folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
 
-                        # Create progress dialog
-                        progress = QProgressDialog(
-                            f"Copying photos from {folder_name}...",
-                            "Cancel",
-                            0, 100,
-                            mw
+                        # Extract device name from parent item
+                        device_name = "Unknown Device"
+                        try:
+                            # Get clicked item from tree
+                            current_index = self.tree_view.currentIndex()
+                            if current_index.isValid():
+                                # Get parent device item
+                                parent_index = current_index.parent()
+                                if parent_index.isValid():
+                                    parent_item = self.model.itemFromIndex(parent_index)
+                                    if parent_item:
+                                        # Extract device label (e.g., "⚪ A54 von Ammar - Interner Speicher")
+                                        device_label = parent_item.text()
+
+                                        # Remove status icon prefix (⚪, 🟢, 🟡, etc.)
+                                        if device_label and len(device_label) > 2 and device_label[1] == ' ':
+                                            device_label = device_label[2:].strip()
+
+                                        # Extract base device name (before " - ")
+                                        if " - " in device_label:
+                                            device_name = device_label.split(" - ")[0].strip()
+                                        else:
+                                            device_name = device_label.strip()
+
+                                        print(f"[Sidebar] Extracted device name: {device_name}")
+                        except Exception as e:
+                            print(f"[Sidebar] Error extracting device name: {e}")
+
+                        # Show import dialog
+                        dialog = MTPImportDialog(
+                            device_name=device_name,
+                            folder_name=folder_name,
+                            mtp_path=value,
+                            db=self.db,
+                            project_id=self.project_id,
+                            parent=mw
                         )
-                        progress.setWindowModality(Qt.WindowModal)
-                        progress.setMinimumDuration(0)
-                        progress.setAutoClose(True)
-                        progress.setAutoReset(True)
 
-                        # Create and configure worker
-                        # Worker will create Shell.Application in its own thread (COM threading requirement)
-                        worker = MTPCopyWorker(value, max_files=100, max_depth=2)
+                        # Execute dialog and handle result
+                        if dialog.exec():
+                            # Import successful - load imported files into grid
+                            imported_paths = dialog.imported_paths
+                            if imported_paths:
+                                print(f"[Sidebar] Import successful: {len(imported_paths)} files")
 
-                        # Handle progress updates
-                        def on_progress(current, total, filename):
-                            if total > 0:
-                                percent = int((current / total) * 100)
-                                progress.setValue(percent)
-                                progress.setLabelText(f"Copying {current}/{total}: {filename}")
-
-                        # Handle completion
-                        def on_finished(copied_paths):
-                            # Disconnect canceled signal before closing
-                            try:
-                                progress.canceled.disconnect(on_cancel)
-                            except:
-                                pass
-                            progress.close()
-
-                            if copied_paths:
-                                print(f"[Sidebar] Worker finished: {len(copied_paths)} files copied")
-                                print(f"[Sidebar] Loading {len(copied_paths)} files into grid...")
-
-                                # Load files into grid
+                                # Load imported files into grid
                                 mw.grid.model.clear()
-                                mw.grid.load_custom_paths(copied_paths, content_type="mixed")
+                                mw.grid.load_custom_paths(imported_paths, content_type="mixed")
 
                                 mw.statusBar().showMessage(
-                                    f"📱 Showing {len(copied_paths)} item(s) from {folder_name}"
+                                    f"📱 Imported and showing {len(imported_paths)} item(s) from {folder_name} [{device_name}]"
                                 )
-                                print(f"[Sidebar] ✓ Grid loaded with {len(copied_paths)} media files from MTP device")
+
+                                # TODO: Update sidebar counts (All Photos, By Dates, Folders)
+                                # This will be implemented in next task
+                                print(f"[Sidebar] ✓ Import complete, grid loaded with {len(imported_paths)} files")
                             else:
-                                mw.statusBar().showMessage(f"📱 No media files found in {folder_name}")
-                                print(f"[Sidebar] No media files found to display")
+                                print(f"[Sidebar] No files imported")
+                                mw.statusBar().showMessage("📱 No files were imported")
+                        else:
+                            # User cancelled
+                            print(f"[Sidebar] Import cancelled by user")
+                            mw.statusBar().showMessage("📱 Import cancelled")
 
-                            # Clean up worker properly - wait for thread to finish
-                            if worker.isRunning():
-                                worker.wait(1000)  # Wait up to 1 second
-                            worker.deleteLater()
-
-                            # Remove from worker list
-                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
-                                mw._mtp_workers.remove(worker)
-
-                        # Handle errors
-                        def on_error(error_msg):
-                            # Disconnect canceled signal to avoid false "User cancelled" message
-                            try:
-                                progress.canceled.disconnect(on_cancel)
-                            except:
-                                pass
-                            progress.close()
-                            print(f"[Sidebar] Worker error: {error_msg}")
-                            mw.statusBar().showMessage(f"⚠️ Error copying files: {error_msg}")
-
-                            # Clean up worker properly - wait for thread to finish
-                            if worker.isRunning():
-                                worker.wait(1000)  # Wait up to 1 second
-                            worker.deleteLater()
-
-                            # Remove from worker list
-                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
-                                mw._mtp_workers.remove(worker)
-
-                        # Handle cancellation
-                        def on_cancel():
-                            print(f"[Sidebar] User cancelled copy operation")
-                            worker.cancel()
-                            worker.wait(3000)  # Wait up to 3 seconds
-                            if worker.isRunning():
-                                worker.terminate()
-                            worker.deleteLater()
-                            mw.statusBar().showMessage("📱 Copy operation cancelled")
-
-                            # Remove from worker list
-                            if hasattr(mw, '_mtp_workers') and worker in mw._mtp_workers:
-                                mw._mtp_workers.remove(worker)
-
-                        # Connect signals
-                        worker.progress.connect(on_progress)
-                        worker.finished.connect(on_finished)
-                        worker.error.connect(on_error)
-                        progress.canceled.connect(on_cancel)
-
-                        # Store worker reference to prevent garbage collection
-                        if not hasattr(mw, '_mtp_workers'):
-                            mw._mtp_workers = []
-                        mw._mtp_workers.append(worker)
-
-                        # Start worker
-                        print(f"[Sidebar] Starting async MTP copy worker...")
-                        worker.start()
-
-                        # Show initial progress
-                        progress.setValue(0)
-                        mw.statusBar().showMessage(f"📱 Loading photos from {folder_name}...")
-
-                    except ImportError:
-                        print(f"[Sidebar] win32com not available for MTP device access")
-                        mw.statusBar().showMessage(f"⚠️ Cannot access MTP device: win32com not installed")
-                        return
-                    except Exception as e:
-                        print(f"[Sidebar] Failed to access MTP device folder: {e}")
+                    except ImportError as e:
+                        print(f"[Sidebar] Import dialog not available: {e}")
                         import traceback
                         traceback.print_exc()
-                        mw.statusBar().showMessage(f"⚠️ Failed to access MTP device: {e}")
+                        mw.statusBar().showMessage(f"⚠️ Cannot import from MTP device: {e}")
+                        return
+                    except Exception as e:
+                        print(f"[Sidebar] Failed to show import dialog: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        mw.statusBar().showMessage(f"⚠️ Failed to import from device: {e}")
                         return
 
                 else:

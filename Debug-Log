@@ -1,21 +1,75 @@
-[Sidebar] Current device count: 0
-[Sidebar] No change in device count
-[Sidebar] ===== End auto-refresh check =====
+═══════════════════════════════════════════════════════════════════
 
+[MainWindow] Set grid.project_id = 1
+[SidebarQt] set_project(1) called
+[16:22:25.021] [Tabs] refresh_all(force=True) called
+[16:22:25.021] [Tabs] refresh_all: key=branches, idx=0, force=True
+[16:22:25.023] [Tabs] _populate_tab(branches, idx=0, force=True)
+[16:22:25.023] [Tabs]   populated=True, loading=False
+[16:22:25.023] [Tabs]   Force refresh: removing branches from populated set
+[16:22:25.023] [Tabs]   Starting load for branches
+[16:22:25.023] [Tabs] _show_loading idx=0 label='Loading Branches…'
+[16:22:25.023] [Tabs] _clear_tab idx=0
+[16:22:25.023] [Tabs] refresh_all: key=folders, idx=1, force=True
+[16:22:25.023] [Tabs] _populate_tab(folders, idx=1, force=True)
+[16:22:25.023] [Tabs]   populated=False, loading=False
+[16:22:25.023] [Tabs]   Starting load for folders
+[16:22:25.023] [Tabs] _show_loading idx=1 label='Loading Folders…'
+[16:22:25.023] [Tabs] _clear_tab idx=1
+[16:22:25.023] [Tabs] refresh_all: key=dates, idx=2, force=True
+[16:22:25.023] [Tabs] _populate_tab(dates, idx=2, force=True)
+[16:22:25.023] [Tabs]   populated=False, loading=False
+[16:22:25.023] [Tabs]   Starting load for dates
+[16:22:25.023] [Tabs] _show_loading idx=2 label='Loading Dates…'
+[16:22:25.023] [Tabs] _load_folders → got 0 rows for project_id=1
+[16:22:25.023] [Tabs] _clear_tab idx=2
+[16:22:25.023] [Tabs] refresh_all: key=tags, idx=3, force=True
+[16:22:25.023] [Tabs] _populate_tab(tags, idx=3, force=True)
+[16:22:25.023] [Tabs]   populated=False, loading=False
+[16:22:25.023] [Tabs]   Starting load for tags
+[16:22:25.023] [Tabs] _show_loading idx=3 label='Loading Tags…'
+[16:22:25.023] [Tabs] _clear_tab idx=3
+[16:22:25.023] [Tabs] refresh_all: key=quick, idx=5, force=True
+[16:22:25.023] [Tabs] _populate_tab(quick, idx=5, force=True)
+[16:22:25.023] [Tabs] _load_dates → got hierarchy data for project_id=1
+[16:22:25.023] [Tabs]   populated=False, loading=False
+[16:22:25.023] [Tabs]   Starting load for quick
+[16:22:25.023] [Tabs] _show_loading idx=5 label='Loading Quick Dates…'
+[16:22:25.023] [Tabs] _clear_tab idx=5
+[16:22:25.031] [Tabs] _load_tags → got 0 rows for project_id=1
+[16:22:25.031] [Tabs] refresh_all(force=True) completed
+[SidebarQt] Calling reload() after setting project_id
 [SidebarQt] reload() called, display_mode=list, tabs_visible=False
 [SidebarQt] Calling _build_tree_model() instead of tabs refresh
-[SidebarQt] _build_tree_model() called with project_id=None
+[SidebarQt] _build_tree_model() called with project_id=1
 [Sidebar] Processing pending events before model clear
+[16:22:25.031] [Tabs] _clear_tab idx=0
+[16:22:25.031] [Tabs] _load_quick → got 6 rows
+[TAG FILTER] Cleared by navigation.
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in None-mode (base=0)
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[16:22:25.041] [Tabs] _clear_tab idx=1
+[16:22:25.046] [Tabs] _clear_tab idx=2
+[16:22:25.046] [Tabs] _finish_tags called: idx=3, gen=2, rows_count=0
+[16:22:25.046] [Tabs] _clear_tab idx=3
+[16:22:25.046] [Tabs] _clear_tab idx=5
 [Sidebar] Pending events processed
 [Sidebar] Detaching old model from tree view
 [Sidebar] Creating fresh model (avoiding Qt segfault)
 [Sidebar] Attaching fresh model to tree view
-[SidebarQt] list_branches() returned 0 branches
-[Sidebar] Loading videos for project_id=None
-[Sidebar] Found 0 videos in project None
+[SidebarQt] list_branches() returned 1 branches
+[SidebarQt] Sample branches: [{'branch_key': 'all', 'display_name': '📁 All Photos', 'count': 0}]
+[Sidebar] Loaded 0 folder counts in batch (performance optimization)
+[Sidebar] Loading videos for project_id=1
+[Sidebar] Found 0 videos in project 1
 
 [Sidebar] ===== Initiating mobile device scan from sidebar =====
-[Sidebar] Database: <reference_db.ReferenceDB object at 0x000002CB70B01C90>
+[Sidebar] Database: <reference_db.ReferenceDB object at 0x000001C749C8D2D0>
 [Sidebar] Register devices: True
 
 [DeviceScanner] ===== Starting device scan =====
@@ -33,11 +87,7 @@
 [DeviceScanner]       ✗ No device on drive H:
 [DeviceScanner]     Drive P: exists, checking...
 [DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]           ERROR: Cannot list directory: [WinError 1726] Der Remoteprozeduraufruf ist fehlgeschlagen: 'P:\\ALT2'
 [DeviceScanner]       ✗ No device on drive P:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
@@ -58,7 +108,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a293409f
+[DeviceScanner]             Device ID: windows_mtp:792db8d7
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -70,7 +120,7 @@
 [Sidebar] ===== Scan complete: 1 mobile device(s) found =====
 [Sidebar]   Device 1: A54 von Ammar - Interner Speicher
 [Sidebar]     - Root path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar]     - Device ID: windows_mtp:a293409f
+[Sidebar]     - Device ID: windows_mtp:792db8d7
 [Sidebar]     - Device type: android
 [Sidebar]     - Folders: 2
 [Sidebar]       • Camera (10 files)
@@ -78,27 +128,17 @@
 [Sidebar] ===== End device scan =====
 
 [Sidebar] Added Mobile Devices section with 1 devices, 20 total photos
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Checking portable device: A54 von Ammar
-[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
-[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
-[MTPCopyWorker] Searching for storage location...
-[MTPCopyWorker]   Checking storage: Interner Speicher
-[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
-[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Camera']
-[MTPCopyWorker]   Looking for: DCIM
-[MTPCopyWorker]   ✓ Found: DCIM
-[MTPCopyWorker]   Looking for: Camera
-[MTPCopyWorker]   ✓ Found: Camera
-[MTPCopyWorker] ✓ Successfully navigated to target folder
+[Sidebar] starting async count population for 1 branch targets
+[Sidebar][counts worker gen=4] running for 1 targets...
+[get_images_by_branch] project_id=1, branch_key='all'
+[get_images_by_branch] Found 0 photos
+[Sidebar][counts worker gen=4] finished scanning targets, scheduling UI update
+[get_images_by_branch] Available branch_keys in DB: []
+[GRID] Loaded 0 thumbnails.
+[GRID] Reloaded 0 thumbnails in branch-mode (base=0)
+[MainWindow] Switched to project ID: 1
+[Breadcrumb] Switched to project ID: 1
+[MainWindow] Refreshed project list: 1 projects
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -118,12 +158,7 @@
 [DeviceScanner]       ✗ No device on drive H:
 [DeviceScanner]     Drive P: exists, checking...
 [DeviceScanner]           Checking path: P:\
-[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
-[DeviceScanner]           Has DCIM folder: False
-[DeviceScanner]           No alternate structure found
-[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
-[MTPCopyWorker] Found 15 media files to copy
-[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]           ERROR: Cannot list directory: [WinError 1726] Der Remoteprozeduraufruf ist fehlgeschlagen: 'P:\\ALT2'
 [DeviceScanner]       ✗ No device on drive P:
 [DeviceScanner]   Checking portable devices (MTP/PTP)...
 [DeviceScanner]     Attempting Shell COM enumeration...
@@ -141,33 +176,10 @@
 [DeviceScanner]             Device type: android
 [DeviceScanner]             Scanning for media folders...
 [DeviceScanner]               Quick scan: checking 28 essential folders only
-[MTPCopyWorker] Copying 1/15: 20241002_231251.jpg
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
-[MTPCopyWorker] ✓ Copied successfully: 20241002_231251.jpg (0.0s)
-[MTPCopyWorker] Copying 2/15: 20240821_150613.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240821_150613.jpg (0.0s)
-[MTPCopyWorker] Copying 3/15: 20241231_150206.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20241231_150206.jpg (0.0s)
-[MTPCopyWorker] Copying 4/15: 20241019_115354.jpg
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
-[MTPCopyWorker] ✓ Copied successfully: 20241019_115354.jpg (0.0s)
-[MTPCopyWorker] Copying 5/15: 20250618_174739.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20250618_174739.jpg (0.0s)
-[MTPCopyWorker] Copying 6/15: 20240823_002940.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240823_002940.jpg (0.0s)
-[MTPCopyWorker] Copying 7/15: 20240702_183644.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240702_183644.jpg (0.0s)
-[MTPCopyWorker] Copying 8/15: 20251030_170334.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20251030_170334.jpg (0.0s)
-[MTPCopyWorker] Copying 9/15: 20240611_233557.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240611_233557.jpg (0.0s)
-[MTPCopyWorker] Copying 10/15: 20251110_125241.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20251110_125241.jpg (0.0s)
-[MTPCopyWorker] Copying 11/15: 20240712_130946.mp4
-[MTPCopyWorker] ✓ Copied successfully: 20240712_130946.mp4 (0.0s)
-[MTPCopyWorker] Copying 12/15: 20240611_233533.jpg
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a293409f
+[DeviceScanner]             Device ID: windows_mtp:792db8d7
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -180,71 +192,48 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[MTPCopyWorker] ✓ Copied successfully: 20240611_233533.jpg (0.0s)
-[MTPCopyWorker] Copying 13/15: 20240712_130801.mp4
-[MTPCopyWorker] ✓ Copied successfully: 20240712_130801.mp4 (0.0s)
-[MTPCopyWorker] Copying 14/15: 20240611_233326.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240611_233326.jpg (0.0s)
-[MTPCopyWorker] Copying 15/15: 20240824_215938.jpg
-[MTPCopyWorker] ✓ Copied successfully: 20240824_215938.jpg (0.0s)
-[MTPCopyWorker] Copy complete: 15 files copied successfully
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker finished: 15 files copied
-[Sidebar] Loading 15 files into grid...
-[GRID] Loaded 15 thumbnails in tag-mode.
-[Sidebar] ✓ Grid loaded with 15 media files from MTP device
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Checking portable device: A54 von Ammar
-[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
-[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
-[MTPCopyWorker] Searching for storage location...
-[MTPCopyWorker]   Checking storage: Interner Speicher
-[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
-[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Screenshots']
-[MTPCopyWorker]   Looking for: DCIM
-[MTPCopyWorker]   ✓ Found: DCIM
-[MTPCopyWorker]   Looking for: Screenshots
-[MTPCopyWorker]   ✓ Found: Screenshots
-[MTPCopyWorker] ✓ Successfully navigated to target folder
-[MTPCopyWorker] Found 12 media files to copy
-[MTPCopyWorker] Copying 1/12: Screenshot_20241009_204415.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20241009_204415.jpg (0.0s)
-[MTPCopyWorker] Copying 2/12: Screenshot_20241007_093655_Gallery.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20241007_093655_Gallery.jpg (0.0s)
-[MTPCopyWorker] Copying 3/12: Screenshot_20240703_192501_WhatsApp.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240703_192501_WhatsApp.jpg (0.0s)
-[MTPCopyWorker] Copying 4/12: Screenshot_20240710_185302_WhatsApp.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240710_185302_WhatsApp.jpg (0.0s)
-[MTPCopyWorker] Copying 5/12: Screenshot_20241205_203218_Bookingcom.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20241205_203218_Bookingcom.jpg (0.0s)
-[MTPCopyWorker] Copying 6/12: Screenshot_20240701_121349_WhatsApp.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240701_121349_WhatsApp.jpg (0.0s)
-[MTPCopyWorker] Copying 7/12: Screenshot_20241007_093624_Samsung Internet.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20241007_093624_Samsung Internet.jpg (0.0s)
-[MTPCopyWorker] Copying 8/12: Screenshot_20241003_164106_WhatsApp.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20241003_164106_WhatsApp.jpg (0.0s)
-[MTPCopyWorker] Copying 9/12: Screenshot_20240817_074013_Clock.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240817_074013_Clock.jpg (0.0s)
-[MTPCopyWorker] Copying 10/12: Screenshot_20240808_021749_One UI Home.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240808_021749_One UI Home.jpg (0.0s)
-[MTPCopyWorker] Copying 11/12: Screenshot_20240703_192505_WhatsApp.jpg
-[MTPCopyWorker] ✓ Copied successfully: Screenshot_20240703_192505_WhatsApp.jpg (0.0s)
-[MTPCopyWorker] Copying 12/12: 20240601_120058_IMG_4776.PNG
-[MTPCopyWorker] ✓ Copied successfully: 20240601_120058_IMG_4776.PNG (0.0s)
-[MTPCopyWorker] Copy complete: 12 files copied successfully
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker finished: 12 files copied
-[Sidebar] Loading 12 files into grid...
-[GRID] Loaded 12 thumbnails in tag-mode.
-[Sidebar] ✓ Grid loaded with 12 media files from MTP device
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → Camera
+[MTPAdapter] Enumerating MTP folder: Camera on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] Enumerated 10 files...
+[MTPAdapter] ✓ Enumerated 15 media files
+[MTPImportWorker] Found 15 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\Device_Imports\A54 von Ammar\Camera\2025-11-19
+[MTPAdapter] Importing 1/15: 20241002_231251.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 2/15: 20240821_150613.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 3/15: 20241231_150206.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 4/15: 20241019_115354.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 5/15: 20250618_174739.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 6/15: 20240823_002940.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 7/15: 20240702_183644.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 8/15: 20251030_170334.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 9/15: 20240611_233557.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 10/15: 20251110_125241.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 11/15: 20240712_130946.mp4
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 12/15: 20240611_233533.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 13/15: 20240712_130801.mp4
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 14/15: 20240611_233326.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 15/15: 20240824_215938.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Import complete: 0/15 files
+[MTPImportWorker] ✓ Import complete: 0 files
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -289,7 +278,7 @@
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
 [DeviceScanner]             Found 2 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:a293409f
+[DeviceScanner]             Device ID: windows_mtp:792db8d7
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -302,3 +291,105 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
+[Sidebar] Import cancelled by user
+[Sidebar] Opening MTP import dialog for: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
+[Sidebar] Extracted device name: A54 von Ammar
+[MTPImportWorker] Starting import from A54 von Ammar → Screenshots
+[MTPAdapter] Enumerating MTP folder: Screenshots on A54 von Ammar
+[MTPAdapter] Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Screenshots
+[MTPAdapter] Successfully accessed folder
+[MTPAdapter] Enumerated 10 files...
+[MTPAdapter] ✓ Enumerated 12 media files
+[MTPImportWorker] Found 12 files to import
+[MTPAdapter] Importing to: C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09\Device_Imports\A54 von Ammar\Screenshots\2025-11-19
+[MTPAdapter] Importing 1/12: Screenshot_20241009_204415.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 2/12: Screenshot_20241007_093655_Gallery.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 3/12: Screenshot_20240703_192501_WhatsApp.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 4/12: Screenshot_20240710_185302_WhatsApp.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 5/12: Screenshot_20241205_203218_Bookingcom.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 6/12: Screenshot_20240701_121349_WhatsApp.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 7/12: Screenshot_20241007_093624_Samsung Internet.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 8/12: Screenshot_20241003_164106_WhatsApp.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 9/12: Screenshot_20240817_074013_Clock.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 10/12: Screenshot_20240808_021749_One UI Home.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 11/12: Screenshot_20240703_192505_WhatsApp.jpg
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] Importing 12/12: 20240601_120058_IMG_4776.PNG
+[MTPAdapter] ✗ Cannot access source folder
+[MTPAdapter] ✓ Import complete: 0/12 files
+[MTPImportWorker] ✓ Import complete: 0 files
+[Sidebar] Import cancelled by user
+
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 28 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]                 ✓ Screenshots: found 10+ media files (quick scan)
+[DeviceScanner]             Found 2 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:792db8d7
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[Shutdown] Grid threads shut down.
+[ThumbnailManager] Thread pool shut down.
+[Shutdown] ThumbnailManager threads shut down.
+[Shutdown] Thumbnail cache cleared.
+[ThumbCacheDB] Closing cache gracefully...
+
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-09>

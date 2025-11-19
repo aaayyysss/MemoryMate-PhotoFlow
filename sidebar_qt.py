@@ -1968,17 +1968,9 @@ class SidebarQt(QWidget):
                     # Windows MTP device - use Shell COM API with async worker
                     print(f"[Sidebar] Loading MTP device folder via COM (async): {value}")
                     try:
-                        import win32com.client
                         from PySide6.QtWidgets import QProgressDialog
                         # Qt is already imported at module level (line 12)
                         from workers.mtp_copy_worker import MTPCopyWorker
-
-                        shell = win32com.client.Dispatch("Shell.Application")
-                        folder = shell.Namespace(value)
-
-                        if not folder:
-                            mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
-                            return
 
                         # Extract folder name for display
                         folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
@@ -1996,7 +1988,8 @@ class SidebarQt(QWidget):
                         progress.setAutoReset(True)
 
                         # Create and configure worker
-                        worker = MTPCopyWorker(shell, value, max_files=100, max_depth=2)
+                        # Worker will create Shell.Application in its own thread (COM threading requirement)
+                        worker = MTPCopyWorker(value, max_files=100, max_depth=2)
 
                         # Handle progress updates
                         def on_progress(current, total, filename):

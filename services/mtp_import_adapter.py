@@ -537,17 +537,17 @@ class MTPImportAdapter:
 
             # Create folder hierarchy: Device_Imports → Device → Folder → Dates
             print(f"[MTPAdapter]   Creating folder hierarchy...")
-            self._create_folder_hierarchy(device_name, folder_name, files_by_date)
+            file_folder_map = self._create_folder_hierarchy(device_name, folder_name, files_by_date)
 
             # Add files to photo_metadata with EXIF dates
             print(f"[MTPAdapter]   Adding files to photo_metadata...")
-            self._add_to_photo_metadata(files_by_date)
+            self._add_to_photo_metadata(files_by_date, file_folder_map)
 
             # Register videos in videos table
             video_files = [p for p in imported_paths if parser._is_video(p)]
             if video_files:
                 print(f"[MTPAdapter]   Registering {len(video_files)} videos...")
-                self._register_videos(video_files, files_by_date)
+                self._register_videos(video_files, files_by_date, file_folder_map)
 
             print(f"[MTPAdapter] ✓ Auto-organization complete:")
             print(f"[MTPAdapter]   • Organized {len(imported_paths)} files into folder hierarchy")
@@ -568,7 +568,7 @@ class MTPImportAdapter:
         device_name: str,
         folder_name: str,
         files_by_date: dict
-    ):
+    ) -> dict:
         """
         Create folder hierarchy in database.
 
@@ -583,7 +583,12 @@ class MTPImportAdapter:
             device_name: Device name (e.g., "A54 von Ammar")
             folder_name: Folder name (e.g., "Camera")
             files_by_date: Dict of {date_str: [file_paths]}
+
+        Returns:
+            Dict mapping {file_path: folder_id} for all files
         """
+        file_folder_map = {}
+
         try:
             # 1. Get or create "Device_Imports" root folder
             device_imports_path = str(Path.cwd() / "Device_Imports")
@@ -624,6 +629,8 @@ class MTPImportAdapter:
                             path=file_path,
                             folder_id=source_folder_id
                         )
+                        # Track folder_id for video registration
+                        file_folder_map[file_path] = source_folder_id
                 else:
                     # Create date folder
                     date_folder_path = str(Path.cwd() / "Device_Imports" / device_name / folder_name / date_str)
@@ -640,15 +647,20 @@ class MTPImportAdapter:
                             path=file_path,
                             folder_id=date_folder_id
                         )
+                        # Track folder_id for video registration
+                        file_folder_map[file_path] = date_folder_id
 
                     print(f"[MTPAdapter]     ✓ Date folder: {date_str} ({len(file_paths)} files, id={date_folder_id})")
+
+            return file_folder_map
 
         except Exception as e:
             print(f"[MTPAdapter]   ✗ Error creating folder hierarchy: {e}")
             import traceback
             traceback.print_exc()
+            return file_folder_map  # Return partial map even on error
 
-    def _add_to_photo_metadata(self, files_by_date: dict):
+    def _add_to_photo_metadata(self, files_by_date: dict, file_folder_map: dict):
         """
         Add files to photo_metadata table with EXIF dates.
 
@@ -656,6 +668,7 @@ class MTPImportAdapter:
 
         Args:
             files_by_date: Dict of {date_str: [file_paths]}
+            file_folder_map: Dict mapping {file_path: folder_id}
         """
         try:
             from services.exif_parser import EXIFParser
@@ -668,6 +681,13 @@ class MTPImportAdapter:
                 for file_path in file_paths:
                     try:
                         file_path_obj = Path(file_path)
+                        file_name = file_path_obj.name
+
+                        # Get folder_id from mapping (required - photo_metadata table has NOT NULL constraint)
+                        folder_id = file_folder_map.get(file_path)
+                        if folder_id is None:
+                            print(f"[MTPAdapter]     ⚠️ Skipping photo (no folder_id): {file_name}")
+                            continue
 
                         # Get file stats
                         stat = file_path_obj.stat()
@@ -676,7 +696,6 @@ class MTPImportAdapter:
 
                         # Get image dimensions
                         width, height = None, None
-                        file_name = file_path_obj.name
                         if parser._is_image(file_path):
                             try:
                                 with Image.open(file_path) as img:
@@ -698,10 +717,10 @@ class MTPImportAdapter:
                             except Exception as e:
                                 print(f"[MTPAdapter]     ✗ Date extraction failed for {file_name}: {e}")
 
-                        # Add to photo_metadata (will auto-create created_date fields for date organization)
+                        # Add to photo_metadata (auto-creates created_date fields for date organization)
                         self.db.upsert_photo_metadata(
                             path=file_path,
-                            folder_id=None,  # Will be set by folder hierarchy
+                            folder_id=folder_id,  # Use folder_id from hierarchy
                             size_kb=size_kb,
                             modified=modified,
                             width=width,
@@ -722,13 +741,14 @@ class MTPImportAdapter:
             import traceback
             traceback.print_exc()
 
-    def _register_videos(self, video_paths: List[str], files_by_date: dict):
+    def _register_videos(self, video_paths: List[str], files_by_date: dict, file_folder_map: dict):
         """
         Register video files in videos table for Videos section.
 
         Args:
             video_paths: List of video file paths
             files_by_date: Dict mapping dates to file paths (for getting dates)
+            file_folder_map: Dict mapping {file_path: folder_id}
         """
         try:
             from services.video_service import VideoService
@@ -743,6 +763,12 @@ class MTPImportAdapter:
                 try:
                     file_path_obj = Path(video_path)
                     file_name = file_path_obj.name
+
+                    # Get folder_id from mapping (required - videos table has NOT NULL constraint)
+                    folder_id = file_folder_map.get(video_path)
+                    if folder_id is None:
+                        print(f"[MTPAdapter]     ⚠️ Skipping video (no folder_id): {file_name}")
+                        continue
 
                     # Get file stats
                     stat = file_path_obj.stat()
@@ -759,7 +785,7 @@ class MTPImportAdapter:
                     video_id = video_service.index_video(
                         path=video_path,
                         project_id=self.project_id,
-                        folder_id=None,  # Will be set by folder hierarchy
+                        folder_id=folder_id,  # Use folder_id from hierarchy
                         size_kb=size_kb,
                         modified=modified,
                         created_ts=created_ts,

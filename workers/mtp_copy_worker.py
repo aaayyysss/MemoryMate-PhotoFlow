@@ -5,7 +5,7 @@ QThread-based worker for copying files from MTP devices to local cache.
 Prevents UI freezing during file transfer operations.
 """
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 import os
 import tempfile
 
@@ -21,9 +21,9 @@ class MTPCopyWorker(QThread):
     """
 
     # Signals
-    progress = pyqtSignal(int, int, str)  # current, total, filename
-    finished = pyqtSignal(list)            # list of copied file paths
-    error = pyqtSignal(str)                # error message
+    progress = Signal(int, int, str)  # current, total, filename
+    finished = Signal(list)            # list of copied file paths
+    error = Signal(str)                # error message
 
     def __init__(self, shell, folder_path, max_files=100, max_depth=2):
         """

@@ -235,6 +235,7 @@ class MTPImportAdapter:
 
     def import_selected_files(
         self,
+        mtp_path: str,
         selected_files: List[DeviceMediaFile],
         device_name: str,
         folder_name: str,
@@ -246,6 +247,7 @@ class MTPImportAdapter:
         Copies files from device to proper library structure and adds to database.
 
         Args:
+            mtp_path: MTP folder path to import from
             selected_files: List of DeviceMediaFile objects to import
             device_name: Device name for organization
             folder_name: Folder name for organization
@@ -289,61 +291,71 @@ class MTPImportAdapter:
                 if not dest_namespace:
                     raise Exception(f"Cannot access destination folder: {dest_folder}")
 
+                # Navigate to source MTP folder (same way as enumeration)
+                # We need to navigate once, then find items by filename
+                computer = shell.Namespace(17)  # This PC
+                if not computer:
+                    raise Exception("Cannot access 'This PC' namespace")
+
+                # Navigate to MTP folder using the original mtp_path
+                # We'll extract it from the first file's path
+                if not selected_files:
+                    print(f"[MTPAdapter] No files to import")
+                    return imported_paths
+
+                # Navigate to MTP folder using the same method as enumeration
+                # This ensures we can access the files consistently
+                source_folder = self._navigate_to_mtp_folder(shell, computer, mtp_path)
+
+                if not source_folder:
+                    raise Exception("Cannot navigate to source MTP folder during import")
+
+                print(f"[MTPAdapter] Successfully accessed source folder for import")
+
+                # Get all items from source folder once
+                source_items_dict = {}
+                for item in source_folder.Items():
+                    if not item.IsFolder:
+                        source_items_dict[item.Name] = item
+
                 # Import each file
                 for idx, media_file in enumerate(selected_files, 1):
                     print(f"[MTPAdapter] Importing {idx}/{len(selected_files)}: {media_file.filename}")
 
                     try:
-                        # Copy file from MTP device
-                        # Use the stored MTP path
-                        if not hasattr(media_file, 'mtp_item_path'):
-                            print(f"[MTPAdapter] ✗ No MTP path for {media_file.filename}")
-                            continue
+                        # Find source item by filename
+                        source_item = source_items_dict.get(media_file.filename)
 
-                        # Copy using Shell.Application
-                        # Get source folder and item
-                        source_folder = shell.Namespace(os.path.dirname(media_file.mtp_item_path))
-                        if source_folder:
-                            source_items = source_folder.Items()
-                            source_item = None
+                        if source_item:
+                            # Copy file
+                            dest_namespace.CopyHere(source_item, 4 | 16)
 
-                            for item in source_items:
-                                if item.Name == media_file.filename:
-                                    source_item = item
+                            # Wait for copy to complete
+                            expected_path = dest_folder / media_file.filename
+                            import time
+                            max_wait = 30
+                            waited = 0
+
+                            while waited < max_wait:
+                                if expected_path.exists():
+                                    print(f"[MTPAdapter] ✓ Copied {media_file.filename}")
+                                    imported_paths.append(str(expected_path))
+
+                                    # Add to database
+                                    self._add_to_database(
+                                        expected_path,
+                                        device_name,
+                                        folder_name,
+                                        import_date
+                                    )
                                     break
 
-                            if source_item:
-                                # Copy file
-                                dest_namespace.CopyHere(source_item, 4 | 16)
-
-                                # Wait for copy to complete
-                                expected_path = dest_folder / media_file.filename
-                                import time
-                                max_wait = 30
-                                waited = 0
-
-                                while waited < max_wait:
-                                    if expected_path.exists():
-                                        print(f"[MTPAdapter] ✓ Copied {media_file.filename}")
-                                        imported_paths.append(str(expected_path))
-
-                                        # Add to database
-                                        self._add_to_database(
-                                            expected_path,
-                                            device_name,
-                                            folder_name,
-                                            import_date
-                                        )
-                                        break
-
-                                    time.sleep(0.1)
-                                    waited += 0.1
-                                else:
-                                    print(f"[MTPAdapter] ✗ Timeout importing {media_file.filename}")
+                                time.sleep(0.1)
+                                waited += 0.1
                             else:
-                                print(f"[MTPAdapter] ✗ Cannot find source item: {media_file.filename}")
+                                print(f"[MTPAdapter] ✗ Timeout importing {media_file.filename}")
                         else:
-                            print(f"[MTPAdapter] ✗ Cannot access source folder")
+                            print(f"[MTPAdapter] ✗ Cannot find source item: {media_file.filename}")
 
                     except Exception as e:
                         print(f"[MTPAdapter] ✗ Error importing {media_file.filename}: {e}")

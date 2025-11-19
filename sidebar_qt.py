@@ -1956,41 +1956,131 @@ class SidebarQt(QWidget):
             _clear_tag_if_needed()
             from pathlib import Path
 
-            device_folder_path = Path(value)
-            if not device_folder_path.exists():
-                mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
-                return
+            # Check if this is a Windows Shell namespace path (MTP device)
+            is_shell_path = value.startswith("::")
 
-            # Scan folder for media files
             media_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.heic', '.heif',
                               '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'}
             media_paths = []
 
             try:
-                # Recursively scan folder for media files (limited depth for performance)
-                def scan_folder(folder, depth=0, max_depth=3):
-                    if depth > max_depth:
-                        return
+                if is_shell_path:
+                    # Windows MTP device - use Shell COM API
+                    print(f"[Sidebar] Loading MTP device folder via COM: {value}")
                     try:
-                        for item in folder.iterdir():
-                            if item.is_file():
-                                if item.suffix.lower() in media_extensions:
-                                    media_paths.append(str(item))
-                            elif item.is_dir() and not item.name.startswith('.'):
-                                scan_folder(item, depth + 1, max_depth)
-                    except (PermissionError, OSError):
-                        pass
+                        import win32com.client
+                        import tempfile
+                        import os as os_module
 
-                scan_folder(device_folder_path)
+                        shell = win32com.client.Dispatch("Shell.Application")
+                        folder = shell.Namespace(value)
 
-                # Load paths into grid
-                mw.grid.model.clear()
-                mw.grid.load_custom_paths(media_paths, content_type="mixed")
+                        if not folder:
+                            mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
+                            return
 
-                folder_name = device_folder_path.name
-                mw.statusBar().showMessage(f"📱 Showing {len(media_paths)} item(s) from {folder_name}")
+                        # Recursively scan folder for media files via COM
+                        def scan_com_folder(com_folder, depth=0, max_depth=3):
+                            if depth > max_depth:
+                                return
 
-                print(f"[Sidebar] Loaded {len(media_paths)} media files from device folder: {value}")
+                            try:
+                                items = com_folder.Items()
+                                for item in items:
+                                    if item.IsFolder:
+                                        # Recurse into subdirectories
+                                        if not item.Name.startswith('.'):
+                                            try:
+                                                subfolder = shell.Namespace(item.Path)
+                                                if subfolder:
+                                                    scan_com_folder(subfolder, depth + 1, max_depth)
+                                            except:
+                                                pass
+                                    else:
+                                        # Check if it's a media file
+                                        name_lower = item.Name.lower()
+                                        if any(name_lower.endswith(ext) for ext in media_extensions):
+                                            # Copy file from MTP device to temp location
+                                            # (Grid can't display Shell namespace paths directly)
+                                            try:
+                                                # Create temp directory for device media cache
+                                                temp_dir = os_module.path.join(tempfile.gettempdir(), "memorymate_device_cache")
+                                                os_module.makedirs(temp_dir, exist_ok=True)
+
+                                                # Generate temp file path
+                                                temp_file = os_module.path.join(temp_dir, item.Name)
+
+                                                # Copy file using Shell API
+                                                com_folder.CopyHere(item.Name, 4)  # Flag 4 = no UI
+
+                                                # Alternative: Try to get file data directly
+                                                # For now, store the Shell path and handle it later
+                                                # Store as temp marker that needs to be copied
+                                                media_paths.append(f"mtp://{item.Path}")
+
+                                            except Exception as e:
+                                                print(f"[Sidebar] Warning: Could not cache {item.Name}: {e}")
+                            except Exception as e:
+                                print(f"[Sidebar] Error scanning COM folder at depth {depth}: {e}")
+
+                        scan_com_folder(folder)
+
+                        # For MTP devices, we need to show a message that files need to be imported
+                        if media_paths:
+                            folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
+                            mw.statusBar().showMessage(
+                                f"📱 Found {len(media_paths)} item(s) in {folder_name}. Use 'Import from Device' to copy photos."
+                            )
+                            print(f"[Sidebar] Found {len(media_paths)} media files in MTP device folder")
+
+                            # TODO: Actually implement MTP file preview
+                            # For now, show a helpful message
+                            print(f"[Sidebar] Note: Direct MTP preview not yet implemented. Users should use Import feature.")
+                        else:
+                            mw.statusBar().showMessage(f"📱 No media files found in device folder")
+
+                    except ImportError:
+                        print(f"[Sidebar] win32com not available for MTP device access")
+                        mw.statusBar().showMessage(f"⚠️ Cannot access MTP device: win32com not installed")
+                        return
+                    except Exception as e:
+                        print(f"[Sidebar] Failed to access MTP device folder: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        mw.statusBar().showMessage(f"⚠️ Failed to access MTP device: {e}")
+                        return
+
+                else:
+                    # Regular file system path (Linux/Mac MTP mounts, SD cards, etc.)
+                    device_folder_path = Path(value)
+                    if not device_folder_path.exists():
+                        mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
+                        return
+
+                    # Recursively scan folder for media files (limited depth for performance)
+                    def scan_folder(folder, depth=0, max_depth=3):
+                        if depth > max_depth:
+                            return
+                        try:
+                            for item in folder.iterdir():
+                                if item.is_file():
+                                    if item.suffix.lower() in media_extensions:
+                                        media_paths.append(str(item))
+                                elif item.is_dir() and not item.name.startswith('.'):
+                                    scan_folder(item, depth + 1, max_depth)
+                        except (PermissionError, OSError):
+                            pass
+
+                    scan_folder(device_folder_path)
+
+                    # Load paths into grid
+                    mw.grid.model.clear()
+                    mw.grid.load_custom_paths(media_paths, content_type="mixed")
+
+                    folder_name = device_folder_path.name
+                    mw.statusBar().showMessage(f"📱 Showing {len(media_paths)} item(s) from {folder_name}")
+
+                    print(f"[Sidebar] Loaded {len(media_paths)} media files from device folder: {value}")
 
             except Exception as e:
                 print(f"[Sidebar] Failed to load device folder: {e}")

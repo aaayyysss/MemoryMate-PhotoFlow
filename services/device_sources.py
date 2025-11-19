@@ -501,14 +501,14 @@ class DeviceScanner:
                                 pattern_windows = pattern.replace('/', '\\')
                                 full_path = f"{storage_item.Path}\\{pattern_windows}"
 
-                                # Use estimated count: found * (total_items / checked)
-                                # Or just use 0 to indicate "unknown, needs full scan"
-                                estimated_count = 0  # Will be counted when folder is opened
-                                print(f"[DeviceScanner]                 ✓ {display_name}: found media (quick scan)")
+                                # Use media_count from quick scan as approximate indicator
+                                # This shows users there ARE files, without doing expensive full enumeration
+                                # The actual count will be determined when folder is opened/imported
+                                print(f"[DeviceScanner]                 ✓ {display_name}: found {media_count}+ media files (quick scan)")
                                 folders.append(DeviceFolder(
                                     name=display_name,
                                     path=full_path,
-                                    photo_count=estimated_count  # 0 = needs full count later
+                                    photo_count=media_count  # Approximate count from quick scan
                                 ))
 
                 except Exception as e:

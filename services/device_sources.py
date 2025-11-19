@@ -428,31 +428,46 @@ class DeviceScanner:
                             break
 
                     if current_folder:
-                        # Found the folder! Count media files
+                        # Found the folder! Quick check for media files (don't count all)
                         items = current_folder.Items()
                         media_count = 0
+                        has_media = False
+
+                        # Quick scan: Only check first 20 items to see if folder has media
+                        # Full count will happen when user actually opens the folder
+                        checked = 0
+                        max_quick_check = 20
 
                         for item in items:
                             if not item.IsFolder:
+                                checked += 1
                                 name_lower = item.Name.lower()
                                 if any(name_lower.endswith(ext) for ext in [
                                     '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic',
                                     '.mp4', '.mov', '.avi', '.mkv', '.m4v', '.3gp'
                                 ]):
                                     media_count += 1
+                                    has_media = True
 
-                        if media_count > 0:
+                                # Stop after checking enough files to confirm media exists
+                                if checked >= max_quick_check:
+                                    break
+
+                        if has_media:
                             display_name = self._get_folder_display_name(pattern)
                             if display_name:
                                 # Build full path for this folder
                                 pattern_windows = pattern.replace('/', '\\')
                                 full_path = f"{storage_item.Path}\\{pattern_windows}"
 
-                                print(f"[DeviceScanner]                 ✓ {display_name}: {media_count} files")
+                                # Use estimated count: found * (total_items / checked)
+                                # Or just use 0 to indicate "unknown, needs full scan"
+                                estimated_count = 0  # Will be counted when folder is opened
+                                print(f"[DeviceScanner]                 ✓ {display_name}: found media (quick scan)")
                                 folders.append(DeviceFolder(
                                     name=display_name,
                                     path=full_path,
-                                    photo_count=media_count
+                                    photo_count=estimated_count  # 0 = needs full count later
                                 ))
 
                 except Exception as e:

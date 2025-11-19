@@ -2741,7 +2741,7 @@ class SidebarQt(QWidget):
                             print(f"[Sidebar]     - Device type: {dev.device_type}")
                             print(f"[Sidebar]     - Folders: {len(dev.folders)}")
                             for folder in dev.folders:
-                                print(f"[Sidebar]       • {folder.name} ({folder.file_count} files)")
+                                print(f"[Sidebar]       • {folder.name} ({folder.photo_count} files)")
                     else:
                         print("[Sidebar]   ✗ No devices found")
                     print("[Sidebar] ===== End device scan =====\n")

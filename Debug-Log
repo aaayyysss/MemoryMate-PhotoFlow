@@ -6,22 +6,55 @@
 [MTPCopyWorker] Initializing COM in worker thread...
 [MTPCopyWorker] Creating Shell.Application in worker thread...
 [MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
+[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPCopyWorker] Searching for device in 'This PC'...
+[MTPCopyWorker] Checking portable device: A54 von Ammar
+[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
+[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
+[MTPCopyWorker] Searching for storage location...
+[MTPCopyWorker]   Checking storage: Interner Speicher
+[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
+[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Camera']
+[MTPCopyWorker]   Looking for: DCIM
+[MTPCopyWorker]   ✓ Found: DCIM
+[MTPCopyWorker]   Looking for: Camera
+[MTPCopyWorker]   ✓ Found: Camera
+[MTPCopyWorker] ✓ Successfully navigated to target folder
+[MTPCopyWorker] Found 15 media files to copy
+[MTPCopyWorker] Copying 1/15: 20241002_231251.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241002_231251.jpg
+[MTPCopyWorker] Copying 2/15: 20240821_150613.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240821_150613.jpg
+[MTPCopyWorker] Copying 3/15: 20241231_150206.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241231_150206.jpg
+[MTPCopyWorker] Copying 4/15: 20241019_115354.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241019_115354.jpg
+[MTPCopyWorker] Copying 5/15: 20250618_174739.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20250618_174739.jpg
+[MTPCopyWorker] Copying 6/15: 20240823_002940.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240823_002940.jpg
+[MTPCopyWorker] Copying 7/15: 20240702_183644.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240702_183644.jpg
+[MTPCopyWorker] Copying 8/15: 20251030_170334.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20251030_170334.jpg
+[MTPCopyWorker] Copying 9/15: 20240611_233557.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233557.jpg
+[MTPCopyWorker] Copying 10/15: 20251110_125241.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20251110_125241.jpg
+[MTPCopyWorker] Copying 11/15: 20240712_130946.mp4
+[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130946.mp4
+[MTPCopyWorker] Copying 12/15: 20240611_233533.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233533.jpg
+[MTPCopyWorker] Copying 13/15: 20240712_130801.mp4
+[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130801.mp4
+[MTPCopyWorker] Copying 14/15: 20240611_233326.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233326.jpg
+[MTPCopyWorker] Copying 15/15: 20240824_215938.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240824_215938.jpg
+[MTPCopyWorker] Copy complete: 0 files copied successfully
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] No media files found to display
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -65,7 +98,7 @@
 [DeviceScanner]               Quick scan: checking 5 essential folders only
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]             Found 1 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:963e2674
+[DeviceScanner]             Device ID: windows_mtp:cf540500
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -84,66 +117,87 @@
 [MTPCopyWorker] Initializing COM in worker thread...
 [MTPCopyWorker] Creating Shell.Application in worker thread...
 [MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
+[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPCopyWorker] Searching for device in 'This PC'...
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
 [Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [Sidebar] Starting async MTP copy worker...
 [MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [MTPCopyWorker] Initializing COM in worker thread...
 [MTPCopyWorker] Creating Shell.Application in worker thread...
 [MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
+[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPCopyWorker] Searching for device in 'This PC'...
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
 [Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [Sidebar] Starting async MTP copy worker...
 [MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [MTPCopyWorker] Initializing COM in worker thread...
 [MTPCopyWorker] Creating Shell.Application in worker thread...
 [MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
+[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPCopyWorker] Searching for device in 'This PC'...
+[MTPCopyWorker] Checking portable device: A54 von Ammar
+[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#rzcx20mk41d#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
 [Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [Sidebar] Starting async MTP copy worker...
 [MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
 [MTPCopyWorker] Initializing COM in worker thread...
 [MTPCopyWorker] Creating Shell.Application in worker thread...
 [MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
+[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
+[MTPCopyWorker] Searching for device in 'This PC'...
+[MTPCopyWorker] Checking portable device: A54 von Ammar
+[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
+[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
+[MTPCopyWorker] Searching for storage location...
+[MTPCopyWorker]   Checking storage: Interner Speicher
+[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
+[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Camera']
+[MTPCopyWorker]   Looking for: DCIM
+[MTPCopyWorker]   ✓ Found: DCIM
+[MTPCopyWorker]   Looking for: Camera
+[MTPCopyWorker]   ✓ Found: Camera
+[MTPCopyWorker] ✓ Successfully navigated to target folder
+[MTPCopyWorker] Found 15 media files to copy
+[MTPCopyWorker] Copying 1/15: 20241002_231251.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241002_231251.jpg
+[MTPCopyWorker] Copying 2/15: 20240821_150613.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240821_150613.jpg
+[MTPCopyWorker] Copying 3/15: 20241231_150206.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241231_150206.jpg
+[MTPCopyWorker] Copying 4/15: 20241019_115354.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20241019_115354.jpg
+[MTPCopyWorker] Copying 5/15: 20250618_174739.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20250618_174739.jpg
+[MTPCopyWorker] Copying 6/15: 20240823_002940.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240823_002940.jpg
+[MTPCopyWorker] Copying 7/15: 20240702_183644.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240702_183644.jpg
+[MTPCopyWorker] Copying 8/15: 20251030_170334.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20251030_170334.jpg
+[MTPCopyWorker] Copying 9/15: 20240611_233557.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233557.jpg
+[MTPCopyWorker] Copying 10/15: 20251110_125241.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20251110_125241.jpg
+[MTPCopyWorker] Copying 11/15: 20240712_130946.mp4
+[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130946.mp4
+[MTPCopyWorker] Copying 12/15: 20240611_233533.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233533.jpg
+[MTPCopyWorker] Copying 13/15: 20240712_130801.mp4
+[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130801.mp4
+[MTPCopyWorker] Copying 14/15: 20240611_233326.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233326.jpg
+[MTPCopyWorker] Copying 15/15: 20240824_215938.jpg
+[MTPCopyWorker] ✗ Copy failed (not found): 20240824_215938.jpg
+[MTPCopyWorker] Copy complete: 0 files copied successfully
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[Sidebar] No media files found to display
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -187,7 +241,7 @@
 [DeviceScanner]               Quick scan: checking 5 essential folders only
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]             Found 1 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:963e2674
+[DeviceScanner]             Device ID: windows_mtp:cf540500
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -200,21 +254,10 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Parsing device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Base path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] Remaining parts: ['DCIM', 'Camera']
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot access device storage: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
 [Shutdown] Grid threads shut down.
 [ThumbnailManager] Thread pool shut down.
 [Shutdown] ThumbnailManager threads shut down.
 [Shutdown] Thumbnail cache cleared.
 [ThumbCacheDB] Closing cache gracefully...
 
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-04>
+C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-05>

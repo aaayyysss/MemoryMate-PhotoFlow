@@ -1,60 +1,66 @@
-═══════════════════════════════════════════════════════════════════
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
 
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Checking portable device: A54 von Ammar
-[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
-[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
-[MTPCopyWorker] Searching for storage location...
-[MTPCopyWorker]   Checking storage: Interner Speicher
-[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
-[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Camera']
-[MTPCopyWorker]   Looking for: DCIM
-[MTPCopyWorker]   ✓ Found: DCIM
-[MTPCopyWorker]   Looking for: Camera
-[MTPCopyWorker]   ✓ Found: Camera
-[MTPCopyWorker] ✓ Successfully navigated to target folder
-[MTPCopyWorker] Found 15 media files to copy
-[MTPCopyWorker] Copying 1/15: 20241002_231251.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241002_231251.jpg
-[MTPCopyWorker] Copying 2/15: 20240821_150613.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240821_150613.jpg
-[MTPCopyWorker] Copying 3/15: 20241231_150206.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241231_150206.jpg
-[MTPCopyWorker] Copying 4/15: 20241019_115354.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241019_115354.jpg
-[MTPCopyWorker] Copying 5/15: 20250618_174739.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20250618_174739.jpg
-[MTPCopyWorker] Copying 6/15: 20240823_002940.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240823_002940.jpg
-[MTPCopyWorker] Copying 7/15: 20240702_183644.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240702_183644.jpg
-[MTPCopyWorker] Copying 8/15: 20251030_170334.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20251030_170334.jpg
-[MTPCopyWorker] Copying 9/15: 20240611_233557.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233557.jpg
-[MTPCopyWorker] Copying 10/15: 20251110_125241.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20251110_125241.jpg
-[MTPCopyWorker] Copying 11/15: 20240712_130946.mp4
-[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130946.mp4
+[MTPCopyWorker] ✓ Copied successfully: 20240712_130946.mp4 (0.0s)
 [MTPCopyWorker] Copying 12/15: 20240611_233533.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233533.jpg
+[MTPCopyWorker] ✓ Copied successfully: 20240611_233533.jpg (0.0s)
 [MTPCopyWorker] Copying 13/15: 20240712_130801.mp4
-[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130801.mp4
+[MTPCopyWorker] ✓ Copied successfully: 20240712_130801.mp4 (0.0s)
 [MTPCopyWorker] Copying 14/15: 20240611_233326.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233326.jpg
+[MTPCopyWorker] ✓ Copied successfully: 20240611_233326.jpg (0.0s)
 [MTPCopyWorker] Copying 15/15: 20240824_215938.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240824_215938.jpg
-[MTPCopyWorker] Copy complete: 0 files copied successfully
+[MTPCopyWorker] ✓ Copied successfully: 20240824_215938.jpg (0.0s)
+[MTPCopyWorker] Copy complete: 15 files copied successfully
 [MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] No media files found to display
+[Sidebar] Worker finished: 15 files copied
+[Sidebar] Loading 15 files into grid...
+[GRID] Loaded 15 thumbnails in tag-mode.
+[Sidebar] ✓ Grid loaded with 15 media files from MTP device
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x000002418F1CD780>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x241b8e26490) at 0x00000241C1B6D500>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=15
+[open_lightbox] paths=['c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241002_231251.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240821_150613.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241231_150206.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241019_115354.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20250618_174739.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240823_002940.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240702_183644.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251030_170334.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233557.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251110_125241.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130946.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233533.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130801.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233326.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240824_215938.jpg']
+[open_lightbox] path=c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130946.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130946.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130946.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130946.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130946.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130946.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130946.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2024-07-12T11:10:33.000000Z
+    com.android.version: 14
+    com.android.capture.fps: 30.000000
+  Duration: 00:00:40.42, start: 0.000000, bitrate: 17246 kb/s
+  Stream #0:0[0x1](eng): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080, 16987 kb/s, 30.01 fps, 30 tbr, 90k tbn (default)
+      Metadata:
+        creation_time   : 2024-07-12T11:10:33.000000Z
+        handler_name    : VideoHandle
+        vendor_id       : [0][0][0][0]
+      Side data:
+        displaymatrix: rotation of 90.00 degrees
+  Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 256 kb/s (default)
+      Metadata:
+        creation_time   : 2024-07-12T11:10:33.000000Z
+        handler_name    : SoundHandle
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 0:40
+[LightboxDialog] Video playback state: Playing
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -98,7 +104,7 @@
 [DeviceScanner]               Quick scan: checking 5 essential folders only
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]             Found 1 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:cf540500
+[DeviceScanner]             Device ID: windows_mtp:9c38ee63
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -111,93 +117,6 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Checking portable device: A54 von Ammar
-[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6865#rzcx20mk41d#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] Worker error: Cannot find device storage - is device still connected and unlocked?
-[Sidebar] Loading MTP device folder via COM (async): ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[Sidebar] Starting async MTP copy worker...
-[MTPCopyWorker] Starting background copy from: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Initializing COM in worker thread...
-[MTPCopyWorker] Creating Shell.Application in worker thread...
-[MTPCopyWorker] Temp cache directory: C:\Users\suleimaa\AppData\Local\Temp\memorymate_device_cache
-[MTPCopyWorker] Target path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}\DCIM\Camera
-[MTPCopyWorker] Searching for device in 'This PC'...
-[MTPCopyWorker] Checking portable device: A54 von Ammar
-[MTPCopyWorker]   Device path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}
-[MTPCopyWorker] ✓ Found matching device: A54 von Ammar
-[MTPCopyWorker] Searching for storage location...
-[MTPCopyWorker]   Checking storage: Interner Speicher
-[MTPCopyWorker]   Storage path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
-[MTPCopyWorker] ✓ Found matching storage: Interner Speicher
-[MTPCopyWorker] Navigating through subfolders: ['DCIM', 'Camera']
-[MTPCopyWorker]   Looking for: DCIM
-[MTPCopyWorker]   ✓ Found: DCIM
-[MTPCopyWorker]   Looking for: Camera
-[MTPCopyWorker]   ✓ Found: Camera
-[MTPCopyWorker] ✓ Successfully navigated to target folder
-[MTPCopyWorker] Found 15 media files to copy
-[MTPCopyWorker] Copying 1/15: 20241002_231251.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241002_231251.jpg
-[MTPCopyWorker] Copying 2/15: 20240821_150613.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240821_150613.jpg
-[MTPCopyWorker] Copying 3/15: 20241231_150206.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241231_150206.jpg
-[MTPCopyWorker] Copying 4/15: 20241019_115354.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20241019_115354.jpg
-[MTPCopyWorker] Copying 5/15: 20250618_174739.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20250618_174739.jpg
-[MTPCopyWorker] Copying 6/15: 20240823_002940.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240823_002940.jpg
-[MTPCopyWorker] Copying 7/15: 20240702_183644.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240702_183644.jpg
-[MTPCopyWorker] Copying 8/15: 20251030_170334.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20251030_170334.jpg
-[MTPCopyWorker] Copying 9/15: 20240611_233557.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233557.jpg
-[MTPCopyWorker] Copying 10/15: 20251110_125241.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20251110_125241.jpg
-[MTPCopyWorker] Copying 11/15: 20240712_130946.mp4
-[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130946.mp4
-[MTPCopyWorker] Copying 12/15: 20240611_233533.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233533.jpg
-[MTPCopyWorker] Copying 13/15: 20240712_130801.mp4
-[MTPCopyWorker] ✗ Copy failed (not found): 20240712_130801.mp4
-[MTPCopyWorker] Copying 14/15: 20240611_233326.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240611_233326.jpg
-[MTPCopyWorker] Copying 15/15: 20240824_215938.jpg
-[MTPCopyWorker] ✗ Copy failed (not found): 20240824_215938.jpg
-[MTPCopyWorker] Copy complete: 0 files copied successfully
-[MTPCopyWorker] Uninitializing COM in worker thread...
-[Sidebar] No media files found to display
 
 [Sidebar] ===== Auto-refresh device check =====
 [Sidebar] Previous device count: 1
@@ -241,7 +160,7 @@
 [DeviceScanner]               Quick scan: checking 5 essential folders only
 [DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
 [DeviceScanner]             Found 1 media folder(s)
-[DeviceScanner]             Device ID: windows_mtp:cf540500
+[DeviceScanner]             Device ID: windows_mtp:9c38ee63
 [DeviceScanner]             ✓ Registered in database
 [DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
 [DeviceScanner]             ✓ Device detected!
@@ -254,10 +173,141 @@
 [Sidebar] No change in device count
 [Sidebar] ===== End auto-refresh check =====
 
-[Shutdown] Grid threads shut down.
-[ThumbnailManager] Thread pool shut down.
-[Shutdown] ThumbnailManager threads shut down.
-[Shutdown] Thumbnail cache cleared.
-[ThumbCacheDB] Closing cache gracefully...
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000241C1BE5C80>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x241b8e26490) at 0x00000241C1B6D500>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=15
+[open_lightbox] paths=['c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241002_231251.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240821_150613.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241231_150206.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241019_115354.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20250618_174739.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240823_002940.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240702_183644.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251030_170334.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233557.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251110_125241.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130946.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233533.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130801.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233326.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240824_215938.jpg']
+[open_lightbox] path=c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240611_233533.jpg
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240611_233533.jpg
+[UnifiedPreview] Media type: photo
+[LightboxDialog] Video player signals connected successfully
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240611_233533.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (3060, 4080)
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240611_233533.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (3060, 4080)
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000241FF56FEC0>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x241b8e26490) at 0x00000241C1B6D500>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=15
+[open_lightbox] paths=['c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241002_231251.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240821_150613.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241231_150206.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241019_115354.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20250618_174739.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240823_002940.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240702_183644.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251030_170334.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233557.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251110_125241.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130946.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233533.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130801.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233326.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240824_215938.jpg']
+[open_lightbox] path=c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130801.mp4
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130801.mp4
+[UnifiedPreview] Media type: video
+[LightboxDialog] Video player signals connected successfully
+[LightboxDialog] Loading video: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130801.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130801.mp4
+[LightboxDialog] Video playback started
+[LightboxDialog] Loading video: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240712_130801.mp4
+[LightboxDialog] Switched to video widget (index 1)
+[LightboxDialog] Video URL: file:///c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130801.mp4
+[LightboxDialog] Video playback started
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'c:/users/suleimaa/appdata/local/temp/memorymate_device_cache/20240712_130801.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2024-07-12T11:08:30.000000Z
+    com.android.version: 14
+    com.android.capture.fps: 30.000000
+  Duration: 00:00:28.63, start: 0.000000, bitrate: 17231 kb/s
+  Stream #0:0[0x1](eng): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080, 16972 kb/s, 29.83 fps, 30 tbr, 90k tbn (default)
+      Metadata:
+        creation_time   : 2024-07-12T11:08:30.000000Z
+        handler_name    : VideoHandle
+        vendor_id       : [0][0][0][0]
+      Side data:
+        displaymatrix: rotation of 90.00 degrees
+  Stream #0:1[0x2](eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 256 kb/s (default)
+      Metadata:
+        creation_time   : 2024-07-12T11:08:30.000000Z
+        handler_name    : SoundHandle
+        vendor_id       : [0][0][0][0]
+[LightboxDialog] Video duration: 0:28
+[LightboxDialog] Video playback state: Playing
 
-C:\Users\suleimaa\Downloads\Photo-Sorter\09.33.01.01-Photo-App\MemoryMate-PhotoFlow-main-05>
+[Sidebar] ===== Auto-refresh device check =====
+[Sidebar] Previous device count: 1
+
+[DeviceScanner] ===== Starting device scan =====
+[DeviceScanner] Platform: Windows
+[DeviceScanner] Database registration: enabled
+[DeviceScanner] Scanning Windows drives...
+[DeviceScanner]   Checking drive letters D:-Z:...
+[DeviceScanner]     Drive H: exists, checking...
+[DeviceScanner]           Checking path: H:\
+[DeviceScanner]           Directories found: []
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive H:
+[DeviceScanner]     Drive P: exists, checking...
+[DeviceScanner]           Checking path: P:\
+[DeviceScanner]           Directories found: ['ALT', 'ALT2', 'ALT3', 'CITRIX', 'CONFIDENTIAL', 'GLOBAL', 'HOME', 'PROJECTS1', 'PROJECTS2', 'PROJECTS3', 'PROJECTS4', 'PROJECTS5', 'PROJECTS6', 'PROJECTS7']
+[DeviceScanner]           Has DCIM folder: False
+[DeviceScanner]           No alternate structure found
+[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...
+[DeviceScanner]           REJECTED: No DCIM or alternate structure
+[DeviceScanner]       ✗ No device on drive P:
+[DeviceScanner]   Checking portable devices (MTP/PTP)...
+[DeviceScanner]     Attempting Shell COM enumeration...
+[DeviceScanner]     Found 4 items under 'This PC'
+[DeviceScanner]       → Item: 'A54 von Ammar' | IsFolder=True | IsFileSystem=False
+[DeviceScanner]       • Portable device found: A54 von Ammar
+[DeviceScanner]         Storage locations: 1
+[DeviceScanner]           • Storage: Interner Speicher
+[DeviceScanner]             Path: ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\\?\usb#vid_04e8&pid_6860&mi_00#6&1498b6fb&0&0000#{6ac27878-a6fa-4155-ba85-f98f491d4f33}\SID-{10001,,113613209600}
+[DeviceScanner]             Checking storage via COM: Interner Speicher
+[DeviceScanner]             Attempting direct navigation to media folders...
+[DeviceScanner]               Quick-checking: iPhoneData
+[DeviceScanner]             ✓ Found DCIM folder at root
+[DeviceScanner]             Device label: A54 von Ammar - Interner Speicher
+[DeviceScanner]             Device type: android
+[DeviceScanner]             Scanning for media folders...
+[DeviceScanner]               Quick scan: checking 5 essential folders only
+[DeviceScanner]                 ✓ Camera: found 10+ media files (quick scan)
+[DeviceScanner]             Found 1 media folder(s)
+[DeviceScanner]             Device ID: windows_mtp:9c38ee63
+[DeviceScanner]             ✓ Registered in database
+[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: A54 von Ammar - Interner Speicher (android)
+[DeviceScanner]             ✓ Device detected!
+[DeviceScanner]       → Item: '(C:) Lokaler Datenträger' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(H:) SULEIMAA (\\ACCOUNTS.INTERN\SHARES\HOME)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner]       → Item: '(P:) SHARES (\\ACCOUNTS.INTERN)' | IsFolder=True | IsFileSystem=True
+[DeviceScanner] ===== Scan complete: 1 device(s) found =====
+
+[Sidebar] Current device count: 1
+[Sidebar] No change in device count
+[Sidebar] ===== End auto-refresh check =====
+
+[LightboxDialog] Video playback state: Stopped
+[LightboxDialog] Video playback stopped and resources released
+[ThumbnailGridQt_on_double_clicked] index: <built-in method data of PySide6.QtCore.QModelIndex object at 0x00000241FF3E4300>
+[open_lightbox] self.grid=<thumbnail_grid_qt.ThumbnailGridQt(0x241b8e26490) at 0x00000241C1B6D500>
+[open_lightbox] folder_id=None
+[open_lightbox] paths=[]
+[open_lightbox] branch_key=None
+[open_lightbox] date_key=None
+[open_lightbox] paths=[]
+[open_lightbox] context=visible_paths, total=15
+[open_lightbox] paths=['c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241002_231251.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240821_150613.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241231_150206.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20241019_115354.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20250618_174739.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240823_002940.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240702_183644.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251030_170334.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233557.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20251110_125241.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130946.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233533.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240712_130801.mp4', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240611_233326.jpg', 'c:\\users\\suleimaa\\appdata\\local\\temp\\memorymate_device_cache\\20240824_215938.jpg']
+[open_lightbox] path=c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240824_215938.jpg
+[UnifiedPreview] Opening media in unified dialog: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240824_215938.jpg
+[UnifiedPreview] Media type: photo
+[LightboxDialog] Video player signals connected successfully
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240824_215938.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (4080, 3060)
+[PhotoLoad] 🔍 DIAGNOSTIC: Loading photo from path: c:\users\suleimaa\appdata\local\temp\memorymate_device_cache\20240824_215938.jpg
+[PhotoLoad] ✅ DIAGNOSTIC: Successfully loaded photo, _orig_pil size: (4080, 3060)

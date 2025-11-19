@@ -1956,6 +1956,17 @@ class SidebarQt(QWidget):
             _clear_tag_if_needed()
             from pathlib import Path
 
+            # CRITICAL: Ensure project exists before importing
+            if not self.project_id:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    mw,
+                    "No Project Selected",
+                    "Please create or select a project before importing from devices.\n\n"
+                    "Use 'Project → New Project' or 'Project → Open Project' from the menu."
+                )
+                return
+
             # Check if this is a Windows Shell namespace path (MTP device)
             is_shell_path = value.startswith("::")
 

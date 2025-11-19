@@ -25,18 +25,16 @@ class MTPCopyWorker(QThread):
     finished = Signal(list)            # list of copied file paths
     error = Signal(str)                # error message
 
-    def __init__(self, shell, folder_path, max_files=100, max_depth=2):
+    def __init__(self, folder_path, max_files=100, max_depth=2):
         """
         Initialize MTP copy worker.
 
         Args:
-            shell: win32com Shell.Application instance
             folder_path: Shell namespace path to MTP folder
             max_files: Maximum files to copy (timeout protection)
             max_depth: Maximum recursion depth
         """
         super().__init__()
-        self.shell = shell
         self.folder_path = folder_path
         self.max_files = max_files
         self.max_depth = max_depth
@@ -57,6 +55,14 @@ class MTPCopyWorker(QThread):
         try:
             print(f"[MTPCopyWorker] Starting background copy from: {self.folder_path}")
 
+            # Import win32com in worker thread (COM objects must be created in the thread they're used)
+            import win32com.client
+
+            # Create Shell.Application in THIS thread (not main UI thread)
+            # COM objects are apartment-threaded and cannot be shared across threads
+            print(f"[MTPCopyWorker] Creating Shell.Application in worker thread...")
+            shell = win32com.client.Dispatch("Shell.Application")
+
             # Create temp directory
             temp_dir = os.path.join(tempfile.gettempdir(), "memorymate_device_cache")
             os.makedirs(temp_dir, exist_ok=True)
@@ -76,7 +82,7 @@ class MTPCopyWorker(QThread):
             print(f"[MTPCopyWorker] Temp cache directory: {temp_dir}")
 
             # Get folder to copy from
-            folder = self.shell.Namespace(self.folder_path)
+            folder = shell.Namespace(self.folder_path)
             if not folder:
                 self.error.emit(f"Cannot access folder: {self.folder_path}")
                 return
@@ -104,7 +110,7 @@ class MTPCopyWorker(QThread):
                         if item.IsFolder and depth < self.max_depth:
                             if not item.Name.startswith('.'):
                                 try:
-                                    subfolder = self.shell.Namespace(item.Path)
+                                    subfolder = shell.Namespace(item.Path)
                                     if subfolder:
                                         count_media_files(subfolder, depth + 1)
                                 except:
@@ -146,7 +152,7 @@ class MTPCopyWorker(QThread):
                         if item.IsFolder and depth < self.max_depth:
                             if not item.Name.startswith('.'):
                                 try:
-                                    subfolder = self.shell.Namespace(item.Path)
+                                    subfolder = shell.Namespace(item.Path)
                                     if subfolder:
                                         copy_media_files(subfolder, depth + 1)
                                 except:
@@ -160,7 +166,7 @@ class MTPCopyWorker(QThread):
                                     self.progress.emit(files_copied, files_total, item.Name)
 
                                     # Copy file
-                                    dest_folder = self.shell.Namespace(temp_dir)
+                                    dest_folder = shell.Namespace(temp_dir)
                                     if dest_folder:
                                         print(f"[MTPCopyWorker] Copying {files_copied}/{files_total}: {item.Name}")
 

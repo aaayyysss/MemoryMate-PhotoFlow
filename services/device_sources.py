@@ -222,7 +222,8 @@ class DeviceScanner:
                                         print(f"[DeviceScanner]             Path: {storage_path}")
 
                                         # Check if this storage location has DCIM
-                                        device = self._check_device_at_path(storage_path)
+                                        # Use the FolderItem directly instead of path string
+                                        device = self._check_portable_storage(shell, storage, device_name)
                                         if device:
                                             print(f"[DeviceScanner]             ✓ Device detected!")
                                             devices.append(device)
@@ -243,6 +244,224 @@ class DeviceScanner:
             devices.extend(self._scan_windows_portable_wmic())
 
         return devices
+
+    def _check_portable_storage(self, shell, storage_item, device_name: str) -> Optional[MobileDevice]:
+        """
+        Check a portable device storage location using FolderItem COM object.
+
+        Args:
+            shell: Shell.Application COM object
+            storage_item: FolderItem COM object for storage location
+            device_name: Name of the parent device (e.g., "Galaxy A23")
+
+        Returns:
+            MobileDevice if DCIM found, None otherwise
+        """
+        try:
+            storage_name = storage_item.Name
+            print(f"[DeviceScanner]             Checking storage via COM: {storage_name}")
+
+            # Get folder from storage item
+            storage_folder = storage_item.GetFolder
+            if not storage_folder:
+                print(f"[DeviceScanner]             ✗ Cannot access storage folder")
+                return None
+
+            # List folders in storage
+            items = storage_folder.Items()
+            print(f"[DeviceScanner]             Found {items.Count} items in storage")
+
+            folder_names = []
+            for item in items:
+                if item.IsFolder:
+                    folder_names.append(item.Name)
+
+            print(f"[DeviceScanner]             Folders: {folder_names}")
+
+            # Check for DCIM folder
+            has_dcim = "DCIM" in folder_names
+            print(f"[DeviceScanner]             Has DCIM folder: {has_dcim}")
+
+            # Check subdirectories for DCIM (Internal shared storage, etc.)
+            has_dcim_in_subdir = False
+            dcim_subdir_name = None
+
+            if not has_dcim:
+                print(f"[DeviceScanner]             Checking subdirectories for DCIM...")
+                for item in items:
+                    if item.IsFolder:
+                        subdir_name = item.Name
+                        subdir_name_lower = subdir_name.lower()
+
+                        # Check if this looks like a storage subdirectory
+                        if any(name in subdir_name_lower for name in [
+                            "internal", "storage", "phone", "card", "sdcard", "shared"
+                        ]):
+                            print(f"[DeviceScanner]               Checking: {subdir_name}")
+                            try:
+                                # Access subdirectory
+                                subfolder = item.GetFolder
+                                if subfolder:
+                                    subitems = subfolder.Items()
+                                    subfolders = [si.Name for si in subitems if si.IsFolder]
+                                    if "DCIM" in subfolders:
+                                        has_dcim_in_subdir = True
+                                        dcim_subdir_name = subdir_name
+                                        print(f"[DeviceScanner]               ✓ Found DCIM in: {subdir_name}/DCIM")
+                                        break
+                            except Exception as e:
+                                print(f"[DeviceScanner]               ERROR: {e}")
+
+            if not has_dcim and not has_dcim_in_subdir:
+                print(f"[DeviceScanner]             REJECTED: No DCIM found")
+                return None
+
+            # Device detected! Build device label
+            device_label = f"{device_name} - {storage_name}"
+            print(f"[DeviceScanner]             Device label: {device_label}")
+
+            # Detect device type
+            device_type = "android"
+            device_name_lower = device_name.lower()
+            if "iphone" in device_name_lower or "ipad" in device_name_lower:
+                device_type = "ios"
+
+            print(f"[DeviceScanner]             Device type: {device_type}")
+
+            # Scan for media folders using COM
+            print(f"[DeviceScanner]             Scanning for media folders...")
+            folders_list = self._scan_portable_storage_folders(shell, storage_item, device_type)
+            print(f"[DeviceScanner]             Found {len(folders_list)} media folder(s)")
+
+            if not folders_list:
+                print(f"[DeviceScanner]             REJECTED: No media folders with photos")
+                return None
+
+            # Create device ID
+            storage_path = storage_item.Path
+            device_id = f"windows_mtp:{hash(storage_path) & 0xFFFFFFFF:08x}"
+            print(f"[DeviceScanner]             Device ID: {device_id}")
+
+            # Register device
+            if self.db and self.register_devices:
+                try:
+                    self.db.register_device(
+                        device_id=device_id,
+                        device_name=device_label,
+                        device_type=device_type,
+                        serial_number=None,
+                        volume_guid=None
+                    )
+                    print(f"[DeviceScanner]             ✓ Registered in database")
+                except Exception as e:
+                    print(f"[DeviceScanner]             WARNING: Database registration failed: {e}")
+
+            print(f"[DeviceScanner]             ✓✓✓ DEVICE ACCEPTED: {device_label} ({device_type})")
+
+            return MobileDevice(
+                label=device_label,
+                root_path=storage_path,
+                folders=folders_list,
+                device_id=device_id,
+                device_type=device_type,
+                is_mtp=True
+            )
+
+        except Exception as e:
+            print(f"[DeviceScanner]             ✗ Storage check failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _scan_portable_storage_folders(self, shell, storage_item, device_type: str) -> List[DeviceFolder]:
+        """
+        Scan portable storage for media folders using FolderItem COM object.
+
+        Args:
+            shell: Shell.Application COM object
+            storage_item: FolderItem COM object for storage location
+            device_type: Device type (android, ios, camera)
+
+        Returns:
+            List of DeviceFolder objects
+        """
+        folders = []
+
+        try:
+            # Use appropriate patterns based on device type
+            if device_type == "camera":
+                patterns = self.CAMERA_PATTERNS
+            elif device_type == "ios":
+                patterns = self.IOS_PATTERNS
+            else:  # android
+                patterns = self.ANDROID_PATTERNS
+
+            print(f"[DeviceScanner]               Using {len(patterns)} patterns for {device_type}")
+
+            # Get storage folder
+            storage_folder = storage_item.GetFolder
+            if not storage_folder:
+                return folders
+
+            # For each pattern, try to navigate to it
+            for pattern in patterns:
+                try:
+                    # Navigate through pattern parts
+                    parts = pattern.split('/')
+                    current_folder = storage_folder
+
+                    # Navigate to the pattern location
+                    for part in parts:
+                        items = current_folder.Items()
+                        found = False
+
+                        for item in items:
+                            if item.IsFolder and item.Name == part:
+                                current_folder = item.GetFolder
+                                found = True
+                                break
+
+                        if not found:
+                            # This pattern doesn't exist
+                            current_folder = None
+                            break
+
+                    if current_folder:
+                        # Found the folder! Count media files
+                        items = current_folder.Items()
+                        media_count = 0
+
+                        for item in items:
+                            if not item.IsFolder:
+                                name_lower = item.Name.lower()
+                                if any(name_lower.endswith(ext) for ext in [
+                                    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic',
+                                    '.mp4', '.mov', '.avi', '.mkv', '.m4v', '.3gp'
+                                ]):
+                                    media_count += 1
+
+                        if media_count > 0:
+                            display_name = self._get_folder_display_name(pattern)
+                            if display_name:
+                                # Build full path for this folder
+                                pattern_windows = pattern.replace('/', '\\')
+                                full_path = f"{storage_item.Path}\\{pattern_windows}"
+
+                                print(f"[DeviceScanner]                 ✓ {display_name}: {media_count} files")
+                                folders.append(DeviceFolder(
+                                    name=display_name,
+                                    path=full_path,
+                                    photo_count=media_count
+                                ))
+
+                except Exception as e:
+                    # Pattern doesn't exist or can't be accessed
+                    continue
+
+        except Exception as e:
+            print(f"[DeviceScanner]               ERROR scanning folders: {e}")
+
+        return folders
 
     def _scan_windows_portable_wmic(self) -> List[MobileDevice]:
         """

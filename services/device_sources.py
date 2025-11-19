@@ -200,8 +200,20 @@ class DeviceScanner:
                 items = computer_folder.Items()
                 print(f"[DeviceScanner]     Found {items.Count} items under 'This PC'")
 
+                filesystem_items_to_check = []  # Track filesystem items that might be devices
+
                 for item in items:
-                    # Check if it's a portable device
+                    # DEBUG: Log all items to diagnose detection issues
+                    try:
+                        item_name = item.Name
+                        is_folder = item.IsFolder
+                        is_filesystem = item.IsFileSystem
+                        print(f"[DeviceScanner]       → Item: '{item_name}' | IsFolder={is_folder} | IsFileSystem={is_filesystem}")
+                    except Exception as e:
+                        print(f"[DeviceScanner]       → Item inspection error: {e}")
+                        continue
+
+                    # Check if it's a portable device (primary method)
                     # Portable devices have IsFileSystem=False and IsFolder=True
                     if item.IsFolder and not item.IsFileSystem:
                         device_name = item.Name
@@ -1030,6 +1042,7 @@ class DeviceScanner:
         # MTP/GVFS-specific check: Look for DCIM in subdirectories
         # This handles Android phones mounted via MTP where structure is:
         # mtp:host=Phone/ → Internal shared storage/ → DCIM/
+        # Also handles cases like D:\My Phone\Samsung A23\DCIM
         has_dcim_in_subdir = False
         if not has_dcim and not has_alternate:
             print(f"[DeviceScanner]           Checking subdirectories for DCIM (MTP mounts)...")
@@ -1041,13 +1054,35 @@ class DeviceScanner:
                     # Common MTP subdirectory names
                     subdir_name_lower = subdir.name.lower()
                     if any(name in subdir_name_lower for name in [
-                        "internal", "storage", "phone", "card", "sdcard", "shared"
+                        "internal", "storage", "phone", "card", "sdcard", "shared", "samsung",
+                        "galaxy", "android", "device", "mobile", "iphone", "apple"
                     ]):
                         print(f"[DeviceScanner]             Checking subdirectory: {subdir.name}")
+
+                        # Check for DCIM at this level
                         if (subdir / "DCIM").exists() and (subdir / "DCIM").is_dir():
                             has_dcim_in_subdir = True
                             print(f"[DeviceScanner]             ✓ Found DCIM in: {subdir.name}/DCIM")
                             break
+
+                        # Check one level deeper (for nested device folders)
+                        try:
+                            for nested in subdir.iterdir():
+                                if not nested.is_dir():
+                                    continue
+                                print(f"[DeviceScanner]               Checking nested: {subdir.name}/{nested.name}")
+                                if (nested / "DCIM").exists() and (nested / "DCIM").is_dir():
+                                    has_dcim_in_subdir = True
+                                    print(f"[DeviceScanner]               ✓ Found DCIM in: {subdir.name}/{nested.name}/DCIM")
+                                    # Update root to point to the actual device folder
+                                    # This is hacky but necessary for nested structures
+                                    root = nested
+                                    break
+                            if has_dcim_in_subdir:
+                                break
+                        except (PermissionError, OSError):
+                            pass
+
             except (PermissionError, OSError) as e:
                 print(f"[DeviceScanner]           Cannot scan subdirectories: {e}")
 

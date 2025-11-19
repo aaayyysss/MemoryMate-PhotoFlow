@@ -1979,17 +1979,47 @@ class SidebarQt(QWidget):
                             mw.statusBar().showMessage(f"⚠️ Device folder not accessible: {value}")
                             return
 
-                        # Recursively scan folder for media files via COM
-                        def scan_com_folder(com_folder, depth=0, max_depth=3):
+                        # Create temp directory for device media cache
+                        temp_dir = os_module.path.join(tempfile.gettempdir(), "memorymate_device_cache")
+                        os_module.makedirs(temp_dir, exist_ok=True)
+
+                        # Clear old temp files (cleanup from previous sessions)
+                        try:
+                            for old_file in os_module.listdir(temp_dir):
+                                old_path = os_module.path.join(temp_dir, old_file)
+                                try:
+                                    os_module.remove(old_path)
+                                except:
+                                    pass
+                        except:
+                            pass
+
+                        print(f"[Sidebar] Temp cache directory: {temp_dir}")
+
+                        # Recursively scan folder and copy media files via COM
+                        files_copied = 0
+                        files_failed = 0
+
+                        def scan_com_folder(com_folder, depth=0, max_depth=2):
+                            nonlocal files_copied, files_failed
                             if depth > max_depth:
                                 return
 
                             try:
                                 items = com_folder.Items()
+                                item_count = 0
+
                                 for item in items:
+                                    item_count += 1
+
+                                    # Limit items per folder to prevent timeout
+                                    if item_count > 100:
+                                        print(f"[Sidebar] Stopping at 100 items (timeout protection)")
+                                        break
+
                                     if item.IsFolder:
-                                        # Recurse into subdirectories
-                                        if not item.Name.startswith('.'):
+                                        # Recurse into subdirectories (limited depth)
+                                        if not item.Name.startswith('.') and depth < max_depth:
                                             try:
                                                 subfolder = shell.Namespace(item.Path)
                                                 if subfolder:
@@ -2001,43 +2031,66 @@ class SidebarQt(QWidget):
                                         name_lower = item.Name.lower()
                                         if any(name_lower.endswith(ext) for ext in media_extensions):
                                             # Copy file from MTP device to temp location
-                                            # (Grid can't display Shell namespace paths directly)
                                             try:
-                                                # Create temp directory for device media cache
-                                                temp_dir = os_module.path.join(tempfile.gettempdir(), "memorymate_device_cache")
-                                                os_module.makedirs(temp_dir, exist_ok=True)
+                                                # Generate unique temp file path
+                                                base_name = item.Name
+                                                temp_file = os_module.path.join(temp_dir, base_name)
 
-                                                # Generate temp file path
-                                                temp_file = os_module.path.join(temp_dir, item.Name)
+                                                # Handle duplicate names
+                                                counter = 1
+                                                while os_module.path.exists(temp_file):
+                                                    name_parts = os_module.path.splitext(base_name)
+                                                    temp_file = os_module.path.join(temp_dir, f"{name_parts[0]}_{counter}{name_parts[1]}")
+                                                    counter += 1
 
-                                                # Copy file using Shell API
-                                                com_folder.CopyHere(item.Name, 4)  # Flag 4 = no UI
+                                                print(f"[Sidebar]   Copying: {item.Name} → {temp_file}")
 
-                                                # Alternative: Try to get file data directly
-                                                # For now, store the Shell path and handle it later
-                                                # Store as temp marker that needs to be copied
-                                                media_paths.append(f"mtp://{item.Path}")
+                                                # Use Shell FolderItem.GetFolder.CopyHere to copy file
+                                                # Create destination folder object
+                                                dest_folder = shell.Namespace(temp_dir)
+                                                if dest_folder:
+                                                    # Copy with flags: 4 = no progress UI, 16 = yes to all
+                                                    dest_folder.CopyHere(item.Path, 4 | 16)
+
+                                                    # Verify copy succeeded
+                                                    expected_path = os_module.path.join(temp_dir, item.Name)
+                                                    if os_module.path.exists(expected_path):
+                                                        media_paths.append(expected_path)
+                                                        files_copied += 1
+                                                        print(f"[Sidebar]   ✓ Copied successfully")
+                                                    else:
+                                                        print(f"[Sidebar]   ✗ Copy failed (file not found after copy)")
+                                                        files_failed += 1
+                                                else:
+                                                    print(f"[Sidebar]   ✗ Could not access temp folder")
+                                                    files_failed += 1
 
                                             except Exception as e:
-                                                print(f"[Sidebar] Warning: Could not cache {item.Name}: {e}")
+                                                print(f"[Sidebar]   ✗ Copy failed for {item.Name}: {e}")
+                                                files_failed += 1
+
                             except Exception as e:
                                 print(f"[Sidebar] Error scanning COM folder at depth {depth}: {e}")
 
+                        print(f"[Sidebar] Starting file enumeration and copy...")
                         scan_com_folder(folder)
+                        print(f"[Sidebar] Copy complete: {files_copied} succeeded, {files_failed} failed")
 
-                        # For MTP devices, we need to show a message that files need to be imported
+                        # Load copied files into grid
                         if media_paths:
                             folder_name = value.split("\\")[-1] if "\\" in value else "device folder"
-                            mw.statusBar().showMessage(
-                                f"📱 Found {len(media_paths)} item(s) in {folder_name}. Use 'Import from Device' to copy photos."
-                            )
-                            print(f"[Sidebar] Found {len(media_paths)} media files in MTP device folder")
 
-                            # TODO: Actually implement MTP file preview
-                            # For now, show a helpful message
-                            print(f"[Sidebar] Note: Direct MTP preview not yet implemented. Users should use Import feature.")
+                            print(f"[Sidebar] Loading {len(media_paths)} files into grid...")
+                            mw.grid.model.clear()
+                            mw.grid.load_custom_paths(media_paths, content_type="mixed")
+
+                            mw.statusBar().showMessage(
+                                f"📱 Showing {len(media_paths)} item(s) from {folder_name}"
+                            )
+                            print(f"[Sidebar] ✓ Grid loaded with {len(media_paths)} media files from MTP device")
                         else:
                             mw.statusBar().showMessage(f"📱 No media files found in device folder")
+                            print(f"[Sidebar] No media files found to display")
 
                     except ImportError:
                         print(f"[Sidebar] win32com not available for MTP device access")

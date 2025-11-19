@@ -1,0 +1,313 @@
+Below is the high-level design document for implementing a fast, responsive, professional-grade mobile device importer in your Photo App.
+This plan is modeled after how Apple Photos, Google Photos, Lightroom, Samsung Smart Switch, and Windows Photos handle mobile devices.
+
+It is structured into phases, each with clear goals, architecture, and required modules.
+
+📘 HIGH-LEVEL DESIGN DOCUMENT
+“FAST MOBILE DEVICE IMPORT PIPELINE”
+⭐ 1. Core Problems Identified
+
+Your current app freezes because:
+
+It recurses through all folders on the phone (bad for MTP).
+
+It runs MTP COM calls on the UI thread (blocks GUI).
+
+It reads all directories even those irrelevant to photos.
+
+Mobile devices expose hundreds/thousands of transient folders.
+
+MTP calls are slow, synchronous, and easily hang.
+
+Other photo apps avoid all of this.
+
+⭐ 2. Industry Standard Model (Apple / Google / Microsoft)
+
+All major photo apps follow a strict 3-rule approach:
+
+✔ RULE 1 — ONLY scan well-known media directories
+
+/DCIM/
+
+/DCIM/*/
+
+/Pictures/
+
+They do NOT scan the entire phone structure.
+
+✔ RULE 2 — NEVER use MTP on the UI thread
+
+All operations run inside:
+
+QThread (Qt)
+
+Python threading or concurrent.futures
+
+C++ worker threads in native apps
+
+UI always stays free.
+
+✔ RULE 3 — Async discovery + caching
+
+First scan populates device_media_index.json
+
+Next scans reuse cache and update only new changes
+
+This avoids deep-scanning on every connection.
+
+⭐ 3. Proposed Architecture for Your App
+[ UI / Sidebar / Dialogs ]
+          |
+          v
+[ Device Manager (abstract interface) ]
+          |
+   +-------------+
+   |             |
+[ MTP Scanner ]  [ UMS Scanner ]
+   |             |
+[MTP Worker]   [DriveWorker]
+
+⭐ 4. Component Breakdown (High-Level)
+4.1 DeviceManager
+
+Central orchestrator that:
+
+Detects devices
+
+Identifies type:
+
+MTP
+
+USB Mass Storage (UMS)
+
+iPhone (MTP but with Apple metadata)
+
+Exposes unified API:
+
+list_devices()
+get_device(device_id)
+device.get_media_list()
+device.import_file(...)
+
+
+This makes UI code independent from detection logic.
+
+4.2 FastMTPScanner (new module)
+
+Responsible for:
+
+Connecting via Windows Portable Device API (WPD)
+
+Scanning only DCIM and Pictures folders
+
+Extracting:
+
+file path (virtual MTP path)
+filename
+file size
+created date
+modified date
+
+📌 Constraints:
+
+Only 2–3 directory levels deep
+
+No recursion outside whitelisted dirs
+
+MTP calls executed inside QThread worker
+
+4.3 UMSScanner (for devices that mount like USB drives)
+
+If your device is mapped as a drive:
+
+Galaxy A23 (D:\)
+    > DCIM
+    > Camera
+    > WhatsApp Images
+
+
+UMS scanner:
+
+Walks real filesystem
+
+Uses fast OS-level APIs
+
+Reports media entries identically to MTPScanner
+
+This guarantees:
+
+✔ Samsung A23 (UMS mode) is supported
+✔ Old Android phones
+✔ SD cards
+✔ USB flash drives
+✔ iPads in “Files app storage” mode
+
+4.4 DeviceScannerWorker (QThread worker)
+
+Runs the scanning operations:
+
+show progress
+
+allow cancel
+
+handle timeouts for slow MTP calls
+
+class DeviceScannerWorker(QThread):
+    progressChanged = pyqtSignal(int)
+    deviceMediaReady = pyqtSignal(list)
+    error = pyqtSignal(str)
+
+4.5 DeviceMediaCache
+
+Stores:
+
+File list (virtual paths)
+
+Hash of last scan
+
+Thumbnail previews (optional)
+
+Timestamps to detect changed files
+
+File:
+
+cache/mobile_device/<DEVICE_ID>/media_index.json
+
+
+Filled on first scan → reused on next.
+
+⭐ 5. UI Integration (High-Level)
+5.1 Sidebar: "Mobile Devices" Section
+
+Under Sidebar:
+
+Mobile Devices
+   Galaxy A23
+      DCIM (device)
+         Camera
+         WhatsApp Images
+      SD Card
+
+
+Subfolders represent remote structure but limited to media dirs.
+
+Selecting one shows thumbnails inside.
+
+5.2 Import Dialog
+
+When user opens Galaxy A23 → show:
+
+Large thumbnails
+
+Select/unselect
+
+Import destination
+
+“Only import new items” toggle
+
+Progress indicator:
+“Scanning device… 4310 items found”
+
+5.3 Prevent App Freeze
+
+All multi-second operations:
+
+❌ scanning
+❌ thumbnail creation
+❌ device queries
+❌ copying files
+
+Must run off the UI thread.
+
+UI receives only signals:
+
+progress %
+
+new batch of files
+
+scan completed
+
+This makes the UI 100% responsive.
+
+⭐ 6. iPhone Support
+
+iPhones expose:
+
+MTP (like Android)
+
+HEIC images
+
+MOV/HEVC videos
+
+Additional EXIF metadata
+
+“_IMG_xxx.JPG” live photo pairs
+
+Needed:
+
+Extend MTPScanner to detect .HEIC, .MOV
+
+Combine Live Photo pairs if desired
+
+Optional: Integrate Apple Mobile Device Service API
+
+⭐ 7. Cloud Support (Future)
+
+We can expand the same system to:
+
+✔ Google Photos API
+
+OAuth login
+
+Fetch media list
+
+Stream downloads
+
+✔ iCloud Photos
+
+Private API available through pyicloud
+
+Two-factor authentication
+
+Download HEIC → convert to JPEG if needed
+
+✔ OneDrive / Dropbox
+
+Add cloud provider modules.
+
+The UI remains unchanged — providers appear as additional entries:
+
+Cloud Sources
+   Google Photos
+   iCloud Photos
+   OneDrive
+   Dropbox
+
+⭐ 8. Final Expected Behavior (Goal State)
+
+After implementing this architecture:
+
+✔ Device connects instantly
+✔ Scanning is 10× faster
+✔ No UI blocking
+✔ Only DCIM scanned, not junk folders
+✔ Supports MTP and UMS
+✔ Works for Samsung, Android, iPhone
+✔ Supports HEIC, MOV, MP4
+✔ Provides smooth thumbnails
+✔ Import dialog supports “new items only”
+✔ Device index cached → zero scanning delay next time
+
+This is the level of performance expected from:
+
+Google Photos
+
+Samsung Gallery
+
+iCloud Photos
+
+Lightroom
+
+Windows Photos
+
+Your app will match them.

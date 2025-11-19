@@ -430,14 +430,60 @@ class DeviceScanner:
                 # Cameras: Check DCIM only
                 essential_patterns = ["DCIM", "DCIM/100CANON", "DCIM/100NIKON"]
             else:  # android
-                # Android: Only DCIM/Camera and Pictures folders
-                # Skip all the alternate paths (WhatsApp, Screenshots, etc.) for initial scan
+                # Android: Comprehensive folder patterns (Option A implementation)
+                # Based on Google Photos behavior - check all common media folder locations
                 essential_patterns = [
+                    # Primary camera folders
                     "DCIM/Camera",
                     "DCIM",
+                    "Camera",
+
+                    # User photo folders
                     "Pictures",
-                    "Internal shared storage/DCIM/Camera",  # Samsung structure
-                    "Internal shared storage/DCIM"
+                    "Photos",
+
+                    # Screenshots (common locations)
+                    "DCIM/Screenshots",
+                    "Pictures/Screenshots",
+                    "Screenshots",
+
+                    # WhatsApp media
+                    "WhatsApp/Media/WhatsApp Images",
+                    "WhatsApp/Media/WhatsApp Video",
+
+                    # Telegram media
+                    "Telegram/Telegram Images",
+                    "Telegram/Telegram Video",
+
+                    # Instagram
+                    "Pictures/Instagram",
+                    "Instagram",
+
+                    # Downloads
+                    "Download",
+                    "Downloads",
+
+                    # Movies/Video folders
+                    "Movies",
+                    "DCIM/Video",
+
+                    # Social media apps
+                    "Snapchat/Media",
+                    "TikTok",
+
+                    # Samsung-specific structures
+                    "Internal shared storage/DCIM/Camera",
+                    "Internal shared storage/DCIM",
+                    "Internal shared storage/Pictures",
+
+                    # Cloud sync folders
+                    "Google Photos",
+                    "OneDrive/Pictures",
+
+                    # Other messaging apps
+                    "Facebook/Media",
+                    "Messenger/Media",
+                    "Signal/Media"
                 ]
 
             print(f"[DeviceScanner]               Quick scan: checking {len(essential_patterns)} essential folders only")
@@ -1330,10 +1376,67 @@ class DeviceScanner:
         if name.startswith('.'):
             return None
 
-        # Special cases for common folders
-        if name == "DCIM":
-            return "Camera Roll"
+        # Option A: Friendly names for comprehensive Android folder patterns
+        # Map full patterns to user-friendly display names
+        pattern_names = {
+            # Primary camera
+            "DCIM/Camera": "Camera",
+            "DCIM": "Camera Roll",
+            "Camera": "Camera",
 
+            # User photos
+            "Pictures": "Pictures",
+            "Photos": "Photos",
+
+            # Screenshots
+            "DCIM/Screenshots": "Screenshots",
+            "Pictures/Screenshots": "Screenshots",
+            "Screenshots": "Screenshots",
+
+            # WhatsApp
+            "WhatsApp/Media/WhatsApp Images": "WhatsApp Images",
+            "WhatsApp/Media/WhatsApp Video": "WhatsApp Videos",
+
+            # Telegram
+            "Telegram/Telegram Images": "Telegram Images",
+            "Telegram/Telegram Video": "Telegram Videos",
+
+            # Instagram
+            "Pictures/Instagram": "Instagram",
+            "Instagram": "Instagram",
+
+            # Downloads
+            "Download": "Downloads",
+            "Downloads": "Downloads",
+
+            # Movies/Videos
+            "Movies": "Movies",
+            "DCIM/Video": "Videos",
+
+            # Social media
+            "Snapchat/Media": "Snapchat",
+            "TikTok": "TikTok",
+
+            # Samsung structures
+            "Internal shared storage/DCIM/Camera": "Camera",
+            "Internal shared storage/DCIM": "Camera Roll",
+            "Internal shared storage/Pictures": "Pictures",
+
+            # Cloud sync
+            "Google Photos": "Google Photos",
+            "OneDrive/Pictures": "OneDrive",
+
+            # Messaging apps
+            "Facebook/Media": "Facebook",
+            "Messenger/Media": "Messenger",
+            "Signal/Media": "Signal",
+        }
+
+        # Check if exact pattern match exists
+        if pattern in pattern_names:
+            return pattern_names[pattern]
+
+        # iOS/Apple devices
         if "APPLE" in name.upper():
             return "Camera Roll"
 
@@ -1362,6 +1465,7 @@ class DeviceScanner:
         if "Internal Storage" in pattern:
             return name
 
+        # Default: return folder name
         return name
 
     def _quick_count_media(self, folder_path: Path, max_depth: int = 2) -> int:

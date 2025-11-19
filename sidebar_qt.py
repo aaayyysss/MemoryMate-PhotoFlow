@@ -2000,6 +2000,11 @@ class SidebarQt(QWidget):
 
                         # Handle completion
                         def on_finished(copied_paths):
+                            # Disconnect canceled signal before closing
+                            try:
+                                progress.canceled.disconnect(on_cancel)
+                            except:
+                                pass
                             progress.close()
 
                             if copied_paths:
@@ -2023,6 +2028,11 @@ class SidebarQt(QWidget):
 
                         # Handle errors
                         def on_error(error_msg):
+                            # Disconnect canceled signal to avoid false "User cancelled" message
+                            try:
+                                progress.canceled.disconnect(on_cancel)
+                            except:
+                                pass
                             progress.close()
                             print(f"[Sidebar] Worker error: {error_msg}")
                             mw.statusBar().showMessage(f"⚠️ Error copying files: {error_msg}")

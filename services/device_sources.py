@@ -45,7 +45,27 @@ class DeviceScanner:
 
     Detects mobile devices and optionally registers them in the database
     for import history tracking.
+
+    Supports two scanning modes:
+    - Quick scan: Checks 31 predefined folder patterns (fast, <10 seconds)
+    - Deep scan (Option C): Recursive search through entire device structure (slow, can take minutes)
     """
+
+    # Skip these folders during deep scan (system/hidden folders)
+    SKIP_FOLDERS = {
+        '.thumbnails', '.cache', '.trash', 'lost+found', '.nomedia',
+        'Android/data', 'Android/obb',  # App data (huge, no user photos)
+        '.android_secure', '.estrongs',  # Hidden system folders
+        'Alarms', 'Ringtones', 'Notifications',  # System sounds
+        'Music', 'Podcasts', 'Audiobooks',  # Audio (not photos/videos)
+    }
+
+    # Folder patterns that likely contain media (used to prioritize deep scan)
+    MEDIA_FOLDER_HINTS = {
+        'camera', 'dcim', 'picture', 'photo', 'screenshot', 'image', 'video',
+        'whatsapp', 'telegram', 'instagram', 'snapchat', 'tiktok',
+        'download', 'facebook', 'messenger', 'signal', 'media'
+    }
 
     # Common DCIM folder patterns for Android
     ANDROID_PATTERNS = [
@@ -577,6 +597,178 @@ class DeviceScanner:
             print(f"[DeviceScanner]               ERROR scanning folders: {e}")
 
         return folders
+
+    def deep_scan_mtp_device(
+        self,
+        storage_item,
+        device_type: str,
+        max_depth: int = 8,
+        progress_callback=None
+    ) -> List[DeviceFolder]:
+        """
+        Recursive deep scan of MTP device to find ALL media folders at any depth.
+
+        This is Option C implementation - finds folders that quick scan misses, like:
+        - Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images
+        - Android/media/org.telegram.messenger/Telegram/Telegram Images
+        - etc.
+
+        Args:
+            storage_item: Shell.Application storage folder object
+            device_type: "android", "ios", or "camera"
+            max_depth: Maximum recursion depth (default 8 to prevent infinite loops)
+            progress_callback: Optional callback(current_path, folders_found) for UI updates
+
+        Returns:
+            List of DeviceFolder objects found during deep scan
+
+        Note: Can be SLOW over MTP (minutes for devices with many folders)
+        """
+        print(f"[DeviceScanner] ===== Starting DEEP SCAN (Option C) =====")
+        print(f"[DeviceScanner]   Max depth: {max_depth}")
+        print(f"[DeviceScanner]   Skipping folders: {', '.join(list(self.SKIP_FOLDERS)[:5])}...")
+
+        folders_found = []
+        folders_scanned = 0
+
+        try:
+            import win32com.client
+            import pythoncom
+
+            # Initialize COM for this thread
+            pythoncom.CoInitialize()
+
+            try:
+                storage_folder = storage_item.GetFolder
+                if not storage_folder:
+                    print(f"[DeviceScanner] ✗ Cannot access storage folder")
+                    return folders_found
+
+                # Recursive scan function
+                def scan_folder_recursive(folder, current_path="", depth=0):
+                    nonlocal folders_found, folders_scanned
+
+                    if depth > max_depth:
+                        return
+
+                    # Skip system/excluded folders
+                    folder_name_lower = current_path.lower()
+                    for skip_pattern in self.SKIP_FOLDERS:
+                        if skip_pattern.lower() in folder_name_lower:
+                            print(f"[DeviceScanner]   {'  ' * depth}⊘ Skipping: {current_path} (excluded)")
+                            return
+
+                    folders_scanned += 1
+
+                    # Report progress every 10 folders
+                    if progress_callback and folders_scanned % 10 == 0:
+                        cancelled = progress_callback(current_path, len(folders_found))
+                        if cancelled:
+                            # User requested cancellation
+                            print(f"[DeviceScanner]   Cancellation requested, stopping scan...")
+                            return
+
+                    # Check if current folder has media files
+                    has_media = False
+                    media_count = 0
+
+                    try:
+                        items = folder.Items()
+                        checked = 0
+                        max_check = 20  # Quick check, don't enumerate all files
+
+                        for item in items:
+                            if item.IsFolder:
+                                # Will recurse into this later
+                                continue
+
+                            checked += 1
+                            if checked > max_check:
+                                break
+
+                            # Check if media file
+                            filename_lower = item.Name.lower()
+                            if any(filename_lower.endswith(ext) for ext in [
+                                '.jpg', '.jpeg', '.png', '.gif', '.heic', '.heif',
+                                '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'
+                            ]):
+                                has_media = True
+                                media_count += 1
+
+                        # If folder has media, add it to results
+                        if has_media:
+                            # Generate display name
+                            display_name = current_path.replace('/', ' → ').replace('\\', ' → ')
+                            if not display_name:
+                                display_name = "Root"
+
+                            # Add depth indicator
+                            display_name = f"{display_name} (depth: {depth})"
+
+                            # Check if folder name suggests media content
+                            name_lower = current_path.lower().split('/')[-1] if '/' in current_path else current_path.lower()
+                            is_media_folder = any(hint in name_lower for hint in self.MEDIA_FOLDER_HINTS)
+
+                            if is_media_folder:
+                                print(f"[DeviceScanner]   {'  ' * depth}✓ FOUND: {current_path} ({media_count}+ files)")
+                            else:
+                                print(f"[DeviceScanner]   {'  ' * depth}• Found: {current_path} ({media_count}+ files)")
+
+                            # Build full shell path
+                            path_windows = current_path.replace('/', '\\')
+                            full_path = f"{storage_item.Path}\\{path_windows}" if current_path else storage_item.Path
+
+                            folders_found.append(DeviceFolder(
+                                name=display_name,
+                                path=full_path,
+                                photo_count=media_count
+                            ))
+
+                    except Exception as e:
+                        # Can't enumerate folder, skip it
+                        print(f"[DeviceScanner]   {'  ' * depth}✗ Error scanning {current_path}: {e}")
+                        return
+
+                    # Recurse into subfolders
+                    try:
+                        items = folder.Items()
+                        for item in items:
+                            if item.IsFolder:
+                                subfolder_name = item.Name
+
+                                # Build new path
+                                new_path = f"{current_path}/{subfolder_name}" if current_path else subfolder_name
+
+                                # Get subfolder object
+                                try:
+                                    subfolder = item.GetFolder
+                                    if subfolder:
+                                        scan_folder_recursive(subfolder, new_path, depth + 1)
+                                except Exception as e:
+                                    # Can't access subfolder, skip it
+                                    continue
+
+                    except Exception as e:
+                        print(f"[DeviceScanner]   {'  ' * depth}✗ Error listing subfolders of {current_path}: {e}")
+
+                # Start recursive scan from storage root
+                print(f"[DeviceScanner]   Starting scan from device root...")
+                scan_folder_recursive(storage_folder, "", 0)
+
+                print(f"[DeviceScanner] ===== DEEP SCAN COMPLETE =====")
+                print(f"[DeviceScanner]   Folders scanned: {folders_scanned}")
+                print(f"[DeviceScanner]   Media folders found: {len(folders_found)}")
+
+                return folders_found
+
+            finally:
+                pythoncom.CoUninitialize()
+
+        except Exception as e:
+            print(f"[DeviceScanner] ✗ Deep scan failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return folders_found
 
     def _scan_windows_portable_wmic(self) -> List[MobileDevice]:
         """

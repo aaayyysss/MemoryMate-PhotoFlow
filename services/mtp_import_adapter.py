@@ -242,9 +242,10 @@ class MTPImportAdapter:
         import_date: Optional[datetime] = None
     ) -> List[str]:
         """
-        Import selected files from MTP device to library.
+        Import selected files from MTP device to library with duplicate detection.
 
         Copies files from device to proper library structure and adds to database.
+        Automatically skips files that are already imported to prevent duplicates.
 
         Args:
             mtp_path: MTP folder path to import from
@@ -273,6 +274,29 @@ class MTPImportAdapter:
         dest_folder.mkdir(parents=True, exist_ok=True)
 
         print(f"[MTPAdapter] Importing to: {dest_folder}")
+
+        # DUPLICATE DETECTION: Check which files already exist in database
+        new_files = []
+        duplicate_files = []
+
+        for media_file in selected_files:
+            expected_path = dest_folder / media_file.filename
+
+            # Check if file already in database (by exact path)
+            is_duplicate = self._check_if_imported(str(expected_path))
+
+            if is_duplicate:
+                duplicate_files.append(media_file)
+                print(f"[MTPAdapter] ⊗ Skipping duplicate: {media_file.filename}")
+            else:
+                new_files.append(media_file)
+
+        # Report duplicate detection results
+        print(f"[MTPAdapter] Duplicate detection: {len(new_files)} new, {len(duplicate_files)} duplicates")
+
+        if not new_files:
+            print(f"[MTPAdapter] All files already imported. Nothing to do.")
+            return []
 
         imported_paths = []
 
@@ -318,9 +342,9 @@ class MTPImportAdapter:
                     if not item.IsFolder:
                         source_items_dict[item.Name] = item
 
-                # Import each file
-                for idx, media_file in enumerate(selected_files, 1):
-                    print(f"[MTPAdapter] Importing {idx}/{len(selected_files)}: {media_file.filename}")
+                # Import only new files (skip duplicates)
+                for idx, media_file in enumerate(new_files, 1):
+                    print(f"[MTPAdapter] Importing {idx}/{len(new_files)}: {media_file.filename}")
 
                     try:
                         # Find source item by filename
@@ -361,7 +385,7 @@ class MTPImportAdapter:
                         print(f"[MTPAdapter] ✗ Error importing {media_file.filename}: {e}")
                         continue
 
-                print(f"[MTPAdapter] ✓ Import complete: {len(imported_paths)}/{len(selected_files)} files")
+                print(f"[MTPAdapter] ✓ Import complete: {len(imported_paths)}/{len(new_files)} files (skipped {len(duplicate_files)} duplicates)")
                 return imported_paths
 
             finally:
@@ -372,6 +396,30 @@ class MTPImportAdapter:
             import traceback
             traceback.print_exc()
             return imported_paths
+
+    def _check_if_imported(self, file_path: str) -> bool:
+        """
+        Check if a file has already been imported to the database.
+
+        Args:
+            file_path: Absolute path to file
+
+        Returns:
+            True if file already exists in project_images for this project
+        """
+        try:
+            with self.db._connect() as conn:
+                cur = conn.cursor()
+                # Check if this exact path exists for this project in any branch
+                cur.execute("""
+                    SELECT COUNT(*) FROM project_images
+                    WHERE project_id = ? AND LOWER(image_path) = LOWER(?)
+                """, (self.project_id, file_path))
+                count = cur.fetchone()[0]
+                return count > 0
+        except Exception as e:
+            print(f"[MTPAdapter] Error checking for duplicate: {e}")
+            return False
 
     def _add_to_database(
         self,

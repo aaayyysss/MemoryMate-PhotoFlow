@@ -83,7 +83,18 @@ class MTPImportWorker(QThread):
             if self._cancelled:
                 return
 
-            print(f"[MTPImportWorker] ✓ Import complete: {len(imported_paths)} files")
+            # Report import results
+            imported_count = len(imported_paths)
+            total_count = len(media_files)
+            skipped_count = total_count - imported_count
+
+            if imported_count > 0 and skipped_count > 0:
+                print(f"[MTPImportWorker] ✓ Import complete: {imported_count} new files, {skipped_count} duplicates skipped")
+            elif imported_count > 0:
+                print(f"[MTPImportWorker] ✓ Import complete: {imported_count} files")
+            elif skipped_count > 0:
+                print(f"[MTPImportWorker] ⊗ All {skipped_count} files already imported")
+
             self.finished.emit(imported_paths)
 
         except Exception as e:
@@ -260,28 +271,33 @@ class MTPImportDialog(QDialog):
         self.progress_label.setText(message)
 
     def _on_finished(self, imported_paths: List[str]):
-        """Handle import completion"""
+        """Handle import completion with duplicate detection feedback"""
         self.progress_bar.hide()
         self.progress_label.hide()
 
         self.imported_paths = imported_paths
 
         if imported_paths:
+            # Some files imported successfully
             QMessageBox.information(
                 self,
                 "Import Complete",
-                f"Successfully imported {len(imported_paths)} file(s)!\n\n"
+                f"✓ Successfully imported {len(imported_paths)} file(s)!\n\n"
                 "Photos will now appear in all relevant branches:\n"
                 "• All Photos\n"
                 "• By Dates\n"
-                f"• Folders → {self.folder_name} [{self.device_name}]"
+                f"• Folders → {self.folder_name} [{self.device_name}]\n\n"
+                "If some files were skipped, they were already in your library."
             )
             self.accept()
         else:
-            QMessageBox.warning(
+            # No files imported - all duplicates
+            QMessageBox.information(
                 self,
-                "No Files Imported",
-                "No files were imported. They may already be in your library."
+                "All Files Already Imported",
+                f"⊗ All files from {self.folder_name} have already been imported.\n\n"
+                f"No duplicates were added to your library.\n\n"
+                f"Your existing photos are safe and accessible in 'All Photos'."
             )
             self.reject()
 

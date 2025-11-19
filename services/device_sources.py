@@ -598,6 +598,88 @@ class DeviceScanner:
 
         return folders
 
+    def find_storage_item_by_path(self, target_path: str):
+        """
+        Find a storage FolderItem COM object by re-enumerating devices.
+
+        This is necessary because MTP paths cannot be directly navigated by parsing
+        the path string. Instead, we must enumerate "This PC" to find the matching
+        storage item.
+
+        Args:
+            target_path: The stored path like "::{GUID}\\...\\SID-{...}"
+
+        Returns:
+            (storage_item, device_name) tuple if found, (None, None) otherwise
+        """
+        try:
+            import win32com.client
+            import pythoncom
+
+            print(f"[DeviceScanner] Finding storage item for path:")
+            print(f"[DeviceScanner]   Target: {target_path}")
+
+            # Initialize COM
+            pythoncom.CoInitialize()
+
+            try:
+                shell = win32com.client.Dispatch("Shell.Application")
+                computer = shell.Namespace(17)  # This PC
+
+                if not computer:
+                    print(f"[DeviceScanner] ✗ Cannot access 'This PC' namespace")
+                    return None, None
+
+                # Enumerate all items under This PC
+                for item in computer.Items():
+                    # Check portable devices (IsFolder=True, IsFileSystem=False)
+                    if item.IsFolder and not item.IsFileSystem:
+                        device_name = item.Name
+                        print(f"[DeviceScanner]   Checking device: {device_name}")
+
+                        try:
+                            # Get device folder
+                            device_folder = shell.Namespace(item.Path)
+                            if not device_folder:
+                                continue
+
+                            # Check each storage location
+                            for storage in device_folder.Items():
+                                if storage.IsFolder:
+                                    storage_path = storage.Path
+                                    storage_name = storage.Name
+
+                                    print(f"[DeviceScanner]     Storage: {storage_name}")
+                                    print(f"[DeviceScanner]       Path: {storage_path}")
+
+                                    # Compare paths (exact match or basename match)
+                                    if storage_path == target_path:
+                                        print(f"[DeviceScanner]     ✓ FOUND: Exact path match!")
+                                        return storage, device_name
+
+                                    # Also try matching by storage name if path doesn't match
+                                    # (paths can change between sessions)
+                                    if storage_name in target_path or target_path.endswith(storage_name):
+                                        print(f"[DeviceScanner]     ✓ FOUND: Storage name match!")
+                                        return storage, device_name
+
+                        except Exception as e:
+                            print(f"[DeviceScanner]     Error checking {device_name}: {e}")
+                            continue
+
+                print(f"[DeviceScanner] ✗ Storage item not found")
+                print(f"[DeviceScanner]   The device may have been disconnected")
+                return None, None
+
+            finally:
+                pythoncom.CoUninitialize()
+
+        except Exception as e:
+            print(f"[DeviceScanner] ✗ Error finding storage item: {e}")
+            import traceback
+            traceback.print_exc()
+            return None, None
+
     def deep_scan_mtp_device(
         self,
         storage_item,

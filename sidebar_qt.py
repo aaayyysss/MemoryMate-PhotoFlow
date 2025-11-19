@@ -1993,141 +1993,106 @@ class SidebarQt(QWidget):
                 return
 
             try:
-                # Initialize COM for Shell access
-                pythoncom.CoInitialize()
+                # Create scanner instance (no device registration needed for deep scan)
+                scanner = DeviceScanner(db=self.db, register_devices=False)
 
-                try:
-                    # Get Shell.Application
-                    shell = win32com.client.Dispatch("Shell.Application")
+                # Use scanner helper to find storage item by re-enumerating devices
+                # (MTP paths cannot be navigated by parsing path strings)
+                print(f"[Sidebar] Finding device storage for deep scan...")
+                storage_item, found_device_name = scanner.find_storage_item_by_path(root_path)
 
-                    # Navigate to "This PC" namespace (17)
-                    computer = shell.Namespace(17)
-                    if not computer:
-                        raise Exception("Cannot access 'This PC' namespace")
-
-                    # Find storage item from root path
-                    # Root path format: "::{GUID}\device_name\storage_name"
-                    storage_item = None
-
-                    # Navigate through MTP path
-                    path_parts = root_path.replace("::", "").split("\\")
-                    current_namespace = computer
-
-                    for part in path_parts:
-                        if not part:
-                            continue
-
-                        # Find item by name
-                        found = False
-                        for item_obj in current_namespace.Items():
-                            if item_obj.Name == part or item_obj.Path == root_path:
-                                if hasattr(item_obj, 'GetFolder'):
-                                    folder = item_obj.GetFolder
-                                    if folder:
-                                        current_namespace = folder
-                                        storage_item = folder
-                                        found = True
-                                        break
-
-                        if not found:
-                            # Try direct path match
-                            for item_obj in current_namespace.Items():
-                                if item_obj.Path == root_path:
-                                    if hasattr(item_obj, 'GetFolder'):
-                                        storage_item = item_obj.GetFolder
-                                        break
-
-                    if not storage_item:
-                        raise Exception(f"Cannot find device storage at: {root_path}")
-
-                    print(f"[Sidebar] Found storage item for deep scan")
-
-                    # Create scanner instance (no device registration needed for deep scan)
-                    scanner = DeviceScanner(db=self.db, register_devices=False)
-
-                    # Show deep scan dialog with progress
-                    dialog = MTPDeepScanDialog(
-                        device_name=device_name,
-                        scanner=scanner,
-                        storage_item=storage_item,
-                        device_type=device_type,
-                        max_depth=8,
-                        parent=mw
+                if not storage_item:
+                    raise Exception(
+                        f"Cannot find device storage.\n\n"
+                        f"The device may have been disconnected or locked.\n\n"
+                        f"Please ensure:\n"
+                        f"• {device_name} is connected via USB\n"
+                        f"• Device is unlocked\n"
+                        f"• MTP mode is enabled"
                     )
 
-                    # Execute dialog
-                    if dialog.exec():
-                        # Deep scan successful - add new folders to sidebar
-                        new_folders = dialog.new_folders
+                print(f"[Sidebar] ✓ Found storage item: {found_device_name}")
 
-                        if new_folders:
-                            print(f"[Sidebar] Adding {len(new_folders)} new folders to sidebar...")
+                # Show deep scan dialog with progress
+                dialog = MTPDeepScanDialog(
+                    device_name=device_name,
+                    scanner=scanner,
+                    storage_item=storage_item,
+                    device_type=device_type,
+                    max_depth=8,
+                    parent=mw
+                )
 
-                            # Get device item from tree
-                            device_item = item.parent()
-                            if not device_item:
-                                print(f"[Sidebar] Error: Cannot find device item")
-                                return
+                # Execute dialog
+                if dialog.exec():
+                    # Deep scan successful - add new folders to sidebar
+                    new_folders = dialog.new_folders
 
-                            # Find deep scan button index to insert folders before it
-                            deep_scan_row = -1
-                            for row in range(device_item.rowCount()):
-                                child = device_item.child(row, 0)
-                                if child and child.data(Qt.UserRole) == "device_deep_scan":
-                                    deep_scan_row = row
-                                    break
+                    if new_folders:
+                        print(f"[Sidebar] Adding {len(new_folders)} new folders to sidebar...")
 
-                            # Add new folders to device tree (before deep scan button)
-                            insert_row = deep_scan_row if deep_scan_row >= 0 else device_item.rowCount()
+                        # Get device item from tree
+                        device_item = item.parent()
+                        if not device_item:
+                            print(f"[Sidebar] Error: Cannot find device item")
+                            return
 
-                            for folder in new_folders:
-                                folder_name = f"  • {folder.name}"
-                                folder_item = QStandardItem(folder_name)
-                                folder_item.setEditable(False)
-                                folder_item.setData("device_folder", Qt.UserRole)
-                                folder_item.setData(folder.path, Qt.UserRole + 1)
+                        # Find deep scan button index to insert folders before it
+                        deep_scan_row = -1
+                        for row in range(device_item.rowCount()):
+                            child = device_item.child(row, 0)
+                            if child and child.data(Qt.UserRole) == "device_deep_scan":
+                                deep_scan_row = row
+                                break
 
-                                # Make count item
-                                from PySide6.QtGui import QColor
-                                count_item = QStandardItem(str(folder.photo_count) if folder.photo_count > 0 else "")
-                                count_item.setEditable(False)
-                                count_item.setForeground(QColor("#888888"))
-                                count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        # Add new folders to device tree (before deep scan button)
+                        insert_row = deep_scan_row if deep_scan_row >= 0 else device_item.rowCount()
 
-                                # Insert before deep scan button
-                                device_item.insertRow(insert_row, [folder_item, count_item])
-                                insert_row += 1
+                        for folder in new_folders:
+                            folder_name = f"  • {folder.name}"
+                            folder_item = QStandardItem(folder_name)
+                            folder_item.setEditable(False)
+                            folder_item.setData("device_folder", Qt.UserRole)
+                            folder_item.setData(folder.path, Qt.UserRole + 1)
 
-                                print(f"[Sidebar]   Added: {folder.name} ({folder.photo_count} files)")
+                            # Make count item
+                            from PySide6.QtGui import QColor
+                            count_item = QStandardItem(str(folder.photo_count) if folder.photo_count > 0 else "")
+                            count_item.setEditable(False)
+                            count_item.setForeground(QColor("#888888"))
+                            count_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-                            # Update device photo count
-                            device_count_item = device_item.parent().child(device_item.row(), 1)
-                            if device_count_item:
-                                current_count = int(device_count_item.text()) if device_count_item.text() else 0
-                                new_count = current_count + sum(f.photo_count for f in new_folders)
-                                device_count_item.setText(str(new_count))
+                            # Insert before deep scan button
+                            device_item.insertRow(insert_row, [folder_item, count_item])
+                            insert_row += 1
 
-                            print(f"[Sidebar] ✓ Deep scan complete: {len(new_folders)} folders added")
+                            print(f"[Sidebar]   Added: {folder.name} ({folder.photo_count} files)")
 
-                            mw.statusBar().showMessage(
-                                f"🔍 Deep scan complete: {len(new_folders)} new folder(s) found"
-                            )
+                        # Update device photo count
+                        device_count_item = device_item.parent().child(device_item.row(), 1)
+                        if device_count_item:
+                            current_count = int(device_count_item.text()) if device_count_item.text() else 0
+                            new_count = current_count + sum(f.photo_count for f in new_folders)
+                            device_count_item.setText(str(new_count))
 
-                            # Expand device tree to show new folders
-                            device_index = self.model.indexFromItem(device_item)
-                            self.tree.expand(device_index)
+                        print(f"[Sidebar] ✓ Deep scan complete: {len(new_folders)} folders added")
 
-                        else:
-                            print(f"[Sidebar] Deep scan found no new folders")
-                            mw.statusBar().showMessage("🔍 Deep scan complete: no new folders found")
+                        mw.statusBar().showMessage(
+                            f"🔍 Deep scan complete: {len(new_folders)} new folder(s) found"
+                        )
+
+                        # Expand device tree to show new folders
+                        device_index = self.model.indexFromItem(device_item)
+                        self.tree.expand(device_index)
 
                     else:
-                        # User cancelled
-                        print(f"[Sidebar] Deep scan cancelled")
-                        mw.statusBar().showMessage("🔍 Deep scan cancelled")
+                        print(f"[Sidebar] Deep scan found no new folders")
+                        mw.statusBar().showMessage("🔍 Deep scan complete: no new folders found")
 
-                finally:
-                    pythoncom.CoUninitialize()
+                else:
+                    # User cancelled
+                    print(f"[Sidebar] Deep scan cancelled")
+                    mw.statusBar().showMessage("🔍 Deep scan cancelled")
 
             except Exception as e:
                 print(f"[Sidebar] Deep scan failed: {e}")

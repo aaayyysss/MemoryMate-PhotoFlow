@@ -19,6 +19,7 @@
   "show_backfill_panel": false,
   "sidebar_folded": false,
   "sidebar_mode": "list",
+  "device_auto_refresh": false,
   "ignore_folders": [
     "AppData",
     "Program Files",
@@ -37,4 +38,5 @@
     "ThumbCache",
     "ActionCenterCache"
   ]
+
 }

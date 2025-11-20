@@ -244,8 +244,23 @@ class DeviceScanner:
                             device_folder = shell.Namespace(item.Path)
                             if device_folder:
                                 # Enumerate storage locations (Phone, Card, etc.)
+                                # FIX: COM enumeration can be slow/async - retry if count is 0
                                 storage_items = device_folder.Items()
-                                print(f"[DeviceScanner]         Storage locations: {storage_items.Count}")
+                                storage_count = storage_items.Count
+
+                                # Retry up to 3 times if storage count is 0 (device might be initializing)
+                                if storage_count == 0:
+                                    print(f"[DeviceScanner]         Storage locations: {storage_count} (retrying...)")
+                                    import time
+                                    for retry in range(3):
+                                        time.sleep(0.3)  # Wait 300ms for COM enumeration
+                                        storage_items = device_folder.Items()
+                                        storage_count = storage_items.Count
+                                        if storage_count > 0:
+                                            print(f"[DeviceScanner]         ✓ Found storage after {retry + 1} retries")
+                                            break
+                                else:
+                                    print(f"[DeviceScanner]         Storage locations: {storage_count}")
 
                                 for storage in storage_items:
                                     if storage.IsFolder:

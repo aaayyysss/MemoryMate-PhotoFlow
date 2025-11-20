@@ -1,0 +1,226 @@
+Based on my deep audit of the codebase, I've identified several critical bugs, potential crashes, memory leaks, and areas for improvement. Let me create a comprehensive report:
+🔍 DEEP AUDIT REPORT - Critical Issues Found
+CRITICAL BUGS 🔴
+BUG #1: Duplicate Exception Hook in main_qt.py
+Location: main_qt.py:36-46 and main_qt.py:62-71
+Severity: HIGH - Potential crash
+Issue: The exception hook is defined twice, creating redundant handlers that could interfere with each other.
+python
+# Line 36-46: First definition
+def exception_hook(exctype, value, tb):
+    # ... code ...
+sys.excepthook = exception_hook
+
+# Line 62-71: Second definition (overrides first)
+def exception_hook(exctype, value, tb):
+    # ... code ...
+sys.excepthook = exception_hook
+Impact: The second definition shadows the first, wasting resources and making debugging confusing.
+BUG #2: QMessageBox Import Scope Issue in main_window_qt.py
+Location: main_window_qt.py:448-582
+Severity: MEDIUM - Already noted as fixed but needs verification
+Issue: QMessageBox imported inside conditional blocks, causing UnboundLocalError in exception handlers.Status: Reportedly fixed, but the pattern should be verified across all similar blocks.
+BUG #3: Resource Leak in Video Player (Partial Fix)
+Location: video_player_qt.py:closeEvent()
+Severity: HIGH - Memory leak
+Issue: While setSource(QUrl()) was added, the player might still hold references through signals/slots.Missing Cleanup:
+python
+def closeEvent(self, event):
+    self.player.stop()
+    self.update_timer.stop()
+    self.player.setSource(QUrl())  # ✅ Added
+    # ❌ MISSING: Disconnect all signals
+    # ❌ MISSING: Clear video metadata reference
+    # ❌ MISSING: Release audio output
+    super().closeEvent(event)
+BUG #4: Race Condition in Thumbnail Worker
+Location: thumbnail_grid_qt.py:954-973
+Severity: MEDIUM - UI inconsistency
+Issue: Thumbnails loaded asynchronously can be applied to wrong grid items after model changes.
+python
+# Line 954-967
+for i, p in enumerate(self._paths):
+    item = QStandardItem()
+    # ... setup item ...
+    self.model.appendRow(item)
+    # ❌ RACE: Worker might finish after model rebuild
+    worker = ThumbWorker(p, self.thumb_height, i, ...)
+    self.thread_pool.start(worker)
+Current Fix: Token-based validation (line 970-972) is present but commented out code suggests this was a known issue.
+BUG #5: Memory Leak in ThumbnailManager
+Location: main_window_qt.py:768-861 (ThumbnailManager class)
+Severity: HIGH - Unbounded memory growth
+Issue: The internal _cache dict can grow indefinitely if external cache is not provided.
+python
+# Line 781
+self._cache: Dict[Tuple[str, int], QPixmap] = cache if cache is not None else {}
+Problem: No size limit on internal cache, can accumulate thousands of pixmaps.
+MEMORY LEAKS 💧
+LEAK #1: QPainter Not Always Closed
+Location: thumbnail_grid_qt.py:99-122 (make_placeholder_pixmap)
+Severity: MEDIUM
+Issue: QPainter wrapped in try/finally, but p.begin() might fail after p.end() in finally.Current Code:
+python
+p = QPainter()
+try:
+    p.begin(pm)
+    # ... painting ...
+finally:
+    try:
+        p.end()  # ❌ Might throw if begin() failed
+    except Exception:
+        pass
+Better Pattern:
+python
+p = QPainter(pm)  # ✅ Constructor handles begin/end
+# ... painting ...
+# p.end() called automatically by destructor
+LEAK #2: QThread Not Waited For in Cleanup
+Location: sidebar_qt.py:1578-1598 (closeEvent)
+Severity: LOW - But could cause crashes on app exit
+Issue: Timers stopped but no check if background threads still running.
+python
+def closeEvent(self, event):
+    if hasattr(self, '_device_refresh_timer'):
+        self._device_refresh_timer.stop()
+    # ❌ MISSING: Wait for any running worker threads
+    # ❌ MISSING: Bump generation to cancel workers
+    event.accept()
+LEAK #3: Circular Reference in Signal Connections
+Location: Multiple files with signal connections
+Severity: MEDIUM
+Issue: Lambda functions capturing self create circular references.Example Pattern (found in multiple places):
+python
+# main_window_qt.py:1477
+action.triggered.connect(lambda checked=False, pid=proj_id: self._switch_project(pid))
+Problem: Lambda captures self, preventing garbage collection.
+POTENTIAL CRASHES 💥
+CRASH #1: Concurrent Model Modification
+Location: sidebar_qt.py:2344-2368
+Severity: HIGH
+Issue: Despite having _rebuilding_tree guard, processEvents() can trigger re-entrant calls.
+python
+# Line 2362: This is dangerous
+if self._initialized:
+    from PySide6.QtCore import QCoreApplication
+    print("[Sidebar] Processing pending events before model clear")
+    QCoreApplication.processEvents()  # ❌ Can trigger recursive calls!
+Risk: User actions during processEvents() could trigger another rebuild.
+CRASH #2: Accessing Deleted Widgets
+Location: sidebar_qt.py:237-267 (hide_tabs)
+Severity: HIGH (already partially fixed)
+Issue: Even with cleanup, there's a window where signals can fire on deleted widgets.Timing Issue:
+python
+# Line 243-250
+if hasattr(self, 'people_list_view') and self.people_list_view:
+    if hasattr(self.people_list_view, '_cleanup'):
+        self._dbg("hide_tabs() - calling _cleanup() on people_list_view")
+        self.people_list_view._cleanup()
+    self.people_list_view = None  # ❌ Reference cleared but widget might still exist
+Better:
+python
+widget = self.people_list_view
+self.people_list_view = None  # Clear reference first
+if widget:
+    if hasattr(widget, '_cleanup'):
+        widget._cleanup()
+    widget.deleteLater()  # Then schedule deletion
+CRASH #3: Database Lock During Scan
+Location: main_window_qt.py:210-228
+Severity: MEDIUM
+Issue: Database initialization before scan can deadlock if scan already accessing DB.
+python
+# Line 220-221
+db_conn = DatabaseConnection("reference_data.db", auto_init=True)
+# ❌ What if scan thread already has DB connection open?
+CODE QUALITY ISSUES ⚠️
+ISSUE #1: Bare Except Clauses
+Instances Found: 25+ occurrences
+Severity: LOW - But poor practiceExamples:
+sidebar_qt.py:261: except (RuntimeError, AttributeError) as e: ✅ Good
+thumbnail_grid_qt.py:161: except Exception as e: ✅ Acceptable
+Multiple places: except: ❌ Bad practice (catches SystemExit, KeyboardInterrupt)
+Recommendation: Replace all bare except: with specific exception types.
+ISSUE #2: Import Inside Try Blocks
+Location: Multiple places
+Severity: LOW - But can cause UnboundLocalErrorPattern Found:
+python
+try:
+    # ... code ...
+    import json  # ❌ Inside try
+    data = json.loads(...)
+except json.JSONDecodeError:  # ❌ json might not be defined
+    pass
+Fixed in some places but should be audited globally.
+ISSUE #3: Commented-Out Code Blocks
+Location: Throughout codebase
+Severity: LOW - Maintenance burdenExamples:
+main_qt.py:49-56: Old main block commented out
+main_window_qt.py:1093: Duplicated imports with slight differences
+thumbnail_grid_qt.py:961-992: Extensive commented code
+Recommendation: Remove or document why code is kept.
+THREAD SAFETY ISSUES 🔒
+THREAD #1: Database Connections Not Thread-Safe
+Location: Multiple services
+Severity: HIGH
+Issue: Single ReferenceDB instance shared across threads without connection pooling.
+python
+# reference_db.py is used everywhere
+db = ReferenceDB()  # Shared globally
+# ❌ SQLite connections are not thread-safe by default
+Current Mitigation: Each method creates new connection (good), but no pooling.
+THREAD #2: Thumbnail Cache Dictionary Not Thread-Safe
+Location: thumbnail_grid_qt.py:194-255 (ThumbWorker)
+Severity: MEDIUM
+Issue: self.cache dict accessed from multiple threads without lock.
+python
+# Line 203: self.cache passed to worker
+self.cache = cache
+# ❌ Multiple ThumbWorkers can access same dict concurrently
+Note: This moved to ThumbnailService which handles locking better, but old code may still exist.
+PERFORMANCE ISSUES 🐌
+PERF #1: Inefficient Path Normalization
+Location: thumbnail_grid_qt.py and thumbnail_service.py
+Severity: LOW
+Issue: Path normalization called repeatedly for same path.
+python
+# Done in multiple places:
+norm_path = os.path.normcase(os.path.abspath(os.path.normpath(str(path).strip())))
+Recommendation: Cache normalized paths or normalize once at entry point.
+PERF #2: Synchronous Database Queries in UI Thread
+Location: sidebar_qt.py:1386-1445 (_async_populate_counts)
+Severity: MEDIUM
+Issue: Despite name "async", this spawns threads that do sync DB calls.Better: Use QThreadPool with QRunnable for better resource management.
+MISSING ERROR HANDLING ❌
+ERROR #1: No Validation of project_id
+Location: Multiple methods accepting project_id
+Severity: MEDIUM
+Issue: Methods don't validate if project_id exists before use.Example (main_window_qt.py:232):
+python
+current_project_id = self.main.grid.project_id
+if current_project_id is None:
+    # Fallback logic...
+    current_project_id = 1  # ❌ Assumes project 1 exists!
+ERROR #2: File I/O Without Permission Checks
+Location: Multiple file operations
+Severity: LOW
+Issue: No checks for file permissions before read/write.
+RECOMMENDATIONS 💡
+High Priority (Fix Immediately):
+✅ Remove duplicate exception hook in main_qt.py
+✅ Fix video player resource leak - disconnect all signals in closeEvent
+✅ Add size limit to ThumbnailManager internal cache
+✅ Fix concurrent model modification in sidebar (remove processEvents or add deeper guard)
+✅ Validate project_id exists before use
+Medium Priority (Fix Soon):
+⚠️ Replace all bare except: with specific exceptions
+⚠️ Audit and fix all imports inside try blocks
+⚠️ Add thread-safe wrapper for database connections
+⚠️ Fix widget deletion race conditions (clear reference before deleteLater)
+⚠️ Clean up commented-out code
+Low Priority (Technical Debt):
+📝 Add connection pooling for database
+📝 Cache path normalizations
+📝 Add file permission checks
+📝 Break circular references in lambda signals
+📝 Move to QThreadPool consistently

@@ -1728,6 +1728,36 @@ class SidebarQt(QWidget):
         except Exception:
             return 0
 
+    def _refresh_people_counts(self):
+        """Refresh People (face cluster) counts in the sidebar tree model.
+        This queries the DB for latest member_count values and updates the
+        second column for each people entry.
+        """
+        try:
+            clusters = {r['branch_key']: (r.get('member_count') or 0) for r in self.db.get_face_clusters(self.project_id)}
+        except Exception:
+            clusters = {}
+
+        # find people root node (label "👥 People")
+        for r in range(self.model.rowCount()):
+            root_idx = self.model.index(r, 0)
+            root_item = self.model.itemFromIndex(root_idx)
+            if root_item and root_item.text().startswith('👥'):
+                # iterate children
+                for i in range(root_item.rowCount()):
+                    name_item = root_item.child(i, 0)
+                    count_item = root_item.child(i, 1)
+                    if not name_item or not count_item:
+                        continue
+                    # stored branch_key should be in Qt.UserRole+1
+                    bk = name_item.data(Qt.UserRole + 1)
+                    # Strip "facecluster:" prefix if present
+                    if isinstance(bk, str) and bk.startswith("facecluster:"):
+                        bk = bk.split(":", 1)[1]
+                    cnt = clusters.get(bk, '')
+                    count_item.setText(str(cnt) if cnt != '' else '')
+                break
+
 
     def _on_item_clicked(self, index):
         if not index.isValid():
@@ -1820,14 +1850,9 @@ class SidebarQt(QWidget):
             else:
                 branch_key = branch_val
 
-            # 🔥 CRITICAL FIX:
-            # People clusters **must** be routed through branch mode.
-            # This is the only path that correctly calls:
-            #   get_images_by_branch()
-            # which is exactly what your logs show is working.
-            mw.grid.set_context("branch", branch_key)
-            mw.statusBar().showMessage(f"👥 Showing photos for {branch_key}")
-
+            # Route through _set_grid_context so statusbar and grid are updated consistently
+            # This ensures people selection behaves identically to other branch selections
+            self._set_grid_context("branch", branch_key)
             return
 
         # ==========================================================
@@ -4816,6 +4841,14 @@ class SidebarQt(QWidget):
 
         # Refresh sidebar to reflect new clusters
         self._build_tree_model()
+        # Make sure people counts are refreshed immediately
+        try:
+            self._refresh_people_counts()
+        except Exception as e:
+            print('[Sidebar] _refresh_people_counts failed:', e)
+        # Trigger async count population for other branch targets if any
+        if self._count_targets:
+            self._async_populate_counts()
 
         # Sync-up People counts so UI shows post-merge member_count immediately.
         try:

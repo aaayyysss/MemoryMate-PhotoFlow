@@ -4382,6 +4382,33 @@ class SidebarQt(QWidget):
         </ol>
         """
 
+        # iPhone folder import alternative
+        help_text += """
+        <h3>🍎 Alternative: iPhone Folder Import</h3>
+        <p><b>If USB connection doesn't work</b> (Apple uses proprietary protocols that may be blocked),
+        you can import photos from a folder instead:</p>
+        <ol>
+            <li><b>Export photos</b> from your iPhone using one of these methods:
+                <ul>
+                    <li><b>iTunes/Finder:</b> Connect iPhone → File Sharing → Export photos to folder</li>
+                    <li><b>iCloud Photos:</b> Download from iCloud.com to a folder (e.g., D:\\iPhone)</li>
+                    <li><b>Windows Photos App:</b> Import → Select items → Save to folder</li>
+                </ul>
+            </li>
+            <li><b>Click "Add Folder"</b> button in the main toolbar (folder icon)</li>
+            <li><b>Select your iPhone folder</b> (e.g., D:\\iPhone)</li>
+            <li><b>Import:</b> All photos will import with dates preserved ✓
+                <ul>
+                    <li>✓ HEIC format fully supported</li>
+                    <li>✓ EXIF dates preserved</li>
+                    <li>✓ Videos included</li>
+                    <li>✓ Organized by date automatically</li>
+                </ul>
+            </li>
+        </ol>
+        <p><i>This method works immediately with existing features - no special iPhone drivers needed!</i></p>
+        """
+
         # SD Cards
         help_text += """
         <h3>💾 For SD Cards:</h3>

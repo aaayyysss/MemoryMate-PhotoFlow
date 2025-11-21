@@ -70,12 +70,12 @@ class MTPCopyWorker(QThread):
             import win32com.client
             import pythoncom
 
-            # CRITICAL: Initialize COM in this thread with apartment model
+            # P0-3 Fix: Initialize COM inside try block to ensure cleanup on all paths
+            # CRITICAL: COM must be initialized in this thread with apartment model
             # COM objects must be initialized in the thread where they're used
-            print(f"[MTPCopyWorker] Initializing COM in worker thread...")
-            pythoncom.CoInitialize()
-
             try:
+                print(f"[MTPCopyWorker] Initializing COM in worker thread...")
+                pythoncom.CoInitialize()
                 # Create Shell.Application in THIS thread (not main UI thread)
                 # COM objects are apartment-threaded and cannot be shared across threads
                 print(f"[MTPCopyWorker] Creating Shell.Application in worker thread...")

@@ -85,10 +85,9 @@ class MTPImportAdapter:
             import win32com.client
             import pythoncom
 
-            # Initialize COM in this thread
-            pythoncom.CoInitialize()
-
+            # P0-3 Fix: Initialize COM inside try block to ensure cleanup on all paths
             try:
+                pythoncom.CoInitialize()
                 # Navigate to device folder using "This PC" approach
                 shell = win32com.client.Dispatch("Shell.Application")
                 computer = shell.Namespace(17)  # This PC
@@ -307,10 +306,9 @@ class MTPImportAdapter:
             import win32com.client
             import pythoncom
 
-            # Initialize COM
-            pythoncom.CoInitialize()
-
+            # P0-3 Fix: Initialize COM inside try block to ensure cleanup on all paths
             try:
+                pythoncom.CoInitialize()
                 shell = win32com.client.Dispatch("Shell.Application")
                 dest_namespace = shell.Namespace(str(dest_folder))
 

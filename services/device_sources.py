@@ -634,10 +634,10 @@ class DeviceScanner:
             print(f"[DeviceScanner] Finding storage item for path:")
             print(f"[DeviceScanner]   Target: {target_path}")
 
-            # Initialize COM
-            pythoncom.CoInitialize()
-
+            # P0-3 Fix: Initialize COM inside try block to ensure cleanup on all paths
+            # Moving CoInitialize inside try ensures CoUninitialize in finally always matches
             try:
+                pythoncom.CoInitialize()
                 shell = win32com.client.Dispatch("Shell.Application")
                 computer = shell.Namespace(17)  # This PC
 
@@ -732,10 +732,9 @@ class DeviceScanner:
             import win32com.client
             import pythoncom
 
-            # Initialize COM for this thread
-            pythoncom.CoInitialize()
-
+            # P0-3 Fix: Initialize COM inside try block to ensure cleanup on all paths
             try:
+                pythoncom.CoInitialize()
                 storage_folder = storage_item.GetFolder
                 if not storage_folder:
                     print(f"[DeviceScanner] ✗ Cannot access storage folder")

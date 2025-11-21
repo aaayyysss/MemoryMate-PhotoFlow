@@ -1,0 +1,130 @@
+From 6c0b3cf8adeba842c45d232061e1f4f334139e08 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 21 Nov 2025 11:13:04 +0000
+Subject: [PATCH 3/7] Fix P0-2: Threading race condition in MTP worker signal
+ emissions
+
+Problem:
+- _cancelled flag accessed without thread synchronization (no mutex)
+- Between check and action, the flag could change causing race conditions
+- Could lead to partially-executed operations after cancellation
+
+Solution:
+- Added QMutex (_cancel_mutex) for thread-safe cancellation flag access
+- Implemented is_cancelled() method with proper locking
+- Updated cancel() method to use mutex
+- Replaced all direct _cancelled accesses with is_cancelled() calls
+- Added .copy() when emitting list in finished signal for extra safety
+
+Impact:
+- Cancellation is now thread-safe and atomic
+- No more race conditions between UI thread calling cancel() and worker checking status
+- Improved reliability during device import cancellation
+
+Files changed:
+- workers/mtp_copy_worker.py: Added QMutex and thread-safe methods
+---
+ workers/mtp_copy_worker.py | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/workers/mtp_copy_worker.py b/workers/mtp_copy_worker.py
+index f689391..4d1f801 100644
+--- a/workers/mtp_copy_worker.py
++++ b/workers/mtp_copy_worker.py
+@@ -5,7 +5,7 @@ QThread-based worker for copying files from MTP devices to local cache.
+ Prevents UI freezing during file transfer operations.
+ """
+ 
+-from PySide6.QtCore import QThread, Signal
++from PySide6.QtCore import QThread, Signal, QMutex
+ import os
+ import tempfile
+ 
+@@ -38,7 +38,9 @@ class MTPCopyWorker(QThread):
+         self.folder_path = folder_path
+         self.max_files = max_files
+         self.max_depth = max_depth
++        # P0-2 Fix: Use QMutex for thread-safe cancellation flag
+         self._cancelled = False
++        self._cancel_mutex = QMutex()
+ 
+         # Media extensions to copy
+         self.media_extensions = {
+@@ -47,8 +49,17 @@ class MTPCopyWorker(QThread):
+         }
+ 
+     def cancel(self):
+-        """Cancel the copy operation."""
++        """Cancel the copy operation (thread-safe)."""
++        self._cancel_mutex.lock()
+         self._cancelled = True
++        self._cancel_mutex.unlock()
++
++    def is_cancelled(self):
++        """Check if operation was cancelled (thread-safe)."""
++        self._cancel_mutex.lock()
++        cancelled = self._cancelled
++        self._cancel_mutex.unlock()
++        return cancelled
+ 
+     def run(self):
+         """Execute file copying in background thread."""
+@@ -77,7 +88,7 @@ class MTPCopyWorker(QThread):
+                 # Clear old temp files
+                 try:
+                     for old_file in os.listdir(temp_dir):
+-                        if self._cancelled:
++                        if self.is_cancelled():
+                             return
+                         try:
+                             os.remove(os.path.join(temp_dir, old_file))
+@@ -217,7 +228,7 @@ class MTPCopyWorker(QThread):
+ 
+                 count_media_files(folder)
+ 
+-                if self._cancelled:
++                if self.is_cancelled():
+                     return
+ 
+                 print(f"[MTPCopyWorker] Found {files_total} media files to copy")
+@@ -235,7 +246,7 @@ class MTPCopyWorker(QThread):
+                     try:
+                         items = com_folder.Items()
+                         for item in items:
+-                            if self._cancelled:
++                            if self.is_cancelled():
+                                 print(f"[MTPCopyWorker] Cancelled by user")
+                                 return
+ 
+@@ -287,7 +298,7 @@ class MTPCopyWorker(QThread):
+                                                 waited += poll_interval
+ 
+                                                 # Check for cancellation while waiting
+-                                                if self._cancelled:
++                                                if self.is_cancelled():
+                                                     print(f"[MTPCopyWorker] Cancelled while waiting for {item.Name}")
+                                                     return
+                                             else:
+@@ -307,14 +318,16 @@ class MTPCopyWorker(QThread):
+                 # Execute copy
+                 copy_media_files(folder)
+ 
+-                if self._cancelled:
++                if self.is_cancelled():
+                     print(f"[MTPCopyWorker] Operation cancelled, copied {files_copied}/{files_total} files")
+                     return
+ 
+                 print(f"[MTPCopyWorker] Copy complete: {len(media_paths)} files copied successfully")
+ 
+-                # Emit results
+-                self.finished.emit(media_paths)
++                # P0-2 Fix: Emit copy of list to ensure thread safety
++                # Qt signals handle thread-safety automatically, but copying ensures
++                # the list cannot be modified by the receiver
++                self.finished.emit(media_paths.copy())
+ 
+             finally:
+                 # CRITICAL: Uninitialize COM when done
+-- 
+2.43.0
+

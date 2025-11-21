@@ -246,6 +246,30 @@ def _get_insightface_app():
     return _insightface_app
 
 
+def cleanup_insightface_model():
+    """
+    Release the globally cached InsightFace model to free GPU/CPU memory.
+
+    This should be called when:
+    - Application is shutting down
+    - Face detection is no longer needed
+    - Memory needs to be freed
+
+    The model will be reloaded automatically if face detection is used again.
+    """
+    global _insightface_app, _providers_used
+    if _insightface_app is not None:
+        try:
+            # Release model resources
+            # InsightFace models hold GPU memory and model weights
+            del _insightface_app
+            _insightface_app = None
+            _providers_used = None
+            logger.info("✓ InsightFace model released from memory")
+        except Exception as e:
+            logger.warning(f"Error releasing InsightFace model: {e}")
+
+
 def get_hardware_info():
     """
     Get information about the hardware being used for face detection.
@@ -340,6 +364,18 @@ class FaceDetectionService:
         self.app = _get_insightface_app()
         logger.info(f"[FaceDetection] Initialized InsightFace with model={model}")
 
+    def __del__(self):
+        """
+        Cleanup when FaceDetectionService is garbage collected.
+
+        Note: The global model is shared, so we only log here.
+        Use cleanup_insightface_model() for explicit cleanup.
+        """
+        # Don't cleanup the global model here as it may be used by other instances
+        # The global model will be cleaned up when cleanup_insightface_model() is called
+        # or when the application exits
+        pass
+
     def is_available(self) -> bool:
         """
         Check if the service is available and ready to use.
@@ -351,6 +387,20 @@ class FaceDetectionService:
             return self.app is not None
         except Exception:
             return False
+
+    @staticmethod
+    def cleanup():
+        """
+        Explicitly release the InsightFace model from memory.
+
+        Call this when:
+        - Face detection is complete and no longer needed
+        - Memory needs to be freed (e.g., before processing large videos)
+        - Application is shutting down
+
+        The model will be automatically reloaded if detect_faces() is called again.
+        """
+        cleanup_insightface_model()
 
     def detect_faces(self, image_path: str) -> List[dict]:
         """

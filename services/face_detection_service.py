@@ -10,12 +10,15 @@ from typing import List, Tuple, Optional
 from PIL import Image
 import logging
 import cv2
+import threading
 
 logger = logging.getLogger(__name__)
 
+# P0-4 Fix: Add thread lock for model initialization
 # Lazy import InsightFace (only load when needed)
 _insightface_app = None
 _providers_used = None
+_model_lock = threading.Lock()
 
 
 def _detect_available_providers():
@@ -148,102 +151,132 @@ def _get_insightface_app():
     - Model caching to avoid reloading
     """
     global _insightface_app, _providers_used
+
+    # P0-4 Fix: Double-checked locking for thread-safe initialization
+    # First check without lock for performance
     if _insightface_app is None:
-        try:
-            from insightface.app import FaceAnalysis
-
-            # Detect best available providers
-            providers, hardware_type = _detect_available_providers()
-            _providers_used = providers
-
-            # Find buffalo_l directory
-            buffalo_dir = _find_buffalo_directory()
-
-            if not buffalo_dir:
-                raise RuntimeError(
-                    "InsightFace models (buffalo_l) not found.\n\n"
-                    "Please configure the model path in Preferences → Face Detection\n"
-                    "or download models using: python download_face_models.py"
-                )
-
-            # Save successful path to settings for future use
-            try:
-                from settings_manager_qt import SettingsManager
-                settings = SettingsManager()
-                current_saved = settings.get_setting('insightface_model_path', '')
-                # Only save if not already set (preserves user's manual configuration)
-                if not current_saved:
-                    settings.set_setting('insightface_model_path', buffalo_dir)
-                    logger.info(f"💾 Saved InsightFace model path to settings: {buffalo_dir}")
-            except Exception as e:
-                logger.debug(f"Could not save model path to settings: {e}")
-
-            # CRITICAL: Pass buffalo_l directory DIRECTLY as root
-            # This matches the proof of concept approach from OldPy/photo_sorter.py
-            # Do NOT pass parent directory, pass the buffalo_l directory itself!
-            logger.info(f"✓ Initializing InsightFace with buffalo_l directory: {buffalo_dir}")
-
-            # Version detection: Check if FaceAnalysis supports providers parameter
-            # This ensures compatibility with BOTH old and new InsightFace versions
-            import inspect
-            sig = inspect.signature(FaceAnalysis.__init__)
-            supports_providers = 'providers' in sig.parameters
-
-            # Initialize FaceAnalysis with version-appropriate parameters
-            init_params = {'name': 'buffalo_l', 'root': buffalo_dir}
-
-            if supports_providers:
-                # NEWER VERSION: Pass providers for optimal performance
-                init_params['providers'] = providers
-                logger.info(f"✓ Using providers parameter (newer InsightFace): {providers}")
-                _insightface_app = FaceAnalysis(**init_params)
-
-                # For newer versions, ctx_id is derived from providers automatically
-                # But we still need to call prepare()
+        with _model_lock:
+            # Check again inside lock (another thread might have initialized)
+            if _insightface_app is None:
                 try:
-                    _insightface_app.prepare(ctx_id=-1, det_size=(640, 640))
-                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
-                except Exception as prepare_error:
-                    logger.error(f"Model preparation failed: {prepare_error}")
-                    logger.error("This usually means:")
-                    logger.error("  1. Model files are corrupted or incomplete")
-                    logger.error("  2. InsightFace version incompatible with models")
-                    logger.error("  3. Wrong directory structure")
-                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
-            else:
-                # OLDER VERSION: Use ctx_id approach (proof of concept compatibility)
-                logger.info(f"✓ Using ctx_id approach (older InsightFace, proof of concept compatible)")
-                _insightface_app = FaceAnalysis(**init_params)
+                    from insightface.app import FaceAnalysis
 
-                # Use providers ONLY for ctx_id selection (proof of concept approach)
-                use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
-                ctx_id = 0 if use_cuda else -1
-                logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
+                    # Detect best available providers
+                    providers, hardware_type = _detect_available_providers()
+                    _providers_used = providers
 
-                # Prepare model with simple parameters (matches proof of concept)
-                try:
-                    _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
-                    logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
-                except Exception as prepare_error:
-                    logger.error(f"Model preparation failed: {prepare_error}")
-                    logger.error("This usually means:")
-                    logger.error("  1. Model files are corrupted or incomplete")
-                    logger.error("  2. InsightFace version incompatible with models")
-                    logger.error("  3. Wrong directory structure")
-                    raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+                    # Find buffalo_l directory
+                    buffalo_dir = _find_buffalo_directory()
 
-        except ImportError as e:
-            logger.error(f"❌ InsightFace library not installed: {e}")
-            logger.error("Install with: pip install insightface onnxruntime")
-            raise ImportError(
-                "InsightFace library required for face detection. "
-                "Install with: pip install insightface onnxruntime"
-            ) from e
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize InsightFace: {e}")
-            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
-            raise
+                    if not buffalo_dir:
+                        raise RuntimeError(
+                            "InsightFace models (buffalo_l) not found.\n\n"
+                            "Please configure the model path in Preferences → Face Detection\n"
+                            "or download models using: python download_face_models.py"
+                        )
+
+                    # Save successful path to settings for future use
+                    try:
+                        from settings_manager_qt import SettingsManager
+                        settings = SettingsManager()
+                        current_saved = settings.get_setting('insightface_model_path', '')
+                        # Only save if not already set (preserves user's manual configuration)
+                        if not current_saved:
+                            settings.set_setting('insightface_model_path', buffalo_dir)
+                            logger.info(f"💾 Saved InsightFace model path to settings: {buffalo_dir}")
+                    except Exception as e:
+                        logger.debug(f"Could not save model path to settings: {e}")
+
+                    # CRITICAL: Pass buffalo_l directory DIRECTLY as root
+                    # This matches the proof of concept approach from OldPy/photo_sorter.py
+                    # Do NOT pass parent directory, pass the buffalo_l directory itself!
+                    logger.info(f"✓ Initializing InsightFace with buffalo_l directory: {buffalo_dir}")
+
+                    # Version detection: Check if FaceAnalysis supports providers parameter
+                    # This ensures compatibility with BOTH old and new InsightFace versions
+                    import inspect
+                    sig = inspect.signature(FaceAnalysis.__init__)
+                    supports_providers = 'providers' in sig.parameters
+
+                    # Initialize FaceAnalysis with version-appropriate parameters
+                    init_params = {'name': 'buffalo_l', 'root': buffalo_dir}
+
+                    if supports_providers:
+                        # NEWER VERSION: Pass providers for optimal performance
+                        init_params['providers'] = providers
+                        logger.info(f"✓ Using providers parameter (newer InsightFace): {providers}")
+                        _insightface_app = FaceAnalysis(**init_params)
+
+                        # For newer versions, ctx_id is derived from providers automatically
+                        # But we still need to call prepare()
+                        try:
+                            _insightface_app.prepare(ctx_id=-1, det_size=(640, 640))
+                            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                        except Exception as prepare_error:
+                            logger.error(f"Model preparation failed: {prepare_error}")
+                            logger.error("This usually means:")
+                            logger.error("  1. Model files are corrupted or incomplete")
+                            logger.error("  2. InsightFace version incompatible with models")
+                            logger.error("  3. Wrong directory structure")
+                            raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+                    else:
+                        # OLDER VERSION: Use ctx_id approach (proof of concept compatibility)
+                        logger.info(f"✓ Using ctx_id approach (older InsightFace, proof of concept compatible)")
+                        _insightface_app = FaceAnalysis(**init_params)
+
+                        # Use providers ONLY for ctx_id selection (proof of concept approach)
+                        use_cuda = isinstance(providers, (list, tuple)) and 'CUDAExecutionProvider' in providers
+                        ctx_id = 0 if use_cuda else -1
+                        logger.info(f"✓ Using {hardware_type} acceleration (ctx_id={ctx_id})")
+
+                        # Prepare model with simple parameters (matches proof of concept)
+                        try:
+                            _insightface_app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+                            logger.info(f"✅ InsightFace (buffalo_l) loaded successfully with {hardware_type} acceleration")
+                        except Exception as prepare_error:
+                            logger.error(f"Model preparation failed: {prepare_error}")
+                            logger.error("This usually means:")
+                            logger.error("  1. Model files are corrupted or incomplete")
+                            logger.error("  2. InsightFace version incompatible with models")
+                            logger.error("  3. Wrong directory structure")
+                            raise RuntimeError(f"Failed to prepare InsightFace models: {prepare_error}") from prepare_error
+
+                except ImportError as e:
+                    logger.error(f"❌ InsightFace library not installed: {e}")
+                    logger.error("Install with: pip install insightface onnxruntime")
+                    raise ImportError(
+                        "InsightFace library required for face detection. "
+                        "Install with: pip install insightface onnxruntime"
+                    ) from e
+                except Exception as e:
+                    logger.error(f"❌ Failed to initialize InsightFace: {e}")
+                    logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+                    raise
     return _insightface_app
+
+
+def cleanup_insightface_model():
+    """
+    Release the globally cached InsightFace model to free GPU/CPU memory.
+
+    This should be called when:
+    - Application is shutting down
+    - Face detection is no longer needed
+    - Memory needs to be freed
+
+    The model will be reloaded automatically if face detection is used again.
+    """
+    global _insightface_app, _providers_used
+    if _insightface_app is not None:
+        try:
+            # Release model resources
+            # InsightFace models hold GPU memory and model weights
+            del _insightface_app
+            _insightface_app = None
+            _providers_used = None
+            logger.info("✓ InsightFace model released from memory")
+        except Exception as e:
+            logger.warning(f"Error releasing InsightFace model: {e}")
 
 
 def get_hardware_info():
@@ -340,6 +373,18 @@ class FaceDetectionService:
         self.app = _get_insightface_app()
         logger.info(f"[FaceDetection] Initialized InsightFace with model={model}")
 
+    def __del__(self):
+        """
+        Cleanup when FaceDetectionService is garbage collected.
+
+        Note: The global model is shared, so we only log here.
+        Use cleanup_insightface_model() for explicit cleanup.
+        """
+        # Don't cleanup the global model here as it may be used by other instances
+        # The global model will be cleaned up when cleanup_insightface_model() is called
+        # or when the application exits
+        pass
+
     def is_available(self) -> bool:
         """
         Check if the service is available and ready to use.
@@ -351,6 +396,20 @@ class FaceDetectionService:
             return self.app is not None
         except Exception:
             return False
+
+    @staticmethod
+    def cleanup():
+        """
+        Explicitly release the InsightFace model from memory.
+
+        Call this when:
+        - Face detection is complete and no longer needed
+        - Memory needs to be freed (e.g., before processing large videos)
+        - Application is shutting down
+
+        The model will be automatically reloaded if detect_faces() is called again.
+        """
+        cleanup_insightface_model()
 
     def detect_faces(self, image_path: str) -> List[dict]:
         """

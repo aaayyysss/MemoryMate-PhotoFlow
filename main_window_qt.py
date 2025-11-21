@@ -4021,6 +4021,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"[Shutdown] Thumb cache clear error: {e}")
 
+        # P0-1 Fix: Release InsightFace model to free GPU/CPU memory
+        try:
+            from services.face_detection_service import cleanup_insightface_model
+            cleanup_insightface_model()
+            print("[Shutdown] InsightFace model released from memory.")
+        except Exception as e:
+            print(f"[Shutdown] InsightFace cleanup error: {e}")
+
         super().closeEvent(event)
 
     def _update_breadcrumb(self):

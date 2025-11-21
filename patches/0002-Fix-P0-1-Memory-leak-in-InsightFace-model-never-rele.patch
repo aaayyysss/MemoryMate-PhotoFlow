@@ -1,0 +1,127 @@
+From 325b02afdb70cb538b782ace2b72fc23030955c2 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 21 Nov 2025 11:10:46 +0000
+Subject: [PATCH 2/7] Fix P0-1: Memory leak in InsightFace model (never
+ released)
+
+Problem:
+- Global _insightface_app was never released, consuming GPU/CPU memory for entire application lifetime
+- Extended sessions could accumulate significant memory without recovery
+- No cleanup mechanism existed for the ML model
+
+Solution:
+- Added cleanup_insightface_model() function to release global model resources
+- Added FaceDetectionService.cleanup() static method for explicit cleanup
+- Added __del__ method to FaceDetectionService (documented that global cleanup should be explicit)
+- Integrated model cleanup into MainWindow.closeEvent() for automatic cleanup on app shutdown
+
+Impact:
+- Memory is now properly released when application closes
+- Users can manually call cleanup() when face detection is no longer needed
+- Model will be automatically reloaded if face detection is used again after cleanup
+
+Files changed:
+- services/face_detection_service.py: Added cleanup functions and __del__ method
+- main_window_qt.py: Added model cleanup to closeEvent()
+---
+ main_window_qt.py                  |  8 +++++
+ services/face_detection_service.py | 50 ++++++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+)
+
+diff --git a/main_window_qt.py b/main_window_qt.py
+index 7d7559e..b1cc453 100644
+--- a/main_window_qt.py
++++ b/main_window_qt.py
+@@ -4021,6 +4021,14 @@ class MainWindow(QMainWindow):
+         except Exception as e:
+             print(f"[Shutdown] Thumb cache clear error: {e}")
+ 
++        # P0-1 Fix: Release InsightFace model to free GPU/CPU memory
++        try:
++            from services.face_detection_service import cleanup_insightface_model
++            cleanup_insightface_model()
++            print("[Shutdown] InsightFace model released from memory.")
++        except Exception as e:
++            print(f"[Shutdown] InsightFace cleanup error: {e}")
++
+         super().closeEvent(event)
+ 
+     def _update_breadcrumb(self):
+diff --git a/services/face_detection_service.py b/services/face_detection_service.py
+index 568ce26..78df44e 100644
+--- a/services/face_detection_service.py
++++ b/services/face_detection_service.py
+@@ -246,6 +246,30 @@ def _get_insightface_app():
+     return _insightface_app
+ 
+ 
++def cleanup_insightface_model():
++    """
++    Release the globally cached InsightFace model to free GPU/CPU memory.
++
++    This should be called when:
++    - Application is shutting down
++    - Face detection is no longer needed
++    - Memory needs to be freed
++
++    The model will be reloaded automatically if face detection is used again.
++    """
++    global _insightface_app, _providers_used
++    if _insightface_app is not None:
++        try:
++            # Release model resources
++            # InsightFace models hold GPU memory and model weights
++            del _insightface_app
++            _insightface_app = None
++            _providers_used = None
++            logger.info("✓ InsightFace model released from memory")
++        except Exception as e:
++            logger.warning(f"Error releasing InsightFace model: {e}")
++
++
+ def get_hardware_info():
+     """
+     Get information about the hardware being used for face detection.
+@@ -340,6 +364,18 @@ class FaceDetectionService:
+         self.app = _get_insightface_app()
+         logger.info(f"[FaceDetection] Initialized InsightFace with model={model}")
+ 
++    def __del__(self):
++        """
++        Cleanup when FaceDetectionService is garbage collected.
++
++        Note: The global model is shared, so we only log here.
++        Use cleanup_insightface_model() for explicit cleanup.
++        """
++        # Don't cleanup the global model here as it may be used by other instances
++        # The global model will be cleaned up when cleanup_insightface_model() is called
++        # or when the application exits
++        pass
++
+     def is_available(self) -> bool:
+         """
+         Check if the service is available and ready to use.
+@@ -352,6 +388,20 @@ class FaceDetectionService:
+         except Exception:
+             return False
+ 
++    @staticmethod
++    def cleanup():
++        """
++        Explicitly release the InsightFace model from memory.
++
++        Call this when:
++        - Face detection is complete and no longer needed
++        - Memory needs to be freed (e.g., before processing large videos)
++        - Application is shutting down
++
++        The model will be automatically reloaded if detect_faces() is called again.
++        """
++        cleanup_insightface_model()
++
+     def detect_faces(self, image_path: str) -> List[dict]:
+         """
+         Detect all faces in an image and generate embeddings.
+-- 
+2.43.0
+

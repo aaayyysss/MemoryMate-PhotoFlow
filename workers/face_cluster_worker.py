@@ -96,6 +96,8 @@ class FaceClusterWorker(QRunnable):
         logger.info(f"[FaceClusterWorker] Starting face clustering for project {self.project_id}")
         start_time = time.time()
 
+        # BUG-006 FIX: Ensure connection is always closed, even on exceptions
+        conn = None
         try:
             db = ReferenceDB()
             conn = db._connect()
@@ -113,7 +115,6 @@ class FaceClusterWorker(QRunnable):
             if not rows:
                 logger.warning(f"[FaceClusterWorker] No embeddings found for project {self.project_id}")
                 self.signals.finished.emit(0, 0)
-                conn.close()
                 return
 
             # Parse embeddings
@@ -132,7 +133,6 @@ class FaceClusterWorker(QRunnable):
             if len(vecs) < 2:
                 logger.warning("[FaceClusterWorker] Not enough faces to cluster (need at least 2)")
                 self.signals.finished.emit(0, len(vecs))
-                conn.close()
                 return
 
             X = np.vstack(vecs)
@@ -167,7 +167,6 @@ class FaceClusterWorker(QRunnable):
                 if self.cancelled:
                     logger.info("[FaceClusterWorker] Cancelled by user")
                     conn.rollback()
-                    conn.close()
                     return
 
                 mask = labels == cid
@@ -268,7 +267,6 @@ class FaceClusterWorker(QRunnable):
                 logger.info(f"[FaceClusterWorker] Created 'Unidentified' branch with {noise_count} faces from {len(unique_noise_photos)} photos")
 
             conn.commit()
-            conn.close()
 
             duration = time.time() - start_time
             total_branches = cluster_count + (1 if noise_count > 0 else 0)
@@ -281,6 +279,14 @@ class FaceClusterWorker(QRunnable):
             logger.error(f"[FaceClusterWorker] Fatal error: {e}", exc_info=True)
             self.signals.error.emit(str(e))
             self.signals.finished.emit(0, 0)
+        finally:
+            # BUG-006 FIX: Always close database connection, even on exceptions
+            if conn:
+                try:
+                    conn.close()
+                    logger.debug("[FaceClusterWorker] Database connection closed")
+                except Exception as e:
+                    logger.warning(f"[FaceClusterWorker] Error closing connection: {e}")
 
 
 # ============================================================================

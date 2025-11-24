@@ -2,9 +2,11 @@
 # Version 02.00.00.00 dated 20251103
 # Base repository pattern for data access layer
 # UPDATED: Added schema initialization and migration support
+# BUG-002 FIX: Added thread-safe singleton pattern
 
 import os
 import sqlite3
+import threading
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import Optional, List, Dict, Any, Generator
@@ -25,16 +27,22 @@ class DatabaseConnection:
     """
 
     _instances: Dict[str, 'DatabaseConnection'] = {}
+    _lock = threading.Lock()  # BUG-002 FIX: Thread-safe singleton creation
 
     def __new__(cls, db_path: str = "reference_data.db", auto_init: bool = True):
         # CRITICAL FIX: Normalize path to absolute for consistent singleton lookup
         # This prevents different relative/absolute path references from creating multiple instances
         norm_path = os.path.abspath(db_path)
 
+        # BUG-002 FIX: Double-checked locking pattern for thread-safe singleton
+        # First check without lock (fast path for already-initialized case)
         if norm_path not in cls._instances:
-            instance = super().__new__(cls)
-            instance._initialized = False
-            cls._instances[norm_path] = instance
+            with cls._lock:
+                # Check again inside lock (another thread might have initialized)
+                if norm_path not in cls._instances:
+                    instance = super().__new__(cls)
+                    instance._initialized = False
+                    cls._instances[norm_path] = instance
 
         return cls._instances[norm_path]
 

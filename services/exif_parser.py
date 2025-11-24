@@ -89,50 +89,44 @@ class EXIFParser:
 
             print(f"[EXIFParser] Parsing EXIF from: {file_name}")
 
-            # Try to open image
+            # BUG-004 FIX: Use context manager to ensure image is always closed
             try:
-                img = Image.open(file_path)
-                print(f"[EXIFParser]   ✓ Opened: {img.format} {img.size[0]}x{img.size[1]}")
-            except Exception as e:
-                print(f"[EXIFParser]   ✗ Cannot open image: {e}")
-                return None
+                with Image.open(file_path) as img:
+                    print(f"[EXIFParser]   ✓ Opened: {img.format} {img.size[0]}x{img.size[1]}")
 
-            try:
-                # Get EXIF data
-                exif_data = img._getexif()
+                    # Get EXIF data
+                    exif_data = img._getexif()
 
-                if not exif_data:
-                    print(f"[EXIFParser]   No EXIF data in file")
-                    img.close()
+                    if not exif_data:
+                        print(f"[EXIFParser]   No EXIF data in file")
+                        return None
+
+                    # Look for date tags in priority order
+                    date_tags = [
+                        36867,  # DateTimeOriginal (when photo was taken)
+                        36868,  # DateTimeDigitized (when photo was scanned)
+                        306,    # DateTime (file modification in camera)
+                    ]
+
+                    for tag_id in date_tags:
+                        if tag_id in exif_data:
+                            date_str = exif_data[tag_id]
+
+                            # Parse EXIF date format: "YYYY:MM:DD HH:MM:SS"
+                            try:
+                                dt = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
+                                tag_name = TAGS.get(tag_id, tag_id)
+                                print(f"[EXIFParser]   ✓ Found {tag_name}: {dt.strftime('%Y-%m-%d %H:%M:%S')}")
+                                return dt
+                            except ValueError:
+                                continue
+
+                    print(f"[EXIFParser]   No valid date tags found in EXIF")
                     return None
-
-                # Look for date tags in priority order
-                date_tags = [
-                    36867,  # DateTimeOriginal (when photo was taken)
-                    36868,  # DateTimeDigitized (when photo was scanned)
-                    306,    # DateTime (file modification in camera)
-                ]
-
-                for tag_id in date_tags:
-                    if tag_id in exif_data:
-                        date_str = exif_data[tag_id]
-
-                        # Parse EXIF date format: "YYYY:MM:DD HH:MM:SS"
-                        try:
-                            dt = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
-                            tag_name = TAGS.get(tag_id, tag_id)
-                            print(f"[EXIFParser]   ✓ Found {tag_name}: {dt.strftime('%Y-%m-%d %H:%M:%S')}")
-                            return dt
-                        except ValueError:
-                            continue
-
-                print(f"[EXIFParser]   No valid date tags found in EXIF")
-                img.close()
-                return None
+                    # Image automatically closed by context manager
 
             except Exception as e:
-                print(f"[EXIFParser]   ✗ Error getting EXIF: {e}")
-                img.close()
+                print(f"[EXIFParser]   ✗ Error opening or processing image: {e}")
                 return None
 
         except ImportError:
